@@ -13,6 +13,7 @@ target_sources(${PROJECT_NAME}-tests
         TestMain.cpp
         PCComponent-test.cpp
         VPAntoineExt-test.cpp
+        VPWagner-test.cpp
         )
 
 target_link_libraries(${PROJECT_NAME}-tests
