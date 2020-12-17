@@ -105,7 +105,7 @@ namespace PCProps::VaporPressure
          * @brief operator(), yielding the saturation pressure at the requested temperature for the fluid.
          * @param temperature The temperature [K] at which to get the vapor pressure.
          * @return The vapor pressure [Pa]
-         * @warning If the object is default constructed only, operator() will yield zero as the result.
+         * @warning If the object is default constructed only, operator() will yield 1.0 as the result.
          * To make the object valid, call the reset member function.
          */
         double operator()(double temperature) const;

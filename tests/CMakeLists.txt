@@ -10,7 +10,9 @@ target_include_directories(Catch SYSTEM INTERFACE ${CMAKE_CURRENT_LIST_DIR}/Catc
 add_executable(${PROJECT_NAME}-tests EXCLUDE_FROM_ALL "")
 target_sources(${PROJECT_NAME}-tests
         PRIVATE
-        Test.cpp
+        TestMain.cpp
+        PCComponent-test.cpp
+        VPAntoineExt-test.cpp
         )
 
 target_link_libraries(${PROJECT_NAME}-tests

@@ -55,8 +55,9 @@ target_include_directories(external SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_C
 #   List of project source files
 #=======================================================================================================================
 set(PROJECT_TEMPLATE_SOURCES
-        ${CMAKE_CURRENT_LIST_DIR}/sources/VPRiedel.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/PCComponent.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/VPRiedel.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/VPAntoineExt.cpp
         )
 
 
