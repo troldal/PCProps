@@ -65,30 +65,61 @@ TEST_CASE("VPRiedel")
         REQUIRE(coeffs[2] == Approx(-4.4729).epsilon(0.001));
         REQUIRE(coeffs[3] == Approx(0.2738).epsilon(0.001));
 
+        REQUIRE(psat(300) == Approx(0.01755E5).epsilon(0.001));
         REQUIRE(psat(350) == Approx(0.172E5).epsilon(0.001));
+        REQUIRE(psat(400) == Approx(0.886E5).epsilon(0.001));
+        REQUIRE(psat(450) == Approx(3.005E5).epsilon(0.001));
+        REQUIRE(psat(500) == Approx(7.74E5).epsilon(0.001));
+        REQUIRE(psat(550) == Approx(16.51E5).epsilon(0.001));
+        REQUIRE(psat(600) == Approx(31.20E5).epsilon(0.001));
+
     }
 
     SECTION("Object Copy Construction and Assignment")
     {
         auto psat2 {psat};
 
+        REQUIRE(psat2(300) == Approx(0.01755E5).epsilon(0.001));
         REQUIRE(psat2(350) == Approx(0.172E5).epsilon(0.001));
+        REQUIRE(psat2(400) == Approx(0.886E5).epsilon(0.001));
+        REQUIRE(psat2(450) == Approx(3.005E5).epsilon(0.001));
+        REQUIRE(psat2(500) == Approx(7.74E5).epsilon(0.001));
+        REQUIRE(psat2(550) == Approx(16.51E5).epsilon(0.001));
+        REQUIRE(psat2(600) == Approx(31.20E5).epsilon(0.001));
 
         auto psat3 = PCProps::VaporPressure::VPRiedel {};
         psat3 = psat2;
 
+        REQUIRE(psat3(300) == Approx(0.01755E5).epsilon(0.001));
         REQUIRE(psat3(350) == Approx(0.172E5).epsilon(0.001));
+        REQUIRE(psat3(400) == Approx(0.886E5).epsilon(0.001));
+        REQUIRE(psat3(450) == Approx(3.005E5).epsilon(0.001));
+        REQUIRE(psat3(500) == Approx(7.74E5).epsilon(0.001));
+        REQUIRE(psat3(550) == Approx(16.51E5).epsilon(0.001));
+        REQUIRE(psat3(600) == Approx(31.20E5).epsilon(0.001));
     }
 
     SECTION("Object Move Construction and Assignment")
     {
         auto psat2 {std::move(psat)};
 
+        REQUIRE(psat2(300) == Approx(0.01755E5).epsilon(0.001));
         REQUIRE(psat2(350) == Approx(0.172E5).epsilon(0.001));
+        REQUIRE(psat2(400) == Approx(0.886E5).epsilon(0.001));
+        REQUIRE(psat2(450) == Approx(3.005E5).epsilon(0.001));
+        REQUIRE(psat2(500) == Approx(7.74E5).epsilon(0.001));
+        REQUIRE(psat2(550) == Approx(16.51E5).epsilon(0.001));
+        REQUIRE(psat2(600) == Approx(31.20E5).epsilon(0.001));
 
         auto psat3 = PCProps::VaporPressure::VPRiedel {};
         psat3 = std::move(psat2);
 
+        REQUIRE(psat3(300) == Approx(0.01755E5).epsilon(0.001));
         REQUIRE(psat3(350) == Approx(0.172E5).epsilon(0.001));
+        REQUIRE(psat3(400) == Approx(0.886E5).epsilon(0.001));
+        REQUIRE(psat3(450) == Approx(3.005E5).epsilon(0.001));
+        REQUIRE(psat3(500) == Approx(7.74E5).epsilon(0.001));
+        REQUIRE(psat3(550) == Approx(16.51E5).epsilon(0.001));
+        REQUIRE(psat3(600) == Approx(31.20E5).epsilon(0.001));
     }
 }

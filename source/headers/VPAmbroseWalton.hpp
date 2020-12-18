@@ -35,99 +35,88 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_VPRIEDEL_HPP
-#define PCPROPS_VPRIEDEL_HPP
-
-#include <string>
-#include <array>
+#ifndef PCPROPS_VPAMBROSEWALTON_HPP
+#define PCPROPS_VPAMBROSEWALTON_HPP
 
 namespace PCProps::VaporPressure
 {
-
-    enum class VPRiedelType { Organic, Acid, Alcohol};
-
     /**
      * @brief
      */
-    class VPRiedel
+    class VPAmbroseWalton
     {
 
-        double m_criticalTemperature = 0.0;
-        double m_criticalPressure = 0.0;
-
-        std::array<double, 4> m_coefficients {0.0, 0.0, 0.0, 0.0};
+        double m_criticalTemperature = 0.0; /**< The critical temperature for the vapor pressure estimation. */
+        double m_criticalPressure = 0.0; /**< The critical pressure for the vapor pressure estimation. */
+        double m_acentricFactor = 0.0; /**< The acentric factor for the vapor pressure estimation. */
 
     public:
 
         /**
-         * @brief Constructor, default, with no parameters. Calling the operator() on a default constructed object
-         * will yield NaN as the result. To turn it into a valid object, use the move or copy assignment operator.
+         * @brief Constructor, default
          */
-        VPRiedel();
+        VPAmbroseWalton();
 
         /**
-         * @brief Constructor, taking the normal boiling temperature [K], the critical temperature [K]
-         * and the critical pressure [Pa] as arguments
-         * @param boilingTemperature The normal boiling temperature [K] (i.e. at 101325 pascals).
-         * @param criticalTemperature The critical temperature of the fluid [K].
-         * @param criticalPressure The critical pressure of the fluid [Pa].
-         * @param type The type of component; can be acid, alcohol or general organic compound.
+         * @brief Constructor, taking critical properties and acentric factor as arguments.
+         * @param criticalTemperature The critical temperature [K].
+         * @param criticalPressure The critical pressure [Pa]
+         * @param acentricFactor The acentric factor [-]
          */
-        VPRiedel(double boilingTemperature, double criticalTemperature, double criticalPressure, VPRiedelType type = VPRiedelType::Organic);
-
-        /**
-         * @brief Destructor
-         */
-        ~VPRiedel();
+        VPAmbroseWalton(double criticalTemperature, double criticalPressure, double acentricFactor);
 
         /**
          * @brief Copy constructor
          */
-        VPRiedel(const VPRiedel& other);
+        VPAmbroseWalton(const VPAmbroseWalton& other);
 
         /**
          * @brief Move constructor
          */
-        VPRiedel(VPRiedel&& other) noexcept;
+        VPAmbroseWalton(VPAmbroseWalton&& other) noexcept;
+
+        /**
+         * @brief Destructor
+         */
+        ~VPAmbroseWalton();
 
         /**
          * @brief Copy assignment operator
          */
-        VPRiedel& operator=(const VPRiedel& other);
+        VPAmbroseWalton& operator=(const VPAmbroseWalton& other);
 
         /**
          * @brief Move assignment operator
          */
-        VPRiedel& operator=(VPRiedel&& other) noexcept;
+        VPAmbroseWalton& operator=(VPAmbroseWalton&& other) noexcept;
 
         /**
-         * @brief operator(), yielding the saturation pressure at the requested temperature for the fluid.
-         * @param temperature The temperature [K] at which to get the vapor pressure.
+         * @brief Function call operator, taking the temperature as an argument, and returns the vapor
+         * pressure [Pa] at that temperature.
+         * @param temperature The temperature [K] at which to calculate the vapor pressure.
          * @return The vapor pressure [Pa]
-         * @warning If the object is default constructed only, operator() will yield NaN as the result.
-         * To make the object valid, call the reset member function.
          */
-        double operator()(double temperature) const;
+        double operator()(double temperature);
 
         /**
-         * @brief Get the critical temperature used for the vapor pressure estimation.
+         * @brief Getter for the critical temperature used for the vapor pressure estimation.
          * @return The critical temperature [K]
          */
         double criticalTemperature() const;
 
         /**
-         * @brief Get the critical pressure used for the vapor pressure estimation.
+         * @brief Getter for the critical pressure used for the vapor pressure estimation.
          * @return The critical pressure [Pa]
          */
         double criticalPressure() const;
 
         /**
-         * @brief Get the Riedel equation coefficients.
-         * @return A std::array with the four Riedel coefficients.
+         * @brief Getter for the critical pressure used for the vapor pressure estimation.
+         * @return The acentric factor [-]
          */
-        std::array<double, 4> coefficients() const;
+        double acentricFactor() const;
 
     };
 } // namespace PCProps::VaporPressure
 
-#endif    // PCPROPS_VPRIEDEL_HPP
+#endif    // PCPROPS_VPAMBROSEWALTON_HPP

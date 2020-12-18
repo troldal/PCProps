@@ -15,6 +15,7 @@ target_sources(${PROJECT_NAME}-tests
         VPAntoineExt-test.cpp
         VPWagner-test.cpp
         VPRiedel-test.cpp
+        VPAmbroseWalton-test.cpp
         )
 
 target_link_libraries(${PROJECT_NAME}-tests
