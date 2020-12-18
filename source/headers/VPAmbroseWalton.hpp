@@ -51,9 +51,11 @@ namespace PCProps::VaporPressure
         double m_acentricFactor = 0.0; /**< The acentric factor for the vapor pressure estimation. */
 
     public:
-
         /**
          * @brief Constructor, default
+         * @note A default constructed VPAmbroseWalton object has all constants set to zero. Because the constants cannot
+         * be modifed after object construction, a default constructed VPAmbroseWalton object is in itself of little use; the
+         * main purpose is to serve as a placeholder for a correctly constructed object later on.
          */
         VPAmbroseWalton();
 
@@ -95,8 +97,9 @@ namespace PCProps::VaporPressure
          * pressure [Pa] at that temperature.
          * @param temperature The temperature [K] at which to calculate the vapor pressure.
          * @return The vapor pressure [Pa]
+         * @warning If the object is default constructed only, operator() will yield NaN as the result.
          */
-        double operator()(double temperature);
+        double operator()(double temperature) const;
 
         /**
          * @brief Getter for the critical temperature used for the vapor pressure estimation.

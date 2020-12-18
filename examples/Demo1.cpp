@@ -1,14 +1,15 @@
-#include <VPRiedel.hpp>
-#include <VPAmbroseWalton.hpp>
 #include <PCComponent.hpp>
 #include <PCPropsException.hpp>
+#include <VPAmbroseWalton.hpp>
+#include <VPHoffmannFlorin.hpp>
+#include <VPRiedel.hpp>
 #include <iostream>
 
 int main()
 {
     PCProps::PCComponentData data;
-    data.vaporPressureFunction = PCProps::VaporPressure::VPAmbroseWalton(632.35, 45.1911E5, 0.249857);
-    data.molecularWeight = 16.043;
+    data.vaporPressureFunction = PCProps::VaporPressure::VPHoffmannFlorin(404.87, 101325.0, 632.35, 45.1911E5);
+    data.molecularWeight       = 16.043;
 
     try {
         PCProps::PCComponent comp(data);

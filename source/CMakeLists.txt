@@ -60,6 +60,7 @@ set(PROJECT_TEMPLATE_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sources/VPAntoineExt.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/VPWagner.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/VPAmbroseWalton.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/VPHoffmannFlorin.cpp
         )
 
 
