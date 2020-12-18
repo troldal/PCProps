@@ -40,16 +40,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "VPAmbroseWalton.hpp"
 
-namespace PCProps::VaporPressure {
-
+namespace PCProps::VaporPressure
+{
     // ===== Constructor, default
     VPAmbroseWalton::VPAmbroseWalton() = default;
 
     // ===== Constructor, taking critical properties and acentric factor as arguments
     VPAmbroseWalton::VPAmbroseWalton(double criticalTemperature, double criticalPressure, double acentricFactor)
-        : m_criticalTemperature {criticalTemperature},
-          m_criticalPressure {criticalPressure},
-          m_acentricFactor {acentricFactor}
+        : m_criticalTemperature { criticalTemperature },
+          m_criticalPressure { criticalPressure },
+          m_acentricFactor { acentricFactor }
     {}
 
     // ===== Copy constructor
@@ -70,12 +70,12 @@ namespace PCProps::VaporPressure {
     // ===== Function call operator
     double VPAmbroseWalton::operator()(double temperature)
     {
-        using std::pow;
         using std::exp;
+        using std::pow;
         auto tau = 1 - (temperature / m_criticalTemperature);
-        auto f0 = (-5.97616 * tau + 1.29874 * pow(tau, 1.5) - 0.60394 * pow(tau, 2.5) - 1.06841 * pow(tau, 5)) / (1 - tau);
-        auto f1 = (-5.03365 * tau + 1.11505 * pow(tau, 1.5) - 5.41217 * pow(tau, 2.5) - 7.46628 * pow(tau, 5)) / (1 - tau);
-        auto f2 = (-0.64771 * tau + 2.41539 * pow(tau, 1.5) - 4.26979 * pow(tau, 2.5) + 3.25259 * pow(tau, 5)) / (1 - tau);
+        auto f0  = (-5.97616 * tau + 1.29874 * pow(tau, 1.5) - 0.60394 * pow(tau, 2.5) - 1.06841 * pow(tau, 5)) / (1 - tau);
+        auto f1  = (-5.03365 * tau + 1.11505 * pow(tau, 1.5) - 5.41217 * pow(tau, 2.5) - 7.46628 * pow(tau, 5)) / (1 - tau);
+        auto f2  = (-0.64771 * tau + 2.41539 * pow(tau, 1.5) - 4.26979 * pow(tau, 2.5) + 3.25259 * pow(tau, 5)) / (1 - tau);
 
         return exp(f0 + m_acentricFactor * f1 + pow(m_acentricFactor, 2) * f2) * m_criticalPressure;
     }
@@ -98,4 +98,4 @@ namespace PCProps::VaporPressure {
         return m_acentricFactor;
     }
 
-} // namespace PCProps::VaporPressure
+}    // namespace PCProps::VaporPressure
