@@ -66,15 +66,20 @@ namespace PCProps::VaporPressure {
             }
         }();
 
-        double psi = -35.0 + 36.0/tbr + 42.0 * std::log(tbr) - std::pow(tbr, 6);
-        double alpha_c = (3.758 * K * psi + std::log(criticalPressure/101325.0)) / (K * psi - std::log(tbr));
-
+        double psi     = -35.0 + 36.0 / tbr + 42.0 * std::log(tbr) - std::pow(tbr, 6);
+        double alpha_c = (3.758 * K * psi + std::log(criticalPressure / 101325.0)) / (K * psi - std::log(tbr));
 
         m_coefficients[3] = K * (alpha_c - 3.758);
         m_coefficients[2] = alpha_c - 42.0 * m_coefficients[3];
         m_coefficients[1] = -36.0 * m_coefficients[3];
         m_coefficients[0] = 35.0 * m_coefficients[3];
     }
+
+    VPRiedel::VPRiedel(double criticalTemperature, double criticalPressure, double coeffA, double coeffB, double coeffC, double coeffD)
+        : m_criticalTemperature { criticalTemperature },
+          m_criticalPressure { criticalPressure },
+          m_coefficients { coeffA, coeffB, coeffC, coeffD }
+    {}
 
     // ===== Copy constructor
     VPRiedel::VPRiedel(const VPRiedel& other) = default;
@@ -97,10 +102,7 @@ namespace PCProps::VaporPressure {
         using std::log;
         using std::pow;
         auto tr = temperature / m_criticalTemperature;
-        return exp(m_coefficients[0] +
-                   m_coefficients[1] / tr +
-                   m_coefficients[2] * log(tr) +
-                   m_coefficients[3] * pow(tr, 6)) * m_criticalPressure;
+        return exp(m_coefficients[0] + m_coefficients[1] / tr + m_coefficients[2] * log(tr) + m_coefficients[3] * pow(tr, 6)) * m_criticalPressure;
     }
 
     // ===== Get the critical temperature used in the vapor pressure estimation.
@@ -121,4 +123,4 @@ namespace PCProps::VaporPressure {
         return m_coefficients;
     }
 
-} // namespace PCProps::VaporPressure
+}    // namespace PCProps::VaporPressure

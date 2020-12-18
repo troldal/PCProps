@@ -65,6 +65,15 @@ TEST_CASE("VPHoffmannFlorin")
         REQUIRE(psat(273.15 - 41.70) == Approx(5.69E2).epsilon(0.001));
         REQUIRE(psat(273.15 + 4.500) == Approx(99.94E2).epsilon(0.001));
         REQUIRE(psat(273.15 + 120.1) == Approx(5.18E5).epsilon(0.001));
+
+        psat = PCProps::VaporPressure::VPHoffmannFlorin { 19.5596, -5233.61 };
+
+        REQUIRE(coeffs[0] == Approx(19.5596));
+        REQUIRE(coeffs[1] == Approx(-5233.61));
+
+        REQUIRE(psat(273.15 - 41.70) == Approx(5.69E2).epsilon(0.001));
+        REQUIRE(psat(273.15 + 4.500) == Approx(99.94E2).epsilon(0.001));
+        REQUIRE(psat(273.15 + 120.1) == Approx(5.18E5).epsilon(0.001));
     }
 
     SECTION("Object Copy Construction and Assignment")

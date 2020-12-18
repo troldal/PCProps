@@ -76,6 +76,15 @@ namespace PCProps::VaporPressure
         VPRiedel(double boilingTemperature, double criticalTemperature, double criticalPressure, VPRiedelType type = VPRiedelType::Organic);
 
         /**
+         * @brief
+         * @param coeffA
+         * @param coeffB
+         * @param coeffC
+         * @param coeffD
+         */
+        VPRiedel(double criticalTemperature, double criticalPressure, double coeffA, double coeffB, double coeffC, double coeffD);
+
+        /**
          * @brief Destructor
          */
         ~VPRiedel();
