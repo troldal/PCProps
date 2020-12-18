@@ -6,12 +6,12 @@
 int main()
 {
     PCProps::PCComponentData data;
-    data.vaporPressureFunction = PCProps::VaporPressure::VPRiedel(404.87, 632.35, 45.1911E5);
+    data.vaporPressureFunction = PCProps::VaporPressure::VPRiedel(273.15+20.3, 466.05, 55.5E5);
     data.molecularWeight = 16.043;
 
     try {
         PCProps::PCComponent comp(data);
-        std::cout << "Psat: " << comp.vaporPressure(500) << std::endl;
+        std::cout << "Psat: " << comp.vaporPressure(273.15+19.9) << std::endl;
         std::cout << "MW: " << comp.molecularWeight() << std::endl;
     }
 

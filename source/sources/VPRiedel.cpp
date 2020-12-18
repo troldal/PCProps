@@ -36,79 +36,89 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <cmath>
-#include <iostream>
-#include <tuple>
-#include <nlohmann/json.hpp>
 
-#include "headers/VPRiedel.hpp"
-
-namespace {
-    std::tuple<double, double, double, double> initialize(double tboil, double tcrit, double pcrit) {
-        double tbr = tboil / tcrit;
-
-        double psi = -35.0 + 36.0/tbr + 42.0 * std::log(tbr) - std::pow(tbr, 6);
-        double alpha_c = (3.758 * 0.0838 * psi + std::log(pcrit/101325.0)) / (0.0838 * psi - std::log(tbr));
-        double h = tbr * std::log(pcrit/101325.0)/(1.0 - tbr);
-
-        double D = 0.0838 * (alpha_c - 3.758);
-        double C = alpha_c - 42.0 * D;
-        double B = -36.0 * D;
-        double A = 35.0 * D;
-
-        A = A - C * std::log(tcrit) + std::log(pcrit);
-        B = B * tcrit;
-        D = D * std::pow(1.0/tcrit, 6);
-
-        return std::make_tuple(A, B, C, D);
-    }
-} // namespace
+#include "VPRiedel.hpp"
 
 using namespace std;
-using json = nlohmann::json;
 
 namespace PCProps::VaporPressure {
 
-    // ===== Constructor
-    VPRiedel::VPRiedel(double tboil, double tcrit, double pcrit) {
-        auto coefficients = initialize(tboil, tcrit, pcrit);
-
-        m_A = std::get<0>(coefficients);
-        m_B = std::get<1>(coefficients);
-        m_C = std::get<2>(coefficients);
-        m_D = std::get<3>(coefficients);
-    }
+    // ===== Constructor, default
+    VPRiedel::VPRiedel() = default;
 
     // ===== Constructor
-    VPRiedel::VPRiedel(const string& jsonstring) {
-        auto js = json::parse(jsonstring);
-        auto coefficients = initialize(js["tboil"], js["tcrit"], js["pcrit"]);
+    VPRiedel::VPRiedel(double boilingTemperature, double criticalTemperature, double criticalPressure, VPRiedelType type)
+        : m_criticalTemperature {criticalTemperature},
+          m_criticalPressure {criticalPressure}
+    {
+        double tbr = boilingTemperature / criticalTemperature;
+        double h = tbr * std::log(criticalPressure/101325.0)/(1.0 - tbr);
+        double K = [&]() {
+            switch (type) {
+                case VPRiedelType::Organic:
+                    return 0.0838;
 
-        m_A = std::get<0>(coefficients);
-        m_B = std::get<1>(coefficients);
-        m_C = std::get<2>(coefficients);
-        m_D = std::get<3>(coefficients);
+                case VPRiedelType::Acid:
+                    return -0.12 + 0.025 * h;
 
+                case VPRiedelType::Alcohol:
+                    return 0.373 - 0.030 * h;
+            }
+        }();
+
+        double psi = -35.0 + 36.0/tbr + 42.0 * std::log(tbr) - std::pow(tbr, 6);
+        double alpha_c = (3.758 * K * psi + std::log(criticalPressure/101325.0)) / (K * psi - std::log(tbr));
+
+
+        m_coefficients[3] = K * (alpha_c - 3.758);
+        m_coefficients[2] = alpha_c - 42.0 * m_coefficients[3];
+        m_coefficients[1] = -36.0 * m_coefficients[3];
+        m_coefficients[0] = 35.0 * m_coefficients[3];
     }
+
+    // ===== Copy constructor
+    VPRiedel::VPRiedel(const VPRiedel& other) = default;
+
+    // ===== Move constructor
+    VPRiedel::VPRiedel(VPRiedel&& other) noexcept = default;
+
+    // ===== Destructor
+    VPRiedel::~VPRiedel() = default;
+
+    // ===== Copy assignment operator
+    VPRiedel& VPRiedel::operator=(const VPRiedel& other) = default;
+
+    // ===== Move assignment operator
+    VPRiedel& VPRiedel::operator=(VPRiedel&& other) noexcept = default;
 
     // ===== Function Call Operator
     double VPRiedel::operator()(double temperature) const
     {
-        return std::exp(m_A + m_B/ temperature + m_C * std::log(temperature) + m_D * std::pow(temperature, 6));
+        using std::log;
+        using std::pow;
+        auto tr = temperature / m_criticalTemperature;
+        return exp(m_coefficients[0] +
+                   m_coefficients[1] / tr +
+                   m_coefficients[2] * log(tr) +
+                   m_coefficients[3] * pow(tr, 6)) * m_criticalPressure;
+    }
+
+    // ===== Get the critical temperature used in the vapor pressure estimation.
+    double VPRiedel::criticalTemperature() const
+    {
+        return m_criticalTemperature;
+    }
+
+    // ===== Get the critical pressure used in the vapor pressure estimation.
+    double VPRiedel::criticalPressure() const
+    {
+        return m_criticalPressure;
     }
 
     // ===== Coefficients
-    std::string VPRiedel::coefficients() const
+    std::array<double, 4> VPRiedel::coefficients() const
     {
-        json coeff;
-        coeff["A"] = m_A;
-        coeff["B"] = m_B;
-        coeff["C"] = 0.0;
-        coeff["D"] = 0.0;
-        coeff["E"] = m_C;
-        coeff["F"] = m_D;
-        coeff["G"] = 6;
-
-        return coeff.dump(4);
+        return m_coefficients;
     }
 
 } // namespace PCProps::VaporPressure

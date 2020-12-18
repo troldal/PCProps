@@ -39,67 +39,66 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define PCPROPS_VPRIEDEL_HPP
 
 #include <string>
+#include <array>
 
 namespace PCProps::VaporPressure
 {
+
+    enum class VPRiedelType { Organic, Acid, Alcohol};
+
     /**
      * @brief
      */
     class VPRiedel
     {
-        double m_A = 0.0;
-        double m_B = 0.0;
-        double m_C = 0.0;
-        double m_D = 0.0;
+
+        double m_criticalTemperature = 0.0;
+        double m_criticalPressure = 0.0;
+
+        std::array<double, 4> m_coefficients {0.0, 0.0, 0.0, 0.0};
 
     public:
-
-        /**
-         * @brief Constructor, taking the normal boiling temperature [K], the critical temperature [K]
-         * and the critical pressure [Pa] as arguments
-         * @param tboil The normal boiling temperature [K] (i.e. at 101325 pascals).
-         * @param tcrit The critical temperature of the fluid [K].
-         * @param pcrit The critical pressure of the fluid [Pa].
-         */
-        VPRiedel(double tboil, double tcrit, double pcrit);
-
-        /**
-         * @brief Constructor, taking a JSON string as argument. The JSON string must have the following fields:
-         * tboil (float), tcrit (float) and pcrit (float).
-         * @param jsonstring The JSON string with the parameters.
-         */
-        explicit VPRiedel(const std::string& jsonstring);
 
         /**
          * @brief Constructor, default, with no parameters. Calling the operator() on a default constructed object
          * will yield zero as the results. To turn it into a valid object, use the move or copy assignment operator.
          */
-        VPRiedel() = default;
+        VPRiedel();
+
+        /**
+         * @brief Constructor, taking the normal boiling temperature [K], the critical temperature [K]
+         * and the critical pressure [Pa] as arguments
+         * @param boilingTemperature The normal boiling temperature [K] (i.e. at 101325 pascals).
+         * @param criticalTemperature The critical temperature of the fluid [K].
+         * @param criticalPressure The critical pressure of the fluid [Pa].
+         * @param type The type of component; can be acid, alcohol or general organic compound.
+         */
+        VPRiedel(double boilingTemperature, double criticalTemperature, double criticalPressure, VPRiedelType type = VPRiedelType::Organic);
 
         /**
          * @brief Destructor
          */
-        ~VPRiedel() = default;
+        ~VPRiedel();
 
         /**
          * @brief Copy constructor
          */
-        VPRiedel(const VPRiedel& other) = default;
+        VPRiedel(const VPRiedel& other);
 
         /**
          * @brief Move constructor
          */
-        VPRiedel(VPRiedel&& other) = default;
+        VPRiedel(VPRiedel&& other) noexcept;
 
         /**
          * @brief Copy assignment operator
          */
-        VPRiedel& operator=(const VPRiedel& other) = default;
+        VPRiedel& operator=(const VPRiedel& other);
 
         /**
          * @brief Move assignment operator
          */
-        VPRiedel& operator=(VPRiedel&& other) = default;
+        VPRiedel& operator=(VPRiedel&& other) noexcept;
 
         /**
          * @brief operator(), yielding the saturation pressure at the requested temperature for the fluid.
@@ -110,7 +109,23 @@ namespace PCProps::VaporPressure
          */
         double operator()(double temperature) const;
 
-        std::string coefficients() const;
+        /**
+         * @brief Get the critical temperature used for the vapor pressure estimation.
+         * @return The critical temperature [K]
+         */
+        double criticalTemperature() const;
+
+        /**
+         * @brief Get the critical pressure used for the vapor pressure estimation.
+         * @return The critical pressure [Pa]
+         */
+        double criticalPressure() const;
+
+        /**
+         * @brief Get the Riedel equation coefficients.
+         * @return A std::array with the four Riedel coefficients.
+         */
+        std::array<double, 4> coefficients() const;
 
     };
 } // namespace PCProps::VaporPressure

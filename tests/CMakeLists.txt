@@ -14,6 +14,7 @@ target_sources(${PROJECT_NAME}-tests
         PCComponent-test.cpp
         VPAntoineExt-test.cpp
         VPWagner-test.cpp
+        VPRiedel-test.cpp
         )
 
 target_link_libraries(${PROJECT_NAME}-tests
