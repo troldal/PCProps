@@ -38,7 +38,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <VPAmbroseWalton.hpp>
 #include <catch.hpp>
 
-TEST_CASE("VPAmbroseWalton")
+TEST_CASE("VPAmbroseWalton Test")
 {
     auto psat = PCProps::VaporPressure::VPAmbroseWalton {632.35, 45.1911E5, 0.249857};
 

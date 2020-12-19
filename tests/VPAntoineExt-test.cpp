@@ -38,7 +38,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <VPAntoineExt.hpp>
 #include <catch.hpp>
 
-TEST_CASE("VPAntoineExt")
+TEST_CASE("VPAntoineExt Test")
 {
     auto psat = PCProps::VaporPressure::VPAntoineExt {1.9369E+02, -8.0367E+03, 0.00E+00, 0.00E+00, -2.9502E+01, 4.3678E-02, 1.0};
 

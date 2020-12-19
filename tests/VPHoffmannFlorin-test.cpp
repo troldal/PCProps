@@ -38,7 +38,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <VPHoffmannFlorin.hpp>
 #include <catch.hpp>
 
-TEST_CASE("VPHoffmannFlorin")
+TEST_CASE("VPHoffmannFlorin Test")
 {
     auto psat = PCProps::VaporPressure::VPHoffmannFlorin { 334.13, 101325.0, 532.11, 49.8E5 };
 

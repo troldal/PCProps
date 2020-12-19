@@ -38,7 +38,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <VPWagner.hpp>
 #include <catch.hpp>
 
-TEST_CASE("VPWagner")
+TEST_CASE("VPWagner Test")
 {
     auto psat = PCProps::VaporPressure::VPWagner {466.05, 55.5E5, -7.48323, 1.89754, -1.87991, -2.74165};
 

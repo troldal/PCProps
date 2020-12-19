@@ -38,7 +38,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <PCComponent.hpp>
 #include <catch.hpp>
 
-TEST_CASE("PCComponent")
+TEST_CASE("PCComponent Test")
 {
     auto pcd = PCProps::PCComponentData {};
 

@@ -38,7 +38,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <VPRiedel.hpp>
 #include <catch.hpp>
 
-TEST_CASE("VPRiedel")
+TEST_CASE("VPRiedel Test")
 {
     auto psat = PCProps::VaporPressure::VPRiedel {404.87, 632.35, 45.1911E5};
 
