@@ -5,10 +5,13 @@
 #include <VPHoffmannFlorin.hpp>
 #include <VPRiedel.hpp>
 #include <iostream>
+#include <vector>
 
 int main()
 {
-    PCProps::ConstantData::CDJoback acetone(std::vector { std::make_pair(2, 1), std::make_pair(1, 24) }, 58.08, 10);
+    PCProps::ConstantData::CDJoback acetone(std::vector<std::pair<int, int>> { std::make_pair(2, 1), std::make_pair(1, 24) }, 58.08, 10);
+
+    //    PCProps::ConstantData::CDJoback acetone(groups, 58.08, 10);
     std::cout << "Acetone Tb: " << acetone.boilingTemperature() << std::endl;
     std::cout << "Acetone Tm: " << acetone.meltingTemperature() << std::endl;
     std::cout << "Acetone Tc: " << acetone.criticalTemperature() << std::endl;

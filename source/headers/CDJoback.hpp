@@ -12,33 +12,11 @@
 
 namespace PCProps::ConstantData
 {
-    struct CDJobackGroup
-    {
-        std::string           description;
-        std::optional<double> tc;
-        std::optional<double> pc;
-        std::optional<double> vc;
-        std::optional<double> tb;
-        std::optional<double> tm;
-        std::optional<double> hform;
-        std::optional<double> gform;
-        std::optional<double> igCp_a;
-        std::optional<double> igCp_b;
-        std::optional<double> igCp_c;
-        std::optional<double> igCp_d;
-        std::optional<double> hfus;
-        std::optional<double> hvap;
-        std::optional<double> liqVis_a;
-        std::optional<double> liqVis_b;
-    };
-
     /**
      * @brief
      */
     class CDJoback
     {
-        std::vector<std::pair<int, CDJobackGroup>> m_groups {};
-
         std::optional<double> m_sumTc;
         std::optional<double> m_sumPc;
         std::optional<double> m_sumVc;
@@ -55,8 +33,8 @@ namespace PCProps::ConstantData
         std::optional<double> m_sumLiqVis_a;
         std::optional<double> m_sumLiqVis_b;
 
-        double m_boilingTemperature;
-        double m_molecularWeight = 0.0;
+        double m_boilingTemperature = 0.0;
+        double m_molecularWeight    = 0.0;
         int    m_atomCount       = 0;
 
     public:
