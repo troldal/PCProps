@@ -1,17 +1,16 @@
 #include <CDJoback.hpp>
 #include <PCComponent.hpp>
 #include <PCPropsException.hpp>
-#include <VPAmbroseWalton.hpp>
 #include <VPHoffmannFlorin.hpp>
-#include <VPRiedel.hpp>
 #include <iostream>
-#include <vector>
+#include <list>
+
+using PCProps::ConstantData::CDJoback;
+using PCProps::ConstantData::CDJobackGroup;
 
 int main()
 {
-    PCProps::ConstantData::CDJoback acetone(std::vector<std::pair<int, int>> { std::make_pair(2, 1), std::make_pair(1, 24) }, 58.08, 10);
-
-    //    PCProps::ConstantData::CDJoback acetone(groups, 58.08, 10);
+    CDJoback acetone(std::list<CDJobackGroup> { { 1, 2 }, { 24, 1 } }, 58.08, 10);
     std::cout << "Acetone Tb: " << acetone.boilingTemperature() << std::endl;
     std::cout << "Acetone Tm: " << acetone.meltingTemperature() << std::endl;
     std::cout << "Acetone Tc: " << acetone.criticalTemperature() << std::endl;
@@ -37,17 +36,6 @@ int main()
     catch (const PCProps::PCPropsException& e) {
         std::cout << e.what();
     }
-
-
-//    auto psat = PCProps::VaporPressure::VPRiedel();
-//    std::cout << "Psat: " << psat(500.0) << std::endl;
-//
-//    psat = PCProps::VaporPressure::VPRiedel(404.87, 632.35, 45.1911E5);
-//    std::cout << "Psat: " << psat(500.0) << std::endl;
-//
-//    psat = PCProps::VaporPressure::VPRiedel(R"({"tboil": 404.87, "tcrit": 632.35, "pcrit": 45.1911E5})");
-//    std::cout << "Psat: " << psat(500.0) << std::endl;
-//    std::cout << psat.coefficients() << std::endl;
 
     return 0;
 }

@@ -40,10 +40,22 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 TEST_CASE("CDJoback Test")
 {
-    PCProps::ConstantData::CDJoback acetone(std::vector { std::make_pair(2, 1), std::make_pair(1, 24) }, 58.08, 10);
+    PCProps::ConstantData::CDJoback acetone(std::vector { std::make_pair(1, 2), std::make_pair(24, 1) }, 58.08, 10, 0.0);
 
     SECTION("Object creation")
     {
+        REQUIRE(acetone.boilingTemperatureIsValid());
+        REQUIRE(acetone.meltingTemperatureIsValid());
+        REQUIRE(acetone.criticalTemperatureIsValid());
+        REQUIRE(acetone.criticalPressureIsValid());
+        REQUIRE(acetone.criticalVolumeIsValid());
+        REQUIRE(acetone.enthalpyOfFormationIsValid());
+        REQUIRE(acetone.gibbsEnergyOfFormationIsValid());
+        REQUIRE(acetone.enthalpyOfFusionIsValid());
+        REQUIRE(acetone.enthalpyOfVaporizationIsValid());
+        REQUIRE(acetone.idealGasCpIsValid());
+        REQUIRE(acetone.liquidViscosityIsValid());
+
         REQUIRE(acetone.boilingTemperature() == Approx(322.11).epsilon(0.001));
         REQUIRE(acetone.meltingTemperature() == Approx(173.5).epsilon(0.001));
         REQUIRE(acetone.criticalTemperature() == Approx(500.5590).epsilon(0.001));

@@ -77,6 +77,8 @@ namespace PCProps::VaporPressure
 
         /**
          * @brief
+         * @param criticalTemperature
+         * @param criticalPressure
          * @param coeffA
          * @param coeffB
          * @param coeffC

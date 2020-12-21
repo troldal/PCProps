@@ -93,6 +93,7 @@ namespace PCProps::VaporPressure
          * @param B Coefficient B
          * @param C Coefficient C
          * @param D Coefficient D
+         * @param form A VPWagnerForm enum object, signifying if it is the 3-6 or the 2.5-5 form of the Wagner equation.
          * @note Please note that the VPWagner class assumes temperatures in Kelvin, pressures in Pascals and that
          * the equation uses natural logarithms (rather than base-10 logarithm). If coefficients exists with a different
          * basis, they will have to be converted first.
