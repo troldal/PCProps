@@ -18,6 +18,7 @@ target_sources(${PROJECT_NAME}-tests
         VPAmbroseWalton-test.cpp
         VPHoffmannFlorin-test.cpp
         CDJoback-test.cpp
+        SLVRackett-test.cpp
         )
 
 target_link_libraries(${PROJECT_NAME}-tests

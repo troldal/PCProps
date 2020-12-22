@@ -1,6 +1,7 @@
 #include <CDJoback.hpp>
 #include <PCComponent.hpp>
 #include <PCPropsException.hpp>
+#include <SLVRackett.hpp>
 #include <VPHoffmannFlorin.hpp>
 #include <iostream>
 #include <list>
@@ -8,8 +9,25 @@
 using PCProps::ConstantData::CDJoback;
 using PCProps::ConstantData::CDJobackGroup;
 
+using PCProps::LiquidVolumes::SLVRackett;
+
 int main()
 {
+    auto rackett = SLVRackett();
+    std::cout << rackett(300.0) << std::endl;
+
+    auto R143a_1 = SLVRackett::createFromCriticalProperties(346.30, 37.92E5, 0.255);
+    std::cout << "R143a Density @ 300K: " << R143a_1(300.0) * 1000000 << std::endl;
+
+    auto R143a_2 = SLVRackett::createFromAcentricFactor(346.30, 37.92E5, 0.259);
+    std::cout << "R143a Density @ 300K: " << R143a_2(300.0) * 1000000 << std::endl;
+
+    auto R143a_3 = SLVRackett::createFromReferencePointA(346.3, 245.0, 75.38E-6, 0.259);
+    std::cout << "R143a Density @ 300K: " << R143a_3(300.0) * 1000000 << std::endl;
+
+    auto R143a_4 = SLVRackett::createFromReferencePointB(346.3, 245.0, 75.38E-6, 0.255);
+    std::cout << "R143a Density @ 300K: " << R143a_4(300.0) * 1000000 << std::endl;
+
     CDJoback acetone(std::list<CDJobackGroup> { { 1, 2 }, { 24, 1 } }, 58.08, 10);
     std::cout << "Acetone Tb: " << acetone.boilingTemperature() << std::endl;
     std::cout << "Acetone Tm: " << acetone.meltingTemperature() << std::endl;
