@@ -35,7 +35,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <VPAntoineExt.hpp>
+#include <VaporPressure/VPAntoineExt.hpp>
 #include <catch.hpp>
 
 TEST_CASE("VPAntoineExt Test")

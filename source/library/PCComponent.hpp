@@ -42,7 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <optional>
 #include <string>
 
-#include <PCPropsException.hpp>
+#include <library/PCPropsException.hpp>
 
 namespace PCProps
 {

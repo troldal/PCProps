@@ -55,14 +55,14 @@ target_include_directories(external SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_C
 #   List of project source files
 #=======================================================================================================================
 set(PROJECT_TEMPLATE_SOURCES
-        ${CMAKE_CURRENT_LIST_DIR}/sources/PCComponent.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/VPRiedel.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/VPAntoineExt.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/VPWagner.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/VPAmbroseWalton.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/VPHoffmannFlorin.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/CDJoback.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/SLVRackett.cpp
+        library/PCComponent.cpp
+        library/VaporPressure/VPRiedel.cpp
+        library/VaporPressure/VPAntoineExt.cpp
+        library/VaporPressure/VPWagner.cpp
+        library/VaporPressure/VPAmbroseWalton.cpp
+        library/VaporPressure/VPHoffmannFlorin.cpp
+        library/ConstantData/CDJoback.cpp
+        library/LiquidVolume/SLVRackett.cpp
         )
 
 
@@ -75,7 +75,7 @@ target_sources(${PROJECT_NAME}-library-static PRIVATE ${PROJECT_TEMPLATE_SOURCES
 target_include_directories(${PROJECT_NAME}-library-static
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/library>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
 target_link_libraries(${PROJECT_NAME}-library-static PRIVATE external)
 target_compile_definitions(${PROJECT_NAME}-library-static PRIVATE OPENXLSX_STATIC_DEFINE)
@@ -89,7 +89,7 @@ target_sources(${PROJECT_NAME}-library-shared PRIVATE ${PROJECT_TEMPLATE_SOURCES
 target_include_directories(${PROJECT_NAME}-library-shared
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/library>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
 target_link_libraries(${PROJECT_NAME}-library-shared PRIVATE external)
 

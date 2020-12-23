@@ -35,7 +35,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <VPHoffmannFlorin.hpp>
+#include <VaporPressure/VPHoffmannFlorin.hpp>
 #include <catch.hpp>
 
 TEST_CASE("VPHoffmannFlorin Test")

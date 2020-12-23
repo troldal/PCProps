@@ -35,7 +35,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <VPRiedel.hpp>
+#include <VaporPressure/VPRiedel.hpp>
 #include <catch.hpp>
 
 TEST_CASE("VPRiedel Test")

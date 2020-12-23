@@ -1,9 +1,9 @@
-#include <CDJoback.hpp>
-#include <PCComponent.hpp>
-#include <PCPropsException.hpp>
-#include <SLVRackett.hpp>
-#include <VPHoffmannFlorin.hpp>
+#include <ConstantData/CDJoback.hpp>
+#include <LiquidVolume/SLVRackett.hpp>
+#include <VaporPressure/VPHoffmannFlorin.hpp>
 #include <iostream>
+#include <library/PCComponent.hpp>
+#include <library/PCPropsException.hpp>
 #include <list>
 
 using PCProps::ConstantData::CDJoback;

@@ -36,5 +36,5 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #define CATCH_CONFIG_MAIN
-#include <PCComponent.hpp>
 #include <catch.hpp>
+#include <library/PCComponent.hpp>
