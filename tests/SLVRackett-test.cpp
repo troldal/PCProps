@@ -93,4 +93,50 @@ TEST_CASE("SLVRackett produces correct saturated liquid volume calculations")
         // ===== This example uses Z_RA instead of the critical compressibility
         REQUIRE(acetonitrile(376.69) == Approx(1.0 / 16.577E3).epsilon(0.01));
     }
+
+    SECTION("Coefficients from Perry's")
+    {
+        auto acetonitrile = SLVRackett::createFromCoefficients(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
+
+        REQUIRE(acetonitrile(229.32) == Approx(1.0 / 20.628E3).epsilon(0.001));
+        REQUIRE(acetonitrile(545.5) == Approx(1.0 / 5.7813E3).epsilon(0.001));
+    }
+
+    SECTION("Coefficients from Perry's using copy constructor")
+    {
+        auto acetonitrile = SLVRackett::createFromCoefficients(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
+        auto copy(acetonitrile);
+
+        REQUIRE(copy(229.32) == Approx(1.0 / 20.628E3).epsilon(0.001));
+        REQUIRE(copy(545.5) == Approx(1.0 / 5.7813E3).epsilon(0.001));
+    }
+
+    SECTION("Coefficients from Perry's using move constructor")
+    {
+        auto acetonitrile = SLVRackett::createFromCoefficients(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
+        auto copy(std::move(acetonitrile));
+
+        REQUIRE(copy(229.32) == Approx(1.0 / 20.628E3).epsilon(0.001));
+        REQUIRE(copy(545.5) == Approx(1.0 / 5.7813E3).epsilon(0.001));
+    }
+
+    SECTION("Coefficients from Perry's using copy assignment")
+    {
+        auto acetonitrile = SLVRackett::createFromCoefficients(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
+        auto copy         = SLVRackett();
+        copy              = acetonitrile;
+
+        REQUIRE(copy(229.32) == Approx(1.0 / 20.628E3).epsilon(0.001));
+        REQUIRE(copy(545.5) == Approx(1.0 / 5.7813E3).epsilon(0.001));
+    }
+
+    SECTION("Coefficients from Perry's using move assignment")
+    {
+        auto acetonitrile = SLVRackett::createFromCoefficients(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
+        auto copy         = SLVRackett();
+        copy              = std::move(acetonitrile);
+
+        REQUIRE(copy(229.32) == Approx(1.0 / 20.628E3).epsilon(0.001));
+        REQUIRE(copy(545.5) == Approx(1.0 / 5.7813E3).epsilon(0.001));
+    }
 }
