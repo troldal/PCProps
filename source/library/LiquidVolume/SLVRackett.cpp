@@ -40,7 +40,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "SLVRackett.hpp"
 
-namespace PCProps::LiquidVolumes
+namespace PCProps::LiquidVolume
 {
     // ===== Constructor, default
     SLVRackett::SLVRackett() = default;
@@ -132,4 +132,4 @@ namespace PCProps::LiquidVolumes
             2.0 / 7.0);
     }
 
-}    // namespace PCProps::LiquidVolumes
+}    // namespace PCProps::LiquidVolume

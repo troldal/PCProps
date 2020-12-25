@@ -2,6 +2,7 @@
 #include <LiquidVolume/SLVRackett.hpp>
 #include <VaporPressure/VPHoffmannFlorin.hpp>
 #include <iostream>
+#include <library/LiquidVolume/SLVYenWoods.hpp>
 #include <library/PCComponent.hpp>
 #include <library/PCPropsException.hpp>
 #include <list>
@@ -9,10 +10,20 @@
 using PCProps::ConstantData::CDJoback;
 using PCProps::ConstantData::CDJobackGroup;
 
-using PCProps::LiquidVolumes::SLVRackett;
+using PCProps::LiquidVolume::SLVRackett;
+using PCProps::LiquidVolume::SLVYenWoods;
 
 int main()
 {
+    auto yw = SLVYenWoods::createFromYenWoodsEstimation(647.14, 55.45E-6, 0.245);
+    std::cout << yw(300.0) << std::endl;
+
+    auto ppds = SLVYenWoods::createFromPPDSCoefficients(647.14, 55.9472E-6, 18.02, 1094.0233, -1813.2295, 3863.9557, -2479.813);
+    std::cout << ppds(300.0) << std::endl;
+
+    auto dippr = SLVYenWoods::createFromDIPPR116Coefficients(647.14, 55.9472E-6, 58.606, -95.396, 213.89, -141.26);
+    std::cout << dippr(300.0) << std::endl;
+
     auto rackett = SLVRackett();
     std::cout << rackett(300.0) << std::endl;
 

@@ -38,7 +38,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <LiquidVolume/SLVRackett.hpp>
 #include <catch.hpp>
 
-using PCProps::LiquidVolumes::SLVRackett;
+using PCProps::LiquidVolume::SLVRackett;
 
 TEST_CASE("SLVRackett produces correct saturated liquid volume calculations")
 {

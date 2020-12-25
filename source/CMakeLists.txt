@@ -63,6 +63,8 @@ set(PROJECT_TEMPLATE_SOURCES
         library/VaporPressure/VPHoffmannFlorin.cpp
         library/ConstantData/CDJoback.cpp
         library/LiquidVolume/SLVRackett.cpp
+        library/LiquidVolume/SLVHankinsonThomson.cpp
+        library/LiquidVolume/SLVYenWoods.cpp
         )
 
 

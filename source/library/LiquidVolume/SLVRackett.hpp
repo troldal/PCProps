@@ -38,7 +38,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef PCPROPS_SLVRACKETT_HPP
 #define PCPROPS_SLVRACKETT_HPP
 
-namespace PCProps::LiquidVolumes
+namespace PCProps::LiquidVolume
 {
     /**
      * @brief The SLVRackett class encapsulates the Rackett equation for calculating the saturated molar volume for liquids.
@@ -225,6 +225,6 @@ namespace PCProps::LiquidVolumes
             double criticalCompressibility);
     };
 
-}    // namespace PCProps::LiquidVolumes
+}    // namespace PCProps::LiquidVolume
 
 #endif    // PCPROPS_SLVRACKETT_HPP

@@ -2,6 +2,7 @@
 Checks: >-
   *,
   -llvmlibc-*,
+  -llvm-header-guard,
   -fuchsia-*,
   -altera-struct-pack-align,
   -modernize-use-trailing-return-type,
