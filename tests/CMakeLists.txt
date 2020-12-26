@@ -21,6 +21,7 @@ target_sources(${PROJECT_NAME}-tests
         SLVRackett-test.cpp
         SLVYenWoods-test.cpp
         SLVHankinsonThomson-test.cpp
+        SLVElbro-test.cpp
         )
 
 target_link_libraries(${PROJECT_NAME}-tests

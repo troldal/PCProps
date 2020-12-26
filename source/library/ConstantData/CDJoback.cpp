@@ -46,21 +46,22 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace
 {
-    using CDJobackGroupDef = std::tuple<std::optional<double>,
-                                        std::optional<double>,
-                                        std::optional<double>,
-                                        std::optional<double>,
-                                        std::optional<double>,
-                                        std::optional<double>,
-                                        std::optional<double>,
-                                        std::optional<double>,
-                                        std::optional<double>,
-                                        std::optional<double>,
-                                        std::optional<double>,
-                                        std::optional<double>,
-                                        std::optional<double>,
-                                        std::optional<double>,
-                                        std::optional<double>>;
+    using CDJobackGroupDef = std::tuple<
+        std::optional<double>,
+        std::optional<double>,
+        std::optional<double>,
+        std::optional<double>,
+        std::optional<double>,
+        std::optional<double>,
+        std::optional<double>,
+        std::optional<double>,
+        std::optional<double>,
+        std::optional<double>,
+        std::optional<double>,
+        std::optional<double>,
+        std::optional<double>,
+        std::optional<double>,
+        std::optional<double>>;
 
     enum CDJobackProperty { Tc, Pc, Vc, Tb, Tm, Hform, Gform, igCp_a, igCp_b, igCp_c, igCp_d, Hfus, Hvap, liqVis_a, liqVis_b };
 
@@ -714,9 +715,14 @@ namespace
                           std::get<index>(JobackGroups.at(static_cast<uint64_t>(item.first - 1))).value())
                     : std::nullopt);
 
-        return (std::find_if(items.begin(), items.end(), [](const std::optional<double>& item) { return !item.has_value(); }) == items.end()
-                    ? std::optional(std::accumulate(items.begin(), items.end(), 0.0, [](double result, const std::optional<double>& item) { return result + item.value(); }))
-                    : std::nullopt);
+        return (
+            std::find_if(items.begin(), items.end(), [](const std::optional<double>& item) { return !item.has_value(); }) == items.end()
+                ? std::optional(std::accumulate(
+                      items.begin(),
+                      items.end(),
+                      0.0,
+                      [](double result, const std::optional<double>& item) { return result + item.value(); }))
+                : std::nullopt);
     }
 
 }    // namespace
@@ -877,7 +883,8 @@ namespace PCProps::ConstantData
     // ===== Compute ideal gas Cp [J/(mol K)] for substance
     double CDJoback::idealGasCp(double temperature) const
     {
-        return m_sumIgCp_a.value() - 37.93 + (m_sumIgCp_b.value() + 0.21) * temperature + (m_sumIgCp_c.value() - 3.91E-4) * pow(temperature, 2) + (m_sumIgCp_d.value() + 2.06E-7) * pow(temperature, 3);
+        return m_sumIgCp_a.value() - 37.93 + (m_sumIgCp_b.value() + 0.21) * temperature +
+               (m_sumIgCp_c.value() - 3.91E-4) * pow(temperature, 2) + (m_sumIgCp_d.value() + 2.06E-7) * pow(temperature, 3);
     }
 
     // ===== Check that ideal gas Cp can be computed

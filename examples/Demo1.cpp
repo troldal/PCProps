@@ -2,21 +2,29 @@
 #include <LiquidVolume/SLVRackett.hpp>
 #include <VaporPressure/VPHoffmannFlorin.hpp>
 #include <iostream>
+#include <library/LiquidVolume/SLVElbro.hpp>
 #include <library/LiquidVolume/SLVHankinsonThomson.hpp>
 #include <library/LiquidVolume/SLVYenWoods.hpp>
 #include <library/PCComponent.hpp>
 #include <library/PCPropsException.hpp>
 #include <list>
+#include <map>
+#include <vector>
 
 using PCProps::ConstantData::CDJoback;
 using PCProps::ConstantData::CDJobackGroup;
 
-using PCProps::LiquidVolume::SLVRackett;
+using PCProps::LiquidVolume::SLVElbro;
+using PCProps::LiquidVolume::SLVElbroGroup;
+using PCProps::LiquidVolume::SLVHankinsonThomson;
 using PCProps::LiquidVolume::SLVRackett;
 using PCProps::LiquidVolume::SLVYenWoods;
 
 int main()
 {
+    auto hexadecane = SLVElbro::create(std::vector<SLVElbroGroup> { { 1, 2 }, { 2, 14 } });
+    std::cout << hexadecane(298.15) << std::endl;
+
     auto isobutane = SLVHankinsonThomson::createFromCharacteristicVolume(408.04, 256.8E-6, 0.1825);
     std::cout << isobutane(310.93) << std::endl;
 
