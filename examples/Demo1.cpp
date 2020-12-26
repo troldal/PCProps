@@ -2,6 +2,7 @@
 #include <LiquidVolume/SLVRackett.hpp>
 #include <VaporPressure/VPHoffmannFlorin.hpp>
 #include <iostream>
+#include <library/LiquidVolume/SLVHankinsonThomson.hpp>
 #include <library/LiquidVolume/SLVYenWoods.hpp>
 #include <library/PCComponent.hpp>
 #include <library/PCPropsException.hpp>
@@ -11,10 +12,17 @@ using PCProps::ConstantData::CDJoback;
 using PCProps::ConstantData::CDJobackGroup;
 
 using PCProps::LiquidVolume::SLVRackett;
+using PCProps::LiquidVolume::SLVRackett;
 using PCProps::LiquidVolume::SLVYenWoods;
 
 int main()
 {
+    auto isobutane = SLVHankinsonThomson::createFromCharacteristicVolume(408.04, 256.8E-6, 0.1825);
+    std::cout << isobutane(310.93) << std::endl;
+
+    auto isobutane2 = SLVHankinsonThomson::createFromEstimatedProperties(408.04, 3640000, 0.1825);
+    std::cout << isobutane2(310.93) << std::endl;
+
     auto yw = SLVYenWoods::createFromYenWoodsEstimation(647.14, 55.45E-6, 0.245);
     std::cout << yw(300.0) << std::endl;
 

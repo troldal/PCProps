@@ -20,6 +20,7 @@ target_sources(${PROJECT_NAME}-tests
         CDJoback-test.cpp
         SLVRackett-test.cpp
         SLVYenWoods-test.cpp
+        SLVHankinsonThomson-test.cpp
         )
 
 target_link_libraries(${PROJECT_NAME}-tests
