@@ -1,7 +1,9 @@
 #include <ConstantData/CDJoback.hpp>
 #include <LiquidVolume/SLVRackett.hpp>
 #include <VaporPressure/VPHoffmannFlorin.hpp>
+#include <VaporPressure/VPRiedel.hpp>
 #include <iostream>
+#include <library/LiquidVolume/CLVThomson.hpp>
 #include <library/LiquidVolume/SLVElbro.hpp>
 #include <library/LiquidVolume/SLVHankinsonThomson.hpp>
 #include <library/LiquidVolume/SLVYenWoods.hpp>
@@ -20,8 +22,19 @@ using PCProps::LiquidVolume::SLVHankinsonThomson;
 using PCProps::LiquidVolume::SLVRackett;
 using PCProps::LiquidVolume::SLVYenWoods;
 
+using namespace PCProps::VaporPressure;
+using namespace PCProps::LiquidVolume;
+
 int main()
 {
+    //    auto ammonia_psat = VPRiedel(239.706, 405.65, 11280000.000);
+    //    auto ammonia_vsat = SLVHankinsonThomson::createFromCharacteristicVolume(405.65, 0.00007, 0.2526);
+
+    auto ammonia_psat = [](double _) { return 102.97E5; };
+    auto ammonia_vsat = [](double _) { return 49.15E-6; };
+    auto ammonia      = CLVThomson::create(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+    std::cout << ammonia(398.0, 400E5) * 1000000 << std::endl;
+
     auto hexadecane = SLVElbro::create(std::vector<SLVElbroGroup> { { 1, 2 }, { 2, 14 } });
     std::cout << hexadecane(298.15) << std::endl;
 
