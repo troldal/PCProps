@@ -67,6 +67,7 @@ set(PROJECT_TEMPLATE_SOURCES
         library/LiquidVolume/SLVYenWoods.cpp
         library/LiquidVolume/SLVElbro.cpp
         library/LiquidVolume/CLVThomson.cpp
+        library/LiquidVolume/CLVAalto.cpp
         )
 
 

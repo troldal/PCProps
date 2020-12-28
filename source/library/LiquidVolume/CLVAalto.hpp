@@ -35,41 +35,43 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_CLVTHOMSON_HPP
-#define PCPROPS_CLVTHOMSON_HPP
+#ifndef PCPROPS_CLVAALTO_HPP
+#define PCPROPS_CLVAALTO_HPP
 
 #include <functional>
 
 namespace PCProps::LiquidVolume
 {
     /**
-     * @brief The CLVThomson class encapsulates the Thomson method for estimating compressed liquid volume.
-     * @details The Thomson method looks as follows:
-     * \f[ V = V_{0} \cdot \left[ 1 - C \cdot ln \ \frac{B + P}{B + P_{0}} \right] \f]
-     * \f[ \frac{B}{P_{c}} = -1 +
-     * a \cdot \left( 1 - \frac{T}{T_{c}} \right)^{1/3} +
-     * b \cdot \left( 1 - \frac{T}{T_{c}} \right)^{2/3} +
-     * c \cdot \left( 1 - \frac{T}{T_{c}} \right) +
-     * d \cdot \left( 1 - \frac{T}{T_{c}} \right)^{4/3} \f]
-     * \f[ C = 0.0861488 + 0.0344483 \cdot \omega \f]
+     * @brief The CLVAalto class encapsulates the Aalto method for estimating compressed liquid volume.
+     * @details The Aalto method looks as follows:
+     * \f[ V = V_{s} \cdot
+     * \frac{A \cdot P_{c} + C^{(D-T_{r})^B} \cdot (P - P_{s})}
+     * {A \cdot P_{c} + C \cdot (P - P_{s})} \f]
+     * \f[ A = a_{0} + a_{1} \cdot T_{r} + a_{2} \cdot T_{r}^3 + a_{3} \cdot T_{r}^6 + \frac{a_{4}}{T_{r}} \f]
+     * \f[ B = b_{0} + \omega_{SRK} \cdot b_{1} \f]
      * \f[ where \f]
-     * \f[ a = -9.070217 \f]
-     * \f[ b = 62.45326 \f]
-     * \f[ c = -135.1102 \f]
-     * \f[ d = e^{4.79594 + 0.250047 \cdot \omega + 1.14188 \cdot \omega^2} \f]
-     *
-     * In the equations above, \f$ V_{0}\f$ and \f$ P_{0} \f$ refers to a known reference volume and pressure. Often
-     * the saturation volume (\f$ V_{s} \f$) and pressure (\f$ P_{s} \f$) is used.
-     * @warning This method may yield NaN as the result when T is close to Tc.
+     * \f[ a_{0} = -170.335 \f]
+     * \f[ a_{1} = -28.578 \f]
+     * \f[ a_{2} = 124.809 \f]
+     * \f[ a_{3} = -55.5393 \f]
+     * \f[ a_{4} = 130.01 \f]
+     * \f[ b_{0} = 0.164813 \f]
+     * \f[ b_{1} = -0.0914427 \f]
+     * \f[ C = e^1 \f]
+     * \f[ D = 1.00588 \f]
      */
-    class CLVThomson final
+    class CLVAalto final
     {
         std::function<double(double)> m_saturatedVolumeFunction {}; /** Function object for calculation of saturated liquid volume. */
         std::function<double(double)> m_vaporPressureFunction {};   /** Function object for calculation of vapor pressure. */
 
         double m_criticalTemperature {}; /** The critical temperature [K]. */
         double m_criticalPressure {};    /** The critical pressure [Pa]. */
-        double m_acentricFactor {};      /** The acentric factor [-]. */
+
+        double D { 1.00588 };
+        double C { 2.718281828 };
+        double B {};
 
         /**
          * @brief Constructor, taking critical properties and function objects for
@@ -80,7 +82,7 @@ namespace PCProps::LiquidVolume
          * @param satVolumeFunction Function object for calculating saturated liquid volume [m3/mol] as function of temperature [K]
          * @param vaporPressureFunction Function object for calculating vapor pressure [Pa] as function of temperature [K]
          */
-        CLVThomson(
+        CLVAalto(
             double                               criticalTemperature,
             double                               criticalPressure,
             double                               acentricFactor,
@@ -91,27 +93,27 @@ namespace PCProps::LiquidVolume
         /**
          * @brief Copy constructor
          */
-        CLVThomson(const CLVThomson& other);
+        CLVAalto(const CLVAalto& other);
 
         /**
          * @brief Move constructor
          */
-        CLVThomson(CLVThomson&& other) noexcept;
+        CLVAalto(CLVAalto&& other) noexcept;
 
         /**
          * @brief Destructor
          */
-        ~CLVThomson();
+        ~CLVAalto();
 
         /**
          * @brief Copy assignment operator
          */
-        CLVThomson& operator=(const CLVThomson& other);
+        CLVAalto& operator=(const CLVAalto& other);
 
         /**
          * @brief Move assignment operator
          */
-        CLVThomson& operator=(CLVThomson&& other) noexcept;
+        CLVAalto& operator=(CLVAalto&& other) noexcept;
 
         /**
          * @brief Function call operator, taking temperature [K] and pressure [Pa] as arguments
@@ -119,26 +121,25 @@ namespace PCProps::LiquidVolume
          * @param temperature The temperature [K]
          * @param pressure The pressure [Pa]
          * @return The compressed liquid volume [m3/mol]
-         * @warning This may yield NaN as the result when T is close to Tc.
          */
-        double operator()(double temperature, double pressure);
+        double operator()(double temperature, double pressure) const;
 
         /**
-         * @brief Static factory function for creating an CLVThomson object.
+         * @brief Static factory function for creating an CLVAalto object.
          * @param criticalTemperature The critical temperature [K]
          * @param criticalPressure The critical pressure [Pa]
          * @param acentricFactor The acentric factor [-]
          * @param satVolumeFunction Function object for calculating saturated liquid volume [m3/mol] as function of temperature [K]
          * @param vaporPressureFunction Function object for calculating vapor pressure [Pa] as function of temperature [K]
-         * @return An CLVThomson object
+         * @return An CLVAalto object
          */
-        static CLVThomson create(
+        static CLVAalto create(
             double                               criticalTemperature,
             double                               criticalPressure,
             double                               acentricFactor,
             const std::function<double(double)>& satVolumeFunction,
             const std::function<double(double)>& vaporPressureFunction);
     };
-
 }    // namespace PCProps::LiquidVolume
-#endif    // PCPROPS_CLVTHOMSON_HPP
+
+#endif    // PCPROPS_CLVAALTO_HPP
