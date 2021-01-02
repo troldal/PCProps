@@ -359,6 +359,9 @@ namespace
 
 namespace PCProps::EquationOfState
 {
+    // ===== Constructor, default
+    EOSPengRobinson::EOSPengRobinson() = default;
+
     // ===== Constructor
     EOSPengRobinson::EOSPengRobinson(
         double                               criticalTemperature,

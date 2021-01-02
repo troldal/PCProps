@@ -77,6 +77,11 @@ namespace PCProps::EquationOfState
 
     public:
         /**
+         * @brief Default constructor. All member variables set to default values.
+         */
+        EOSPengRobinson();
+
+        /**
          * @brief
          * @param criticalTemperature
          * @param criticalPressure
