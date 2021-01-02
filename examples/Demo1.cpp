@@ -55,14 +55,14 @@ void print(const PhaseData& data)
 
 int main()
 {
-    //    auto            PSat = VPAmbroseWalton(190.6, 4.604E6, 0.011);
-    //    auto            igCp = IGAlyLee(0.33298E5, 0.79933E5, 2.0869E3, 0.41602E5, 991.69);
-    //    EOSPengRobinson methane(190.6, 4.604E6, 0.011, 16.043, PSat, igCp);
-    //    double          t = 110.4; // K
-    //    double          p = 0.1E6; // Pa
+    //        auto            PSat = VPAmbroseWalton(190.6, 4.604E6, 0.011);
+    //        auto            igCp = IGAlyLee(0.33298E5, 0.79933E5, 2.0869E3, 0.41602E5, 991.69);
+    //        EOSPengRobinson methane(190.6, 4.604E6, 0.011, 16.043, PSat, igCp);
+    //        double          t = 112.4; // K
+    //        double          p = 0.1E6; // Pa
     //
-    //    for (const auto& phase : methane.flashPT(p, 10000))
-    //        print(phase);
+    //        for (const auto& phase : methane.flashPT(p, t))
+    //            print(phase);
 
     auto tc    = 369.83;
     auto pc    = 4.248E6;

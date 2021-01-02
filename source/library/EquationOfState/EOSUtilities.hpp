@@ -6,6 +6,7 @@
 #define PCPROPS_EOSUTILITIES_HPP
 
 #include <string>
+#include <tuple>
 
 namespace PCProps::EquationOfState
 {

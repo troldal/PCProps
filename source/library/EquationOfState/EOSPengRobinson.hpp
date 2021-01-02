@@ -39,8 +39,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define PCPROPS_EOSPENGROBINSON_HPP
 
 #include <functional>
-#include <tuple>
-#include <utility>
+#include <memory>
 
 #include "EOSUtilities.hpp"
 
@@ -51,30 +50,6 @@ namespace PCProps::EquationOfState
      */
     class EOSPengRobinson
     {
-        // ===== Basic fluid properties
-        double m_criticalTemperature {};
-        double m_criticalPressure {};
-        double m_molecularWeight {};
-
-        // ===== Calculated constants
-        double m_kappa {};
-        double m_b {};
-
-        // ===== Temperature and/or pressure dependent coefficients
-        std::function<double(double)>         m_alpha {};
-        std::function<double(double)>         m_a {};
-        std::function<double(double, double)> m_A {};
-        std::function<double(double, double)> m_B {};
-
-        // ===== User-supplied correlations
-        std::function<double(double)>         m_vaporPressureFunction {};
-        std::function<double(double)>         m_idealGasCpFunction {};
-        std::function<double(double, double)> m_idealGasCpIntegralFunction {};
-        std::function<double(double, double)> m_idealGasCpOverTemperatureIntegralFunction {};
-
-        // ===== Private member functions
-        PhaseData createEOSData(double moles, double temperature, double pressure, double z, double phi) const;
-
     public:
         /**
          * @brief Default constructor. All member variables set to default values.
@@ -167,6 +142,10 @@ namespace PCProps::EquationOfState
          * @return The phase data for the phase(s) resulting from the flash.
          */
         Phases flashPS(double pressure, double entropy, double moles = 1.0) const;
+
+    private:
+        class impl;
+        std::unique_ptr<impl> m_impl;
     };
 
 }    // namespace PCProps::EquationOfState
