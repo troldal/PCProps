@@ -36,7 +36,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 option(BUILD_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
 option(BUILD_SAMPLES "Build sample programs" ON)
 option(BUILD_TESTS "Build and run library tests" ON)
-option(BUILD_BENCHMARKS "Build and run library benchmarks" ON)
+option(BUILD_BENCHMARKS "Build and run library benchmarks" OFF)
 option(ENABLE_COVERAGE "Enable GCC/Clang code coverage in Debug build (tests, benchmarks and samples will NOT build
 when this is enabled!)" ON)
 

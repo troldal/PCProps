@@ -1,8 +1,14 @@
 #include <ConstantData/CDJoback.hpp>
 #include <LiquidVolume/SLVRackett.hpp>
+#include <VaporPressure/VPAmbroseWalton.hpp>
+#include <VaporPressure/VPAntoineExt.hpp>
 #include <VaporPressure/VPHoffmannFlorin.hpp>
 #include <VaporPressure/VPRiedel.hpp>
+#include <iomanip>
 #include <iostream>
+#include <library/EquationOfState/EOSPengRobinson.hpp>
+#include <library/EquationOfState/EOSUtilities.hpp>
+#include <library/HeatCapacity/IGAlyLee.hpp>
 #include <library/LiquidVolume/CLVAalto.hpp>
 #include <library/LiquidVolume/CLVThomson.hpp>
 #include <library/LiquidVolume/SLVElbro.hpp>
@@ -17,6 +23,7 @@
 using PCProps::ConstantData::CDJoback;
 using PCProps::ConstantData::CDJobackGroup;
 
+using PCProps::HeatCapacity::IGAlyLee;
 using PCProps::LiquidVolume::SLVElbro;
 using PCProps::LiquidVolume::SLVElbroGroup;
 using PCProps::LiquidVolume::SLVHankinsonThomson;
@@ -26,72 +33,49 @@ using PCProps::LiquidVolume::SLVYenWoods;
 using namespace PCProps::VaporPressure;
 using namespace PCProps::LiquidVolume;
 
+using namespace PCProps::EquationOfState;
+
+void print(const PhaseData& data)
+{
+    std::cout << std::setprecision(6) << std::fixed;
+    std::cout << "Temperature      : " << std::right << std::setw(15) << std::get<Temperature>(data) << " K" << std::endl;
+    std::cout << "Pressure         : " << std::right << std::setw(15) << std::get<Pressure>(data) << " Pa" << std::endl;
+    std::cout << "Compressibility  : " << std::right << std::setw(15) << std::get<Compressibility>(data) << std::endl;
+    std::cout << "Fugacity         : " << std::right << std::setw(15) << std::get<Fugacity>(data) << " Pa" << std::endl;
+    std::cout << "Moles            : " << std::right << std::setw(15) << std::get<Moles>(data) << std::endl;
+    std::cout << "Molecular Weight : " << std::right << std::setw(15) << std::get<MolecularWeight>(data) << " g/mol" << std::endl;
+    std::cout << "Molar Volume     : " << std::right << std::setw(15) << std::get<Volume>(data) << " m3/mol" << std::endl;
+    std::cout << "Enthalpy         : " << std::right << std::setw(15) << std::get<Enthalpy>(data) << " J/mol" << std::endl;
+    std::cout << "Entropy          : " << std::right << std::setw(15) << std::get<Entropy>(data) << " J/mol-K" << std::endl;
+    std::cout << "Internal Energy  : " << std::right << std::setw(15) << std::get<InternalEnergy>(data) << " J/mol" << std::endl;
+    std::cout << "Gibbs Energy     : " << std::right << std::setw(15) << std::get<GibbsEnergy>(data) << " J/mol" << std::endl;
+    std::cout << "Helmholz Energy  : " << std::right << std::setw(15) << std::get<HelmholzEnergy>(data) << " J/mol" << std::endl;
+    std::cout << std::endl;
+}
+
 int main()
 {
-    auto ammonia_psat = [](double _) { return 10.61E5; };
-    auto ammonia_vsat = [](double _) { return 28.38E-6; };
-    auto ammonia      = CLVAalto::create(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
-    std::cout << ammonia(300.0, 400E5) * 1000000 << std::endl;
+    //    auto            PSat = VPAmbroseWalton(190.6, 4.604E6, 0.011);
+    //    auto            igCp = IGAlyLee(0.33298E5, 0.79933E5, 2.0869E3, 0.41602E5, 991.69);
+    //    EOSPengRobinson methane(190.6, 4.604E6, 0.011, 16.043, PSat, igCp);
+    //    double          t = 110.4; // K
+    //    double          p = 0.1E6; // Pa
+    //
+    //    for (const auto& phase : methane.flashPT(p, 10000))
+    //        print(phase);
 
-    auto hexadecane = SLVElbro::create(std::vector<SLVElbroGroup> { { 1, 2 }, { 2, 14 } });
-    std::cout << hexadecane(298.15) << std::endl;
+    auto tc    = 369.83;
+    auto pc    = 4.248E6;
+    auto omega = 0.1523;
+    auto mw    = 44.096;
 
-    auto isobutane = SLVHankinsonThomson::createFromCharacteristicVolume(408.04, 256.8E-6, 0.1825);
-    std::cout << isobutane(310.93) << std::endl;
+    auto            PSat = VPAmbroseWalton(tc, pc, omega);
+    auto            igCp = IGAlyLee(0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6);
+    EOSPengRobinson propane(tc, pc, omega, mw, PSat, igCp);
 
-    auto isobutane2 = SLVHankinsonThomson::createFromEstimatedProperties(408.04, 3640000, 0.1825);
-    std::cout << isobutane2(310.93) << std::endl;
+    for (const auto& phase : propane.flashPT(101325 * 10, 298.15)) print(phase);
 
-    auto yw = SLVYenWoods::createFromYenWoodsEstimation(647.14, 55.45E-6, 0.245);
-    std::cout << yw(300.0) << std::endl;
-
-    auto ppds = SLVYenWoods::createFromPPDSCoefficients(647.14, 55.9472E-6, 18.02, 1094.0233, -1813.2295, 3863.9557, -2479.813);
-    std::cout << ppds(300.0) << std::endl;
-
-    auto dippr = SLVYenWoods::createFromDIPPR116Coefficients(647.14, 55.9472E-6, 58.606, -95.396, 213.89, -141.26);
-    std::cout << dippr(300.0) << std::endl;
-
-    auto rackett = SLVRackett();
-    std::cout << rackett(300.0) << std::endl;
-
-    auto R143a_1 = SLVRackett::createFromCriticalProperties(346.30, 37.92E5, 0.255);
-    std::cout << "R143a Density @ 300K: " << R143a_1(300.0) * 1000000 << std::endl;
-
-    auto R143a_2 = SLVRackett::createFromAcentricFactor(346.30, 37.92E5, 0.259);
-    std::cout << "R143a Density @ 300K: " << R143a_2(300.0) * 1000000 << std::endl;
-
-    auto R143a_3 = SLVRackett::createFromReferencePointA(346.3, 245.0, 75.38E-6, 0.259);
-    std::cout << "R143a Density @ 300K: " << R143a_3(300.0) * 1000000 << std::endl;
-
-    auto R143a_4 = SLVRackett::createFromReferencePointB(346.3, 245.0, 75.38E-6, 0.255);
-    std::cout << "R143a Density @ 300K: " << R143a_4(300.0) * 1000000 << std::endl;
-
-    CDJoback acetone(std::list<CDJobackGroup> { { 1, 2 }, { 24, 1 } }, 58.08, 10);
-    std::cout << "Acetone Tb: " << acetone.boilingTemperature() << std::endl;
-    std::cout << "Acetone Tm: " << acetone.meltingTemperature() << std::endl;
-    std::cout << "Acetone Tc: " << acetone.criticalTemperature() << std::endl;
-    std::cout << "Acetone Pc: " << acetone.criticalPressure() << std::endl;
-    std::cout << "Acetone Vc: " << acetone.criticalVolume() << std::endl;
-    std::cout << "Acetone Hform: " << acetone.enthalpyOfFormation() << std::endl;
-    std::cout << "Acetone Gform: " << acetone.gibbsEnergyOfFormation() << std::endl;
-    std::cout << "Acetone Hfus: " << acetone.enthalpyOfFusion() << std::endl;
-    std::cout << "Acetone Hvap: " << acetone.enthalpyOfVaporization() << std::endl;
-    std::cout << "Acetone igCp: " << acetone.idealGasCp(300.0) << std::endl;
-    std::cout << "Acetone liquid viscosity: " << acetone.liquidViscosity(300.0) << std::endl;
-
-    PCProps::PCComponentData data;
-    data.vaporPressureFunction = PCProps::VaporPressure::VPHoffmannFlorin(404.87, 101325.0, 632.35, 45.1911E5);
-    data.molecularWeight       = 16.043;
-
-    try {
-        PCProps::PCComponent comp(data);
-        std::cout << "Psat: " << comp.vaporPressure(500.0) << std::endl;
-        std::cout << "MW: " << comp.molecularWeight() << std::endl;
-    }
-
-    catch (const PCProps::PCPropsException& e) {
-        std::cout << e.what();
-    }
+    for (const auto& phase : propane.flashPH(101325 * 2, -16139.662736)) print(phase);
 
     return 0;
 }

@@ -68,6 +68,8 @@ set(PROJECT_TEMPLATE_SOURCES
         library/LiquidVolume/SLVElbro.cpp
         library/LiquidVolume/CLVThomson.cpp
         library/LiquidVolume/CLVAalto.cpp
+        library/HeatCapacity/IGAlyLee.cpp
+        library/EquationOfState/EOSPengRobinson.cpp
         )
 
 
