@@ -135,7 +135,7 @@ namespace PCProps::EquationOfState
         {
             using std::acos;
             using std::cbrt;
-            using std::cos;
+            using std::cbrt;
             using std::cos;
             using std::sqrt;
 
