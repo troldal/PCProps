@@ -37,67 +37,27 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <vector>
 
 #include "EOSPengRobinson.hpp"
 #include <PCConfig.hpp>
-#include <PCPropsException.hpp>
 #include <Utilities/Integration.hpp>
 #include <Utilities/RootFinding.hpp>
-
-namespace
-{
-    // =========================================================================
-    // ===== Enthalpy functions
-    // =========================================================================
-
-    /**
-     * @brief Calculates the ideal gas enthalpy.
-     * @details The calculation is done by integrating Cp (heat capacity at constant pressure) from the standard state
-     * conditions (usually 298.15 K, but this can be changed by modifying the STANDARD_T global constant) to the given
-     * temperature. This overload evaluates the integral directly, by using the supplied function object.
-     * @param t The temperature [K] at which to evaluate the ideal gas enthalpy.
-     * @param igCpIntegral A function object for evaluating the integral of the ideal gas heat capacity.
-     * @return The ideal gas enthalpy [J/mol].
-     */
-    double idealGasEnthalpy(double t, const std::function<double(double, double)>& igCpIntegral)
-    {
-        return igCpIntegral(PCProps::Globals::STANDARD_T, t);
-    }
-
-
-    /**
-     * @brief Computes the ideal gas entropy.
-     * @details The calculation is done by integrating Cp/T (heat capacity at constant pressure divided by T) from the s
-     * tandard state conditions (usually 298.15 K, but this can be changed by modifying the STANDARD_T global constant)
-     * to the given temperature. This overload evaluates the integral directly, by using the supplied function object.
-     * @param t The temperature [K]
-     * @param p The pressure [Pa]
-     * @param igCpOverTIntegral A function object for evaluating the integral of Cp/T directly.
-     * @return The ideal gas entropy [J/mol-K].
-     */
-    double idealGasEntropy(double t, double p, const std::function<double(double, double)>& igCpOverTIntegral)
-    {
-        return igCpOverTIntegral(PCProps::Globals::STANDARD_T, t) - PCProps::Globals::R_CONST * log(p / PCProps::Globals::STANDARD_P);
-    }
-
-
-}    // namespace
 
 namespace PCProps::EquationOfState
 {
     class EOSPengRobinson::impl
     {
+    private:
         // ===== Basic fluid properties
         double m_criticalTemperature {};
         double m_criticalPressure {};
-        double m_acentricFactor {};
         double m_molecularWeight {};
 
         // ===== Calculated constants
-        double m_b {};
         double m_ac {};
+        double m_b {};
+        double m_kappa {};
 
         // ===== User-supplied correlations
         std::function<double(double)>         m_vaporPressureFunction {};
@@ -106,69 +66,54 @@ namespace PCProps::EquationOfState
         std::function<double(double, double)> m_idealGasCpOverTemperatureIntegralFunction {};
 
         /**
-         * @brief
-         * @param temperature
-         * @return
+         * @brief Compute the 'a' coefficient for the Peng-robinson EOS.
+         * @param temperature The temperature [K].
+         * @return The 'a' coefficient.
          */
         inline double a(double temperature) const
         {
-            return m_ac * pow(1 + kappa() * (1 - sqrt(temperature / criticalTemperature())), 2);
+            return m_ac * pow(1 + m_kappa * (1 - sqrt(temperature / criticalTemperature())), 2);
         }
 
         /**
-         * @brief
-         * @return
-         */
-        inline double b() const
-        {
-            return m_b;
-        }
-
-        /**
-         * @brief
-         * @param temperature
-         * @param pressure
-         * @return
+         * @brief Compute the 'A' dimensionless coefficient for the Peng-Robinson EOS.
+         * @param temperature The temperature [K].
+         * @param pressure The pressure [Pa]
+         * @return The 'A' coefficient.
          */
         inline double A(double temperature, double pressure) const
         {
-            return a(temperature) * pressure / pow(8.31446261815324, 2) / pow(temperature, 2);
+            using PCProps::Globals::R_CONST;
+            return a(temperature) * pressure / pow(R_CONST, 2) / pow(temperature, 2);
         }
 
         /**
-         * @brief
-         * @param temperature
-         * @param pressure
-         * @return
+         * @brief Compute the 'B' dimensionless coefficient for the Peng-Robinson EOS.
+         * @param temperature The temperature [K].
+         * @param pressure The pressure [Pa]
+         * @return The 'B' coefficient.
          */
         inline double B(double temperature, double pressure) const
         {
-            return b() * pressure / (8.31446261815324 * temperature);
+            using PCProps::Globals::R_CONST;
+            return m_b * pressure / (R_CONST * temperature);
         }
 
         /**
-         * @brief
-         * @param temperature
-         * @return
+         * @brief Compute the 'alpha' coefficient for the Peng-Robinson EOS.
+         * @param temperature The temperature [K].
+         * @return The 'alpha' coefficient.
          */
         inline double alpha(double temperature) const
         {
-            return pow(1 + kappa() * (1 - sqrt(temperature / criticalTemperature())), 2);
+            return pow(1 + m_kappa * (1 - sqrt(temperature / criticalTemperature())), 2);
         }
 
         /**
-         * @brief
-         * @return
-         */
-        inline double kappa() const
-        {
-            return 0.37464 + 1.54226 * m_acentricFactor - 0.26992 * pow(m_acentricFactor, 2);
-        }
-
-        /**
-         * @brief
-         * @param temperature
-         * @return
+         * @brief Compute the vapor pressure at the given T, using the user supplied correlation.
+         * @param temperature The temperature [K].
+         * @return The vapor pressure [Pa].
+         * @todo This may not be needed. Consider removing it.
          */
         inline double vaporPressure(double temperature) const
         {
@@ -176,68 +121,21 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief
-         * @param temperature
-         * @return
-         */
-        inline double idealGasCp(double temperature) const
-        {
-            return m_idealGasCpFunction(temperature);
-        }
-
-        /**
-         * @brief
-         * @param t1
-         * @param t2
-         * @return
-         */
-        inline double idealGasCpIntegral(double t1, double t2) const
-        {
-            return m_idealGasCpIntegralFunction(t1, t2);
-        }
-
-        /**
-         * @brief
-         * @param t1
-         * @param t2
-         * @return
-         */
-        inline double idealGasCpOverTemperatureIntegral(double t1, double t2)
-        {
-            return m_idealGasCpOverTemperatureIntegralFunction(t1, t2);
-        }
-
-        /**
-         * @brief
-         * @param temperature
-         * @param pressure
-         * @param compressibility
-         * @return
-         */
-        inline double computeFugacityCoefficient(double temperature, double pressure, double compressibility) const
-        {
-            using std::exp;
-            using std::log;
-            using std::sqrt;
-
-            auto coeffA = A(temperature, pressure);
-            auto coeffB = B(temperature, pressure);
-
-            return exp(
-                compressibility - 1 - log(compressibility - coeffB) -
-                coeffA / (coeffB * sqrt(8)) * log((compressibility + (1 + sqrt(2)) * coeffB) / (compressibility + (1 - sqrt(2)) * coeffB)));
-        }
-
-        /**
-         * @brief
-         * @param temperature
-         * @param pressure
-         * @return
+         * @brief Compute the compressibility factors for all phases of the fluid, at the given T and P.
+         * @details The compressibility factors are found by solving Peng-Robinson as a cubic equation, with
+         * respect to Z. Only real roots are considered. There may be either one or tree real roots. In the latter
+         * case, two roots may be equal. If there are three distinct roots, the middle one is discarded, as it has
+         * no physical meaning. The roots are found analytically, and it is made sure that only unique roots
+         * larger than 0.0 are returned.
+         * @param temperature The temperature [K].
+         * @param pressure The pressure [Pa].
+         * @return A std::vector with the compressibility factors.
          */
         std::vector<double> computeCompressibilityFactors(double temperature, double pressure) const
         {
             using std::acos;
             using std::cbrt;
+            using std::cos;
             using std::cos;
             using std::sqrt;
 
@@ -259,18 +157,21 @@ namespace PCProps::EquationOfState
                 auto m     = 2 * sqrt(-p / 3);
                 auto theta = acos(3 * q / (p * m)) / 3.0;
 
+                // TODO (troldal): The middle root should be removed, instead of copying the min and max to a separate vector.
                 std::vector<double> all_roots { m * cos(theta) - a_2 / 3,
-                                                m * cos(theta + 2 * PCProps::Globals::PI / 3) - a_2 / 3,
-                                                m * cos(theta + 4 * PCProps::Globals::PI / 3) - a_2 / 3 };
+                                                m * cos(theta + 2 * PI / 3) - a_2 / 3,
+                                                m * cos(theta + 4 * PI / 3) - a_2 / 3 };
 
+                // ===== Discard the middle root, as it has no physical meaning.
                 std::vector<double> roots { *std::max_element(all_roots.begin(), all_roots.end()),
                                             *std::min_element(all_roots.begin(), all_roots.end()) };
 
-                if (roots[0] == roots[1]) roots.erase(roots.begin());
-
+                // ===== If any of the roots are negative, delete them.
                 if (roots[1] <= 0.0) roots.pop_back();
+                if (roots[0] <= 0.0) roots.erase(roots.begin());
 
-                if (roots[0] <= 0.0) roots.pop_back();
+                // ===== If the two roots are equal, delete the last one.
+                if (roots.size() == 2 && roots[0] == roots[1]) roots.pop_back();
 
                 return roots;
             }
@@ -283,25 +184,53 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief
-         * @param temperature
-         * @return
+         * @brief Compute the fugacity coefficient of the fluid with the given compressibility factor and the given T and P.
+         * @param temperature The temperature [K].
+         * @param pressure The pressure [Pa].
+         * @param compressibility The compressibility [-].
+         * @return The fugacity coefficient (phi) at the given P, T and Z.
          */
-        inline double idealGasEnthalpy(double temperature) const
+        inline double computeFugacityCoefficient(double temperature, double pressure, double compressibility) const
         {
-            using PCProps::Numerics::integrate;
-            return integrate(m_idealGasCpFunction, PCProps::Globals::STANDARD_T, temperature);
+            using std::exp;
+            using std::log;
+            using std::sqrt;
+
+            auto coeffA = A(temperature, pressure);
+            auto coeffB = B(temperature, pressure);
+
+            return exp(
+                compressibility - 1 - log(compressibility - coeffB) -
+                coeffA / (coeffB * sqrt(8)) * log((compressibility + (1 + sqrt(2)) * coeffB) / (compressibility + (1 - sqrt(2)) * coeffB)));
         }
 
         /**
-         * @brief
-         * @param temperature
-         * @param pressure
-         * @param compressibility
-         * @return
+         * @brief Compute the ideal gas enthalpy at the given T, relative the standard state.
+         * @param temperature The temperature [K].
+         * @return The ideal gas enthalpy [J/mol]
+         */
+        inline double idealGasEnthalpy(double temperature) const
+        {
+            using PCProps::Globals::STANDARD_T;
+
+            // ===== If an expression for the integral of Cp is available, that should be used.
+            if (m_idealGasCpIntegralFunction) return m_idealGasCpIntegralFunction(STANDARD_T, temperature);
+
+            // ===== Otherwise, evaluate the integral numerically.
+            using PCProps::Numerics::integrate;
+            return integrate(m_idealGasCpFunction, STANDARD_T, temperature);
+        }
+
+        /**
+         * @brief Compute the enthalpy departure relative to standard (ideal gas) state, at the given T and P.
+         * @param temperature The temperature [K].
+         * @param pressure The pressure [Pa].
+         * @param compressibility The compressibility factor [-].
+         * @return The enthalpy departure [J/mol]
          */
         inline double enthalpyDeparture(double temperature, double pressure, double compressibility) const
         {
+            using std::log;
             using std::log;
             using std::sqrt;
 
@@ -309,53 +238,62 @@ namespace PCProps::EquationOfState
             auto coeffB = B(temperature, pressure);
 
             return (compressibility - 1.0 -
-                    coeffA / (coeffB * sqrt(8)) * (1 + kappa() * sqrt(temperature / criticalTemperature()) / sqrt(alpha(temperature))) *
+                    coeffA / (coeffB * sqrt(8)) * (1 + m_kappa * sqrt(temperature / criticalTemperature()) / sqrt(alpha(temperature))) *
                         log((compressibility + (1 + sqrt(2)) * coeffB) / (compressibility + (1 - sqrt(2)) * coeffB))) *
-                   PCProps::Globals::R_CONST * temperature;
+                   R_CONST * temperature;
         }
 
         /**
-         * @brief
-         * @param t
-         * @param p
-         * @return
+         * @brief Compute the ideal gas entropy at the given T and P, relative the standard state.
+         * @param t The temperature [K].
+         * @param p The pressure [Pa].
+         * @return The ideal gas entropy [J/mol-K]
          */
         inline double idealGasEntropy(double t, double p) const
         {
+            using PCProps::Globals::R_CONST;
+            using PCProps::Globals::STANDARD_P;
+            using PCProps::Globals::STANDARD_T;
+
+            // ===== If an analytic expression for the integral of Cp/T is available, that expression should be used.
+            if (m_idealGasCpOverTemperatureIntegralFunction)
+                return m_idealGasCpOverTemperatureIntegralFunction(STANDARD_T, t) - R_CONST * log(p / STANDARD_P);
+
+            // ===== Otherwise, compute the integral numerically
             using PCProps::Numerics::integrate;
-            return integrate([&](double temp) { return m_idealGasCpFunction(temp) / temp; }, PCProps::Globals::STANDARD_T, t) -
-                   PCProps::Globals::R_CONST * log(p / PCProps::Globals::STANDARD_P);
+            return integrate([&](double temp) { return m_idealGasCpFunction(temp) / temp; }, STANDARD_T, t) - R_CONST * log(p / STANDARD_P);
         }
 
         /**
-         * @brief
-         * @param t
-         * @param p
-         * @param z
-         * @return
+         * @brief Compute the entropy departure relative to standard (ideal gas) state, at the given T and P.
+         * @param t The temperature [K].
+         * @param p The pressure [Pa]
+         * @param z The compressibility factor for the fluid [-]
+         * @return The entropy departure (S-S^ig) for the fluid [J/mol-K]
          */
         inline double entropyDeparture(double t, double p, double z) const
         {
+            using PCProps::Globals::R_CONST;
             using std::log;
             using std::sqrt;
 
             auto coeffA = A(t, p);
             auto coeffB = B(t, p);
 
-            return (log(z - coeffB) - coeffA / (coeffB * sqrt(8)) * kappa() * sqrt(t / criticalTemperature()) / sqrt(alpha(t)) *
+            return (log(z - coeffB) - coeffA / (coeffB * sqrt(8)) * m_kappa * sqrt(t / criticalTemperature()) / sqrt(alpha(t)) *
                                           log((z + (1 + sqrt(2)) * coeffB) / (z + (1 - sqrt(2)) * coeffB))) *
-                   PCProps::Globals::R_CONST;
+                   R_CONST;
         }
 
     public:
         /**
-         * @brief
-         * @param criticalTemperature
-         * @param criticalPressure
-         * @param acentricFactor
-         * @param molecularWeight
-         * @param vaporPressureFunction
-         * @param idealGasCpFunction
+         * @brief Constructor.
+         * @param criticalTemperature The critical temperature [K].
+         * @param criticalPressure The critical pressure [Pa]
+         * @param acentricFactor The acentric factor [-]
+         * @param molecularWeight The molecular weight [g/mol]
+         * @param vaporPressureFunction Function object for computing the vapor pressure as a function of temperature.
+         * @param idealGasCpFunction Function object for computing the Cp as a function of temperature.
          */
         impl(
             double                               criticalTemperature,
@@ -366,17 +304,17 @@ namespace PCProps::EquationOfState
             const std::function<double(double)>& idealGasCpFunction)
             : m_criticalTemperature(criticalTemperature),
               m_criticalPressure(criticalPressure),
-              m_acentricFactor(acentricFactor),
               m_molecularWeight(molecularWeight),
-              m_b(0.07779607 * 8.31446261815324 * criticalTemperature / criticalPressure),
-              m_ac(0.45723553 * pow(8.31446261815324, 2) * pow(criticalTemperature, 2) / criticalPressure),
+              m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(criticalTemperature, 2) / criticalPressure),
+              m_b(0.07779607 * PCProps::Globals::R_CONST * criticalTemperature / criticalPressure),
+              m_kappa(0.37464 + 1.54226 * acentricFactor - 0.26992 * pow(acentricFactor, 2)),
               m_vaporPressureFunction(vaporPressureFunction),
               m_idealGasCpFunction(idealGasCpFunction)
         {}
 
         /**
-         * @brief
-         * @return
+         * @brief Accessor for the critical temperature.
+         * @return The critical temperature [K].
          */
         inline double criticalTemperature() const
         {
@@ -384,8 +322,8 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief
-         * @return
+         * @brief Accessor for the critical pressure.
+         * @return The critical pressure [Pa].
          */
         inline double criticalPressure() const
         {
@@ -393,8 +331,8 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief
-         * @return
+         * @brief Accessor for the molecular weight.
+         * @return The molecular weight [g/mol]
          */
         inline double molecularWeight() const
         {
@@ -402,28 +340,30 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief
-         * @param moles
-         * @param temperature
-         * @param pressure
-         * @param z
-         * @param phi
-         * @return
+         * @brief Helper function for creating the std::tuple with the output data.
+         * @param moles The number of moles.
+         * @param temperature The temperature [K].
+         * @param pressure The pressure [Pa].
+         * @param z The compressibility factor [-]
+         * @param phi The fugacity coefficient [-].
+         * @return A PhaseData object (aka std::tuple) with the output data.
          */
         PhaseData createEOSData(double moles, double temperature, double pressure, double z, double phi) const
         {
+            using PCProps::Globals::R_CONST;
             using std::get;
+
             PhaseData result;
 
             get<Moles>(result)           = moles;
             get<MolecularWeight>(result) = m_molecularWeight;
             get<Temperature>(result)     = temperature;
             get<Pressure>(result)        = pressure;
-            get<Volume>(result)          = z * PCProps::Globals::R_CONST * temperature / pressure;
+            get<Volume>(result)          = z * R_CONST * temperature / pressure;
             get<Fugacity>(result)        = phi * pressure;
             get<Compressibility>(result) = z;
-            get<Enthalpy>(result)        = enthalpy(temperature, pressure, z);
-            get<Entropy>(result)         = entropy(temperature, pressure, z);
+            get<Enthalpy>(result)        = computeEnthalpy(temperature, pressure, z);
+            get<Entropy>(result)         = computeEntropy(temperature, pressure, z);
             get<InternalEnergy>(result)  = get<Enthalpy>(result) - pressure * get<Volume>(result);
             get<GibbsEnergy>(result)     = get<Enthalpy>(result) - temperature * get<Entropy>(result);
             get<HelmholzEnergy>(result)  = get<InternalEnergy>(result) - temperature * get<Entropy>(result);
@@ -432,15 +372,19 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief
-         * @param temperature
-         * @param pressure
-         * @return
+         * @brief Compute the compressibilities and fugacity coefficients for the phases present at the given T and P.
+         * @param temperature The temperature [K]
+         * @param pressure The pressure [Pa].
+         * @return A vector of std::pairs with the compressibility and fugacity coefficient for each phase.
+         * @note A flash may yield Z and phi for two phases, even though only one phase is present. The individual
+         * flash algorithm will discard the Z/Phi pair that is invalid.
          */
         std::vector<std::pair<double, double>> computeCompressibilityAndFugacity(double temperature, double pressure) const
         {
+            // ===== Compute the compressibility factor(s)
             auto zs = computeCompressibilityFactors(temperature, pressure);
 
+            // ===== Compute the fugacity coefficient for each Z and add the pair(s) to the results vector.
             std::vector<std::pair<double, double>> result;
             for (const auto& z : zs) result.emplace_back(std::make_pair(z, computeFugacityCoefficient(temperature, pressure, z)));
 
@@ -448,12 +392,13 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief
-         * @param temperature
-         * @return
+         * @brief Compute the fluid saturation pressure at the given T.
+         * @param temperature The temperature [K].
+         * @return The saturation pressure [Pa].
          */
         inline double computeSaturationPressure(double temperature) const
         {
+            // TODO (troldal): I'm not sure this works as intended. What if the fluid is supercritical?
             using std::get;
             auto f = [&](double p) {
                 auto phi   = computeCompressibilityAndFugacity(A(temperature, p), B(temperature, p));
@@ -466,12 +411,13 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief
-         * @param pressure
-         * @return
+         * @brief Compute the fluid saturation temperature at the given P.
+         * @param pressure The pressure [Pa].
+         * @return The saturation temperature [K].
          */
         inline double computeSaturationTemperature(double pressure) const
         {
+            // TODO (troldal): I'm not sure this works as intended. What if the fluid is supercritical?
             using std::get;
             auto f = [&](double t) {
                 auto phi   = computeCompressibilityAndFugacity(t, pressure);
@@ -487,25 +433,25 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief
-         * @param temperature
-         * @param pressure
-         * @param compressibility
-         * @return
+         * @brief Compute the enthalpy of the fluid, relative to the standard state.
+         * @param temperature The temperature [K].
+         * @param pressure The pressure [Pa].
+         * @param compressibility The fluid compressibility [-].
+         * @return The fluid enthalpy [J/mol].
          */
-        inline double enthalpy(double temperature, double pressure, double compressibility) const
+        inline double computeEnthalpy(double temperature, double pressure, double compressibility) const
         {
             return idealGasEnthalpy(temperature) + enthalpyDeparture(temperature, pressure, compressibility);
         }
 
         /**
-         * @brief
-         * @param temperature
-         * @param pressure
-         * @param compressibility
-         * @return
+         * @brief Compute the entropy of the fluid, relative to the standard state.
+         * @param temperature The temperature [K].
+         * @param pressure The pressure [Pa].
+         * @param compressibility The fluid compressibility [-].
+         * @return The fluid entropy [J/mol-K].
          */
-        inline double entropy(double temperature, double pressure, double compressibility) const
+        inline double computeEntropy(double temperature, double pressure, double compressibility) const
         {
             return idealGasEntropy(temperature, pressure) + entropyDeparture(temperature, pressure, compressibility);
         }
@@ -625,17 +571,17 @@ namespace PCProps::EquationOfState
         auto phi_l = get<1>(z_phi[1]);
 
         // ===== Then, calculate the enthalpy for the vapor and the liquid at saturation conditions.
-        auto h_v = m_impl->enthalpy(temperature, pressure, z_v);
-        auto h_l = m_impl->enthalpy(temperature, pressure, z_l);
+        auto h_v = m_impl->computeEnthalpy(temperature, pressure, z_v);
+        auto h_l = m_impl->computeEnthalpy(temperature, pressure, z_l);
 
         // ===== If the specified enthalpy is lower than the saturated liquid entropy, the fluid is a compressed liquid.
         if (enthalpy < h_l) {
             // ===== Define objective function
             auto f = [&](double t) {
-                auto z   = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
+                auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
                 auto min = std::min_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
                 auto z_l = get<0>(*min);
-                return m_impl->enthalpy(t, pressure, z_l) - enthalpy;
+                return m_impl->computeEnthalpy(t, pressure, z_l) - enthalpy;
             };
 
             auto temp = PCProps::Numerics::ridders(f, 0, temperature);
@@ -646,10 +592,10 @@ namespace PCProps::EquationOfState
         if (enthalpy > h_v) {
             // ===== Define objective function
             auto f = [&](double t) {
-                auto z   = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
+                auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
                 auto max = std::max_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
                 auto z_v   = get<0>(*max);
-                return m_impl->enthalpy(t, pressure, z_v) - enthalpy;
+                return m_impl->computeEnthalpy(t, pressure, z_v) - enthalpy;
             };
 
             // ===== Determine the interval in which to find the root.
@@ -687,17 +633,17 @@ namespace PCProps::EquationOfState
         auto phi_l = get<1>(z_phi[1]);
 
         // ===== Then, calculate the entropy for the vapor and the liquid at saturation conditions.
-        auto s_v = m_impl->entropy(temperature, pressure, z_v);
-        auto s_l = m_impl->entropy(temperature, pressure, z_l);
+        auto s_v = m_impl->computeEntropy(temperature, pressure, z_v);
+        auto s_l = m_impl->computeEntropy(temperature, pressure, z_l);
 
         // ===== If the specified entropy is lower than the saturated liquid entropy, the fluid is a compressed liquid.
         if (entropy < s_l) {
             // ===== Define objective function
             auto f = [&](double t) {
-                auto z   = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
+                auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
                 auto min = std::min_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
                 auto z_l = get<0>(*min);
-                return m_impl->entropy(t, pressure, z_l) - entropy;
+                return m_impl->computeEntropy(t, pressure, z_l) - entropy;
             };
 
             auto temp = PCProps::Numerics::ridders(f, 1, temperature);
@@ -708,10 +654,10 @@ namespace PCProps::EquationOfState
         if (entropy > s_v) {
             // ===== Define objective function
             auto f = [&](double t) {
-                auto z   = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
+                auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
                 auto max = std::max_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
                 auto z_v   = get<0>(*max);
-                return m_impl->entropy(t, pressure, z_v) - entropy;
+                return m_impl->computeEntropy(t, pressure, z_v) - entropy;
             };
 
             // ===== Determine the interval in which to find the root.

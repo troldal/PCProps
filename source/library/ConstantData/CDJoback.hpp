@@ -56,7 +56,7 @@ namespace PCProps::ConstantData
     /**
      * @brief The CDJoback class implements the Joback group contribution method for estimating pure component properties.
      * @details The Joback method can be used to estimate critical temperature, critical pressure, critical volume, normal
-     * boiling point, melting point, enthalpy of formation, Gibbs energy of formation, enthalpy of fusion, enthalpy of vaporization,
+     * boiling point, melting point, enthalpy of formation, Gibbs energy of formation, computeEnthalpy of fusion, enthalpy of vaporization,
      * ideal gas Cp and liquid viscosity. Documentation of how to use can be found on https://en.wikipedia.org/wiki/Joback_method
      * and other places. The original M.Sc. thesis by Joback can be found on MIT's website: https://dspace.mit.edu/handle/1721.1/15374.
      *
@@ -119,14 +119,14 @@ namespace PCProps::ConstantData
         std::optional<double> m_sumVc;       /**< The sum of Joback terms for Vc estimation. */
         std::optional<double> m_sumTb;       /**< The sum of Joback terms for Tb estimation. */
         std::optional<double> m_sumTm;       /**< The sum of Joback terms for Tm, estimation. */
-        std::optional<double> m_sumHform;    /**< The sum of Joback terms for enthalpy for formation estimation. */
+        std::optional<double> m_sumHform;    /**< The sum of Joback terms for computeEnthalpy for formation estimation. */
         std::optional<double> m_sumGform;    /**< The sum of Joback terms for Gibbs energy of formation estimation. */
         std::optional<double> m_sumIgCp_a;   /**< The sum of Joback terms for ideal gas Cp (a) estimation. */
         std::optional<double> m_sumIgCp_b;   /**< The sum of Joback terms for ideal gas Cp (b) estimation. */
         std::optional<double> m_sumIgCp_c;   /**< The sum of Joback terms for ideal gas Cp (c) estimation. */
         std::optional<double> m_sumIgCp_d;   /**< The sum of Joback terms for ideal gas Cp (d) estimation. */
-        std::optional<double> m_sumHfus;     /**< The sum of Joback terms for enthalpy of fusion estimation. */
-        std::optional<double> m_sumHvap;     /**< The sum of Joback terms for enthalpy of vaporization estimation. */
+        std::optional<double> m_sumHfus;     /**< The sum of Joback terms for computeEnthalpy of fusion estimation. */
+        std::optional<double> m_sumHvap;     /**< The sum of Joback terms for computeEnthalpy of vaporization estimation. */
         std::optional<double> m_sumLiqVis_a; /**< The sum of Joback terms for liquid viscosity (a) estimation. */
         std::optional<double> m_sumLiqVis_b; /**< The sum of Joback terms for liquid viscosity (b) estimation. */
 
@@ -260,8 +260,8 @@ namespace PCProps::ConstantData
         bool criticalVolumeIsValid() const;
 
         /**
-         * @brief Estimate the enthalpy of formation [J/mol].
-         * @return The enthalpy of formation [J/mol].
+         * @brief Estimate the computeEnthalpy of formation [J/mol].
+         * @return The computeEnthalpy of formation [J/mol].
          */
         double enthalpyOfFormation() const;
 
@@ -284,8 +284,8 @@ namespace PCProps::ConstantData
         bool gibbsEnergyOfFormationIsValid() const;
 
         /**
-         * @brief Estimate the enthalpy of fusion [J/mol].
-         * @return The enthalpy of fusion [J/mol].
+         * @brief Estimate the computeEnthalpy of fusion [J/mol].
+         * @return The computeEnthalpy of fusion [J/mol].
          */
         double enthalpyOfFusion() const;
 
@@ -296,8 +296,8 @@ namespace PCProps::ConstantData
         bool enthalpyOfFusionIsValid() const;
 
         /**
-         * @brief Estimate the enthalpy of vaporization [J/mol].
-         * @return The enthalpy of vaporization [J/mol].
+         * @brief Estimate the computeEnthalpy of vaporization [J/mol].
+         * @return The computeEnthalpy of vaporization [J/mol].
          */
         double enthalpyOfVaporization() const;
 

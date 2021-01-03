@@ -82,7 +82,7 @@ namespace PCProps::LiquidVolume
     SLVHankinsonThomson
         SLVHankinsonThomson::createFromCharacteristicVolume(double criticalTemperature, double characteristicVolume, double acentricFactor)
     {
-        return SLVHankinsonThomson(SLVHankinsonThomson(criticalTemperature, characteristicVolume, acentricFactor));
+        return SLVHankinsonThomson(criticalTemperature, characteristicVolume, acentricFactor);
     }
 
     // ===== Static factory function,creating an SLVHankinsonThomson object from estimate of the characteristic volume.
@@ -152,7 +152,7 @@ namespace PCProps::LiquidVolume
 
         double V_char = (8.31446261815324 * criticalTemperature / criticalPressure) * (a + b * acentricFactor + c * pow(acentricFactor, 2));
 
-        return SLVHankinsonThomson(SLVHankinsonThomson(criticalTemperature, V_char, acentricFactor));
+        return SLVHankinsonThomson(criticalTemperature, V_char, acentricFactor);
     }
 
 }    // namespace PCProps::LiquidVolume

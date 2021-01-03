@@ -63,6 +63,9 @@ namespace PCProps::VaporPressure {
 
                 case VPRiedelType::Alcohol:
                     return 0.373 - 0.030 * h;
+
+                default:
+                    return 0.0;
             }
         }();
 

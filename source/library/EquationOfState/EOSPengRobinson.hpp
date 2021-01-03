@@ -126,18 +126,18 @@ namespace PCProps::EquationOfState
         Phases flashPx(double pressure, double vaporFraction, double moles = 1.0) const;
 
         /**
-         * @brief Compute flash at specified pressure and enthalpy.
+         * @brief Compute flash at specified pressure and computeEnthalpy.
          * @param pressure The pressure [Pa]
-         * @param enthalpy The enthalpy [J/mol]
+         * @param enthalpy The computeEnthalpy [J/mol]
          * @param moles The number of moles in the fluid. Default is 1.0
          * @return The phase data for the phase(s) resulting from the flash.
          */
         Phases flashPH(double pressure, double enthalpy, double moles = 1.0) const;
 
         /**
-         * @brief Compute flash at specified pressure and entropy.
+         * @brief Compute flash at specified pressure and computeEntropy.
          * @param pressure The pressure [Pa]
-         * @param entropy The entropy [J/mol-K]
+         * @param entropy The computeEntropy [J/mol-K]
          * @param moles The number of moles in the fluid. Default is 1.0
          * @return The phase data for the phase(s) resulting from the flash.
          */

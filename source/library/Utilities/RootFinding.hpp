@@ -8,11 +8,11 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <functional>
 
 namespace PCProps::Numerics
 {
-    template<typename func>
-    double ridders(func& objective, double x1, double x2, double eps = 1.0E-6, double max_iter = 10)
+    double ridders(const std::function<double(double)>& objective, double x1, double x2, double eps = 1.0E-6, double max_iter = 10)
     {
         using std::abs;
         using std::pow;
@@ -28,7 +28,7 @@ namespace PCProps::Numerics
         while (true) {
             if (counter > max_iter) break;
             values[2] = (values[0] + values[1]) / 2.0;
-            sign      = ((objective(values[0]) - objective(values[1])) < 0.0L ? -1.0 : 1.0);
+            sign      = ((objective(values[0]) - objective(values[1])) < 0.0 ? -1 : 1);
             values[3] =
                 values[2] + (values[2] - values[0]) * ((sign * objective(values[2])) /
                                                        sqrt(pow(objective(values[2]), 2) - objective(values[0]) * objective(values[1])));
@@ -36,8 +36,8 @@ namespace PCProps::Numerics
             if (abs(objective(values[3])) < eps) break;
 
             std::sort(values.begin(), values.end());
-            for (int i = 0; i <= 2; ++i)
-                if (objective(values[i]) * objective(values[i + 1]) < 0.0L) {
+            for (std::size_t i = 0; i <= 2; ++i)
+                if (objective(values[i]) * objective(values[i + 1]) < 0.0) {
                     values[0] = values[i];
                     values[1] = values[i + 1];
                 }
