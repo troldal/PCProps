@@ -37,6 +37,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <vector>
 
 #include "EOSPengRobinson.hpp"
@@ -231,7 +232,7 @@ namespace PCProps::EquationOfState
          * @param temperature The temperature [K].
          * @param pressure The pressure [Pa].
          * @param compressibility The compressibility factor [-].
-         * @return The enthalpy departure [J/mol]
+         * @return The enthalpy departure (H-H^ig) for the fluid [J/mol]
          */
         inline double enthalpyDeparture(double temperature, double pressure, double compressibility) const
         {
@@ -406,7 +407,7 @@ namespace PCProps::EquationOfState
             // TODO (troldal): I'm not sure this works as intended. What if the fluid is supercritical?
             using std::get;
             auto f = [&](double p) {
-                auto phi   = computeCompressibilityAndFugacity(A(temperature, p), B(temperature, p));
+                auto phi   = computeCompressibilityAndFugacity(temperature, p);
                 auto phi_v = get<1>(phi[0]);
                 auto phi_l = get<1>(phi[1]);
                 return (phi_l - phi_v) * p;
@@ -566,6 +567,28 @@ namespace PCProps::EquationOfState
     {
         using std::get;
 
+        if (pressure > m_impl->criticalPressure()) {
+            // ===== Define objective function
+            auto f = [&](double t) {
+                auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
+                auto max = std::max_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
+                auto z_v = get<0>(*max);
+                return m_impl->computeEnthalpy(t, pressure, z_v) - enthalpy;
+            };
+
+            // ===== Determine the interval in which to find the root.
+            auto t1 = 1.0;
+            auto t2 = 1.0 + m_impl->criticalTemperature();
+            while (true) {
+                if (f(t1) * f(t2) < 0.0) break;
+                t1 = t2;
+                t2 = t1 + m_impl->criticalTemperature();
+            }
+
+            auto temp = PCProps::Numerics::ridders(f, t1, t2);
+            return { flashPT(pressure, temp, moles) };
+        }
+
         // ===== First, calculate the saturation temperature at the specified pressure.
         auto temperature = m_impl->computeSaturationTemperature(pressure);
 
@@ -627,6 +650,28 @@ namespace PCProps::EquationOfState
     Phases EOSPengRobinson::flashPS(double pressure, double entropy, double moles) const
     {
         using std::get;
+
+        if (pressure > m_impl->criticalPressure()) {
+            // ===== Define objective function
+            auto f = [&](double t) {
+                auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
+                auto max = std::max_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
+                auto z_v = get<0>(*max);
+                return m_impl->computeEntropy(t, pressure, z_v) - entropy;
+            };
+
+            // ===== Determine the interval in which to find the root.
+            auto t1 = 1.0;
+            auto t2 = 1.0 + m_impl->criticalTemperature();
+            while (true) {
+                if (f(t1) * f(t2) < 0.0) break;
+                t1 = t2;
+                t2 = t1 + m_impl->criticalTemperature();
+            }
+
+            auto temp = PCProps::Numerics::ridders(f, t1, t2);
+            return { flashPT(pressure, temp, moles) };
+        }
 
         // ===== First, calculate the saturation temperature at the specified pressure.
         auto temperature = m_impl->computeSaturationTemperature(pressure);

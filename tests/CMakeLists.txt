@@ -24,6 +24,7 @@ target_sources(${PROJECT_NAME}-tests
         SLVElbro-test.cpp
         CLVThomson-test.cpp
         CLVAalto-test.cpp
+        EOSPengRobinson-test.cpp
         )
 
 target_link_libraries(${PROJECT_NAME}-tests

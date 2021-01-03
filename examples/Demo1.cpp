@@ -73,8 +73,10 @@ int main()
     auto            igCp = IGAlyLee(0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6);
     EOSPengRobinson propane(tc, pc, omega, mw, PSat, igCp);
 
-    for (const auto& phase : propane.flashPT(101325 * 10, 298.15)) print(phase);
-    for (const auto& phase : propane.flashPH(101325 * 2, -16139.662736)) print(phase);
+    for (const auto& phase : propane.flashPS(5000000, 3)) print(phase);
+
+    //    for (const auto& phase : propane.flashPT(101325 * 10, 298.15)) print(phase);
+    //    for (const auto& phase : propane.flashPH(101325 * 2, -16139.662736)) print(phase);
 
     return 0;
 }
