@@ -46,6 +46,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace PCProps::EquationOfState
 {
+    using PCProps::Globals::PI;
+    using PCProps::Globals::R_CONST;
+    using PCProps::Globals::STANDARD_P;
+    using PCProps::Globals::STANDARD_T;
+
     class EOSPengRobinson::impl
     {
     private:
