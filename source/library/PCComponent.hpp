@@ -74,6 +74,8 @@ namespace PCProps
         double helmholzEnergy {};
     };
 
+    using Phases = std::vector<PCProperties>;
+
     inline std::ostream& operator<<(std::ostream& stream, const PCProps::PCProperties& properties)
     {
         return stream << std::setprecision(6) << std::fixed << "Molar Fraction       : " << std::right << std::setw(15) << properties.moleFraction << std::endl
@@ -197,7 +199,7 @@ namespace PCProps
          * @param temperature
          * @return
          */
-        PCProperties flashPT(double pressure, double temperature) const;
+        Phases flashPT(double pressure, double temperature) const;
 
         /**
          * @brief
@@ -205,7 +207,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        PCProperties flashPx(double pressure, double vaporFraction) const;
+        Phases flashPx(double pressure, double vaporFraction) const;
 
         /**
          * @brief
@@ -213,7 +215,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        PCProperties flashTx(double temperature, double vaporFraction) const;
+        Phases flashTx(double temperature, double vaporFraction) const;
 
         /**
          * @brief
@@ -221,7 +223,7 @@ namespace PCProps
          * @param enthalpy
          * @return
          */
-        PCProperties flashPH(double pressure, double enthalpy) const;
+        Phases flashPH(double pressure, double enthalpy) const;
 
         /**
          * @brief
@@ -229,7 +231,7 @@ namespace PCProps
          * @param entropy
          * @return
          */
-        PCProperties flashPS(double pressure, double entropy) const;
+        Phases flashPS(double pressure, double entropy) const;
 
         /**
          * @brief Get the name of the component.

@@ -38,18 +38,18 @@ int main()
     data.criticalCompressibility = 0.27629827986994;
     data.acentricFactor          = 0.1523;
 
-    data.equationOfState          = EOSPengRobinson {};
-    data.idealGasCpCorrelation    = AlyLee(AlyLee::CreateFromDIPPR { 0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6 });
-    data.liquidCpCorrelation      = PPDSLiquid(PPDSLiquid::CreateFromDIPPR { 62.983, 113630, 633.21, -873.46, 369.83 });
-    data.vaporPressureCorrelation = AntoineExtended(AntoineExtended::CreateFromDIPPR { 59.078, -3492.6, -6.0669, 1.0919E-05, 2 });
-    // surfaceTensionFunction
-    // heatOfVaporizationFunction
-    // vaporThermalConductivityFunction
-    // liquidThermalConductivityFunction
-    // vaporViscosityFunction
-    // liquidViscosityFunction
-    data.saturatedLiquidVolumeCorrelation = Rackett(Rackett::CreateFromDIPPR { 1.3757, 0.27453, 369.83, 0.29359 });
-    // compressedLiquidVolumeFunction
+    data.equationOfState                      = EOSPengRobinson {};
+    data.idealGasCpCorrelation                = AlyLee(AlyLee::CreateFromDIPPR { 0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6 });
+    data.liquidCpCorrelation                  = PPDSLiquid(PPDSLiquid::CreateFromDIPPR { 62.983, 113630, 633.21, -873.46, 369.83 });
+    data.vaporPressureCorrelation             = AntoineExtended(AntoineExtended::CreateFromDIPPR { 59.078, -3492.6, -6.0669, 1.0919E-05, 2 });
+    data.surfaceTensionCorrelation            = {};
+    data.heatOfVaporizationCorrelation        = {};
+    data.vaporThermalConductivityCorrelation  = {};
+    data.liquidThermalConductivityCorrelation = {};
+    data.vaporViscosityCorrelation            = {};
+    data.liquidViscosityCorrelation           = {};
+    data.saturatedLiquidVolumeCorrelation     = Rackett(Rackett::CreateFromDIPPR { 1.3757, 0.27453, 369.83, 0.29359 });
+    data.compressedLiquidVolumeCorrelation    = {};
 
     auto propane = PCComponent(data);
 
