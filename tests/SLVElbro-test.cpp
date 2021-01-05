@@ -35,39 +35,39 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <LiquidVolume/SLVElbro.hpp>
+#include <LiquidVolume/Elbro.hpp>
 #include <catch.hpp>
 #include <list>
 #include <utility>
 
-using PCProps::LiquidVolume::SLVElbro;
+using PCProps::LiquidVolume::Elbro;
 
 TEST_CASE("SLVElbro produces correct saturated liquid volume calculations")
 {
     SECTION("Example 1 from Reid et. al 5th Edition, with std::vector")
     {
-        auto hexadecane = SLVElbro::create({ { 1, 2 }, { 2, 14 } });
+        auto hexadecane = Elbro::create({ { 1, 2 }, { 2, 14 } });
 
         REQUIRE(hexadecane(298.15) == Approx(294.39E-6).epsilon(0.001));
     }
 
     SECTION("Example 1 from Reid et. al 5th Edition, with std::list")
     {
-        auto hexadecane = SLVElbro::create(std::list { std::make_pair(1, 2), std::make_pair(2, 14) });
+        auto hexadecane = Elbro::create(std::list { std::make_pair(1, 2), std::make_pair(2, 14) });
 
         REQUIRE(hexadecane(298.15) == Approx(294.39E-6).epsilon(0.001));
     }
 
     SECTION("Example 2 from Reid et. al 5th Edition")
     {
-        auto polymethylacrylate = SLVElbro::create({ { 1, 1 }, { 2, 1 }, { 22, 1 } });
+        auto polymethylacrylate = Elbro::create({ { 1, 1 }, { 2, 1 }, { 22, 1 } });
 
         REQUIRE(polymethylacrylate(298.15) == Approx(71.4E-6).epsilon(0.001));
     }
 
     SECTION("Copy constructor")
     {
-        auto hexadecane = SLVElbro::create({ { 1, 2 }, { 2, 14 } });
+        auto hexadecane = Elbro::create({ { 1, 2 }, { 2, 14 } });
         auto copy(hexadecane);
 
         REQUIRE(copy(298.15) == Approx(294.39E-6).epsilon(0.001));
@@ -75,7 +75,7 @@ TEST_CASE("SLVElbro produces correct saturated liquid volume calculations")
 
     SECTION("Move constructor")
     {
-        auto hexadecane = SLVElbro::create({ { 1, 2 }, { 2, 14 } });
+        auto hexadecane = Elbro::create({ { 1, 2 }, { 2, 14 } });
         auto copy(std::move(hexadecane));
 
         REQUIRE(copy(298.15) == Approx(294.39E-6).epsilon(0.001));
@@ -83,8 +83,8 @@ TEST_CASE("SLVElbro produces correct saturated liquid volume calculations")
 
     SECTION("Coefficients from Perry's using copy assignment")
     {
-        auto hexadecane = SLVElbro::create({ { 1, 2 }, { 2, 14 } });
-        auto copy       = SLVElbro::create({});
+        auto hexadecane = Elbro::create({ { 1, 2 }, { 2, 14 } });
+        auto copy       = Elbro::create({});
         copy            = hexadecane;
 
         REQUIRE(copy(298.15) == Approx(294.39E-6).epsilon(0.001));
@@ -92,8 +92,8 @@ TEST_CASE("SLVElbro produces correct saturated liquid volume calculations")
 
     SECTION("Coefficients from Perry's using move assignment")
     {
-        auto hexadecane = SLVElbro::create({ { 1, 2 }, { 2, 14 } });
-        auto copy       = SLVElbro::create({});
+        auto hexadecane = Elbro::create({ { 1, 2 }, { 2, 14 } });
+        auto copy       = Elbro::create({});
         copy            = std::move(hexadecane);
 
         REQUIRE(copy(298.15) == Approx(294.39E-6).epsilon(0.001));

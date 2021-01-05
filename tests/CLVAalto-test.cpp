@@ -35,10 +35,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <LiquidVolume/CLVAalto.hpp>
+#include <LiquidVolume/Aalto.hpp>
 #include <catch.hpp>
 
-using PCProps::LiquidVolume::CLVAalto;
+using PCProps::LiquidVolume::Aalto;
 
 TEST_CASE("CLVAalto produces correct saturated liquid volume calculations")
 {
@@ -46,7 +46,7 @@ TEST_CASE("CLVAalto produces correct saturated liquid volume calculations")
     {
         auto ammonia_psat = [](double _) { return 10.61E5; };
         auto ammonia_vsat = [](double _) { return 28.38E-6; };
-        auto ammonia      = CLVAalto::create(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+        auto ammonia      = Aalto::Aalto(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
 
         REQUIRE(ammonia(300.0, 400E5) == Approx(27.19E-6).epsilon(0.001));
     }
@@ -55,7 +55,7 @@ TEST_CASE("CLVAalto produces correct saturated liquid volume calculations")
     {
         auto ammonia_psat = [](double _) { return 102.97E5; };
         auto ammonia_vsat = [](double _) { return 49.15E-6; };
-        auto ammonia      = CLVAalto::create(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+        auto ammonia      = Aalto::Aalto(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
 
         REQUIRE(ammonia(400.0, 400E5) == Approx(35.60E-6).epsilon(0.001));
     }
@@ -64,7 +64,7 @@ TEST_CASE("CLVAalto produces correct saturated liquid volume calculations")
     {
         auto ammonia_psat = [](double _) { return 1E5; };
         auto ammonia_vsat = [](double _) { return 127.31E-6; };
-        auto ammonia      = CLVAalto::create(705.7, 45.6E5, 0.452, ammonia_vsat, ammonia_psat);
+        auto ammonia      = Aalto::Aalto(705.7, 45.6E5, 0.452, ammonia_vsat, ammonia_psat);
 
         REQUIRE(ammonia(503.15, 3000E5) == Approx(112.97E-6).epsilon(0.001));
     }
@@ -73,7 +73,7 @@ TEST_CASE("CLVAalto produces correct saturated liquid volume calculations")
     {
         auto ammonia_psat = [](double _) { return 10.61E5; };
         auto ammonia_vsat = [](double _) { return 28.38E-6; };
-        auto ammonia      = CLVAalto::create(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+        auto ammonia      = Aalto::Aalto(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
 
         auto copy(ammonia);
 
@@ -84,7 +84,7 @@ TEST_CASE("CLVAalto produces correct saturated liquid volume calculations")
     {
         auto ammonia_psat = [](double _) { return 10.61E5; };
         auto ammonia_vsat = [](double _) { return 28.38E-6; };
-        auto ammonia      = CLVAalto::create(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+        auto ammonia      = Aalto::Aalto(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
 
         auto copy(std::move(ammonia));
 
@@ -95,8 +95,8 @@ TEST_CASE("CLVAalto produces correct saturated liquid volume calculations")
     {
         auto ammonia_psat = [](double _) { return 10.61E5; };
         auto ammonia_vsat = [](double _) { return 28.38E-6; };
-        auto ammonia      = CLVAalto::create(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
-        auto copy         = CLVAalto::create(0.0, 0.0, 0.0, {}, {});
+        auto ammonia      = Aalto::Aalto(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+        auto copy         = Aalto::Aalto(0.0, 0.0, 0.0, {}, {});
         copy              = ammonia;
 
         REQUIRE(copy(300.0, 400E5) == Approx(27.19E-6).epsilon(0.001));
@@ -106,8 +106,8 @@ TEST_CASE("CLVAalto produces correct saturated liquid volume calculations")
     {
         auto ammonia_psat = [](double _) { return 10.61E5; };
         auto ammonia_vsat = [](double _) { return 28.38E-6; };
-        auto ammonia      = CLVAalto::create(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
-        auto copy         = CLVAalto::create(0.0, 0.0, 0.0, {}, {});
+        auto ammonia      = Aalto::Aalto(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+        auto copy         = Aalto::Aalto(0.0, 0.0, 0.0, {}, {});
         copy              = std::move(ammonia);
 
         REQUIRE(copy(300.0, 400E5) == Approx(27.19E-6).epsilon(0.001));

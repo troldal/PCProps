@@ -35,8 +35,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_SLVYENWOODS_HPP
-#define PCPROPS_SLVYENWOODS_HPP
+#ifndef PCPROPS_YENWOODS_HPP
+#define PCPROPS_YENWOODS_HPP
 
 namespace PCProps::LiquidVolume
 {
@@ -98,7 +98,7 @@ namespace PCProps::LiquidVolume
      * if coefficients needs to be changed after construction, a new object has to be created.
      *
      */
-    class SLVYenWoods final
+    class YenWoods final
     {
     public:
         /**
@@ -127,40 +127,33 @@ namespace PCProps::LiquidVolume
          * @param coeffD The D coefficient of the original Yen-Woods equation.
          * @param type The form of the equation used (original or modified).
          */
-        SLVYenWoods(
-            double            criticalTemperature,
-            double            criticalVolume,
-            double            coeffA,
-            double            coeffB,
-            double            coeffC,
-            double            coeffD,
-            SLVYenWoods::Form type = Form::Modified);
+        YenWoods(double criticalTemperature, double criticalVolume, double coeffA, double coeffB, double coeffC, double coeffD, YenWoods::Form type = Form::Modified);
 
     public:
         /**
          * @brief Copy constructor
          */
-        SLVYenWoods(const SLVYenWoods& other);
+        YenWoods(const YenWoods& other);
 
         /**
          * @brief Move constructor
          */
-        SLVYenWoods(SLVYenWoods&& other) noexcept;
+        YenWoods(YenWoods&& other) noexcept;
 
         /**
          * @brief Destructor
          */
-        ~SLVYenWoods();
+        ~YenWoods();
 
         /**
          * @brief Copy assignment operator
          */
-        SLVYenWoods& operator=(const SLVYenWoods& other);
+        YenWoods& operator=(const YenWoods& other);
 
         /**
          * @brief Move assignment operator
          */
-        SLVYenWoods& operator=(SLVYenWoods&& other) noexcept;
+        YenWoods& operator=(YenWoods&& other) noexcept;
 
         /**
          * @brief Function call operator, taking temperature [K] as an argument and returns the liquid molar volume [m3/mol]
@@ -188,13 +181,7 @@ namespace PCProps::LiquidVolume
          * @return A SLVYenWoods object constructed from Original Yen-Woods coefficients.
          * @note This function will create an object corresponding to the original form of the Yen-Woods equation.
          */
-        static SLVYenWoods createFromOriginalYenWoodsCoefficients(
-            double criticalTemperature,
-            double criticalVolume,
-            double coeffA,
-            double coeffB,
-            double coeffC,
-            double coeffD);
+        static YenWoods createFromOriginalYenWoodsCoefficients(double criticalTemperature, double criticalVolume, double coeffA, double coeffB, double coeffC, double coeffD);
 
         /**
          * @brief Factory function for creating an SLVYenWoods object using Modified Yen-Woods coefficients.
@@ -215,13 +202,7 @@ namespace PCProps::LiquidVolume
          * @return A SLVYenWoods object constructed from Modified Yen-Woods coefficients.
          * @note This function will create an object corresponding to the modified form of the Yen-Woods equation.
          */
-        static SLVYenWoods createFromModifiedYenWoodsCoefficients(
-            double criticalTemperature,
-            double criticalVolume,
-            double coeffA,
-            double coeffB,
-            double coeffC,
-            double coeffD);
+        static YenWoods createFromModifiedYenWoodsCoefficients(double criticalTemperature, double criticalVolume, double coeffA, double coeffB, double coeffC, double coeffD);
 
         /**
          * @brief Factory function for creating an SLVYenWoods object using PPDS coefficients.
@@ -239,14 +220,8 @@ namespace PCProps::LiquidVolume
          * @return A SLVYenWoods object constructed from PPDS coefficients.
          * @note This function will create an object corresponding to the modified form of the Yen-Woods equation.
          */
-        static SLVYenWoods createFromPPDSCoefficients(
-            double criticalTemperature,
-            double criticalVolume,
-            double molecularWeight,
-            double coeffA,
-            double coeffB,
-            double coeffC,
-            double coeffD);
+        static YenWoods
+            createFromPPDSCoefficients(double criticalTemperature, double criticalVolume, double molecularWeight, double coeffA, double coeffB, double coeffC, double coeffD);
 
         /**
          * @brief Factory function for creating an SLVYenWoods object using DIPPR 116 coefficients.
@@ -263,13 +238,7 @@ namespace PCProps::LiquidVolume
          * @return A SLVYenWoods object constructed from DIPPR 116 coefficients.
          * @note This function will create an object corresponding to the modified form of the Yen-Woods equation.
          */
-        static SLVYenWoods createFromDIPPR116Coefficients(
-            double criticalTemperature,
-            double criticalVolume,
-            double coeffA,
-            double coeffB,
-            double coeffC,
-            double coeffD);
+        static YenWoods createFromDIPPR116Coefficients(double criticalTemperature, double criticalVolume, double coeffA, double coeffB, double coeffC, double coeffD);
 
         /**
          * @brief Factory function for creating an SLVYenWoods object using the original correlations in the paper
@@ -287,9 +256,9 @@ namespace PCProps::LiquidVolume
          * @return A SLVYenWoods object constructed from Yen and Woods estimation procedure.
          * @note This function will create an object corresponding to the original form of the Yen-Woods equation.
          */
-        static SLVYenWoods createFromYenWoodsEstimation(double criticalTemperature, double criticalVolume, double criticalCompressibility);
+        static YenWoods createFromYenWoodsEstimation(double criticalTemperature, double criticalVolume, double criticalCompressibility);
     };
 
 }    // namespace PCProps::LiquidVolume
 
-#endif    // PCPROPS_SLVYENWOODS_HPP
+#endif    // PCPROPS_YENWOODS_HPP

@@ -35,8 +35,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_VPANTOINEEXT_HPP
-#define PCPROPS_VPANTOINEEXT_HPP
+#ifndef PCPROPS_ANTOINEEXTENDED_HPP
+#define PCPROPS_ANTOINEEXTENDED_HPP
 
 #include <array>
 
@@ -56,13 +56,36 @@ namespace PCProps::VaporPressure
      *
      * Note that operator() returns Psat, the vapor pressure [Pa], not \f$ln \ P_{sat} \f$.
      */
-    class VPAntoineExt
+    class AntoineExtended
     {
         // ===== Private Data Members
 
-        std::array<double, 7> m_coefficients { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+        double m_coeffA;
+        double m_coeffB;
+        double m_coeffC;
+        double m_coeffD;
+        double m_coeffE;
+        double m_coeffF;
+        double m_coeffG;
 
     public:
+        struct CreateFromDIPPR
+        {
+            double A;
+            double B;
+            double C;
+            double D;
+            double E;
+        };
+
+        struct CreateFromYaws
+        {
+            double A;
+            double B;
+            double C;
+            double D;
+            double E;
+        };
 
         /**
          * @brief Default constructor.
@@ -70,7 +93,7 @@ namespace PCProps::VaporPressure
          * be modifed after object construction, a default constructed VPAntoineExt object is in itself of little use; the
          * main purpose is to serve as a placeholder for a correctly constructed object later on.
          */
-        VPAntoineExt();
+        AntoineExtended();
 
         /**
          * @brief Constructor, taking three or more coefficients as input.
@@ -85,32 +108,44 @@ namespace PCProps::VaporPressure
          * the equation uses natural logarithms (rather than base-10 logarithm). If coefficients exists with a different
          * basis, they will have to be converted first.
          */
-        VPAntoineExt(double A, double B, double C, double D = 0.0, double E = 0.0, double F = 0.0, double G = 0.0);
+        AntoineExtended(double A, double B, double C, double D = 0.0, double E = 0.0, double F = 0.0, double G = 0.0);
+
+        /**
+         * @brief Constructor, taking a CreateFromDIPPR struct, for creating an object using DIPPR coefficients (eg. from Perry)
+         * @param coefficients A CreateFromDIPPR with the DIPPR coefficients.
+         */
+        AntoineExtended(const CreateFromDIPPR& coefficients);
+
+        /**
+         * @brief Constructor, taking a CreateFromYaws struct, for creating an object using coefficients from Yaws handbooks.
+         * @param coefficients A CreateFromYaws with the Yaws coefficients.
+         */
+        AntoineExtended(const CreateFromYaws& c);
 
         /**
          * @brief Copy constructor.
          */
-        VPAntoineExt(const VPAntoineExt& other);
+        AntoineExtended(const AntoineExtended& other);
 
         /**
          * @brief Move constructor.
          */
-        VPAntoineExt(VPAntoineExt&& other) noexcept;
+        AntoineExtended(AntoineExtended&& other) noexcept;
 
         /**
          * @brief Destructor.
          */
-        ~VPAntoineExt();
+        ~AntoineExtended();
 
         /**
          * @brief Copy assignment operator.
          */
-        VPAntoineExt& operator=(const VPAntoineExt& other);
+        AntoineExtended& operator=(const AntoineExtended& other);
 
         /**
          * @brief Move assignment operator.
          */
-        VPAntoineExt& operator=(VPAntoineExt&& other) noexcept;
+        AntoineExtended& operator=(AntoineExtended&& other) noexcept;
 
         /**
          * @brief Function call operator, yielding the saturation pressure [Pa] at the requested temperature [K] for the component.
@@ -120,13 +155,8 @@ namespace PCProps::VaporPressure
          */
         double operator()(double temperature) const;
 
-        /**
-         * @brief Get the coefficients of the current object.
-         * @return An array with the coefficients A-G.
-         */
-        std::array<double, 7> coefficients() const;
     };
 
 }    // namespace PCProps::VaporPressure
 
-#endif    // PCPROPS_VPANTOINEEXT_HPP
+#endif    // PCPROPS_ANTOINEEXTENDED_HPP

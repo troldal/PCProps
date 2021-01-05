@@ -35,14 +35,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_VPWAGNER_HPP
-#define PCPROPS_VPWAGNER_HPP
+#ifndef PCPROPS_WAGNER_HPP
+#define PCPROPS_WAGNER_HPP
 
 #include <array>
 
 namespace PCProps::VaporPressure
 {
-    enum class VPWagnerForm {Form25, Form36};
+    enum class VPWagnerForm { Form25, Form36 };
 
     /**
      * @brief The VPWagner class encapsulates the Wagner equation(s) for calculating vapor pressures.
@@ -62,28 +62,27 @@ namespace PCProps::VaporPressure
      *
      * All pressures are in Pascals and all temperatures in Kelvin.
      */
-    class VPWagner
+    class Wagner
     {
         // ===== Private Data Members
 
-        double m_criticalTemperature = 0.0;
-        double m_criticalPressure = 0.0;
-        std::array<double, 4> m_coefficients { 0.0, 0.0, 0.0, 0.0};
+        double                m_criticalTemperature = 0.0;
+        double                m_criticalPressure    = 0.0;
+        std::array<double, 4> m_coefficients { 0.0, 0.0, 0.0, 0.0 };
 
         double m_expC = 2.5;
         double m_expD = 5.0;
 
     public:
-
         /**
          * @brief Default constructor.
-         * @note A default constructed VPWagner object has all coefficients and critical properties set to zero.
+         * @note A default constructed Wagner object has all coefficients and critical properties set to zero.
          * Because the coefficients cannot be modifed after object construction, a default constructed VPWagner object
          * is in itself of little use; indeed, using the function call operator on a default constructed object will
          * result in division-by-zero and will return NaN. The main purpose is to serve as a placeholder for a correctly
          * constructed object later on.
          */
-        VPWagner();
+        Wagner();
 
         /**
          * @brief Constructor, taking three or more coefficients as input.
@@ -98,32 +97,32 @@ namespace PCProps::VaporPressure
          * the equation uses natural logarithms (rather than base-10 logarithm). If coefficients exists with a different
          * basis, they will have to be converted first.
          */
-        VPWagner(double criticalTemperature, double criticalPressure, double A, double B, double C, double D, VPWagnerForm form = VPWagnerForm::Form25);
+        Wagner(double criticalTemperature, double criticalPressure, double A, double B, double C, double D, VPWagnerForm form = VPWagnerForm::Form25);
 
         /**
          * @brief Copy constructor.
          */
-        VPWagner(const VPWagner& other);
+        Wagner(const Wagner& other);
 
         /**
          * @brief Move constructor.
          */
-        VPWagner(VPWagner&& other) noexcept;
+        Wagner(Wagner&& other) noexcept;
 
         /**
          * @brief Destructor.
          */
-        ~VPWagner();
+        ~Wagner();
 
         /**
          * @brief Copy assignment operator.
          */
-        VPWagner& operator=(const VPWagner& other);
+        Wagner& operator=(const Wagner& other);
 
         /**
          * @brief Move assignment operator.
          */
-        VPWagner& operator=(VPWagner&& other) noexcept;
+        Wagner& operator=(Wagner&& other) noexcept;
 
         /**
          * @brief Function call operator, yielding the saturation pressure [Pa] at the requested temperature [K] for the component.
@@ -160,4 +159,4 @@ namespace PCProps::VaporPressure
 
 }    // namespace PCProps::VaporPressure
 
-#endif    // PCPROPS_VPWAGNER_HPP
+#endif    // PCPROPS_WAGNER_HPP

@@ -35,8 +35,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_CLVAALTO_HPP
-#define PCPROPS_CLVAALTO_HPP
+#ifndef PCPROPS_AALTO_HPP
+#define PCPROPS_AALTO_HPP
 
 #include <functional>
 
@@ -61,7 +61,7 @@ namespace PCProps::LiquidVolume
      * \f[ C = e^1 \f]
      * \f[ D = 1.00588 \f]
      */
-    class CLVAalto final
+    class Aalto final
     {
         std::function<double(double)> m_saturatedVolumeFunction {}; /** Function object for calculation of saturated liquid volume. */
         std::function<double(double)> m_vaporPressureFunction {};   /** Function object for calculation of vapor pressure. */
@@ -82,7 +82,7 @@ namespace PCProps::LiquidVolume
          * @param satVolumeFunction Function object for calculating saturated liquid volume [m3/mol] as function of temperature [K]
          * @param vaporPressureFunction Function object for calculating vapor pressure [Pa] as function of temperature [K]
          */
-        CLVAalto(
+        Aalto(
             double                               criticalTemperature,
             double                               criticalPressure,
             double                               acentricFactor,
@@ -93,27 +93,27 @@ namespace PCProps::LiquidVolume
         /**
          * @brief Copy constructor
          */
-        CLVAalto(const CLVAalto& other);
+        Aalto(const Aalto& other);
 
         /**
          * @brief Move constructor
          */
-        CLVAalto(CLVAalto&& other) noexcept;
+        Aalto(Aalto&& other) noexcept;
 
         /**
          * @brief Destructor
          */
-        ~CLVAalto();
+        ~Aalto();
 
         /**
          * @brief Copy assignment operator
          */
-        CLVAalto& operator=(const CLVAalto& other);
+        Aalto& operator=(const Aalto& other);
 
         /**
          * @brief Move assignment operator
          */
-        CLVAalto& operator=(CLVAalto&& other) noexcept;
+        Aalto& operator=(Aalto&& other) noexcept;
 
         /**
          * @brief Function call operator, taking temperature [K] and pressure [Pa] as arguments
@@ -133,7 +133,7 @@ namespace PCProps::LiquidVolume
          * @param vaporPressureFunction Function object for calculating vapor pressure [Pa] as function of temperature [K]
          * @return An CLVAalto object
          */
-        static CLVAalto create(
+        static Aalto create(
             double                               criticalTemperature,
             double                               criticalPressure,
             double                               acentricFactor,
@@ -142,4 +142,4 @@ namespace PCProps::LiquidVolume
     };
 }    // namespace PCProps::LiquidVolume
 
-#endif    // PCPROPS_CLVAALTO_HPP
+#endif    // PCPROPS_AALTO_HPP

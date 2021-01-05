@@ -37,77 +37,57 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cmath>
 
-#include "VPWagner.hpp"
+#include "HoffmannFlorin.hpp"
 
-namespace PCProps::VaporPressure {
+namespace
+{
+    double hfFunc(double temperature)
+    {
+        using std::log10;
+        return (1.0 / temperature) - 7.9151E-3 + 2.6726E-3 * log10(temperature) - 0.8625E-6 * temperature;
+    }
+}    // namespace
 
+namespace PCProps::VaporPressure
+{
     // ===== Constructor, default
-    VPWagner::VPWagner() = default;
+    HoffmannFlorin::HoffmannFlorin() = default;
 
-    // ===== Constructor, taking critical properties and coefficients as arguments
-    VPWagner::VPWagner(double criticalTemperature, double criticalPressure, double A, double B, double C, double D, VPWagnerForm form)
-        : m_criticalTemperature {criticalTemperature},
-          m_criticalPressure {criticalPressure},
-          m_coefficients { A, B, C, D },
-          m_expC { form == VPWagnerForm::Form25 ? 2.5 : 3.0 },
-          m_expD { form == VPWagnerForm::Form25 ? 5.0 : 6.0 }
+    // ===== Constructor, taking temperature and vapor pressure of two reference points as arguments.
+    HoffmannFlorin::HoffmannFlorin(double ref1Temp, double ref1Psat, double ref2Temp, double ref2Psat)
+        : m_coefficients { std::log(ref1Psat) - std::log(ref1Psat / ref2Psat) * hfFunc(ref1Temp) / (hfFunc(ref1Temp) - hfFunc(ref2Temp)),
+                           std::log(ref1Psat / ref2Psat) / (hfFunc(ref1Temp) - hfFunc(ref2Temp)) }
     {}
 
+    // ===== Constructor, taking the two Hoffmann-Florin coefficients as arguments.
+    HoffmannFlorin::HoffmannFlorin(double coeffA, double coeffB) : m_coefficients { coeffA, coeffB } {}
+
     // ===== Copy constructor
-    VPWagner::VPWagner(const VPWagner& other) = default;
+    HoffmannFlorin::HoffmannFlorin(const HoffmannFlorin& other) = default;
 
     // ===== Move constructor
-    VPWagner::VPWagner(VPWagner&& other) noexcept = default;
+    HoffmannFlorin::HoffmannFlorin(HoffmannFlorin&& other) noexcept = default;
 
     // ===== Destructor
-    VPWagner::~VPWagner() = default;
+    HoffmannFlorin::~HoffmannFlorin() = default;
 
     // ===== Copy assignment operator
-    VPWagner& VPWagner::operator=(const VPWagner& other) = default;
+    HoffmannFlorin& HoffmannFlorin::operator=(const HoffmannFlorin& other) = default;
 
     // ===== Move assignment operator
-    VPWagner& VPWagner::operator=(VPWagner&& other) noexcept = default;
+    HoffmannFlorin& HoffmannFlorin::operator=(HoffmannFlorin&& other) noexcept = default;
 
     // ===== Function call operator
-    double VPWagner::operator()(double temperature) const
+    double HoffmannFlorin::operator()(double temperature) const
     {
         using std::exp;
-        using std::pow;
-        using std::log;
-        auto tr = temperature / m_criticalTemperature;
-
-        return exp((1.0 / tr) *
-               (m_coefficients[0] * (1 - tr) +
-                m_coefficients[1] * pow(1 - tr, 1.5) +
-                m_coefficients[2] * pow(1 - tr, m_expC) +
-                m_coefficients[3] * pow(1 - tr, m_expD))) * m_criticalPressure;
+        return exp(m_coefficients[0] + m_coefficients[1] * hfFunc(temperature));
     }
 
-    // ===== Getter for the critical temperature [K]
-    double VPWagner::criticalTemperature() const
-    {
-        return m_criticalTemperature;
-    }
-
-    // ===== Getter for the critical pressure [Pa]
-    double VPWagner::criticalPressure() const
-    {
-        return m_criticalPressure;
-    }
-
-    // ===== Getter for the equation coefficients
-    std::array<double, 4> VPWagner::coefficients() const
+    // ===== Getter for the Hoffmann-Florin coefficients
+    std::array<double, 2> HoffmannFlorin::coefficients() const
     {
         return m_coefficients;
     }
 
-    // ===== Getter for the form of the Wagner equation
-    VPWagnerForm VPWagner::form() const
-    {
-        if (m_expC == 3 and m_expD == 6)
-            return VPWagnerForm::Form36;
-
-        return VPWagnerForm::Form25;
-    }
-
-} // namespace PCProps::VaporPressure
+}    // namespace PCProps::VaporPressure

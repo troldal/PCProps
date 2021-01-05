@@ -37,12 +37,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cmath>
 
-#include "CLVThomson.hpp"
+#include "Thomson.hpp"
 
 namespace PCProps::LiquidVolume
 {
     // ===== Constructor
-    CLVThomson::CLVThomson(
+    Thomson::Thomson(
         double                               criticalTemperature,
         double                               criticalPressure,
         double                               acentricFactor,
@@ -56,22 +56,22 @@ namespace PCProps::LiquidVolume
     {}
 
     // ===== Copy constructor
-    CLVThomson::CLVThomson(const CLVThomson& other) = default;
+    Thomson::Thomson(const Thomson& other) = default;
 
     // ===== Move constructor
-    CLVThomson::CLVThomson(CLVThomson&& other) noexcept = default;
+    Thomson::Thomson(Thomson&& other) noexcept = default;
 
     // ===== Destructor
-    CLVThomson::~CLVThomson() = default;
+    Thomson::~Thomson() = default;
 
     // ===== Copy assignment operator
-    CLVThomson& CLVThomson::operator=(const CLVThomson& other) = default;
+    Thomson& Thomson::operator=(const Thomson& other) = default;
 
     // ===== Move assignment operator
-    CLVThomson& CLVThomson::operator=(CLVThomson&& other) noexcept = default;
+    Thomson& Thomson::operator=(Thomson&& other) noexcept = default;
 
     // ===== Function call operator
-    double CLVThomson::operator()(double temperature, double pressure)
+    double Thomson::operator()(double temperature, double pressure)
     {
         using std::exp;
         using std::log;
@@ -79,9 +79,8 @@ namespace PCProps::LiquidVolume
 
         double tr = temperature / m_criticalTemperature;
         double C  = 0.0861488 + 0.0344483 * m_acentricFactor;
-        double B =
-            m_criticalPressure * (-1 - 9.070217 * pow(1 - tr, 1.0 / 3.0) + 62.45326 * pow(1 - tr, 2.0 / 3.0) - 135.1102 * (1 - tr) +
-                                  exp(4.79594 + 0.250047 * m_acentricFactor + 1.14188 * pow(m_acentricFactor, 2)) * pow(1 - tr, 4.0 / 3.0));
+        double B  = m_criticalPressure * (-1 - 9.070217 * pow(1 - tr, 1.0 / 3.0) + 62.45326 * pow(1 - tr, 2.0 / 3.0) - 135.1102 * (1 - tr) +
+                                         exp(4.79594 + 0.250047 * m_acentricFactor + 1.14188 * pow(m_acentricFactor, 2)) * pow(1 - tr, 4.0 / 3.0));
 
         double psat = m_vaporPressureFunction(temperature);
         double vsat = m_saturatedVolumeFunction(temperature);
@@ -90,14 +89,14 @@ namespace PCProps::LiquidVolume
     }
 
     // ===== Static factory function
-    CLVThomson CLVThomson::create(
+    Thomson Thomson::create(
         double                               criticalTemperature,
         double                               criticalPressure,
         double                               acentricFactor,
         const std::function<double(double)>& satVolumeFunction,
         const std::function<double(double)>& vaporPressureFunction)
     {
-        return CLVThomson(criticalTemperature, criticalPressure, acentricFactor, satVolumeFunction, vaporPressureFunction);
+        return Thomson(criticalTemperature, criticalPressure, acentricFactor, satVolumeFunction, vaporPressureFunction);
     }
 
 }    // namespace PCProps::LiquidVolume

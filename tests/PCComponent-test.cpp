@@ -57,16 +57,16 @@ TEST_CASE("PCComponent Test")
     pcd.criticalCompressibility = 0.2206;
     pcd.acentricFactor          = 0.2907;
 
-    pcd.vaporPressureFunction             = [](double temperature) { return temperature; };
-    pcd.liquidDensityFunction             = [](double temperature) { return temperature; };
-    pcd.surfaceTensionFunction            = [](double temperature) { return temperature; };
-    pcd.heatOfVaporizationFunction        = [](double temperature) { return temperature; };
-    pcd.vaporThermalConductivityFunction  = [](double temperature) { return temperature; };
-    pcd.liquidThermalConductivityFunction = [](double temperature) { return temperature; };
-    pcd.vaporViscosityFunction            = [](double temperature) { return temperature; };
-    pcd.liquidViscosityFunction           = [](double temperature) { return temperature; };
+    pcd.vaporPressureCorrelation          = [](double temperature) { return temperature; };
+    pcd.saturatedLiquidVolumeCorrelation  = [](double temperature) { return temperature; };
+    pcd.surfaceTensionCorrelation         = [](double temperature) { return temperature; };
+    pcd.heatOfVaporizationCorrelation     = [](double temperature) { return temperature; };
+    pcd.vaporThermalConductivityCorrelation = [](double temperature) { return temperature; };
+    pcd.liquidThermalConductivityCorrelation = [](double temperature) { return temperature; };
+    pcd.vaporViscosityCorrelation            = [](double temperature) { return temperature; };
+    pcd.liquidViscosityCorrelation           = [](double temperature) { return temperature; };
     pcd.idealGasCpFunction                = [](double temperature) { return temperature; };
-    pcd.liquidCpFunction                  = [](double temperature) { return temperature; };
+    pcd.liquidCpCorrelation                  = [](double temperature) { return temperature; };
 
     auto pc = PCProps::PCComponent(pcd);
 

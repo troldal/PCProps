@@ -37,12 +37,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cmath>
 
-#include "CLVAalto.hpp"
+#include "Aalto.hpp"
 
 namespace PCProps::LiquidVolume
 {
     // ===== Constructor
-    CLVAalto::CLVAalto(
+    Aalto::Aalto(
         double                               criticalTemperature,
         double                               criticalPressure,
         double                               acentricFactor,
@@ -56,42 +56,41 @@ namespace PCProps::LiquidVolume
     {}
 
     // ===== Copy constructor
-    CLVAalto::CLVAalto(const CLVAalto& other) = default;
+    Aalto::Aalto(const Aalto& other) = default;
 
     // ===== Move constructor
-    CLVAalto::CLVAalto(CLVAalto&& other) noexcept = default;
+    Aalto::Aalto(Aalto&& other) noexcept = default;
 
     // ===== Destructor
-    CLVAalto::~CLVAalto() = default;
+    Aalto::~Aalto() = default;
 
     // ===== Copy assignment operator
-    CLVAalto& CLVAalto::operator=(const CLVAalto& other) = default;
+    Aalto& Aalto::operator=(const Aalto& other) = default;
 
     // ===== Move assignment operator
-    CLVAalto& CLVAalto::operator=(CLVAalto&& other) noexcept = default;
+    Aalto& Aalto::operator=(Aalto&& other) noexcept = default;
 
     // ===== Function call operator
-    double CLVAalto::operator()(double temperature, double pressure) const
+    double Aalto::operator()(double temperature, double pressure) const
     {
         using std::pow;
         double tr = temperature / m_criticalTemperature;
 
         double A = -170.335 - 28.578 * tr + 124.809 * pow(tr, 3) - 55.5393 * pow(tr, 6) + 130.01 / tr;
 
-        return m_saturatedVolumeFunction(temperature) *
-               ((A * m_criticalPressure + pow(C, pow(D - tr, B)) * (pressure - m_vaporPressureFunction(temperature))) /
-                (A * m_criticalPressure + C * (pressure - m_vaporPressureFunction(temperature))));
+        return m_saturatedVolumeFunction(temperature) * ((A * m_criticalPressure + pow(C, pow(D - tr, B)) * (pressure - m_vaporPressureFunction(temperature))) /
+                                                         (A * m_criticalPressure + C * (pressure - m_vaporPressureFunction(temperature))));
     }
 
     // ===== Static factory function
-    CLVAalto CLVAalto::create(
+    Aalto Aalto::create(
         double                               criticalTemperature,
         double                               criticalPressure,
         double                               acentricFactor,
         const std::function<double(double)>& satVolumeFunction,
         const std::function<double(double)>& vaporPressureFunction)
     {
-        return CLVAalto(criticalTemperature, criticalPressure, acentricFactor, satVolumeFunction, vaporPressureFunction);
+        return Aalto(criticalTemperature, criticalPressure, acentricFactor, satVolumeFunction, vaporPressureFunction);
     }
 
 }    // namespace PCProps::LiquidVolume

@@ -5,13 +5,13 @@
 #include <catch.hpp>
 #include <library/EquationOfState/EOSPengRobinson.hpp>
 #include <library/EquationOfState/EOSUtilities.hpp>
-#include <library/HeatCapacity/IGAlyLee.hpp>
-#include <library/VaporPressure/VPAmbroseWalton.hpp>
+#include <library/HeatCapacity/AlyLee.hpp>
+#include <library/VaporPressure/AmbroseWalton.hpp>
 
 using PCProps::EquationOfState::EOSPengRobinson;
 using PCProps::EquationOfState::PhaseDataElement;
-using PCProps::HeatCapacity::IGAlyLee;
-using PCProps::VaporPressure::VPAmbroseWalton;
+using PCProps::HeatCapacity::AlyLee;
+using PCProps::VaporPressure::AmbroseWalton;
 
 using namespace PCProps::EquationOfState;
 
@@ -22,8 +22,8 @@ TEST_CASE("EOSPengRobinson Test")
     auto omega = 0.1523;
     auto mw    = 44.096;
 
-    auto            PSat = VPAmbroseWalton(tc, pc, omega);
-    auto            igCp = IGAlyLee(0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6);
+    auto            PSat = AmbroseWalton(tc, pc, omega);
+    auto            igCp = AlyLee(0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6);
     EOSPengRobinson propane(tc, pc, omega, mw, PSat, igCp);
 
     SECTION("PT Flash of propane @ 273.15 K and 1 bar")
@@ -36,7 +36,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.978939).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(97931.788809).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.022233).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-1899.261857).epsilon(0.001));
@@ -56,7 +56,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.003766).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(69350.105382).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.000070).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-24084.251701).epsilon(0.001));
@@ -76,7 +76,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.986760).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(98690.029547).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.026512).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(1803.116466).epsilon(0.001));
@@ -96,7 +96,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.995756).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(99576.428359).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.038896).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(15577.940459).epsilon(0.001));
@@ -116,7 +116,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(5000000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.171348).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(1507355.182464).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.000092).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-13089.953760).epsilon(0.001));
@@ -136,7 +136,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(5000000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.794804).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(4053007.334728).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.000621).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(12596.727773).epsilon(0.001));
@@ -156,7 +156,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.000007).epsilon(0.1));
         REQUIRE(get<Fugacity>(result[0]) == Approx(0.0).epsilon(0.01));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.000056).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-45132.566226).epsilon(0.001));
@@ -176,7 +176,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(4248000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.305823).epsilon(0.1));
         REQUIRE(get<Fugacity>(result[0]) == Approx(2729914.681402).epsilon(0.01));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.000221).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-2372.295636).epsilon(0.001));
@@ -197,7 +197,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.003697).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(96789.922051).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.000071).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-23379.777150).epsilon(0.001));
@@ -218,7 +218,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.966927).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(96789.922052).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.018544).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-4667.418728).epsilon(0.001));
@@ -239,7 +239,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.966927).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(96789.922052).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(0.5).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(0.5).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.018544).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-4667.418728).epsilon(0.001));
@@ -252,7 +252,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[1]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[1]) == Approx(0.003697).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[1]) == Approx(96789.922051).epsilon(0.001));
-        REQUIRE(get<Moles>(result[1]) == Approx(0.5).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[1]) == Approx(0.5).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[1]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[1]) == Approx(0.000071).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[1]) == Approx(-23379.777150).epsilon(0.001));
@@ -273,7 +273,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(71038.119363).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.002675).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(69274.509900).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.000070).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-24085.412742).epsilon(0.001));
@@ -294,7 +294,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(71038.119363).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.974596).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(69274.509900).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.025454).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-5075.219460).epsilon(0.001));
@@ -315,7 +315,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(71038.119363).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.974596).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(69274.509900).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(0.5).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(0.5).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.025454).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-5075.219460).epsilon(0.001));
@@ -328,7 +328,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[1]) == Approx(71038.119363).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[1]) == Approx(0.002675).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[1]) == Approx(69274.509900).epsilon(0.001));
-        REQUIRE(get<Moles>(result[1]) == Approx(0.5).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[1]) == Approx(0.5).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[1]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[1]) == Approx(0.000070).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[1]) == Approx(-24085.412742).epsilon(0.001));
@@ -349,7 +349,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.966927).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(96789.922052).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(0.501261).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(0.501261).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.018544).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-4667.418728).epsilon(0.001));
@@ -362,7 +362,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[1]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[1]) == Approx(0.003697).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[1]) == Approx(96789.922051).epsilon(0.001));
-        REQUIRE(get<Moles>(result[1]) == Approx(0.498739).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[1]) == Approx(0.498739).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[1]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[1]) == Approx(0.000071).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[1]) == Approx(-23379.777150).epsilon(0.001));
@@ -383,7 +383,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.987043).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(98717.657406).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.026723).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(2000).epsilon(0.001));
@@ -404,7 +404,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.995872).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(99587.960365).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.039223).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(16000).epsilon(0.001));
@@ -425,7 +425,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.003757).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(72299.863177).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.000070).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-24000).epsilon(0.001));
@@ -446,7 +446,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(5000000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.171527).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(374944.969272).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.000075).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-20000).epsilon(0.001));
@@ -467,7 +467,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(5000000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.785893).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(4020028.107737).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.000608).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(12000).epsilon(0.001));
@@ -488,7 +488,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.966927).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(96789.922052).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(0.476046).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(0.476046).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.018544).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-4667.418728).epsilon(0.001));
@@ -501,7 +501,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[1]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[1]) == Approx(0.003697).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[1]) == Approx(96789.922051).epsilon(0.001));
-        REQUIRE(get<Moles>(result[1]) == Approx(0.523954).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[1]) == Approx(0.523954).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[1]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[1]) == Approx(0.000071).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[1]) == Approx(-23379.777150).epsilon(0.001));
@@ -522,7 +522,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.987255).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(98738.413477).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.026886).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(2152.271027).epsilon(0.001));
@@ -543,7 +543,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.995657).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(99566.632742).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.038625).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(15231.239828).epsilon(0.001));
@@ -564,7 +564,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.003727).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(83688.539684).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.000070).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-23695.822221).epsilon(0.001));
@@ -585,7 +585,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(5000000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.170734).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(416727.575115).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.000076).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-19636.022175).epsilon(0.001));
@@ -606,7 +606,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(5000000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.790814).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(4038164.623638).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.000615).epsilon(0.01));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(12325.343803).epsilon(0.001));
@@ -627,7 +627,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.978939).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(97931.788809).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.022233).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-1899.261857).epsilon(0.001));
@@ -648,7 +648,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.978939).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(97931.788809).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.022233).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-1899.261857).epsilon(0.001));
@@ -670,7 +670,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.978939).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(97931.788809).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.022233).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-1899.261857).epsilon(0.001));
@@ -692,7 +692,7 @@ TEST_CASE("EOSPengRobinson Test")
         REQUIRE(get<Pressure>(result[0]) == Approx(100000.0).epsilon(0.001));
         REQUIRE(get<Compressibility>(result[0]) == Approx(0.978939).epsilon(0.001));
         REQUIRE(get<Fugacity>(result[0]) == Approx(97931.788809).epsilon(0.001));
-        REQUIRE(get<Moles>(result[0]) == Approx(1.0).epsilon(0.001));
+        REQUIRE(get<MolarFraction>(result[0]) == Approx(1.0).epsilon(0.001));
         REQUIRE(get<MolecularWeight>(result[0]) == Approx(44.096000).epsilon(0.001));
         REQUIRE(get<Volume>(result[0]) == Approx(0.022233).epsilon(0.001));
         REQUIRE(get<Enthalpy>(result[0]) == Approx(-1899.261857).epsilon(0.001));

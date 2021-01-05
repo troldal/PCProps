@@ -35,8 +35,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_SLVRACKETT_HPP
-#define PCPROPS_SLVRACKETT_HPP
+#ifndef PCPROPS_RACKETT_HPP
+#define PCPROPS_RACKETT_HPP
 
 namespace PCProps::LiquidVolume
 {
@@ -63,7 +63,7 @@ namespace PCProps::LiquidVolume
      * if coefficients needs to be changed after construction, a new object has to be created.
      *
      */
-    class SLVRackett
+    class Rackett
     {
         double m_A = 0.0;
         double m_B = 0.0;
@@ -73,12 +73,29 @@ namespace PCProps::LiquidVolume
     public:
         // ===== Constructors & Destructors ===== //
 
+        struct CreateFromDIPPR
+        {
+            double A;
+            double B;
+            double C;
+            double D;
+        };
+
+        struct CreateFromYaws
+        {
+            double A;
+            double B;
+            double Tc;
+            double n;
+            double molecularWeight;
+        };
+
         /**
          * @brief Constructor, default. Sets all coefficients to zero.
          * @warning Calling the function call operator on a default constructed SLVRackett object will result in
          * division by zero and return NaN.
          */
-        SLVRackett();
+        Rackett();
 
         /**
          * @brief Constructor, taking the four Rackett coefficients as arguments.
@@ -89,34 +106,46 @@ namespace PCProps::LiquidVolume
          * @note The coefficients must be based on an temperature input in Kelvin, and a density return value
          * in m3/mol.
          */
-        SLVRackett(double coeffA, double coeffB, double coeffC, double coeffD);
+        Rackett(double coeffA, double coeffB, double coeffC, double coeffD);
+
+        /**
+         * @brief
+         * @param coefficients
+         */
+        Rackett(const CreateFromDIPPR& coefficients);
+
+        /**
+         * @brief
+         * @param coefficients
+         */
+        Rackett(const CreateFromYaws& coefficients);
 
         /**
          * @brief Copy constructor.
          */
-        SLVRackett(const SLVRackett& other);
+        Rackett(const Rackett& other);
 
         /**
          * @brief Move constructor.
          */
-        SLVRackett(SLVRackett&& other) noexcept;
+        Rackett(Rackett&& other) noexcept;
 
         /**
          * @brief Destructor.
          */
-        ~SLVRackett();
+        ~Rackett();
 
         // ===== Manipulators ===== //
 
         /**
          * @brief Copy assignment operator.
          */
-        SLVRackett& operator=(const SLVRackett& other);
+        Rackett& operator=(const Rackett& other);
 
         /**
          * @brief Move assignment operator.
          */
-        SLVRackett& operator=(SLVRackett&& other) noexcept;
+        Rackett& operator=(Rackett&& other) noexcept;
 
         // ===== Accessors ===== //
 
@@ -142,7 +171,7 @@ namespace PCProps::LiquidVolume
          * @note The coefficients must be based on an temperature input in Kelvin, and a molar volume return value
          * in m3/mol.
          */
-        static SLVRackett createFromCoefficients(double coeffA, double coeffB, double coeffC, double coeffD);
+        static Rackett createFromCoefficients(double coeffA, double coeffB, double coeffC, double coeffD);
 
         /**
          * @brief Factory function, for creating an SLVRackett object from critical properties.
@@ -158,7 +187,7 @@ namespace PCProps::LiquidVolume
          * @param criticalCompressibility The pure component critical compressibility [-] or the Rackett compressibility, if available.
          * @return An SLVRackett object created from Rackett coefficients estimated from critical properties.
          */
-        static SLVRackett createFromCriticalProperties(double criticalTemperature, double criticalPressure, double criticalCompressibility);
+        static Rackett createFromCriticalProperties(double criticalTemperature, double criticalPressure, double criticalCompressibility);
 
         /**
          * @brief Factory function for creating an SLVRackett object using the Yamada-Gunn relation.
@@ -175,7 +204,7 @@ namespace PCProps::LiquidVolume
          * @param acentricFactor The pure component acentric factor [-]
          * @return An SLVRackett object created from Rackett coefficients estimated using the Yamada-Gunn relation.
          */
-        static SLVRackett createFromAcentricFactor(double criticalTemperature, double criticalPressure, double acentricFactor);
+        static Rackett createFromAcentricFactor(double criticalTemperature, double criticalPressure, double acentricFactor);
 
         /**
          * @brief Factory function for creating an SLVRackett object using a known reference point and the Yamada-Gunn relation.
@@ -194,11 +223,7 @@ namespace PCProps::LiquidVolume
          * @return An SLVRackett object created from Rackett coefficients estimated using a known reference point
          * and the Yamada-Gunn relation.
          */
-        static SLVRackett createFromReferencePointA(
-            double criticalTemperature,
-            double experimentalTemperature,
-            double experimentalVolume,
-            double acentricFactor);
+        static Rackett createFromReferencePointA(double criticalTemperature, double experimentalTemperature, double experimentalVolume, double acentricFactor);
 
         /**
          * @brief Factory function for creating an SLVRackett object using a known reference point and the critical compressibility.
@@ -218,13 +243,9 @@ namespace PCProps::LiquidVolume
          * @return An SLVRackett object created from Rackett coefficients estimated using a known reference point
          * and the critical compressibility.
          */
-        static SLVRackett createFromReferencePointB(
-            double criticalTemperature,
-            double experimentalTemperature,
-            double experimentalVolume,
-            double criticalCompressibility);
+        static Rackett createFromReferencePointB(double criticalTemperature, double experimentalTemperature, double experimentalVolume, double criticalCompressibility);
     };
 
 }    // namespace PCProps::LiquidVolume
 
-#endif    // PCPROPS_SLVRACKETT_HPP
+#endif    // PCPROPS_RACKETT_HPP

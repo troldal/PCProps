@@ -38,98 +38,78 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <cmath>
 #include <iostream>
 
-#include "SLVRackett.hpp"
+#include "Rackett.hpp"
 
 namespace PCProps::LiquidVolume
 {
     // ===== Constructor, default
-    SLVRackett::SLVRackett() = default;
+    Rackett::Rackett() = default;
 
     // ===== Constructor, taking the four Rackett coefficients as arguments
-    SLVRackett::SLVRackett(double coeffA, double coeffB, double coeffC, double coeffD)
-        : m_A { coeffA },
-          m_B { coeffB },
-          m_C { coeffC },
-          m_D { coeffD }
-    {}
+    Rackett::Rackett(double coeffA, double coeffB, double coeffC, double coeffD) : m_A { coeffA }, m_B { coeffB }, m_C { coeffC }, m_D { coeffD } {}
+
+    // ===== Constructor, taking DIPPR coefficients as arguments
+    Rackett::Rackett(const Rackett::CreateFromDIPPR& c) : Rackett(1 / (1000 * c.A), c.B, c.C, c.D) {}
+
+    Rackett::Rackett(const Rackett::CreateFromYaws& c) : Rackett(c.molecularWeight / (c.A * c.B * 1E6), c.B, c.Tc, c.n) {}
 
     // ===== Copy constructor
-    SLVRackett::SLVRackett(const SLVRackett& other) = default;
+    Rackett::Rackett(const Rackett& other) = default;
 
     // ===== Move constructor
-    SLVRackett::SLVRackett(SLVRackett&& other) noexcept = default;
+    Rackett::Rackett(Rackett&& other) noexcept = default;
 
     // ===== Destructor
-    SLVRackett::~SLVRackett() = default;
+    Rackett::~Rackett() = default;
 
     // ===== Copy assignment operator
-    SLVRackett& SLVRackett::operator=(const SLVRackett& other) = default;
+    Rackett& Rackett::operator=(const Rackett& other) = default;
 
     // ===== Move assignment operator
-    SLVRackett& SLVRackett::operator=(SLVRackett&& other) noexcept = default;
+    Rackett& Rackett::operator=(Rackett&& other) noexcept = default;
 
     // ===== Function call operator, taking temperature [K] as argument, returning saturated liquid density [mol/m3]
-    double SLVRackett::operator()(double temperature) const
+    double Rackett::operator()(double temperature) const
     {
         using std::pow;
         return m_A * pow(m_B, 1 + pow(1 - temperature / m_C, m_D));
     }
 
     // ===== Static factory, constructing an object from the four Rackett coefficients
-    SLVRackett SLVRackett::createFromCoefficients(double coeffA, double coeffB, double coeffC, double coeffD)
+    Rackett Rackett::createFromCoefficients(double coeffA, double coeffB, double coeffC, double coeffD)
     {
-        return SLVRackett(coeffA, coeffB, coeffC, coeffD);
+        return Rackett(coeffA, coeffB, coeffC, coeffD);
     }
 
     // ===== Static factory, constructing an object from critical prpoerties only
-    SLVRackett SLVRackett::createFromCriticalProperties(double criticalTemperature, double criticalPressure, double criticalCompressibility)
+    Rackett Rackett::createFromCriticalProperties(double criticalTemperature, double criticalPressure, double criticalCompressibility)
     {
-        return SLVRackett(
-            (8.31446261815324 * criticalTemperature) / criticalPressure,
-            criticalCompressibility,
-            criticalTemperature,
-            2.0 / 7.0);
+        return Rackett((8.31446261815324 * criticalTemperature) / criticalPressure, criticalCompressibility, criticalTemperature, 2.0 / 7.0);
     }
 
     // ===== Static factory, constructing object using the Yamada-Gunn relation
-    SLVRackett SLVRackett::createFromAcentricFactor(double criticalTemperature, double criticalPressure, double acentricFactor)
+    Rackett Rackett::createFromAcentricFactor(double criticalTemperature, double criticalPressure, double acentricFactor)
     {
-        return SLVRackett(
-            (8.31446261815324 * criticalTemperature) / criticalPressure,
-            (0.29056 - 0.08775 * acentricFactor),
-            criticalTemperature,
-            2.0 / 7.0);
+        return Rackett((8.31446261815324 * criticalTemperature) / criticalPressure, (0.29056 - 0.08775 * acentricFactor), criticalTemperature, 2.0 / 7.0);
     }
 
     // ===== Static factory, constructing an object from a known reference point and the acentric factor.
-    SLVRackett SLVRackett::createFromReferencePointA(
-        double criticalTemperature,
-        double experimentalTemperature,
-        double experimentalVolume,
-        double acentricFactor)
+    Rackett Rackett::createFromReferencePointA(double criticalTemperature, double experimentalTemperature, double experimentalVolume, double acentricFactor)
     {
         using std::pow;
         auto k = pow(1.0 - experimentalTemperature / criticalTemperature, 2.0 / 7.0);
         auto z = (0.29056 - 0.08775 * acentricFactor);
 
-        return SLVRackett(experimentalVolume / pow(z, 1 + k), z, criticalTemperature, 2.0 / 7.0);
+        return Rackett(experimentalVolume / pow(z, 1 + k), z, criticalTemperature, 2.0 / 7.0);
     }
 
     // ===== Static factory, constructing an object from a known reference point and the critical compressibility.
-    SLVRackett SLVRackett::createFromReferencePointB(
-        double criticalTemperature,
-        double experimentalTemperature,
-        double experimentalVolume,
-        double criticalCompressibility)
+    Rackett Rackett::createFromReferencePointB(double criticalTemperature, double experimentalTemperature, double experimentalVolume, double criticalCompressibility)
     {
         using std::pow;
         auto k = pow(1.0 - experimentalTemperature / criticalTemperature, 2.0 / 7.0);
 
-        return SLVRackett(
-            experimentalVolume / pow(criticalCompressibility, 1 + k),
-            criticalCompressibility,
-            criticalTemperature,
-            2.0 / 7.0);
+        return Rackett(experimentalVolume / pow(criticalCompressibility, 1 + k), criticalCompressibility, criticalTemperature, 2.0 / 7.0);
     }
 
 }    // namespace PCProps::LiquidVolume

@@ -35,16 +35,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <VaporPressure/VPRiedel.hpp>
+#include <VaporPressure/Riedel.hpp>
 #include <catch.hpp>
 
 TEST_CASE("VPRiedel Test")
 {
-    auto psat = PCProps::VaporPressure::VPRiedel {404.87, 632.35, 45.1911E5};
+    auto psat = PCProps::VaporPressure::Riedel { 404.87, 632.35, 45.1911E5 };
 
     SECTION("Default Construction")
     {
-        psat = PCProps::VaporPressure::VPRiedel {};
+        psat        = PCProps::VaporPressure::Riedel {};
         auto coeffs = psat.coefficients();
 
         REQUIRE(coeffs[0] == Approx(0.0));
@@ -73,7 +73,7 @@ TEST_CASE("VPRiedel Test")
         REQUIRE(psat(550) == Approx(16.51E5).epsilon(0.001));
         REQUIRE(psat(600) == Approx(31.20E5).epsilon(0.001));
 
-        psat = PCProps::VaporPressure::VPRiedel { 632.35, 45.1911E5, 9.5814, -9.8552, -4.4729, 0.2738 };
+        psat = PCProps::VaporPressure::Riedel { 632.35, 45.1911E5, 9.5814, -9.8552, -4.4729, 0.2738 };
 
         REQUIRE(coeffs[0] == Approx(9.5814).epsilon(0.001));
         REQUIRE(coeffs[1] == Approx(-9.8552).epsilon(0.001));
@@ -101,7 +101,7 @@ TEST_CASE("VPRiedel Test")
         REQUIRE(psat2(550) == Approx(16.51E5).epsilon(0.001));
         REQUIRE(psat2(600) == Approx(31.20E5).epsilon(0.001));
 
-        auto psat3 = PCProps::VaporPressure::VPRiedel {};
+        auto psat3 = PCProps::VaporPressure::Riedel {};
         psat3 = psat2;
 
         REQUIRE(psat3(300) == Approx(0.01755E5).epsilon(0.001));
@@ -125,7 +125,7 @@ TEST_CASE("VPRiedel Test")
         REQUIRE(psat2(550) == Approx(16.51E5).epsilon(0.001));
         REQUIRE(psat2(600) == Approx(31.20E5).epsilon(0.001));
 
-        auto psat3 = PCProps::VaporPressure::VPRiedel {};
+        auto psat3 = PCProps::VaporPressure::Riedel {};
         psat3 = std::move(psat2);
 
         REQUIRE(psat3(300) == Approx(0.01755E5).epsilon(0.001));

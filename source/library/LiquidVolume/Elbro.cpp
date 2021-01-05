@@ -40,7 +40,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <numeric>
 #include <tuple>
 
-#include "SLVElbro.hpp"
+#include "Elbro.hpp"
 
 namespace
 {
@@ -64,26 +64,26 @@ namespace
 
 namespace PCProps::LiquidVolume
 {
-    SLVElbro::SLVElbro(const std::vector<std::function<double(double)>>& groups) : m_groups { groups } {}
+    Elbro::Elbro(const std::vector<std::function<double(double)>>& groups) : m_groups { groups } {}
 
-    SLVElbro::SLVElbro(const SLVElbro& other) = default;
+    Elbro::Elbro(const Elbro& other) = default;
 
-    SLVElbro::SLVElbro(SLVElbro&& other) noexcept = default;
+    Elbro::Elbro(Elbro&& other) noexcept = default;
 
-    SLVElbro::~SLVElbro() = default;
+    Elbro::~Elbro() = default;
 
-    SLVElbro& SLVElbro::operator=(const SLVElbro& other) = default;
+    Elbro& Elbro::operator=(const Elbro& other) = default;
 
-    SLVElbro& SLVElbro::operator=(SLVElbro&& other) noexcept = default;
+    Elbro& Elbro::operator=(Elbro&& other) noexcept = default;
 
-    double SLVElbro::operator()(double temperature) const
+    double Elbro::operator()(double temperature) const
     {
         double result = 0.0;
         for (const auto& item : m_groups) result += item(temperature);
         return result / 1000000;
     }
 
-    SLVElbro SLVElbro::create(const std::vector<SLVElbroGroup>& groups)
+    Elbro Elbro::create(const std::vector<SLVElbroGroup>& groups)
     {
         using std::get;
         using std::pow;
@@ -93,14 +93,13 @@ namespace PCProps::LiquidVolume
         for (const auto& item : groups) {
             auto coeffs = ElbroGroups.at(static_cast<uint64_t>(item.first - 1));
             auto func   = [=](double temperature) -> double {
-                return get<0>(coeffs) * item.second + get<1>(coeffs) * item.second / 1000 * temperature +
-                       get<2>(coeffs) * item.second / 100000 * pow(temperature, 2);
+                return get<0>(coeffs) * item.second + get<1>(coeffs) * item.second / 1000 * temperature + get<2>(coeffs) * item.second / 100000 * pow(temperature, 2);
             };
 
             lambdas.emplace_back(func);
         }
 
-        return SLVElbro(lambdas);
+        return Elbro(lambdas);
     }
 
 }    // namespace PCProps::LiquidVolume

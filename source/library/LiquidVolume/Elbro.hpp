@@ -35,8 +35,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_SLVELBRO_HPP
-#define PCPROPS_SLVELBRO_HPP
+#ifndef PCPROPS_ELBRO_HPP
+#define PCPROPS_ELBRO_HPP
 
 #include <functional>
 #include <utility>
@@ -97,7 +97,7 @@ namespace PCProps::LiquidVolume
      * 35 | Si
      * 36 | SiO
      */
-    class SLVElbro
+    class Elbro
     {
         std::vector<std::function<double(double)>> m_groups; /**< Collection of polynomials used to calculate group contributions */
 
@@ -106,33 +106,33 @@ namespace PCProps::LiquidVolume
          * @param groups A std::vector of function objects for calculating individual group contributions.
          * @note This is a private constructor. To create a SLVElbro object, use the SLVElbro::create static factory function.
          */
-        explicit SLVElbro(const std::vector<std::function<double(double)>>& groups);
+        explicit Elbro(const std::vector<std::function<double(double)>>& groups);
 
     public:
         /**
          * @brief Copy constructor
          */
-        SLVElbro(const SLVElbro& other);
+        Elbro(const Elbro& other);
 
         /**
          * @brief Move constructor
          */
-        SLVElbro(SLVElbro&& other) noexcept;
+        Elbro(Elbro&& other) noexcept;
 
         /**
          * @brief Destructor
          */
-        ~SLVElbro();
+        ~Elbro();
 
         /**
          * @brief Copy assignment operator
          */
-        SLVElbro& operator=(const SLVElbro& other);
+        Elbro& operator=(const Elbro& other);
 
         /**
          * @brief Move assignment operator
          */
-        SLVElbro& operator=(SLVElbro&& other) noexcept;
+        Elbro& operator=(Elbro&& other) noexcept;
 
         /**
          * @brief Function call operator, taking temperature [K] as argument and returns saturated liquid molar volume [m3/mol]
@@ -147,7 +147,7 @@ namespace PCProps::LiquidVolume
          * @param groups A std::vector of SLVElbroGroup's (aka std::pair<int, int>) with group IDs and counts.
          * @return An SLVElbro object.
          */
-        static SLVElbro create(const std::vector<SLVElbroGroup>& groups);
+        static Elbro create(const std::vector<SLVElbroGroup>& groups);
 
         /**
          * @brief Static factory function for creating an SLVElbro object, taking a collection of group IDs and counts
@@ -158,14 +158,14 @@ namespace PCProps::LiquidVolume
          * @return An SLVElbro object.
          */
         template<typename Container>
-        static SLVElbro create(const Container& groups)
+        static Elbro create(const Container& groups)
         {
             std::vector<SLVElbroGroup> groupvec;
             for (const auto& item : groups) groupvec.template emplace_back(item);
 
-            return SLVElbro::create(groupvec);
+            return Elbro::create(groupvec);
         }
     };
 
 }    // namespace PCProps::LiquidVolume
-#endif    // PCPROPS_SLVELBRO_HPP
+#endif    // PCPROPS_ELBRO_HPP

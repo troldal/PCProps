@@ -56,19 +56,21 @@ target_include_directories(external SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_C
 #=======================================================================================================================
 set(PROJECT_TEMPLATE_SOURCES
         library/PCComponent.cpp
-        library/VaporPressure/VPRiedel.cpp
-        library/VaporPressure/VPAntoineExt.cpp
-        library/VaporPressure/VPWagner.cpp
-        library/VaporPressure/VPAmbroseWalton.cpp
-        library/VaporPressure/VPHoffmannFlorin.cpp
+        library/VaporPressure/Riedel.cpp
+        library/VaporPressure/AntoineExtended.cpp
+        library/VaporPressure/Wagner.cpp
+        library/VaporPressure/AmbroseWalton.cpp
+        library/VaporPressure/HoffmannFlorin.cpp
         library/ConstantData/CDJoback.cpp
-        library/LiquidVolume/SLVRackett.cpp
-        library/LiquidVolume/SLVHankinsonThomson.cpp
-        library/LiquidVolume/SLVYenWoods.cpp
-        library/LiquidVolume/SLVElbro.cpp
-        library/LiquidVolume/CLVThomson.cpp
-        library/LiquidVolume/CLVAalto.cpp
-        library/HeatCapacity/IGAlyLee.cpp
+        library/LiquidVolume/Rackett.cpp
+        library/LiquidVolume/HankinsonThomson.cpp
+        library/LiquidVolume/YenWoods.cpp
+        library/LiquidVolume/Elbro.cpp
+        library/LiquidVolume/Thomson.cpp
+        library/LiquidVolume/Aalto.cpp
+        library/HeatCapacity/AlyLee.cpp
+        library/HeatCapacity/PPDSLiquid.cpp
+        library/HeatCapacity/Polynomial.cpp
         library/EquationOfState/EOSPengRobinson.cpp
         )
 

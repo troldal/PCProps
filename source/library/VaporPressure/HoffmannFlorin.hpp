@@ -35,8 +35,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_VPHOFFMANNFLORIN_HPP
-#define PCPROPS_VPHOFFMANNFLORIN_HPP
+#ifndef PCPROPS_HOFFMANNFLORIN_HPP
+#define PCPROPS_HOFFMANNFLORIN_HPP
 
 #include <array>
 
@@ -45,7 +45,7 @@ namespace PCProps::VaporPressure
     /**
      * @brief
      */
-    class VPHoffmannFlorin
+    class HoffmannFlorin
     {
         std::array<double, 2> m_coefficients { 0.0, 0.0 };
 
@@ -53,7 +53,7 @@ namespace PCProps::VaporPressure
         /**
          * @brief Constructor, default
          */
-        VPHoffmannFlorin();
+        HoffmannFlorin();
 
         /**
          * @brief Constructor, taking temperature and vapor pressure for two reference points.
@@ -62,39 +62,39 @@ namespace PCProps::VaporPressure
          * @param ref2Temp Reference 2 temperature [K]
          * @param ref2Psat Reference 2 vapor pressure [Pa]
          */
-        VPHoffmannFlorin(double ref1Temp, double ref1Psat, double ref2Temp, double ref2Psat);
+        HoffmannFlorin(double ref1Temp, double ref1Psat, double ref2Temp, double ref2Psat);
 
         /**
          * @brief Constructor, taking the two Hoffmann-Florin coefficients as arguments.
          * @param coeffA Coefficient A.
          * @param coeffB Coefficient B.
          */
-        VPHoffmannFlorin(double coeffA, double coeffB);
+        HoffmannFlorin(double coeffA, double coeffB);
 
         /**
          * @brief Copy constructor
          */
-        VPHoffmannFlorin(const VPHoffmannFlorin& other);
+        HoffmannFlorin(const HoffmannFlorin& other);
 
         /**
          * @brief Move constructor
          */
-        VPHoffmannFlorin(VPHoffmannFlorin&& other) noexcept;
+        HoffmannFlorin(HoffmannFlorin&& other) noexcept;
 
         /**
          * @brief Destructor
          */
-        ~VPHoffmannFlorin();
+        ~HoffmannFlorin();
 
         /**
          * @brief Copy assignment operator
          */
-        VPHoffmannFlorin& operator=(const VPHoffmannFlorin& other);
+        HoffmannFlorin& operator=(const HoffmannFlorin& other);
 
         /**
          * @brief Move assignment operator
          */
-        VPHoffmannFlorin& operator=(VPHoffmannFlorin&& other) noexcept;
+        HoffmannFlorin& operator=(HoffmannFlorin&& other) noexcept;
 
         /**
          * @brief Function call operator, taking temperature [K] as an argument and returns the vapor pressure [Pa]
@@ -111,4 +111,4 @@ namespace PCProps::VaporPressure
     };
 
 }    // namespace PCProps::VaporPressure
-#endif    // PCPROPS_VPHOFFMANNFLORIN_HPP
+#endif    // PCPROPS_HOFFMANNFLORIN_HPP

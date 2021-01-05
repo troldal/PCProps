@@ -37,19 +37,18 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cmath>
 
-#include "VPRiedel.hpp"
+#include "Riedel.hpp"
 
 using namespace std;
 
 namespace PCProps::VaporPressure {
-
     // ===== Constructor, default
-    VPRiedel::VPRiedel() = default;
+    Riedel::Riedel() = default;
 
     // ===== Constructor
-    VPRiedel::VPRiedel(double boilingTemperature, double criticalTemperature, double criticalPressure, VPRiedelType type)
-        : m_criticalTemperature {criticalTemperature},
-          m_criticalPressure {criticalPressure}
+    Riedel::Riedel(double boilingTemperature, double criticalTemperature, double criticalPressure, VPRiedelType type)
+        : m_criticalTemperature { criticalTemperature },
+          m_criticalPressure { criticalPressure }
     {
         double tbr = boilingTemperature / criticalTemperature;
         double h = tbr * std::log(criticalPressure/101325.0)/(1.0 - tbr);
@@ -78,29 +77,29 @@ namespace PCProps::VaporPressure {
         m_coefficients[0] = 35.0 * m_coefficients[3];
     }
 
-    VPRiedel::VPRiedel(double criticalTemperature, double criticalPressure, double coeffA, double coeffB, double coeffC, double coeffD)
+    Riedel::Riedel(double criticalTemperature, double criticalPressure, double coeffA, double coeffB, double coeffC, double coeffD)
         : m_criticalTemperature { criticalTemperature },
           m_criticalPressure { criticalPressure },
           m_coefficients { coeffA, coeffB, coeffC, coeffD }
     {}
 
     // ===== Copy constructor
-    VPRiedel::VPRiedel(const VPRiedel& other) = default;
+    Riedel::Riedel(const Riedel& other) = default;
 
     // ===== Move constructor
-    VPRiedel::VPRiedel(VPRiedel&& other) noexcept = default;
+    Riedel::Riedel(Riedel&& other) noexcept = default;
 
     // ===== Destructor
-    VPRiedel::~VPRiedel() = default;
+    Riedel::~Riedel() = default;
 
     // ===== Copy assignment operator
-    VPRiedel& VPRiedel::operator=(const VPRiedel& other) = default;
+    Riedel& Riedel::operator=(const Riedel& other) = default;
 
     // ===== Move assignment operator
-    VPRiedel& VPRiedel::operator=(VPRiedel&& other) noexcept = default;
+    Riedel& Riedel::operator=(Riedel&& other) noexcept = default;
 
     // ===== Function Call Operator
-    double VPRiedel::operator()(double temperature) const
+    double Riedel::operator()(double temperature) const
     {
         using std::log;
         using std::pow;
@@ -109,19 +108,19 @@ namespace PCProps::VaporPressure {
     }
 
     // ===== Get the critical temperature used in the vapor pressure estimation.
-    double VPRiedel::criticalTemperature() const
+    double Riedel::criticalTemperature() const
     {
         return m_criticalTemperature;
     }
 
     // ===== Get the critical pressure used in the vapor pressure estimation.
-    double VPRiedel::criticalPressure() const
+    double Riedel::criticalPressure() const
     {
         return m_criticalPressure;
     }
 
     // ===== Coefficients
-    std::array<double, 4> VPRiedel::coefficients() const
+    std::array<double, 4> Riedel::coefficients() const
     {
         return m_coefficients;
     }

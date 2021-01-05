@@ -35,8 +35,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_CLVTHOMSON_HPP
-#define PCPROPS_CLVTHOMSON_HPP
+#ifndef PCPROPS_THOMSON_HPP
+#define PCPROPS_THOMSON_HPP
 
 #include <functional>
 
@@ -62,7 +62,7 @@ namespace PCProps::LiquidVolume
      * the saturation volume (\f$ V_{s} \f$) and pressure (\f$ P_{s} \f$) is used.
      * @warning This method may yield NaN as the result when T is close to Tc.
      */
-    class CLVThomson final
+    class Thomson final
     {
         std::function<double(double)> m_saturatedVolumeFunction {}; /** Function object for calculation of saturated liquid volume. */
         std::function<double(double)> m_vaporPressureFunction {};   /** Function object for calculation of vapor pressure. */
@@ -80,7 +80,7 @@ namespace PCProps::LiquidVolume
          * @param satVolumeFunction Function object for calculating saturated liquid volume [m3/mol] as function of temperature [K]
          * @param vaporPressureFunction Function object for calculating vapor pressure [Pa] as function of temperature [K]
          */
-        CLVThomson(
+        Thomson(
             double                               criticalTemperature,
             double                               criticalPressure,
             double                               acentricFactor,
@@ -91,27 +91,27 @@ namespace PCProps::LiquidVolume
         /**
          * @brief Copy constructor
          */
-        CLVThomson(const CLVThomson& other);
+        Thomson(const Thomson& other);
 
         /**
          * @brief Move constructor
          */
-        CLVThomson(CLVThomson&& other) noexcept;
+        Thomson(Thomson&& other) noexcept;
 
         /**
          * @brief Destructor
          */
-        ~CLVThomson();
+        ~Thomson();
 
         /**
          * @brief Copy assignment operator
          */
-        CLVThomson& operator=(const CLVThomson& other);
+        Thomson& operator=(const Thomson& other);
 
         /**
          * @brief Move assignment operator
          */
-        CLVThomson& operator=(CLVThomson&& other) noexcept;
+        Thomson& operator=(Thomson&& other) noexcept;
 
         /**
          * @brief Function call operator, taking temperature [K] and pressure [Pa] as arguments
@@ -132,7 +132,7 @@ namespace PCProps::LiquidVolume
          * @param vaporPressureFunction Function object for calculating vapor pressure [Pa] as function of temperature [K]
          * @return An CLVThomson object
          */
-        static CLVThomson create(
+        static Thomson create(
             double                               criticalTemperature,
             double                               criticalPressure,
             double                               acentricFactor,
@@ -141,4 +141,4 @@ namespace PCProps::LiquidVolume
     };
 
 }    // namespace PCProps::LiquidVolume
-#endif    // PCPROPS_CLVTHOMSON_HPP
+#endif    // PCPROPS_THOMSON_HPP

@@ -37,48 +37,56 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cmath>
 
-#include "VPAntoineExt.hpp"
+#include "AntoineExtended.hpp"
 
 namespace PCProps::VaporPressure
 {
     // ===== Constructor, default
-    VPAntoineExt::VPAntoineExt() = default;
+    AntoineExtended::AntoineExtended() = default;
 
     // ===== Constructor, taking coefficienta A-G as arguments
-    VPAntoineExt::VPAntoineExt(double A, double B, double C, double D, double E, double F, double G) : m_coefficients { A, B, C, D, E, F, G } {}
+    AntoineExtended::AntoineExtended(double A, double B, double C, double D, double E, double F, double G)
+        : m_coeffA { A },
+          m_coeffB { B },
+          m_coeffC { C },
+          m_coeffD { D },
+          m_coeffE { E },
+          m_coeffF { F },
+          m_coeffG { G }
+    {}
+
+    // ===== Constructor, creating an object from DIPPR coefficients
+    AntoineExtended::AntoineExtended(const AntoineExtended::CreateFromDIPPR& coefficients)
+        : AntoineExtended { coefficients.A, coefficients.B, 0.0, 0.0, coefficients.C, coefficients.D, coefficients.E }
+    {}
+
+    // ===== Constructor, creating an object from Yaws (1999) coefficients
+    AntoineExtended::AntoineExtended(const AntoineExtended::CreateFromYaws& c)
+        : AntoineExtended(log(133.322368) + c.A * log(10), c.B * log(10), 0.0, c.D * log(10), c.C, c.E * log(10), 2)
+    {}
 
     // ===== Copy constructor
-    VPAntoineExt::VPAntoineExt(const VPAntoineExt& other) = default;
+    AntoineExtended::AntoineExtended(const AntoineExtended& other) = default;
 
     // ===== Move constructor
-    VPAntoineExt::VPAntoineExt(VPAntoineExt&& other) noexcept = default;
+    AntoineExtended::AntoineExtended(AntoineExtended&& other) noexcept = default;
 
     // ===== Destructor
-    VPAntoineExt::~VPAntoineExt() = default;
+    AntoineExtended::~AntoineExtended() = default;
 
     // ===== Copy assignment operator
-    VPAntoineExt& VPAntoineExt::operator=(const VPAntoineExt& other) = default;
+    AntoineExtended& AntoineExtended::operator=(const AntoineExtended& other) = default;
 
     // ===== Move assignment operator
-    VPAntoineExt& VPAntoineExt::operator=(VPAntoineExt&& other) noexcept = default;
+    AntoineExtended& AntoineExtended::operator=(AntoineExtended&& other) noexcept = default;
 
     // ===== Function call operator
-    double VPAntoineExt::operator()(double temperature) const
+    double AntoineExtended::operator()(double temperature) const
     {
+        using std::exp;
         using std::log;
         using std::pow;
-        using std::exp;
-        return exp(m_coefficients[0] +
-                   m_coefficients[1] / (temperature + m_coefficients[2]) +
-                   m_coefficients[3] * temperature +
-                   m_coefficients[4] * log(temperature) +
-                   m_coefficients[5] * pow(temperature, static_cast<int>(m_coefficients[6])));
-    }
-
-    // ===== Return array of coefficients
-    std::array<double, 7> VPAntoineExt::coefficients() const
-    {
-        return m_coefficients;
+        return exp(m_coeffA + m_coeffB / (temperature + m_coeffC) + m_coeffD * temperature + m_coeffE * log(temperature) + m_coeffF * pow(temperature, static_cast<int>(m_coeffG)));
     }
 
 }    // namespace PCProps::VaporPressure

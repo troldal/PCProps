@@ -37,13 +37,30 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "PCComponent.hpp"
 
-namespace PCProps {
+#include <library/EquationOfState/EOSUtilities.hpp>
+#include <library/PCPropsException.hpp>
 
+using namespace PCProps::EquationOfState;
+
+namespace PCProps
+{
     // ===== Constructor, default
     PCComponent::PCComponent() = default;
 
     // ===== Constructor, taking a PCComponentData object as an argument
-    PCComponent::PCComponent(const PCComponentData& data) : m_data(data) {}
+    PCComponent::PCComponent(const PCComponentData& data) : m_data(data)
+    {
+        if (!m_data.equationOfState) throw PCPropsException("Error: Invalid EOS object!");
+        if (!m_data.idealGasCpCorrelation) throw PCPropsException("Error: Invalid Ideal Gas Cp object!");
+
+        m_data.equationOfState.setProperties(m_data.criticalTemperature.value(), m_data.criticalPressure.value(), m_data.acentricFactor.value());
+
+        m_data.equationOfState.setVaporPressureFunction(m_data.vaporPressureCorrelation);
+        m_data.equationOfState.setIdealGasCpFunction([&](double temperature) { return m_data.idealGasCpCorrelation.evaluateCp(temperature); });
+        m_data.equationOfState.setIdealGasCpDerivativeFunction([&](double temperature) { return m_data.idealGasCpCorrelation.derivativeOfCp(temperature); });
+        m_data.equationOfState.setIdealGasCpIntegralFunction([&](double temperature) { return m_data.idealGasCpCorrelation.integralOfCp(temperature); });
+        m_data.equationOfState.setIdealGasCpOverTIntegralFunction([&](double temperature) { return m_data.idealGasCpCorrelation.integralOfCpOverT(temperature); });
+    }
 
     // ===== Copy constructor
     PCComponent::PCComponent(const PCComponent& other) = default;
@@ -58,12 +75,91 @@ namespace PCProps {
     PCComponent& PCComponent::operator=(const PCComponent& other) = default;
 
     // ===== Move assignment operator
-    PCComponent& PCComponent::operator=(PCComponent&& other)  noexcept = default;
+    PCComponent& PCComponent::operator=(PCComponent&& other) noexcept = default;
 
     // ===== Accessor to the PCComponentData member
-    PCComponentData PCComponent::data() const
+    PCComponentData& PCComponent::data()
     {
         return m_data;
+    }
+
+    PCProperties PCComponent::flashPT(double pressure, double temperature) const
+    {
+        using std::get;
+        auto props = m_data.equationOfState.flashPT(pressure, temperature)[0];
+
+        PCProperties results;
+
+        enum Phase { Liquid, Vapor, Dense, Undefined };
+        Phase phase = Phase::Undefined;
+
+        if (temperature > m_data.criticalTemperature && pressure > m_data.criticalPressure)
+            phase = Phase::Dense;
+        else if (
+            (temperature > m_data.criticalTemperature && pressure <= m_data.criticalPressure) ||
+            (temperature <= m_data.criticalTemperature && pressure <= m_data.equationOfState.saturationPressure(temperature)))
+            phase = Phase::Vapor;
+        else if (temperature <= m_data.criticalTemperature && pressure > m_data.equationOfState.saturationPressure(temperature))
+            phase = Phase::Liquid;
+
+        switch (phase) {
+            case Phase::Liquid:
+                results.molarVolume = m_data.saturatedLiquidVolumeCorrelation(temperature);
+                break;
+
+            case Phase::Vapor:
+                results.molarVolume = get<Volume>(props);
+                break;
+
+            case Phase::Dense:
+                results.molarVolume = get<Volume>(props);
+                break;
+
+            default:
+                throw PCPropsException("Something went wrong. Invalid phase properties");
+        }
+
+        results.moleFraction = get<MolarFraction>(props);
+        //        results.molarVolume = get<Volume>(props);
+        results.surfaceTension      = 0.0;
+        results.thermalConductivity = 0.0;
+        results.viscosity           = 0.0;
+        results.heatCapacity        = 0.0;
+        results.molecularWeight     = m_data.molecularWeight.value();
+        results.temperature         = get<Temperature>(props);
+        results.pressure            = get<Pressure>(props);
+        results.compressibility     = get<Compressibility>(props);
+        results.fugacityCoefficient = get<FugacityCoefficient>(props);
+        results.fugacity            = get<Fugacity>(props);
+        results.enthalpy            = get<Enthalpy>(props);
+        results.entropy             = get<Entropy>(props);
+        results.internalEnergy      = get<InternalEnergy>(props);
+        results.gibbsEnergy         = get<GibbsEnergy>(props);
+        results.helmholzEnergy      = get<HelmholzEnergy>(props);
+
+        //        double fugacityCoefficient {};
+
+        return results;
+    }
+
+    PCProperties PCComponent::flashPx(double pressure, double vaporFraction) const
+    {
+        return PCProperties();
+    }
+
+    PCProperties PCComponent::flashTx(double temperature, double vaporFraction) const
+    {
+        return PCProperties();
+    }
+
+    PCProperties PCComponent::flashPH(double pressure, double enthalpy) const
+    {
+        return PCProperties();
+    }
+
+    PCProperties PCComponent::flashPS(double pressure, double entropy) const
+    {
+        return PCProperties();
     }
 
     // ===== Get the component name
@@ -210,131 +306,131 @@ namespace PCProps {
     // ===== Check if the vapor pressure function has been set
     bool PCComponent::hasVaporPressureFunction() const
     {
-        return static_cast<bool>(m_data.vaporPressureFunction);
+        return static_cast<bool>(m_data.vaporPressureCorrelation);
     }
 
     // ===== Check if the liquid density function has been set
     bool PCComponent::hasLiquidDensityFunction() const
     {
-        return static_cast<bool>(m_data.liquidDensityFunction);
+        return static_cast<bool>(m_data.saturatedLiquidVolumeCorrelation);
     }
 
     // ===== Check if the surface tension function has been set
     bool PCComponent::hasSurfaceTensionFunction() const
     {
-        return static_cast<bool>(m_data.surfaceTensionFunction);
+        return static_cast<bool>(m_data.surfaceTensionCorrelation);
     }
 
     // ===== Check if the heat of vaporization function has been set
     bool PCComponent::hasHeatOfVaporizationFunction() const
     {
-        return static_cast<bool>(m_data.heatOfVaporizationFunction);
+        return static_cast<bool>(m_data.heatOfVaporizationCorrelation);
     }
 
     // ===== Check if the vapor thermal conductivity function has been set
     bool PCComponent::hasVaporThermalConductivityFunction() const
     {
-        return static_cast<bool>(m_data.vaporThermalConductivityFunction);
+        return static_cast<bool>(m_data.vaporThermalConductivityCorrelation);
     }
 
     // ===== Check if the liquid thermal conductivity function has been set
     bool PCComponent::hasLiquidThermalConductivityFunction() const
     {
-        return static_cast<bool>(m_data.liquidThermalConductivityFunction);
+        return static_cast<bool>(m_data.liquidThermalConductivityCorrelation);
     }
 
     // ===== Check if the vapor viscosity function has been set
     bool PCComponent::hasVaporViscosityFunction() const
     {
-        return static_cast<bool>(m_data.vaporViscosityFunction);
+        return static_cast<bool>(m_data.vaporViscosityCorrelation);
     }
 
     // ===== Check if the liquid viscosity function has been set
     bool PCComponent::hasLiquidViscosityFunction() const
     {
-        return static_cast<bool>(m_data.liquidViscosityFunction);
+        return static_cast<bool>(m_data.liquidViscosityCorrelation);
     }
 
     // ===== Check if the ideal gas Cp function has been set
     bool PCComponent::hasIdealGasCpFunction() const
     {
-        return static_cast<bool>(m_data.idealGasCpFunction);
+        return static_cast<bool>(m_data.idealGasCpCorrelation);
     }
 
     // ===== Check if the liquid Cp function has been set
     bool PCComponent::hasLiquidCpFunction() const
     {
-        return static_cast<bool>(m_data.liquidCpFunction);
+        return static_cast<bool>(m_data.liquidCpCorrelation);
     }
 
     // ===== Compute the vapor pressure at the specified temperature
     double PCComponent::vaporPressure(double temperature) const
     {
-        if (!m_data.vaporPressureFunction) throw PCPropsException("Error: Vapor pressure function not set for component.");
-        return m_data.vaporPressureFunction(temperature);
+        if (!m_data.vaporPressureCorrelation) throw PCPropsException("Error: Vapor pressure function not set for component.");
+        return m_data.vaporPressureCorrelation(temperature);
     }
 
     // ===== Compute the liquid density at the specified temperature
     double PCComponent::liquidDensity(double temperature) const
     {
-        if (!m_data.liquidDensityFunction) throw PCPropsException("Error: Liquid density function not set for component.");
-        return m_data.liquidDensityFunction(temperature);
+        if (!m_data.saturatedLiquidVolumeCorrelation) throw PCPropsException("Error: Liquid density function not set for component.");
+        return m_data.saturatedLiquidVolumeCorrelation(temperature);
     }
 
     // ===== Compute the surface tension at the specified temperature
     double PCComponent::surfaceTension(double temperature) const
     {
-        if (!m_data.surfaceTensionFunction) throw PCPropsException("Error: Surface tension function not set for component.");
-        return m_data.surfaceTensionFunction(temperature);
+        if (!m_data.surfaceTensionCorrelation) throw PCPropsException("Error: Surface tension function not set for component.");
+        return m_data.surfaceTensionCorrelation(temperature);
     }
 
     // ===== Compute the latent heat at the specified temperature
     double PCComponent::heatOfVaporization(double temperature) const
     {
-        if (!m_data.heatOfVaporizationFunction) throw PCPropsException("Error: Latent heat function not set for component.");
-        return m_data.heatOfVaporizationFunction(temperature);
+        if (!m_data.heatOfVaporizationCorrelation) throw PCPropsException("Error: Latent heat function not set for component.");
+        return m_data.heatOfVaporizationCorrelation(temperature);
     }
 
     // ===== Compute the vapor thermal conductivity at the specified temperature
     double PCComponent::vaporThermalConductivity(double temperature) const
     {
-        if (!m_data.vaporThermalConductivityFunction) throw PCPropsException("Error: Vapor thermal conductivity function not set for component.");
-        return m_data.vaporThermalConductivityFunction(temperature);
+        if (!m_data.vaporThermalConductivityCorrelation) throw PCPropsException("Error: Vapor thermal conductivity function not set for component.");
+        return m_data.vaporThermalConductivityCorrelation(temperature);
     }
 
     // ===== Compute the liquid thermal conductivity at the specified temperature
     double PCComponent::liquidThermalConductivity(double temperature) const
     {
-        if (!m_data.liquidThermalConductivityFunction) throw PCPropsException("Error: Liquid thermal conductivity function not set for component.");
-        return m_data.liquidThermalConductivityFunction(temperature);
+        if (!m_data.liquidThermalConductivityCorrelation) throw PCPropsException("Error: Liquid thermal conductivity function not set for component.");
+        return m_data.liquidThermalConductivityCorrelation(temperature);
     }
 
     // ===== Compute the vapor viscosity at the specified temperature
     double PCComponent::vaporViscosity(double temperature) const
     {
-        if (!m_data.vaporViscosityFunction) throw PCPropsException("Error: Vapor viscosity function not set for component.");
-        return m_data.vaporViscosityFunction(temperature);
+        if (!m_data.vaporViscosityCorrelation) throw PCPropsException("Error: Vapor viscosity function not set for component.");
+        return m_data.vaporViscosityCorrelation(temperature);
     }
 
     // ===== Compute the liquid viscosity at the specified temperature
     double PCComponent::liquidViscosity(double temperature) const
     {
-        if (!m_data.liquidViscosityFunction) throw PCPropsException("Error: Liquid viscosity function not set for component.");
-        return m_data.liquidViscosityFunction(temperature);
+        if (!m_data.liquidViscosityCorrelation) throw PCPropsException("Error: Liquid viscosity function not set for component.");
+        return m_data.liquidViscosityCorrelation(temperature);
     }
 
     // ===== Compute the ideal gas Cp at the specified temperature
     double PCComponent::idealGasCp(double temperature) const
     {
-        if (!m_data.idealGasCpFunction) throw PCPropsException("Error: Ideal gas Cp function not set for component.");
-        return m_data.idealGasCpFunction(temperature);
+        if (!m_data.idealGasCpCorrelation) throw PCPropsException("Error: Ideal gas Cp function not set for component.");
+        return m_data.idealGasCpCorrelation.evaluateCp(temperature);
     }
 
     // ===== Compute the liquid Cp at the specified temperature
     double PCComponent::liquidCp(double temperature) const
     {
-        if (!m_data.liquidCpFunction) throw PCPropsException("Error: Liquid Cp function not set for component.");
-        return m_data.liquidCpFunction(temperature);
+        if (!m_data.liquidCpCorrelation) throw PCPropsException("Error: Liquid Cp function not set for component.");
+        return m_data.liquidCpCorrelation(temperature);
     }
 
 } // namespace PCProps

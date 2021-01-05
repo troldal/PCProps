@@ -35,8 +35,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_SLVHANKINSONTHOMSON_HPP
-#define PCPROPS_SLVHANKINSONTHOMSON_HPP
+#ifndef PCPROPS_HANKINSONTHOMSON_HPP
+#define PCPROPS_HANKINSONTHOMSON_HPP
 
 namespace PCProps::LiquidVolume
 {
@@ -75,7 +75,7 @@ namespace PCProps::LiquidVolume
      * if coefficients needs to be changed after construction, a new object has to be created.
      *
      */
-    class SLVHankinsonThomson final
+    class HankinsonThomson final
     {
         double m_criticalTemperature  = 0.0;
         double m_characteristicVolume = 0.0;
@@ -90,7 +90,7 @@ namespace PCProps::LiquidVolume
          * @note If the characteristic volume and/or the SRK acentric factor is not available, the critical volume and
          * the true acentric factor can be used with little loss of accuracy.
          */
-        SLVHankinsonThomson(double criticalTemperature, double characteristicVolume, double acentricFactor);
+        HankinsonThomson(double criticalTemperature, double characteristicVolume, double acentricFactor);
 
     public:
         /**
@@ -111,27 +111,27 @@ namespace PCProps::LiquidVolume
         /**
          * @brief Copy constructor.
          */
-        SLVHankinsonThomson(const SLVHankinsonThomson& other);
+        HankinsonThomson(const HankinsonThomson& other);
 
         /**
          * @brief Move constructor
          */
-        SLVHankinsonThomson(SLVHankinsonThomson&& other) noexcept;
+        HankinsonThomson(HankinsonThomson&& other) noexcept;
 
         /**
          * @brief Destructor
          */
-        ~SLVHankinsonThomson();
+        ~HankinsonThomson();
 
         /**
          * @brief Copy assignment operator.
          */
-        SLVHankinsonThomson& operator=(const SLVHankinsonThomson& other);
+        HankinsonThomson& operator=(const HankinsonThomson& other);
 
         /**
          * @brief Move assignment operator.
          */
-        SLVHankinsonThomson& operator=(SLVHankinsonThomson&& other) noexcept;
+        HankinsonThomson& operator=(HankinsonThomson&& other) noexcept;
 
         /**
          * @brief Function call operator, taking temperature [K] as an argument and returns the liquid molar volume [m3/mol]
@@ -150,8 +150,7 @@ namespace PCProps::LiquidVolume
          * the true acentric factor can be used with little loss of accuracy.
          * @return An SLVHankinsonThomson created from the input parameters.
          */
-        static SLVHankinsonThomson
-            createFromCharacteristicVolume(double criticalTemperature, double characteristicVolume, double acentricFactor);
+        static HankinsonThomson createFromCharacteristicVolume(double criticalTemperature, double characteristicVolume, double acentricFactor);
 
         /**
          * @brief Static factory function, creating an SLVHankinsonThomson object from the critical temperature [K],
@@ -164,12 +163,9 @@ namespace PCProps::LiquidVolume
          * @note If the SRK acentric factor is not available, the true acentric factor can be used with little loss of accuracy.
          * @return An SLVHankinsonThomson created from critical properties and en estimated characteristic volume.
          */
-        static SLVHankinsonThomson createFromEstimatedProperties(
-            double                         criticalTemperature,
-            double                         criticalPressure,
-            double                         acentricFactor,
-            SLVHankinsonThomson::FluidType type = FluidType::Hydrocarbon);
+        static HankinsonThomson
+            createFromEstimatedProperties(double criticalTemperature, double criticalPressure, double acentricFactor, HankinsonThomson::FluidType type = FluidType::Hydrocarbon);
     };
 
 }    // namespace PCProps::LiquidVolume
-#endif    // PCPROPS_SLVHANKINSONTHOMSON_HPP
+#endif    // PCPROPS_HANKINSONTHOMSON_HPP

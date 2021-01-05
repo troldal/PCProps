@@ -35,16 +35,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <VaporPressure/VPWagner.hpp>
+#include <VaporPressure/Wagner.hpp>
 #include <catch.hpp>
 
 TEST_CASE("VPWagner Test")
 {
-    auto psat = PCProps::VaporPressure::VPWagner {466.05, 55.5E5, -7.48323, 1.89754, -1.87991, -2.74165};
+    auto psat = PCProps::VaporPressure::Wagner { 466.05, 55.5E5, -7.48323, 1.89754, -1.87991, -2.74165 };
 
     SECTION("Default Construction")
     {
-        psat = PCProps::VaporPressure::VPWagner {};
+        psat        = PCProps::VaporPressure::Wagner {};
         auto coeffs = psat.coefficients();
 
         REQUIRE(psat.criticalTemperature() == Approx(0.0));
@@ -80,7 +80,7 @@ TEST_CASE("VPWagner Test")
 
         REQUIRE(psat2(273.15 + 19.9) == Approx(1E5).epsilon(0.001));
 
-        auto psat3 = PCProps::VaporPressure::VPWagner {};
+        auto psat3 = PCProps::VaporPressure::Wagner {};
         psat3 = psat2;
 
         REQUIRE(psat3(273.15 + 19.9) == Approx(1E5).epsilon(0.001));
@@ -92,7 +92,7 @@ TEST_CASE("VPWagner Test")
 
         REQUIRE(psat2(273.15 + 19.9) == Approx(1E5).epsilon(0.001));
 
-        auto psat3 = PCProps::VaporPressure::VPWagner {};
+        auto psat3 = PCProps::VaporPressure::Wagner {};
         psat3 = std::move(psat2);
 
         REQUIRE(psat3(273.15 + 19.9) == Approx(1E5).epsilon(0.001));

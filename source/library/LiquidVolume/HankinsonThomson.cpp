@@ -37,12 +37,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cmath>
 
-#include "SLVHankinsonThomson.hpp"
+#include "HankinsonThomson.hpp"
 
 namespace PCProps::LiquidVolume
 {
     // ===== Constructor, taking critical properties as arguments
-    SLVHankinsonThomson::SLVHankinsonThomson(double criticalTemperature, double characteristicVolume, double acentricFactor)
+    HankinsonThomson::HankinsonThomson(double criticalTemperature, double characteristicVolume, double acentricFactor)
         : m_criticalTemperature(criticalTemperature),
           m_characteristicVolume(characteristicVolume),
           m_acentricFactor(acentricFactor)
@@ -50,28 +50,27 @@ namespace PCProps::LiquidVolume
     {}
 
     // =====  Copy constructor
-    SLVHankinsonThomson::SLVHankinsonThomson(const SLVHankinsonThomson& other) = default;
+    HankinsonThomson::HankinsonThomson(const HankinsonThomson& other) = default;
 
     // ===== Move constructor
-    SLVHankinsonThomson::SLVHankinsonThomson(SLVHankinsonThomson&& other) noexcept = default;
+    HankinsonThomson::HankinsonThomson(HankinsonThomson&& other) noexcept = default;
 
     // ===== Destructor
-    SLVHankinsonThomson::~SLVHankinsonThomson() = default;
+    HankinsonThomson::~HankinsonThomson() = default;
 
     // ===== Copy assignment operator
-    SLVHankinsonThomson& SLVHankinsonThomson::operator=(const SLVHankinsonThomson& other) = default;
+    HankinsonThomson& HankinsonThomson::operator=(const HankinsonThomson& other) = default;
 
     // ===== Move assignment operator
-    SLVHankinsonThomson& SLVHankinsonThomson::operator=(SLVHankinsonThomson&& other) noexcept = default;
+    HankinsonThomson& HankinsonThomson::operator=(HankinsonThomson&& other) noexcept = default;
 
     // ===== Function call operator, taking temperature [K] as argument and returns saturated liquid volume [m3/mol]
-    double SLVHankinsonThomson::operator()(double temperature) const
+    double HankinsonThomson::operator()(double temperature) const
     {
         using std::pow;
         double tr = temperature / m_criticalTemperature;
 
-        double V_0 = 1 - 1.528160 * pow(1 - tr, 1.0 / 3.0) + 1.439070 * pow(1 - tr, 2.0 / 3.0) - 0.814460 * (1 - tr) +
-                     0.190454 * pow(1 - tr, 4.0 / 3.0);
+        double V_0 = 1 - 1.528160 * pow(1 - tr, 1.0 / 3.0) + 1.439070 * pow(1 - tr, 2.0 / 3.0) - 0.814460 * (1 - tr) + 0.190454 * pow(1 - tr, 4.0 / 3.0);
 
         double V_Delta = (-0.296123 + 0.386914 * tr - 0.0427258 * pow(tr, 2) - 0.0480645 * pow(tr, 3)) / (tr - 1.00001);
 
@@ -79,18 +78,13 @@ namespace PCProps::LiquidVolume
     }
 
     // ===== Static factory function,creating an SLVHankinsonThomson object from the characteristic volume.
-    SLVHankinsonThomson
-        SLVHankinsonThomson::createFromCharacteristicVolume(double criticalTemperature, double characteristicVolume, double acentricFactor)
+    HankinsonThomson HankinsonThomson::createFromCharacteristicVolume(double criticalTemperature, double characteristicVolume, double acentricFactor)
     {
-        return SLVHankinsonThomson(criticalTemperature, characteristicVolume, acentricFactor);
+        return HankinsonThomson(criticalTemperature, characteristicVolume, acentricFactor);
     }
 
     // ===== Static factory function,creating an SLVHankinsonThomson object from estimate of the characteristic volume.
-    SLVHankinsonThomson SLVHankinsonThomson::createFromEstimatedProperties(
-        double                         criticalTemperature,
-        double                         criticalPressure,
-        double                         acentricFactor,
-        SLVHankinsonThomson::FluidType type)
+    HankinsonThomson HankinsonThomson::createFromEstimatedProperties(double criticalTemperature, double criticalPressure, double acentricFactor, HankinsonThomson::FluidType type)
     {
         using std::pow;
         double a = 0.2851686;
@@ -152,7 +146,7 @@ namespace PCProps::LiquidVolume
 
         double V_char = (8.31446261815324 * criticalTemperature / criticalPressure) * (a + b * acentricFactor + c * pow(acentricFactor, 2));
 
-        return SLVHankinsonThomson(criticalTemperature, V_char, acentricFactor);
+        return HankinsonThomson(criticalTemperature, V_char, acentricFactor);
     }
 
 }    // namespace PCProps::LiquidVolume

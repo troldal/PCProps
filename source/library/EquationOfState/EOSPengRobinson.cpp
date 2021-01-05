@@ -37,12 +37,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <vector>
 
 #include "EOSPengRobinson.hpp"
 #include <PCConfig.hpp>
-#include <Utilities/Integration.hpp>
 #include <Utilities/RootFinding.hpp>
 
 namespace PCProps::EquationOfState
@@ -58,7 +56,6 @@ namespace PCProps::EquationOfState
         // ===== Basic fluid properties
         double m_criticalTemperature {};
         double m_criticalPressure {};
-        double m_molecularWeight {};
 
         // ===== Calculated constants
         double m_ac {};
@@ -66,10 +63,11 @@ namespace PCProps::EquationOfState
         double m_kappa {};
 
         // ===== User-supplied correlations
-        std::function<double(double)>         m_vaporPressureFunction {};
-        std::function<double(double)>         m_idealGasCpFunction {};
-        std::function<double(double, double)> m_idealGasCpIntegralFunction {};
-        std::function<double(double, double)> m_idealGasCpOverTemperatureIntegralFunction {};
+        std::function<double(double)> m_vaporPressureFunction {};
+        std::function<double(double)> m_idealGasCpFunction {};
+        std::function<double(double)> m_idealGasCpDerivativeFunction {};
+        std::function<double(double)> m_idealGasCpIntegralFunction {};
+        std::function<double(double)> m_idealGasCpOverTemperatureIntegralFunction {};
 
         /**
          * @brief Compute the 'a' coefficient for the Peng-robinson EOS.
@@ -218,13 +216,7 @@ namespace PCProps::EquationOfState
         inline double idealGasEnthalpy(double temperature) const
         {
             using PCProps::Globals::STANDARD_T;
-
-            // ===== If an expression for the integral of Cp is available, that should be used.
-            if (m_idealGasCpIntegralFunction) return m_idealGasCpIntegralFunction(STANDARD_T, temperature);
-
-            // ===== Otherwise, evaluate the integral numerically.
-            using PCProps::Numerics::integrate;
-            return integrate(m_idealGasCpFunction, STANDARD_T, temperature);
+            return (m_idealGasCpIntegralFunction(temperature) - m_idealGasCpIntegralFunction(STANDARD_T));
         }
 
         /**
@@ -261,13 +253,7 @@ namespace PCProps::EquationOfState
             using PCProps::Globals::STANDARD_P;
             using PCProps::Globals::STANDARD_T;
 
-            // ===== If an analytic expression for the integral of Cp/T is available, that expression should be used.
-            if (m_idealGasCpOverTemperatureIntegralFunction)
-                return m_idealGasCpOverTemperatureIntegralFunction(STANDARD_T, t) - R_CONST * log(p / STANDARD_P);
-
-            // ===== Otherwise, compute the integral numerically
-            using PCProps::Numerics::integrate;
-            return integrate([&](double temp) { return m_idealGasCpFunction(temp) / temp; }, STANDARD_T, t) - R_CONST * log(p / STANDARD_P);
+            return (m_idealGasCpOverTemperatureIntegralFunction(t) - m_idealGasCpOverTemperatureIntegralFunction(STANDARD_T)) - R_CONST * log(p / STANDARD_P);
         }
 
         /**
@@ -286,8 +272,8 @@ namespace PCProps::EquationOfState
             auto coeffA = A(t, p);
             auto coeffB = B(t, p);
 
-            return (log(z - coeffB) - coeffA / (coeffB * sqrt(8)) * m_kappa * sqrt(t / criticalTemperature()) / sqrt(alpha(t)) *
-                                          log((z + (1 + sqrt(2)) * coeffB) / (z + (1 - sqrt(2)) * coeffB))) *
+            return (log(z - coeffB) -
+                    coeffA / (coeffB * sqrt(8)) * m_kappa * sqrt(t / criticalTemperature()) / sqrt(alpha(t)) * log((z + (1 + sqrt(2)) * coeffB) / (z + (1 - sqrt(2)) * coeffB))) *
                    R_CONST;
         }
 
@@ -301,22 +287,73 @@ namespace PCProps::EquationOfState
          * @param vaporPressureFunction Function object for computing the vapor pressure as a function of temperature.
          * @param idealGasCpFunction Function object for computing the Cp as a function of temperature.
          */
-        impl(
-            double                               criticalTemperature,
-            double                               criticalPressure,
-            double                               acentricFactor,
-            double                               molecularWeight,
-            const std::function<double(double)>& vaporPressureFunction,
-            const std::function<double(double)>& idealGasCpFunction)
+        impl(double criticalTemperature, double criticalPressure, double acentricFactor)
             : m_criticalTemperature(criticalTemperature),
               m_criticalPressure(criticalPressure),
-              m_molecularWeight(molecularWeight),
               m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(criticalTemperature, 2) / criticalPressure),
               m_b(0.07779607 * PCProps::Globals::R_CONST * criticalTemperature / criticalPressure),
-              m_kappa(0.37464 + 1.54226 * acentricFactor - 0.26992 * pow(acentricFactor, 2)),
-              m_vaporPressureFunction(vaporPressureFunction),
-              m_idealGasCpFunction(idealGasCpFunction)
+              m_kappa(0.37464 + 1.54226 * acentricFactor - 0.26992 * pow(acentricFactor, 2))
         {}
+
+        /**
+         * @brief
+         * @param criticalTemperature
+         * @param criticalPressure
+         * @param acentricFactor
+         */
+        inline void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor)
+        {
+            m_criticalTemperature = criticalTemperature;
+            m_criticalPressure    = criticalPressure;
+            m_ac                  = 0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(criticalTemperature, 2) / criticalPressure;
+            m_b                   = 0.07779607 * PCProps::Globals::R_CONST * criticalTemperature / criticalPressure;
+            m_kappa               = 0.37464 + 1.54226 * acentricFactor - 0.26992 * pow(acentricFactor, 2);
+        }
+
+        /**
+         * @brief
+         * @param vaporPressureFunction
+         */
+        void setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction)
+        {
+            m_vaporPressureFunction = vaporPressureFunction;
+        }
+
+        /**
+         * @brief
+         * @param idealGasCpFunction
+         */
+        void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
+        {
+            m_idealGasCpFunction = idealGasCpFunction;
+        }
+
+        /**
+         * @brief
+         * @param idealGasCpDerivativeFunction
+         */
+        void setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction)
+        {
+            m_idealGasCpDerivativeFunction = idealGasCpDerivativeFunction;
+        }
+
+        /**
+         * @brief
+         * @param idealGasCpIntegralFunction
+         */
+        void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction)
+        {
+            m_idealGasCpIntegralFunction = idealGasCpIntegralFunction;
+        }
+
+        /**
+         * @brief
+         * @param idealGasOverTIntegralFunction
+         */
+        void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction)
+        {
+            m_idealGasCpOverTemperatureIntegralFunction = idealGasOverTIntegralFunction;
+        }
 
         /**
          * @brief Accessor for the critical temperature.
@@ -337,41 +374,33 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief Accessor for the molecular weight.
-         * @return The molecular weight [g/mol]
-         */
-        inline double molecularWeight() const
-        {
-            return m_molecularWeight;
-        }
-
-        /**
          * @brief Helper function for creating the std::tuple with the output data.
-         * @param moles The number of moles.
+         * @param moleFraction The number of moles.
          * @param temperature The temperature [K].
          * @param pressure The pressure [Pa].
          * @param z The compressibility factor [-]
          * @param phi The fugacity coefficient [-].
          * @return A PhaseData object (aka std::tuple) with the output data.
          */
-        PhaseData createEOSData(double moles, double temperature, double pressure, double z, double phi) const
+        PhaseData createEOSData(double moleFraction, double temperature, double pressure, double z, double phi) const
         {
             using PCProps::Globals::R_CONST;
             using std::get;
 
             PhaseData result;
 
-            get<Moles>(result)           = moles;
-            get<MolecularWeight>(result) = m_molecularWeight;
-            get<Temperature>(result)     = temperature;
-            get<Pressure>(result)        = pressure;
-            get<Volume>(result)          = z * R_CONST * temperature / pressure;
-            get<Fugacity>(result)        = phi * pressure;
-            get<Compressibility>(result) = z;
-            get<Enthalpy>(result)        = computeEnthalpy(temperature, pressure, z);
-            get<Entropy>(result)         = computeEntropy(temperature, pressure, z);
-            get<InternalEnergy>(result)  = get<Enthalpy>(result) - pressure * get<Volume>(result);
-            get<GibbsEnergy>(result)     = get<Enthalpy>(result) - temperature * get<Entropy>(result);
+            get<MolarFraction>(result) = moleFraction;
+            //            get<MolecularWeight>(result) = m_molecularWeight;
+            get<Temperature>(result)         = temperature;
+            get<Pressure>(result)            = pressure;
+            get<Volume>(result)              = z * R_CONST * temperature / pressure;
+            get<FugacityCoefficient>(result) = phi;
+            get<Fugacity>(result)            = phi * pressure;
+            get<Compressibility>(result)     = z;
+            get<Enthalpy>(result)            = computeEnthalpy(temperature, pressure, z);
+            get<Entropy>(result)             = computeEntropy(temperature, pressure, z);
+            get<InternalEnergy>(result)      = get<Enthalpy>(result) - pressure * get<Volume>(result);
+            get<GibbsEnergy>(result)         = get<Enthalpy>(result) - temperature * get<Entropy>(result);
             get<HelmholzEnergy>(result)  = get<InternalEnergy>(result) - temperature * get<Entropy>(result);
 
             return result;
@@ -407,7 +436,9 @@ namespace PCProps::EquationOfState
             // TODO (troldal): I'm not sure this works as intended. What if the fluid is supercritical?
             using std::get;
             auto f = [&](double p) {
-                auto phi   = computeCompressibilityAndFugacity(temperature, p);
+                auto phi = computeCompressibilityAndFugacity(temperature, p);
+                if (phi.size() == 1) return get<1>(phi[0]) * p;
+
                 auto phi_v = get<1>(phi[0]);
                 auto phi_l = get<1>(phi[1]);
                 return (phi_l - phi_v) * p;
@@ -426,7 +457,9 @@ namespace PCProps::EquationOfState
             // TODO (troldal): I'm not sure this works as intended. What if the fluid is supercritical?
             using std::get;
             auto f = [&](double t) {
-                auto phi   = computeCompressibilityAndFugacity(t, pressure);
+                auto phi = computeCompressibilityAndFugacity(t, pressure);
+                if (phi.size() == 1) return get<1>(phi[0]) * pressure;
+
                 auto phi_v = get<1>(phi[0]);
                 auto phi_l = get<1>(phi[1]);
                 return (phi_l - phi_v) * pressure;
@@ -464,18 +497,11 @@ namespace PCProps::EquationOfState
     };
 
     // ===== Constructor, default
-    EOSPengRobinson::EOSPengRobinson() = default;
+    EOSPengRobinson::EOSPengRobinson() : m_impl(std::make_unique<impl>(0.0, 0.0, 0.0)) {};
 
     // ===== Constructor
-    EOSPengRobinson::EOSPengRobinson(
-        double                               criticalTemperature,
-        double                               criticalPressure,
-        double                               acentricFactor,
-        double                               molecularWeight,
-        const std::function<double(double)>& vaporPressureFunction,
-        const std::function<double(double)>& idealGasCpFunction)
-        : m_impl(std::make_unique<
-                 impl>(criticalTemperature, criticalPressure, acentricFactor, molecularWeight, vaporPressureFunction, idealGasCpFunction))
+    EOSPengRobinson::EOSPengRobinson(double criticalTemperature, double criticalPressure, double acentricFactor)
+        : m_impl(std::make_unique<impl>(criticalTemperature, criticalPressure, acentricFactor))
     {}
 
     // ===== Copy constructor
@@ -498,8 +524,38 @@ namespace PCProps::EquationOfState
     // ===== Move assignment operator
     EOSPengRobinson& EOSPengRobinson::operator=(EOSPengRobinson&& other) noexcept = default;
 
+    void EOSPengRobinson::setProperties(double criticalTemperature, double criticalPressure, double acentricFactor)
+    {
+        m_impl->setProperties(criticalTemperature, criticalPressure, acentricFactor);
+    }
+
+    void EOSPengRobinson::setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction)
+    {
+        m_impl->setVaporPressureFunction(vaporPressureFunction);
+    }
+
+    void EOSPengRobinson::setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
+    {
+        m_impl->setIdealGasCpFunction(idealGasCpFunction);
+    }
+
+    void EOSPengRobinson::setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction)
+    {
+        m_impl->setIdealGasCpDerivativeFunction(idealGasCpDerivativeFunction);
+    }
+
+    void EOSPengRobinson::setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction)
+    {
+        m_impl->setIdealGasCpIntegralFunction(idealGasCpIntegralFunction);
+    }
+
+    void EOSPengRobinson::setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction)
+    {
+        m_impl->setIdealGasCpOverTIntegralFunction(idealGasOverTIntegralFunction);
+    }
+
     // ===== P,T Flash
-    Phases EOSPengRobinson::flashPT(double pressure, double temperature, double moles) const
+    Phases EOSPengRobinson::flashPT(double pressure, double temperature) const
     {
         using std::get;
 
@@ -509,11 +565,11 @@ namespace PCProps::EquationOfState
         // ===== Identify the Z/Phi with the lowest fugacity coefficient (which is the most stable)
         auto min = std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<1>(a) < get<1>(b); });
 
-        return { m_impl->createEOSData(moles, temperature, pressure, get<0>(*min), get<1>(*min)) };
+        return { m_impl->createEOSData(1.0, temperature, pressure, get<0>(*min), get<1>(*min)) };
     }
 
     // ===== T,x Flash
-    Phases EOSPengRobinson::flashTx(double temperature, double vaporFraction, double moles) const
+    Phases EOSPengRobinson::flashTx(double temperature, double vaporFraction) const
     {
         using std::get;
 
@@ -527,18 +583,17 @@ namespace PCProps::EquationOfState
         auto phi_l = get<1>(z_phi[1]);
 
         // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
-        if (vaporFraction >= 1.0) return { m_impl->createEOSData(vaporFraction * moles, temperature, pressure, z_v, phi_v) };
+        if (vaporFraction >= 1.0) return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
 
         // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
-        if (vaporFraction <= 0.0) return { m_impl->createEOSData((1 - vaporFraction) * moles, temperature, pressure, z_l, phi_l) };
+        if (vaporFraction <= 0.0) return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
 
         // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
-        return { m_impl->createEOSData(vaporFraction * moles, temperature, pressure, z_v, phi_v),
-                 m_impl->createEOSData((1 - vaporFraction) * moles, temperature, pressure, z_l, phi_l) };
+        return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
     }
 
     // ===== P,x Flash
-    Phases EOSPengRobinson::flashPx(double pressure, double vaporFraction, double moles) const
+    Phases EOSPengRobinson::flashPx(double pressure, double vaporFraction) const
     {
         using std::get;
 
@@ -552,18 +607,17 @@ namespace PCProps::EquationOfState
         auto phi_l = get<1>(z_phi[1]);
 
         // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
-        if (vaporFraction >= 1.0) return { m_impl->createEOSData(vaporFraction * moles, temperature, pressure, z_v, phi_v) };
+        if (vaporFraction >= 1.0) return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
 
         // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
-        if (vaporFraction <= 0.0) return { m_impl->createEOSData((1 - vaporFraction) * moles, temperature, pressure, z_l, phi_l) };
+        if (vaporFraction <= 0.0) return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
 
         // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
-        return { m_impl->createEOSData(vaporFraction * moles, temperature, pressure, z_v, phi_v),
-                 m_impl->createEOSData((1 - vaporFraction) * moles, temperature, pressure, z_l, phi_l) };
+        return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
     }
 
     // ===== P,H Flash
-    Phases EOSPengRobinson::flashPH(double pressure, double enthalpy, double moles) const
+    Phases EOSPengRobinson::flashPH(double pressure, double enthalpy) const
     {
         using std::get;
 
@@ -586,7 +640,7 @@ namespace PCProps::EquationOfState
             }
 
             auto temp = PCProps::Numerics::ridders(f, t1, t2);
-            return { flashPT(pressure, temp, moles) };
+            return { flashPT(pressure, temp) };
         }
 
         // ===== First, calculate the saturation temperature at the specified pressure.
@@ -613,7 +667,7 @@ namespace PCProps::EquationOfState
             };
 
             auto temp = PCProps::Numerics::ridders(f, 0, temperature);
-            return { flashPT(pressure, temp, moles) };
+            return { flashPT(pressure, temp) };
         }
 
         // ===== If the specified enthalpy is higher than the saturated vapor entropy, the fluid is superheated vapor.
@@ -637,17 +691,16 @@ namespace PCProps::EquationOfState
             }
 
             auto temp = PCProps::Numerics::ridders(f, t1, t2);
-            return { flashPT(pressure, temp, moles) };
+            return { flashPT(pressure, temp) };
         }
 
         // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.
         auto vaporFraction = (h_l - enthalpy) / (h_l - h_v);
-        return { m_impl->createEOSData(vaporFraction * moles, temperature, pressure, z_v, phi_v),
-                 m_impl->createEOSData((1 - vaporFraction) * moles, temperature, pressure, z_l, phi_l) };
+        return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
     }
 
     // ===== P,S Flash
-    Phases EOSPengRobinson::flashPS(double pressure, double entropy, double moles) const
+    Phases EOSPengRobinson::flashPS(double pressure, double entropy) const
     {
         using std::get;
 
@@ -670,7 +723,7 @@ namespace PCProps::EquationOfState
             }
 
             auto temp = PCProps::Numerics::ridders(f, t1, t2);
-            return { flashPT(pressure, temp, moles) };
+            return { flashPT(pressure, temp) };
         }
 
         // ===== First, calculate the saturation temperature at the specified pressure.
@@ -697,7 +750,7 @@ namespace PCProps::EquationOfState
             };
 
             auto temp = PCProps::Numerics::ridders(f, 1, temperature);
-            return { flashPT(pressure, temp, moles) };
+            return { flashPT(pressure, temp) };
         }
 
         // ===== If the specified entropy is higher than the saturated vapor entropy, the fluid is superheated vapor.
@@ -721,12 +774,24 @@ namespace PCProps::EquationOfState
             }
 
             auto temp = PCProps::Numerics::ridders(f, t1, t2);
-            return { flashPT(pressure, temp, moles) };
+            return { flashPT(pressure, temp) };
         }
 
         // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.
         auto vaporFraction = (s_l - entropy) / (s_l - s_v);
-        return { m_impl->createEOSData(vaporFraction * moles, temperature, pressure, z_v, phi_v),
-                 m_impl->createEOSData((1 - vaporFraction) * moles, temperature, pressure, z_l, phi_l) };
+        return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
     }
+
+    // ===== Saturation pressure at given temperature
+    double EOSPengRobinson::saturationPressure(double temperature) const
+    {
+        return m_impl->computeSaturationPressure(temperature);
+    }
+
+    // ===== Saturation temperature at given pressure
+    double EOSPengRobinson::saturationTemperature(double pressure) const
+    {
+        return m_impl->computeSaturationTemperature(pressure);
+    }
+
 }    // namespace PCProps::EquationOfState

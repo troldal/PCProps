@@ -51,6 +51,10 @@ namespace PCProps::EquationOfState
     class EOSPengRobinson
     {
     public:
+        // =====================================================================
+        // CONSTRUCTORS & ASSIGNMENT OPERATORS
+        // =====================================================================
+
         /**
          * @brief Default constructor. All member variables set to default values.
          */
@@ -61,17 +65,8 @@ namespace PCProps::EquationOfState
          * @param criticalTemperature
          * @param criticalPressure
          * @param acentricFactor
-         * @param molecularWeight
-         * @param vaporPressureFunction
-         * @param idealGasCpFunction
          */
-        EOSPengRobinson(
-            double                               criticalTemperature,
-            double                               criticalPressure,
-            double                               acentricFactor,
-            double                               molecularWeight,
-            const std::function<double(double)>& vaporPressureFunction,
-            const std::function<double(double)>& idealGasCpFunction);
+        EOSPengRobinson(double criticalTemperature, double criticalPressure, double acentricFactor);
 
         /**
          * @brief Copy constructor
@@ -98,50 +93,105 @@ namespace PCProps::EquationOfState
          */
         EOSPengRobinson& operator=(EOSPengRobinson&& other) noexcept;
 
+        // =====================================================================
+        // MANIPULATORS
+        // =====================================================================
+
+        /**
+         * @brief
+         * @param criticalTemperature
+         * @param criticalPressure
+         * @param acentricFactor
+         */
+        void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor);
+
+        /**
+         * @brief
+         * @param vaporPressureFunction
+         */
+        void setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction);
+
+        /**
+         * @brief
+         * @param idealGasCpFunction
+         */
+        void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction);
+
+        /**
+         * @brief
+         * @param idealGasCpDerivativeFunction
+         */
+        void setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction);
+
+        /**
+         * @brief
+         * @param idealGasCpIntegralFunction
+         */
+        void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction);
+
+        /**
+         * @brief
+         * @param idealGasOverTIntegralFunction
+         */
+        void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction);
+
+        // =====================================================================
+        // ACCESSORS
+        // =====================================================================
+
         /**
          * @brief Compute flash at specified temperature and pressure.
          * @param temperature The temperature [K]
          * @param pressure The pressure [Pa]
-         * @param moles The number of moles in the fluid. Default is 1.0
          * @return The phase data for the phase resulting from the flash.
          */
-        Phases flashPT(double pressure, double temperature, double moles = 1.0) const;
+        Phases flashPT(double pressure, double temperature) const;
 
         /**
          * @brief Compute flash at specified temperature and vapor fraction.
          * @param temperature The temperature [K]
          * @param vaporFraction The vapor fraction [-]. Must be between 0.0 and 1.0.
-         * @param moles The number of moles in the fluid. Default is 1.0
          * @return The phase data for the phase(s) resulting from the flash.
          */
-        Phases flashTx(double temperature, double vaporFraction, double moles = 1.0) const;
+        Phases flashTx(double temperature, double vaporFraction) const;
 
         /**
          * @brief Compute flash at specified pressure and vapor fraction
          * @param pressure The pressure [Pa]
          * @param vaporFraction The vapor fraction [-]. Must be between 0.0 and 1.0.
-         * @param moles The number of moles in the fluid. Default is 1.0
          * @return The phase data for the phase(s) resulting from the flash.
          */
-        Phases flashPx(double pressure, double vaporFraction, double moles = 1.0) const;
+        Phases flashPx(double pressure, double vaporFraction) const;
 
         /**
          * @brief Compute flash at specified pressure and computeEnthalpy.
          * @param pressure The pressure [Pa]
          * @param enthalpy The computeEnthalpy [J/mol]
-         * @param moles The number of moles in the fluid. Default is 1.0
          * @return The phase data for the phase(s) resulting from the flash.
          */
-        Phases flashPH(double pressure, double enthalpy, double moles = 1.0) const;
+        Phases flashPH(double pressure, double enthalpy) const;
 
         /**
          * @brief Compute flash at specified pressure and computeEntropy.
          * @param pressure The pressure [Pa]
          * @param entropy The computeEntropy [J/mol-K]
-         * @param moles The number of moles in the fluid. Default is 1.0
          * @return The phase data for the phase(s) resulting from the flash.
          */
-        Phases flashPS(double pressure, double entropy, double moles = 1.0) const;
+        Phases flashPS(double pressure, double entropy) const;
+
+        /**
+         * @brief
+         * @param temperature
+         * @return
+         */
+        double saturationPressure(double temperature) const;
+
+        /**
+         * @brief
+         * @param pressure
+         * @return
+         */
+        double saturationTemperature(double pressure) const;
 
     private:
         class impl;

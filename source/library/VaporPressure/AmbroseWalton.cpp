@@ -37,57 +37,64 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cmath>
 
-#include "VPHoffmannFlorin.hpp"
-
-namespace
-{
-    double hfFunc(double temperature)
-    {
-        using std::log10;
-        return (1.0 / temperature) - 7.9151E-3 + 2.6726E-3 * log10(temperature) - 0.8625E-6 * temperature;
-    }
-}    // namespace
+#include "AmbroseWalton.hpp"
 
 namespace PCProps::VaporPressure
 {
     // ===== Constructor, default
-    VPHoffmannFlorin::VPHoffmannFlorin() = default;
+    AmbroseWalton::AmbroseWalton() = default;
 
-    // ===== Constructor, taking temperature and vapor pressure of two reference points as arguments.
-    VPHoffmannFlorin::VPHoffmannFlorin(double ref1Temp, double ref1Psat, double ref2Temp, double ref2Psat)
-        : m_coefficients { std::log(ref1Psat) - std::log(ref1Psat / ref2Psat) * hfFunc(ref1Temp) / (hfFunc(ref1Temp) - hfFunc(ref2Temp)),
-                           std::log(ref1Psat / ref2Psat) / (hfFunc(ref1Temp) - hfFunc(ref2Temp)) }
+    // ===== Constructor, taking critical properties and acentric factor as arguments
+    AmbroseWalton::AmbroseWalton(double criticalTemperature, double criticalPressure, double acentricFactor)
+        : m_criticalTemperature { criticalTemperature },
+          m_criticalPressure { criticalPressure },
+          m_acentricFactor { acentricFactor }
     {}
 
-    // ===== Constructor, taking the two Hoffmann-Florin coefficients as arguments.
-    VPHoffmannFlorin::VPHoffmannFlorin(double coeffA, double coeffB) : m_coefficients { coeffA, coeffB } {}
-
     // ===== Copy constructor
-    VPHoffmannFlorin::VPHoffmannFlorin(const VPHoffmannFlorin& other) = default;
+    AmbroseWalton::AmbroseWalton(const AmbroseWalton& other) = default;
 
     // ===== Move constructor
-    VPHoffmannFlorin::VPHoffmannFlorin(VPHoffmannFlorin&& other) noexcept = default;
+    AmbroseWalton::AmbroseWalton(AmbroseWalton&& other) noexcept = default;
 
     // ===== Destructor
-    VPHoffmannFlorin::~VPHoffmannFlorin() = default;
+    AmbroseWalton::~AmbroseWalton() = default;
 
     // ===== Copy assignment operator
-    VPHoffmannFlorin& VPHoffmannFlorin::operator=(const VPHoffmannFlorin& other) = default;
+    AmbroseWalton& AmbroseWalton::operator=(const AmbroseWalton& other) = default;
 
     // ===== Move assignment operator
-    VPHoffmannFlorin& VPHoffmannFlorin::operator=(VPHoffmannFlorin&& other) noexcept = default;
+    AmbroseWalton& AmbroseWalton::operator=(AmbroseWalton&& other) noexcept = default;
 
     // ===== Function call operator
-    double VPHoffmannFlorin::operator()(double temperature) const
+    double AmbroseWalton::operator()(double temperature) const
     {
         using std::exp;
-        return exp(m_coefficients[0] + m_coefficients[1] * hfFunc(temperature));
+        using std::pow;
+        auto tau = 1 - (temperature / m_criticalTemperature);
+        auto f0  = (-5.97616 * tau + 1.29874 * pow(tau, 1.5) - 0.60394 * pow(tau, 2.5) - 1.06841 * pow(tau, 5)) / (1 - tau);
+        auto f1  = (-5.03365 * tau + 1.11505 * pow(tau, 1.5) - 5.41217 * pow(tau, 2.5) - 7.46628 * pow(tau, 5)) / (1 - tau);
+        auto f2  = (-0.64771 * tau + 2.41539 * pow(tau, 1.5) - 4.26979 * pow(tau, 2.5) + 3.25259 * pow(tau, 5)) / (1 - tau);
+
+        return exp(f0 + m_acentricFactor * f1 + pow(m_acentricFactor, 2) * f2) * m_criticalPressure;
     }
 
-    // ===== Getter for the Hoffmann-Florin coefficients
-    std::array<double, 2> VPHoffmannFlorin::coefficients() const
+    // ===== Get the critical temperature used for the vapor pressure estimation
+    double AmbroseWalton::criticalTemperature() const
     {
-        return m_coefficients;
+        return m_criticalTemperature;
+    }
+
+    // ===== Get the critical pressure used for the vapor pressure estimation
+    double AmbroseWalton::criticalPressure() const
+    {
+        return m_criticalPressure;
+    }
+
+    // ===== Get the acentric factor used for the vapor pressure estimation
+    double AmbroseWalton::acentricFactor() const
+    {
+        return m_acentricFactor;
     }
 
 }    // namespace PCProps::VaporPressure

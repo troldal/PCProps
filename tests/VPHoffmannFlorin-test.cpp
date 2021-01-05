@@ -35,16 +35,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <VaporPressure/VPHoffmannFlorin.hpp>
+#include <VaporPressure/HoffmannFlorin.hpp>
 #include <catch.hpp>
 
 TEST_CASE("VPHoffmannFlorin Test")
 {
-    auto psat = PCProps::VaporPressure::VPHoffmannFlorin { 334.13, 101325.0, 532.11, 49.8E5 };
+    auto psat = PCProps::VaporPressure::HoffmannFlorin { 334.13, 101325.0, 532.11, 49.8E5 };
 
     SECTION("Default Construction")
     {
-        psat        = PCProps::VaporPressure::VPHoffmannFlorin {};
+        psat        = PCProps::VaporPressure::HoffmannFlorin {};
         auto coeffs = psat.coefficients();
 
         REQUIRE(coeffs[0] == Approx(0.0));
@@ -66,7 +66,7 @@ TEST_CASE("VPHoffmannFlorin Test")
         REQUIRE(psat(273.15 + 4.500) == Approx(99.94E2).epsilon(0.001));
         REQUIRE(psat(273.15 + 120.1) == Approx(5.18E5).epsilon(0.001));
 
-        psat = PCProps::VaporPressure::VPHoffmannFlorin { 19.5596, -5233.61 };
+        psat = PCProps::VaporPressure::HoffmannFlorin { 19.5596, -5233.61 };
 
         REQUIRE(coeffs[0] == Approx(19.5596));
         REQUIRE(coeffs[1] == Approx(-5233.61));
@@ -84,7 +84,7 @@ TEST_CASE("VPHoffmannFlorin Test")
         REQUIRE(psat2(273.15 + 4.500) == Approx(99.94E2).epsilon(0.001));
         REQUIRE(psat2(273.15 + 120.1) == Approx(5.18E5).epsilon(0.001));
 
-        auto psat3 = PCProps::VaporPressure::VPHoffmannFlorin {};
+        auto psat3 = PCProps::VaporPressure::HoffmannFlorin {};
         psat3      = psat2;
 
         REQUIRE(psat3(273.15 - 41.70) == Approx(5.69E2).epsilon(0.001));
@@ -100,7 +100,7 @@ TEST_CASE("VPHoffmannFlorin Test")
         REQUIRE(psat2(273.15 + 4.500) == Approx(99.94E2).epsilon(0.001));
         REQUIRE(psat2(273.15 + 120.1) == Approx(5.18E5).epsilon(0.001));
 
-        auto psat3 = PCProps::VaporPressure::VPHoffmannFlorin {};
+        auto psat3 = PCProps::VaporPressure::HoffmannFlorin {};
         psat3      = std::move(psat2);
 
         REQUIRE(psat3(273.15 - 41.70) == Approx(5.69E2).epsilon(0.001));

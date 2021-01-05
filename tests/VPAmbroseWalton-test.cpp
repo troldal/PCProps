@@ -35,16 +35,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <VaporPressure/VPAmbroseWalton.hpp>
+#include <VaporPressure/AmbroseWalton.hpp>
 #include <catch.hpp>
 
 TEST_CASE("VPAmbroseWalton Test")
 {
-    auto psat = PCProps::VaporPressure::VPAmbroseWalton {632.35, 45.1911E5, 0.249857};
+    auto psat = PCProps::VaporPressure::AmbroseWalton { 632.35, 45.1911E5, 0.249857 };
 
     SECTION("Default Construction")
     {
-        psat = PCProps::VaporPressure::VPAmbroseWalton {};
+        psat = PCProps::VaporPressure::AmbroseWalton {};
 
         REQUIRE(psat.criticalTemperature() == Approx(0.0));
         REQUIRE(psat.criticalPressure() == Approx(0.0));
@@ -81,7 +81,7 @@ TEST_CASE("VPAmbroseWalton Test")
         REQUIRE(psat2(550.00) == Approx(16.43E5).epsilon(0.001));
         REQUIRE(psat2(600.00) == Approx(31.14E5).epsilon(0.001));
 
-        auto psat3 = PCProps::VaporPressure::VPAmbroseWalton {};
+        auto psat3 = PCProps::VaporPressure::AmbroseWalton {};
         psat3 = psat2;
 
         REQUIRE(psat3(300.00) == Approx(0.0178E5).epsilon(0.001));
@@ -105,7 +105,7 @@ TEST_CASE("VPAmbroseWalton Test")
         REQUIRE(psat2(550.00) == Approx(16.43E5).epsilon(0.001));
         REQUIRE(psat2(600.00) == Approx(31.14E5).epsilon(0.001));
 
-        auto psat3 = PCProps::VaporPressure::VPAmbroseWalton {};
+        auto psat3 = PCProps::VaporPressure::AmbroseWalton {};
         psat3 = std::move(psat2);
 
         REQUIRE(psat3(300.00) == Approx(0.0178E5).epsilon(0.001));

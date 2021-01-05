@@ -39,13 +39,62 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define PCPROPS_PCCOMPONENT_HPP
 
 #include <functional>
+#include <iomanip>
+#include <iostream>
 #include <optional>
 #include <string>
 
+#include <library/PCEquationOfState.hpp>
+#include <library/PCHeatCapacity.hpp>
 #include <library/PCPropsException.hpp>
 
 namespace PCProps
 {
+    /**
+     * @brief
+     */
+    struct PCProperties
+    {
+        double moleFraction {};
+        double molarVolume {};
+        double surfaceTension {};
+        double thermalConductivity {};
+        double viscosity {};
+        double heatCapacity {};
+        double molecularWeight {};
+        double temperature {};
+        double pressure {};
+        double compressibility {};
+        double fugacityCoefficient {};
+        double fugacity {};
+        double enthalpy {};
+        double entropy {};
+        double internalEnergy {};
+        double gibbsEnergy {};
+        double helmholzEnergy {};
+    };
+
+    inline std::ostream& operator<<(std::ostream& stream, const PCProps::PCProperties& properties)
+    {
+        return stream << std::setprecision(6) << std::fixed << "Molar Fraction       : " << std::right << std::setw(15) << properties.moleFraction << std::endl
+                      << "Molar Volume         : " << std::right << std::setw(15) << properties.molarVolume << " m3/mol" << std::endl
+                      << "Surface Tension      : " << std::right << std::setw(15) << properties.surfaceTension << " N/m" << std::endl
+                      << "Thermal Conductivity : " << std::right << std::setw(15) << properties.thermalConductivity << " W/m-K" << std::endl
+                      << "Viscosity            : " << std::right << std::setw(15) << properties.viscosity << " Pa-s" << std::endl
+                      << "Heat Capacity        : " << std::right << std::setw(15) << properties.heatCapacity << " J/mol-K" << std::endl
+                      << "Molecular Weight     : " << std::right << std::setw(15) << properties.molecularWeight << " g/mol" << std::endl
+                      << "Temperature          : " << std::right << std::setw(15) << properties.temperature << " K" << std::endl
+                      << "Pressure             : " << std::right << std::setw(15) << properties.pressure << " Pa" << std::endl
+                      << "Compressibility      : " << std::right << std::setw(15) << properties.compressibility << std::endl
+                      << "Fugacity Coefficient : " << std::right << std::setw(15) << properties.fugacityCoefficient << std::endl
+                      << "Fugacity             : " << std::right << std::setw(15) << properties.fugacity << " Pa" << std::endl
+                      << "Enthalpy             : " << std::right << std::setw(15) << properties.enthalpy << " J/mol" << std::endl
+                      << "Entropy              : " << std::right << std::setw(15) << properties.entropy << " J/mol-K" << std::endl
+                      << "Internal Energy      : " << std::right << std::setw(15) << properties.internalEnergy << " J/mol" << std::endl
+                      << "Gibbs Energy         : " << std::right << std::setw(15) << properties.gibbsEnergy << " J/mol" << std::endl
+                      << "Helmholz Energy      : " << std::right << std::setw(15) << properties.helmholzEnergy << " J/mol" << std::endl;
+    }
+
     /**
      * @brief The PCComponentData struct holds all the raw data and function objects that define a pure component.
      * An object of this type can be used to construct a PCComponent object.
@@ -70,16 +119,18 @@ namespace PCProps
         std::optional<double> criticalCompressibility {}; /**< The critical compressibility factor [-] of a component */
         std::optional<double> acentricFactor {};          /**< The acentric factor (omega) of a component */
 
-        std::function<double(double)> vaporPressureFunction {};             /**< The vapor pressure [Pa] as a function of temperature [K] */
-        std::function<double(double)> liquidDensityFunction {};             /**< The liquid density [HOLD] as a function of temperature [K] */
-        std::function<double(double)> surfaceTensionFunction {};            /**< The surface tension [HOLD] as a function of temperature [K] */
-        std::function<double(double)> heatOfVaporizationFunction {};        /**< The latent heat [HOLD] as a function of temperature [K] */
-        std::function<double(double)> vaporThermalConductivityFunction {};  /**< The vapor thermal conductivity [HOLD] as a function of temperature [K] */
-        std::function<double(double)> liquidThermalConductivityFunction {}; /**< The liquid thermal conductivity [HOLD] as a function of temperature [K] */
-        std::function<double(double)> vaporViscosityFunction {};            /**< The vapor viscosity [HOLD] as a function of temperature [K] */
-        std::function<double(double)> liquidViscosityFunction {};           /**< The liquid viscosity [HOLD] as a function of temperature [K] */
-        std::function<double(double)> idealGasCpFunction {};                /**< The ideal gas Cp [HOLD] as a function of temperature [K] */
-        std::function<double(double)> liquidCpFunction {};                  /**< The liquid Cp [HOLD] as a function of temperature [K] */
+        PCProps::PCEquationOfState            equationOfState {};
+        PCProps::PCHeatCapacity               idealGasCpCorrelation {};
+        std::function<double(double)>         liquidCpCorrelation {};                  /**< The liquid Cp [HOLD] as a function of temperature [K] */
+        std::function<double(double)>         vaporPressureCorrelation {};             /**< The vapor pressure [Pa] as a function of temperature [K] */
+        std::function<double(double)>         surfaceTensionCorrelation {};            /**< The surface tension [HOLD] as a function of temperature [K] */
+        std::function<double(double)>         heatOfVaporizationCorrelation {};        /**< The latent heat [HOLD] as a function of temperature [K] */
+        std::function<double(double)>         vaporThermalConductivityCorrelation {};  /**< The vapor thermal conductivity [HOLD] as a function of temperature [K] */
+        std::function<double(double)>         liquidThermalConductivityCorrelation {}; /**< The liquid thermal conductivity [HOLD] as a function of temperature [K] */
+        std::function<double(double)>         vaporViscosityCorrelation {};            /**< The vapor viscosity [HOLD] as a function of temperature [K] */
+        std::function<double(double)>         liquidViscosityCorrelation {};           /**< The liquid viscosity [HOLD] as a function of temperature [K] */
+        std::function<double(double)>         saturatedLiquidVolumeCorrelation {};     /**< The liquid density [HOLD] as a function of temperature [K] */
+        std::function<double(double, double)> compressedLiquidVolumeCorrelation {};
     };
 
     /**
@@ -138,7 +189,47 @@ namespace PCProps
          * @brief Get a copy of the PCComponentData object contained in the current object.
          * @return A copy of the PCComponentData member.
          */
-        PCComponentData data() const;
+        PCComponentData& data();
+
+        /**
+         * @brief
+         * @param pressure
+         * @param temperature
+         * @return
+         */
+        PCProperties flashPT(double pressure, double temperature) const;
+
+        /**
+         * @brief
+         * @param pressure
+         * @param vaporFraction
+         * @return
+         */
+        PCProperties flashPx(double pressure, double vaporFraction) const;
+
+        /**
+         * @brief
+         * @param temperature
+         * @param vaporFraction
+         * @return
+         */
+        PCProperties flashTx(double temperature, double vaporFraction) const;
+
+        /**
+         * @brief
+         * @param pressure
+         * @param enthalpy
+         * @return
+         */
+        PCProperties flashPH(double pressure, double enthalpy) const;
+
+        /**
+         * @brief
+         * @param pressure
+         * @param entropy
+         * @return
+         */
+        PCProperties flashPS(double pressure, double entropy) const;
 
         /**
          * @brief Get the name of the component.

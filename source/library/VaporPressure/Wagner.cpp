@@ -37,64 +37,72 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cmath>
 
-#include "VPAmbroseWalton.hpp"
+#include "Wagner.hpp"
 
-namespace PCProps::VaporPressure
-{
+namespace PCProps::VaporPressure {
     // ===== Constructor, default
-    VPAmbroseWalton::VPAmbroseWalton() = default;
+    Wagner::Wagner() = default;
 
-    // ===== Constructor, taking critical properties and acentric factor as arguments
-    VPAmbroseWalton::VPAmbroseWalton(double criticalTemperature, double criticalPressure, double acentricFactor)
+    // ===== Constructor, taking critical properties and coefficients as arguments
+    Wagner::Wagner(double criticalTemperature, double criticalPressure, double A, double B, double C, double D, VPWagnerForm form)
         : m_criticalTemperature { criticalTemperature },
           m_criticalPressure { criticalPressure },
-          m_acentricFactor { acentricFactor }
+          m_coefficients { A, B, C, D },
+          m_expC { form == VPWagnerForm::Form25 ? 2.5 : 3.0 },
+          m_expD { form == VPWagnerForm::Form25 ? 5.0 : 6.0 }
     {}
 
     // ===== Copy constructor
-    VPAmbroseWalton::VPAmbroseWalton(const VPAmbroseWalton& other) = default;
+    Wagner::Wagner(const Wagner& other) = default;
 
     // ===== Move constructor
-    VPAmbroseWalton::VPAmbroseWalton(VPAmbroseWalton&& other) noexcept = default;
+    Wagner::Wagner(Wagner&& other) noexcept = default;
 
     // ===== Destructor
-    VPAmbroseWalton::~VPAmbroseWalton() = default;
+    Wagner::~Wagner() = default;
 
     // ===== Copy assignment operator
-    VPAmbroseWalton& VPAmbroseWalton::operator=(const VPAmbroseWalton& other) = default;
+    Wagner& Wagner::operator=(const Wagner& other) = default;
 
     // ===== Move assignment operator
-    VPAmbroseWalton& VPAmbroseWalton::operator=(VPAmbroseWalton&& other) noexcept = default;
+    Wagner& Wagner::operator=(Wagner&& other) noexcept = default;
 
     // ===== Function call operator
-    double VPAmbroseWalton::operator()(double temperature) const
+    double Wagner::operator()(double temperature) const
     {
         using std::exp;
+        using std::log;
         using std::pow;
-        auto tau = 1 - (temperature / m_criticalTemperature);
-        auto f0  = (-5.97616 * tau + 1.29874 * pow(tau, 1.5) - 0.60394 * pow(tau, 2.5) - 1.06841 * pow(tau, 5)) / (1 - tau);
-        auto f1  = (-5.03365 * tau + 1.11505 * pow(tau, 1.5) - 5.41217 * pow(tau, 2.5) - 7.46628 * pow(tau, 5)) / (1 - tau);
-        auto f2  = (-0.64771 * tau + 2.41539 * pow(tau, 1.5) - 4.26979 * pow(tau, 2.5) + 3.25259 * pow(tau, 5)) / (1 - tau);
+        auto tr = temperature / m_criticalTemperature;
 
-        return exp(f0 + m_acentricFactor * f1 + pow(m_acentricFactor, 2) * f2) * m_criticalPressure;
+        return exp((1.0 / tr) *
+                   (m_coefficients[0] * (1 - tr) + m_coefficients[1] * pow(1 - tr, 1.5) + m_coefficients[2] * pow(1 - tr, m_expC) + m_coefficients[3] * pow(1 - tr, m_expD))) * m_criticalPressure;
     }
 
-    // ===== Get the critical temperature used for the vapor pressure estimation
-    double VPAmbroseWalton::criticalTemperature() const
+    // ===== Getter for the critical temperature [K]
+    double Wagner::criticalTemperature() const
     {
         return m_criticalTemperature;
     }
 
-    // ===== Get the critical pressure used for the vapor pressure estimation
-    double VPAmbroseWalton::criticalPressure() const
+    // ===== Getter for the critical pressure [Pa]
+    double Wagner::criticalPressure() const
     {
         return m_criticalPressure;
     }
 
-    // ===== Get the acentric factor used for the vapor pressure estimation
-    double VPAmbroseWalton::acentricFactor() const
+    // ===== Getter for the equation coefficients
+    std::array<double, 4> Wagner::coefficients() const
     {
-        return m_acentricFactor;
+        return m_coefficients;
     }
 
-}    // namespace PCProps::VaporPressure
+    // ===== Getter for the form of the Wagner equation
+    VPWagnerForm Wagner::form() const
+    {
+        if (m_expC == 3 and m_expD == 6) return VPWagnerForm::Form36;
+
+        return VPWagnerForm::Form25;
+    }
+
+} // namespace PCProps::VaporPressure
