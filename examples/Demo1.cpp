@@ -6,12 +6,14 @@
 #include <library/HeatCapacity/PPDSLiquid.hpp>
 #include <library/LiquidVolume/Rackett.hpp>
 #include <library/PCComponent.hpp>
+#include <library/VaporPressure/AmbroseWalton.hpp>
 #include <library/VaporPressure/AntoineExtended.hpp>
 
 using PCProps::EquationOfState::EOSPengRobinson;
 using PCProps::HeatCapacity::AlyLee;
 using PCProps::HeatCapacity::PPDSLiquid;
 using PCProps::LiquidVolume::Rackett;
+using PCProps::VaporPressure::AmbroseWalton;
 using PCProps::VaporPressure::AntoineExtended;
 
 using PCProps::PCComponent;
