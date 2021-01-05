@@ -41,6 +41,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "EOSPengRobinson.hpp"
 #include <PCConfig.hpp>
+#include <Utilities/Integration.hpp>
 #include <Utilities/RootFinding.hpp>
 
 namespace PCProps::EquationOfState
@@ -217,6 +218,9 @@ namespace PCProps::EquationOfState
         {
             using PCProps::Globals::STANDARD_T;
             return (m_idealGasCpIntegralFunction(temperature) - m_idealGasCpIntegralFunction(STANDARD_T));
+
+            //            using PCProps::Numerics::integrate;
+            //            return integrate(m_idealGasCpFunction, PCProps::Globals::STANDARD_T, temperature);
         }
 
         /**
