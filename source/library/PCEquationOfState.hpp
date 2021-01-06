@@ -208,11 +208,32 @@ namespace PCProps
             return m_equationOfState->flashPS(pressure, entropy);
         }
 
+        /**
+         * @brief
+         * @param temperature
+         * @param volume
+         * @return
+         */
+        Phases flashTV(double temperature, double volume)
+        {
+            return m_equationOfState->flashTV(temperature, volume);
+        }
+
+        /**
+         * @brief
+         * @param temperature
+         * @return
+         */
         double saturationPressure(double temperature) const
         {
             return m_equationOfState->saturationPressure(temperature);
         }
 
+        /**
+         * @brief
+         * @param pressure
+         * @return
+         */
         double saturationTemperature(double pressure) const
         {
             return m_equationOfState->saturationTemperature(pressure);
@@ -302,6 +323,14 @@ namespace PCProps
              * @return
              */
             virtual Phases flashPS(double pressure, double entropy) const = 0;
+
+            /**
+             * @brief
+             * @param pressure
+             * @param entropy
+             * @return
+             */
+            virtual Phases flashTV(double temperature, double volume) const = 0;
 
             /**
              * @brief
@@ -463,6 +492,17 @@ namespace PCProps
             Phases flashPS(double pressure, double entropy) const override
             {
                 return EOSType.flashPS(pressure, entropy);
+            }
+
+            /**
+             * @brief
+             * @param temperature
+             * @param volume
+             * @return
+             */
+            Phases flashTV(double temperature, double volume) const override
+            {
+                return EOSType.flashTV(temperature, volume);
             }
 
             /**

@@ -53,7 +53,7 @@ int main()
 
     auto propane = PCComponent(data);
 
-    std::cout << propane.flashPT(1E5, 298.15) << std::endl;
+    std::cout << propane.flashPT(1E5, 298.15)[0] << std::endl;
 
     return 0;
 }

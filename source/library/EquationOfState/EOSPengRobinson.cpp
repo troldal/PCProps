@@ -162,14 +162,10 @@ namespace PCProps::EquationOfState
                 auto m     = 2 * sqrt(-p / 3);
                 auto theta = acos(3 * q / (p * m)) / 3.0;
 
-                // TODO (troldal): The middle root should be removed, instead of copying the min and max to a separate vector.
-                std::vector<double> all_roots { m * cos(theta) - a_2 / 3,
-                                                m * cos(theta + 2 * PI / 3) - a_2 / 3,
-                                                m * cos(theta + 4 * PI / 3) - a_2 / 3 };
+                std::vector<double> roots { m * cos(theta) - a_2 / 3, m * cos(theta + 2 * PI / 3) - a_2 / 3, m * cos(theta + 4 * PI / 3) - a_2 / 3 };
 
-                // ===== Discard the middle root, as it has no physical meaning.
-                std::vector<double> roots { *std::max_element(all_roots.begin(), all_roots.end()),
-                                            *std::min_element(all_roots.begin(), all_roots.end()) };
+                std::sort(roots.begin(), roots.end());
+                roots.erase(roots.begin() + 1);
 
                 // ===== If any of the roots are negative, delete them.
                 if (roots[1] <= 0.0) roots.pop_back();
@@ -219,6 +215,7 @@ namespace PCProps::EquationOfState
             using PCProps::Globals::STANDARD_T;
             return (m_idealGasCpIntegralFunction(temperature) - m_idealGasCpIntegralFunction(STANDARD_T));
 
+            // ===== The following is a backup for testing that the supplied integral expressions are correct
             //            using PCProps::Numerics::integrate;
             //            return integrate(m_idealGasCpFunction, PCProps::Globals::STANDARD_T, temperature);
         }
@@ -296,7 +293,9 @@ namespace PCProps::EquationOfState
               m_criticalPressure(criticalPressure),
               m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(criticalTemperature, 2) / criticalPressure),
               m_b(0.07779607 * PCProps::Globals::R_CONST * criticalTemperature / criticalPressure),
-              m_kappa(0.37464 + 1.54226 * acentricFactor - 0.26992 * pow(acentricFactor, 2))
+              m_kappa(
+                  acentricFactor <= 0.49 ? 0.37464 + 1.54226 * acentricFactor - 0.26992 * pow(acentricFactor, 2)
+                                         : 0.379642 + 1.48503 * acentricFactor - 0.164423 * pow(acentricFactor, 2) + 0.016666 * pow(acentricFactor, 3))
         {}
 
         /**
@@ -311,7 +310,8 @@ namespace PCProps::EquationOfState
             m_criticalPressure    = criticalPressure;
             m_ac                  = 0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(criticalTemperature, 2) / criticalPressure;
             m_b                   = 0.07779607 * PCProps::Globals::R_CONST * criticalTemperature / criticalPressure;
-            m_kappa               = 0.37464 + 1.54226 * acentricFactor - 0.26992 * pow(acentricFactor, 2);
+            m_kappa               = acentricFactor <= 0.49 ? 0.37464 + 1.54226 * acentricFactor - 0.26992 * pow(acentricFactor, 2)
+                                                           : 0.379642 + 1.48503 * acentricFactor - 0.164423 * pow(acentricFactor, 2) + 0.016666 * pow(acentricFactor, 3);
         }
 
         /**
@@ -394,7 +394,6 @@ namespace PCProps::EquationOfState
             PhaseData result;
 
             get<MolarFraction>(result) = moleFraction;
-            //            get<MolecularWeight>(result) = m_molecularWeight;
             get<Temperature>(result)         = temperature;
             get<Pressure>(result)            = pressure;
             get<Volume>(result)              = z * R_CONST * temperature / pressure;
@@ -569,22 +568,23 @@ namespace PCProps::EquationOfState
         // ===== Identify the Z/Phi with the lowest fugacity coefficient (which is the most stable)
         auto min = std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<1>(a) < get<1>(b); });
 
+        // ===== Return the resulting phase data
         return { m_impl->createEOSData(1.0, temperature, pressure, get<0>(*min), get<1>(*min)) };
     }
 
     // ===== T,x Flash
     Phases EOSPengRobinson::flashTx(double temperature, double vaporFraction) const
     {
+        // TODO (troldal): This function should take into account the possibility that T > Tc
         using std::get;
 
         // ===== First, calculate the saturation pressure at the specified pressure.
         auto pressure = m_impl->computeSaturationPressure(temperature);
 
-        auto z_phi = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
-        auto z_v   = get<0>(z_phi[0]);
-        auto z_l   = get<0>(z_phi[1]);
-        auto phi_v = get<1>(z_phi[0]);
-        auto phi_l = get<1>(z_phi[1]);
+        // ===== Second, compute the compressibility factors and fugacity coefficients for the two phases.
+        auto z_phi        = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
+        auto [z_v, phi_v] = *std::max_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
+        auto [z_l, phi_l] = *std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
 
         // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
         if (vaporFraction >= 1.0) return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
@@ -599,16 +599,16 @@ namespace PCProps::EquationOfState
     // ===== P,x Flash
     Phases EOSPengRobinson::flashPx(double pressure, double vaporFraction) const
     {
+        // TODO (troldal): This function should take into account the possibility that P > Pc
         using std::get;
 
         // ===== First, calculate the saturation temperature at the specified pressure.
         auto temperature = m_impl->computeSaturationTemperature(pressure);
 
-        auto z_phi = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
-        auto z_v   = get<0>(z_phi[0]);
-        auto z_l   = get<0>(z_phi[1]);
-        auto phi_v = get<1>(z_phi[0]);
-        auto phi_l = get<1>(z_phi[1]);
+        // ===== Second, compute the compressibility factors and fugacity coefficients for the two phases.
+        auto z_phi        = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
+        auto [z_v, phi_v] = *std::max_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
+        auto [z_l, phi_l] = *std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
 
         // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
         if (vaporFraction >= 1.0) return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
@@ -623,6 +623,7 @@ namespace PCProps::EquationOfState
     // ===== P,H Flash
     Phases EOSPengRobinson::flashPH(double pressure, double enthalpy) const
     {
+        // TODO (troldal): This function needs to be cleaned up.
         using std::get;
 
         if (pressure > m_impl->criticalPressure()) {
@@ -650,11 +651,9 @@ namespace PCProps::EquationOfState
         // ===== First, calculate the saturation temperature at the specified pressure.
         auto temperature = m_impl->computeSaturationTemperature(pressure);
 
-        auto z_phi = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
-        auto z_v   = get<0>(z_phi[0]);
-        auto z_l   = get<0>(z_phi[1]);
-        auto phi_v = get<1>(z_phi[0]);
-        auto phi_l = get<1>(z_phi[1]);
+        auto z_phi        = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
+        auto [z_v, phi_v] = *std::max_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
+        auto [z_l, phi_l] = *std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
 
         // ===== Then, calculate the enthalpy for the vapor and the liquid at saturation conditions.
         auto h_v = m_impl->computeEnthalpy(temperature, pressure, z_v);
@@ -706,6 +705,7 @@ namespace PCProps::EquationOfState
     // ===== P,S Flash
     Phases EOSPengRobinson::flashPS(double pressure, double entropy) const
     {
+        // TODO (troldal): This function needs to be cleaned up.
         using std::get;
 
         if (pressure > m_impl->criticalPressure()) {
@@ -733,11 +733,9 @@ namespace PCProps::EquationOfState
         // ===== First, calculate the saturation temperature at the specified pressure.
         auto temperature = m_impl->computeSaturationTemperature(pressure);
 
-        auto z_phi = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
-        auto z_v   = get<0>(z_phi[0]);
-        auto z_l   = get<0>(z_phi[1]);
-        auto phi_v = get<1>(z_phi[0]);
-        auto phi_l = get<1>(z_phi[1]);
+        auto z_phi        = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
+        auto [z_v, phi_v] = *std::max_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
+        auto [z_l, phi_l] = *std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
 
         // ===== Then, calculate the entropy for the vapor and the liquid at saturation conditions.
         auto s_v = m_impl->computeEntropy(temperature, pressure, z_v);
@@ -784,6 +782,12 @@ namespace PCProps::EquationOfState
         // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.
         auto vaporFraction = (s_l - entropy) / (s_l - s_v);
         return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
+    }
+
+    // ===== Flash at constant T,V
+    Phases EOSPengRobinson::flashTV(double temperature, double volume) const
+    {
+        return PCProps::EquationOfState::Phases();
     }
 
     // ===== Saturation pressure at given temperature

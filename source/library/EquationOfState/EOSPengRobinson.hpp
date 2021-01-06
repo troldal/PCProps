@@ -136,7 +136,7 @@ namespace PCProps::EquationOfState
         void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction);
 
         // =====================================================================
-        // ACCESSORS
+        // FLASH ALGORITHMS
         // =====================================================================
 
         /**
@@ -178,6 +178,14 @@ namespace PCProps::EquationOfState
          * @return The phase data for the phase(s) resulting from the flash.
          */
         Phases flashPS(double pressure, double entropy) const;
+
+        /**
+         * @brief
+         * @param temperature
+         * @param volume
+         * @return
+         */
+        Phases flashTV(double temperature, double volume) const;
 
         /**
          * @brief
