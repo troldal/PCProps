@@ -2,18 +2,18 @@
 // Created by Kenneth Balslev on 05/01/2021.
 //
 
-#ifndef PCPROPS_PCHEATCAPACITY_HPP
-#define PCPROPS_PCHEATCAPACITY_HPP
+#ifndef PCPROPS_PCHEATCAPACITYCORRELATION_HPP
+#define PCPROPS_PCHEATCAPACITYCORRELATION_HPP
 
 namespace PCProps
 {
-    class PCHeatCapacity
+    class PCHeatCapacityCorrelation
     {
     public:
         /**
          * @brief Default constructor
          */
-        PCHeatCapacity() : m_heatCapacityObject() {};
+        PCHeatCapacityCorrelation() : m_heatCapacityObject() {};
 
         /**
          * @brief Constructor, taking the target object as an argument.
@@ -21,25 +21,25 @@ namespace PCProps
          * @param x The target object
          */
         template<typename T>
-        explicit PCHeatCapacity(const T& x) : m_heatCapacityObject { std::make_unique<CPModel<T>>(x) }
+        explicit PCHeatCapacityCorrelation(const T& x) : m_heatCapacityObject { std::make_unique<CPModel<T>>(x) }
         {}
 
         /**
          * @brief
          * @param other
          */
-        PCHeatCapacity(const PCHeatCapacity& other) : m_heatCapacityObject(other.m_heatCapacityObject ? other.m_heatCapacityObject->clone() : nullptr) {}
+        PCHeatCapacityCorrelation(const PCHeatCapacityCorrelation& other) : m_heatCapacityObject(other.m_heatCapacityObject ? other.m_heatCapacityObject->clone() : nullptr) {}
 
         /**
          * @brief
          * @param other
          */
-        PCHeatCapacity(PCHeatCapacity&& other) noexcept = default;
+        PCHeatCapacityCorrelation(PCHeatCapacityCorrelation&& other) noexcept = default;
 
         /**
          * @brief
          */
-        ~PCHeatCapacity() = default;
+        ~PCHeatCapacityCorrelation() = default;
 
         /**
          * @brief
@@ -48,7 +48,7 @@ namespace PCProps
          * @return
          */
         template<typename T>
-        PCHeatCapacity& operator=(const T& x)
+        PCHeatCapacityCorrelation& operator=(const T& x)
         {
             m_heatCapacityObject = std::make_unique<CPModel<T>>(x);
             return *this;
@@ -59,9 +59,9 @@ namespace PCProps
          * @param other
          * @return
          */
-        PCHeatCapacity& operator=(const PCHeatCapacity& other)
+        PCHeatCapacityCorrelation& operator=(const PCHeatCapacityCorrelation& other)
         {
-            PCHeatCapacity copy(other);
+            PCHeatCapacityCorrelation copy(other);
             *this = std::move(copy);
             return *this;
         }
@@ -71,7 +71,7 @@ namespace PCProps
          * @param other
          * @return
          */
-        PCHeatCapacity& operator=(PCHeatCapacity&& other) noexcept = default;
+        PCHeatCapacityCorrelation& operator=(PCHeatCapacityCorrelation&& other) noexcept = default;
 
         explicit operator bool() const
         {
@@ -234,4 +234,4 @@ namespace PCProps
     };
 }    // namespace PCProps
 
-#endif    // PCPROPS_PCHEATCAPACITY_HPP
+#endif    // PCPROPS_PCHEATCAPACITYCORRELATION_HPP

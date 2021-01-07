@@ -71,7 +71,7 @@ set(PROJECT_TEMPLATE_SOURCES
         library/HeatCapacity/AlyLee.cpp
         library/HeatCapacity/PPDSLiquid.cpp
         library/HeatCapacity/Polynomial.cpp
-        library/EquationOfState/EOSPengRobinson.cpp
+        library/EquationOfState/PengRobinson.cpp
         )
 
 

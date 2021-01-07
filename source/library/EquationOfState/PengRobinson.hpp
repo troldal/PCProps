@@ -35,20 +35,20 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_EOSPENGROBINSON_HPP
-#define PCPROPS_EOSPENGROBINSON_HPP
+#ifndef PCPROPS_PENGROBINSON_HPP
+#define PCPROPS_PENGROBINSON_HPP
 
 #include <functional>
 #include <memory>
 
-#include "EOSUtilities.hpp"
+#include <library/PCPropsData.hpp>
 
 namespace PCProps::EquationOfState
 {
     /**
      * @brief
      */
-    class EOSPengRobinson
+    class PengRobinson
     {
     public:
         // =====================================================================
@@ -58,7 +58,7 @@ namespace PCProps::EquationOfState
         /**
          * @brief Default constructor. All member variables set to default values.
          */
-        EOSPengRobinson();
+        PengRobinson();
 
         /**
          * @brief
@@ -66,32 +66,32 @@ namespace PCProps::EquationOfState
          * @param criticalPressure
          * @param acentricFactor
          */
-        EOSPengRobinson(double criticalTemperature, double criticalPressure, double acentricFactor);
+        PengRobinson(double criticalTemperature, double criticalPressure, double acentricFactor);
 
         /**
          * @brief Copy constructor
          */
-        EOSPengRobinson(const EOSPengRobinson& other);
+        PengRobinson(const PengRobinson& other);
 
         /**
          * @brief Move constructor
          */
-        EOSPengRobinson(EOSPengRobinson&& other) noexcept;
+        PengRobinson(PengRobinson&& other) noexcept;
 
         /**
          * @brief Destructor
          */
-        ~EOSPengRobinson();
+        ~PengRobinson();
 
         /**
          * @brief Copy assignment operator
          */
-        EOSPengRobinson& operator=(const EOSPengRobinson& other);
+        PengRobinson& operator=(const PengRobinson& other);
 
         /**
          * @brief Move assignment operator
          */
-        EOSPengRobinson& operator=(EOSPengRobinson&& other) noexcept;
+        PengRobinson& operator=(PengRobinson&& other) noexcept;
 
         // =====================================================================
         // MANIPULATORS
@@ -145,7 +145,7 @@ namespace PCProps::EquationOfState
          * @param pressure The pressure [Pa]
          * @return The phase data for the phase resulting from the flash.
          */
-        Phases flashPT(double pressure, double temperature) const;
+        PCPhases flashPT(double pressure, double temperature) const;
 
         /**
          * @brief Compute flash at specified temperature and vapor fraction.
@@ -153,7 +153,7 @@ namespace PCProps::EquationOfState
          * @param vaporFraction The vapor fraction [-]. Must be between 0.0 and 1.0.
          * @return The phase data for the phase(s) resulting from the flash.
          */
-        Phases flashTx(double temperature, double vaporFraction) const;
+        PCPhases flashTx(double temperature, double vaporFraction) const;
 
         /**
          * @brief Compute flash at specified pressure and vapor fraction
@@ -161,7 +161,7 @@ namespace PCProps::EquationOfState
          * @param vaporFraction The vapor fraction [-]. Must be between 0.0 and 1.0.
          * @return The phase data for the phase(s) resulting from the flash.
          */
-        Phases flashPx(double pressure, double vaporFraction) const;
+        PCPhases flashPx(double pressure, double vaporFraction) const;
 
         /**
          * @brief Compute flash at specified pressure and computeEnthalpy.
@@ -169,7 +169,7 @@ namespace PCProps::EquationOfState
          * @param enthalpy The computeEnthalpy [J/mol]
          * @return The phase data for the phase(s) resulting from the flash.
          */
-        Phases flashPH(double pressure, double enthalpy) const;
+        PCPhases flashPH(double pressure, double enthalpy) const;
 
         /**
          * @brief Compute flash at specified pressure and computeEntropy.
@@ -177,7 +177,7 @@ namespace PCProps::EquationOfState
          * @param entropy The computeEntropy [J/mol-K]
          * @return The phase data for the phase(s) resulting from the flash.
          */
-        Phases flashPS(double pressure, double entropy) const;
+        PCPhases flashPS(double pressure, double entropy) const;
 
         /**
          * @brief
@@ -185,7 +185,7 @@ namespace PCProps::EquationOfState
          * @param volume
          * @return
          */
-        Phases flashTV(double temperature, double volume) const;
+        PCPhases flashTV(double temperature, double volume) const;
 
         /**
          * @brief
@@ -207,4 +207,4 @@ namespace PCProps::EquationOfState
     };
 
 }    // namespace PCProps::EquationOfState
-#endif    // PCPROPS_EOSPENGROBINSON_HPP
+#endif    // PCPROPS_PENGROBINSON_HPP

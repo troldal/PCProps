@@ -37,44 +37,43 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "PCComponent.hpp"
 
-#include <library/EquationOfState/EOSUtilities.hpp>
 #include <library/PCPropsException.hpp>
 
-using namespace PCProps::EquationOfState;
+// using namespace PCProps::EquationOfState;
 
 namespace
 {
-    PCProps::Phases convertFromTuple(PCProps::EquationOfState::Phases phases)
-    {
-        using std::get;
-        PCProps::Phases results;
-
-        for (const auto& phase : phases) {
-            PCProps::PCProperties props;
-
-            props.moleFraction        = get<MolarFraction>(phase);
-            props.molarVolume         = get<Volume>(phase);
-            props.surfaceTension      = 0.0;
-            props.thermalConductivity = 0.0;
-            props.viscosity           = 0.0;
-            props.heatCapacity        = 0.0;
-            props.molecularWeight     = 0.0;
-            props.temperature         = get<Temperature>(phase);
-            props.pressure            = get<Pressure>(phase);
-            props.compressibility     = get<Compressibility>(phase);
-            props.fugacityCoefficient = get<FugacityCoefficient>(phase);
-            props.fugacity            = get<Fugacity>(phase);
-            props.enthalpy            = get<Enthalpy>(phase);
-            props.entropy             = get<Entropy>(phase);
-            props.internalEnergy      = get<InternalEnergy>(phase);
-            props.gibbsEnergy         = get<GibbsEnergy>(phase);
-            props.helmholzEnergy      = get<HelmholzEnergy>(phase);
-
-            results.emplace_back(props);
-        }
-
-        return results;
-    }
+    //    PCProps::Phases convertFromTuple(PCProps::EquationOfState::Phases phases)
+    //    {
+    //        using std::get;
+    //        PCProps::Phases results;
+    //
+    //        for (const auto& phase : phases) {
+    //            PCProps::PCProperties props;
+    //
+    //            props.moleFraction        = get<MolarFraction>(phase);
+    //            props.molarVolume         = get<Volume>(phase);
+    //            props.surfaceTension      = 0.0;
+    //            props.thermalConductivity = 0.0;
+    //            props.viscosity           = 0.0;
+    //            props.heatCapacity        = 0.0;
+    //            props.molecularWeight     = 0.0;
+    //            props.temperature         = get<Temperature>(phase);
+    //            props.pressure            = get<Pressure>(phase);
+    //            props.compressibility     = get<Compressibility>(phase);
+    //            props.fugacityCoefficient = get<FugacityCoefficient>(phase);
+    //            props.fugacity            = get<Fugacity>(phase);
+    //            props.enthalpy            = get<Enthalpy>(phase);
+    //            props.entropy             = get<Entropy>(phase);
+    //            props.internalEnergy      = get<InternalEnergy>(phase);
+    //            props.gibbsEnergy         = get<GibbsEnergy>(phase);
+    //            props.helmholzEnergy      = get<HelmholzEnergy>(phase);
+    //
+    //            results.emplace_back(props);
+    //        }
+    //
+    //        return results;
+    //    }
 
     enum PhaseType { Liquid, Vapor, Dense, Undefined };
 
@@ -135,10 +134,10 @@ namespace PCProps
         return m_data;
     }
 
-    Phases PCComponent::flash(Pressure pressure, Temperature temperature) const
+    PCPhases PCComponent::flash(Pressure pressure, Temperature temperature) const
     {
         using std::get;
-        auto results = convertFromTuple(m_data.equationOfState.flashPT(pressure.get(), temperature.get()))[0];
+        auto results = PCPhase(m_data.equationOfState.flashPT(pressure.get(), temperature.get())[0]);
         switch (determinePhaseType(
             pressure.get(),
             m_data.criticalPressure.value(),
@@ -147,7 +146,7 @@ namespace PCProps
             m_data.criticalTemperature.value()))
         {
             case PhaseType::Liquid:
-                results.molarVolume = m_data.saturatedLiquidVolumeCorrelation(temperature.get());
+                results.setMolarVolume(m_data.saturatedLiquidVolumeCorrelation(temperature.get()));
                 break;
 
             case PhaseType::Vapor:
@@ -158,82 +157,90 @@ namespace PCProps
                 throw PCPropsException("Something went wrong. Invalid phase properties");
         }
 
-        results.surfaceTension      = 0.0;
-        results.thermalConductivity = 0.0;
-        results.viscosity           = 0.0;
-        results.heatCapacity        = 0.0;
-        results.molecularWeight     = m_data.molecularWeight.value();
+        results.setSurfaceTension(0.0);
+        results.setThermalConductivity(0.0);
+        results.setViscosity(0.0);
+        results.setHeatCapacity(0.0);
+        results.setMolarWeight(m_data.molecularWeight.value());
 
-        return { results };
+        return { results.data() };
     }
 
-    Phases PCComponent::flash(Pressure pressure, VaporFraction vaporFraction) const
+    PCPhases PCComponent::flash(Pressure pressure, VaporFraction vaporFraction) const
     {
         using std::get;
-        auto results = convertFromTuple(m_data.equationOfState.flashPx(pressure.get(), vaporFraction.get()));
+        PCPhases results;
 
-        for (auto& result : results) {
-            result.surfaceTension      = 0.0;
-            result.thermalConductivity = 0.0;
-            result.viscosity           = 0.0;
-            result.heatCapacity        = 0.0;
-            result.molecularWeight     = m_data.molecularWeight.value();
+        for (auto& phase : m_data.equationOfState.flashPx(pressure.get(), vaporFraction.get())) {
+            auto result = PCPhase(phase);
+            result.setSurfaceTension(0.0);
+            result.setThermalConductivity(0.0);
+            result.setViscosity(0.0);
+            result.setHeatCapacity(0.0);
+            result.setMolarWeight(m_data.molecularWeight.value());
+            results.emplace_back(result.data());
         }
 
-        return { results };
+        return results;
     }
 
-    Phases PCComponent::flash(Temperature temperature, VaporFraction vaporFraction) const
+    PCPhases PCComponent::flash(Temperature temperature, VaporFraction vaporFraction) const
     {
         using std::get;
-        auto results = convertFromTuple(m_data.equationOfState.flashTx(temperature.get(), vaporFraction.get()));
+        PCPhases results;
 
-        for (auto& result : results) {
-            result.surfaceTension      = 0.0;
-            result.thermalConductivity = 0.0;
-            result.viscosity           = 0.0;
-            result.heatCapacity        = 0.0;
-            result.molecularWeight     = m_data.molecularWeight.value();
+        for (auto& phase : m_data.equationOfState.flashTx(temperature.get(), vaporFraction.get())) {
+            auto result = PCPhase(phase);
+            result.setSurfaceTension(0.0);
+            result.setThermalConductivity(0.0);
+            result.setViscosity(0.0);
+            result.setHeatCapacity(0.0);
+            result.setMolarWeight(m_data.molecularWeight.value());
+            results.emplace_back(result.data());
         }
 
-        return { results };
+        return results;
     }
 
-    Phases PCComponent::flash(Pressure pressure, Enthalpy enthalpy) const
+    PCPhases PCComponent::flash(Pressure pressure, Enthalpy enthalpy) const
     {
         using std::get;
-        auto results = convertFromTuple(m_data.equationOfState.flashPH(pressure.get(), enthalpy.get()));
+        PCPhases results;
 
-        for (auto& result : results) {
-            result.surfaceTension      = 0.0;
-            result.thermalConductivity = 0.0;
-            result.viscosity           = 0.0;
-            result.heatCapacity        = 0.0;
-            result.molecularWeight     = m_data.molecularWeight.value();
+        for (auto& phase : m_data.equationOfState.flashPH(pressure.get(), enthalpy.get())) {
+            auto result = PCPhase(phase);
+            result.setSurfaceTension(0.0);
+            result.setThermalConductivity(0.0);
+            result.setViscosity(0.0);
+            result.setHeatCapacity(0.0);
+            result.setMolarWeight(m_data.molecularWeight.value());
+            results.emplace_back(result.data());
         }
 
-        return { results };
+        return results;
     }
 
-    Phases PCComponent::flash(Pressure pressure, Entropy entropy) const
+    PCPhases PCComponent::flash(Pressure pressure, Entropy entropy) const
     {
         using std::get;
-        auto results = convertFromTuple(m_data.equationOfState.flashPS(pressure.get(), entropy.get()));
+        PCPhases results;
 
-        for (auto& result : results) {
-            result.surfaceTension      = 0.0;
-            result.thermalConductivity = 0.0;
-            result.viscosity           = 0.0;
-            result.heatCapacity        = 0.0;
-            result.molecularWeight     = m_data.molecularWeight.value();
+        for (auto& phase : m_data.equationOfState.flashPS(pressure.get(), entropy.get())) {
+            auto result = PCPhase(phase);
+            result.setSurfaceTension(0.0);
+            result.setThermalConductivity(0.0);
+            result.setViscosity(0.0);
+            result.setHeatCapacity(0.0);
+            result.setMolarWeight(m_data.molecularWeight.value());
+            results.emplace_back(result.data());
         }
 
-        return { results };
+        return results;
     }
 
-    Phases PCComponent::flash(Temperature temperature, Volume volume) const
+    PCPhases PCComponent::flash(Temperature temperature, Volume volume) const
     {
-        return PCProps::Phases();
+        return PCProps::PCPhases();
     }
 
     // ===== Get the component name

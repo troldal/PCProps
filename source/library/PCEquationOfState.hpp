@@ -40,9 +40,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <memory>
 
-#include <EquationOfState/EOSUtilities.hpp>
+#include <library/PCPropsData.hpp>
 
-using PCProps::EquationOfState::Phases;
+using PCProps::PCPhases;
 
 namespace PCProps
 {
@@ -159,7 +159,7 @@ namespace PCProps
          * @param temperature
          * @return
          */
-        Phases flashPT(double pressure, double temperature) const
+        PCPhases flashPT(double pressure, double temperature) const
         {
             return m_equationOfState->flashPT(pressure, temperature);
         }
@@ -170,7 +170,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        Phases flashPx(double pressure, double vaporFraction) const
+        PCPhases flashPx(double pressure, double vaporFraction) const
         {
             return m_equationOfState->flashPx(pressure, vaporFraction);
         }
@@ -181,7 +181,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        Phases flashTx(double temperature, double vaporFraction) const
+        PCPhases flashTx(double temperature, double vaporFraction) const
         {
             return m_equationOfState->flashTx(temperature, vaporFraction);
         }
@@ -192,7 +192,7 @@ namespace PCProps
          * @param enthalpy
          * @return
          */
-        Phases flashPH(double pressure, double enthalpy) const
+        PCPhases flashPH(double pressure, double enthalpy) const
         {
             return m_equationOfState->flashPH(pressure, enthalpy);
         }
@@ -203,7 +203,7 @@ namespace PCProps
          * @param entropy
          * @return
          */
-        Phases flashPS(double pressure, double entropy) const
+        PCPhases flashPS(double pressure, double entropy) const
         {
             return m_equationOfState->flashPS(pressure, entropy);
         }
@@ -214,7 +214,7 @@ namespace PCProps
          * @param volume
          * @return
          */
-        Phases flashTV(double temperature, double volume)
+        PCPhases flashTV(double temperature, double volume)
         {
             return m_equationOfState->flashTV(temperature, volume);
         }
@@ -290,7 +290,7 @@ namespace PCProps
              * @param temperature
              * @return
              */
-            virtual Phases flashPT(double pressure, double temperature) const = 0;
+            virtual PCPhases flashPT(double pressure, double temperature) const = 0;
 
             /**
              * @brief
@@ -298,7 +298,7 @@ namespace PCProps
              * @param vaporFraction
              * @return
              */
-            virtual Phases flashPx(double pressure, double vaporFraction) const = 0;
+            virtual PCPhases flashPx(double pressure, double vaporFraction) const = 0;
 
             /**
              * @brief
@@ -306,7 +306,7 @@ namespace PCProps
              * @param vaporFraction
              * @return
              */
-            virtual Phases flashTx(double temperature, double vaporFraction) const = 0;
+            virtual PCPhases flashTx(double temperature, double vaporFraction) const = 0;
 
             /**
              * @brief
@@ -314,7 +314,7 @@ namespace PCProps
              * @param enthalpy
              * @return
              */
-            virtual Phases flashPH(double pressure, double enthalpy) const = 0;
+            virtual PCPhases flashPH(double pressure, double enthalpy) const = 0;
 
             /**
              * @brief
@@ -322,7 +322,7 @@ namespace PCProps
              * @param entropy
              * @return
              */
-            virtual Phases flashPS(double pressure, double entropy) const = 0;
+            virtual PCPhases flashPS(double pressure, double entropy) const = 0;
 
             /**
              * @brief
@@ -330,7 +330,7 @@ namespace PCProps
              * @param entropy
              * @return
              */
-            virtual Phases flashTV(double temperature, double volume) const = 0;
+            virtual PCPhases flashTV(double temperature, double volume) const = 0;
 
             /**
              * @brief
@@ -445,7 +445,7 @@ namespace PCProps
              * @param temperature
              * @return
              */
-            Phases flashPT(double pressure, double temperature) const override
+            PCPhases flashPT(double pressure, double temperature) const override
             {
                 return EOSType.flashPT(pressure, temperature);
             }
@@ -456,7 +456,7 @@ namespace PCProps
              * @param vaporFraction
              * @return
              */
-            Phases flashPx(double pressure, double vaporFraction) const override
+            PCPhases flashPx(double pressure, double vaporFraction) const override
             {
                 return EOSType.flashPx(pressure, vaporFraction);
             }
@@ -467,7 +467,7 @@ namespace PCProps
              * @param vaporFraction
              * @return
              */
-            Phases flashTx(double temperature, double vaporFraction) const override
+            PCPhases flashTx(double temperature, double vaporFraction) const override
             {
                 return EOSType.flashTx(temperature, vaporFraction);
             }
@@ -478,7 +478,7 @@ namespace PCProps
              * @param enthalpy
              * @return
              */
-            Phases flashPH(double pressure, double enthalpy) const override
+            PCPhases flashPH(double pressure, double enthalpy) const override
             {
                 return EOSType.flashPH(pressure, enthalpy);
             }
@@ -489,7 +489,7 @@ namespace PCProps
              * @param entropy
              * @return
              */
-            Phases flashPS(double pressure, double entropy) const override
+            PCPhases flashPS(double pressure, double entropy) const override
             {
                 return EOSType.flashPS(pressure, entropy);
             }
@@ -500,7 +500,7 @@ namespace PCProps
              * @param volume
              * @return
              */
-            Phases flashTV(double temperature, double volume) const override
+            PCPhases flashTV(double temperature, double volume) const override
             {
                 return EOSType.flashTV(temperature, volume);
             }

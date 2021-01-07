@@ -3,14 +3,14 @@
 //
 
 #include <catch.hpp>
-#include <library/EquationOfState/EOSPengRobinson.hpp>
 #include <library/EquationOfState/EOSUtilities.hpp>
+#include <library/EquationOfState/PengRobinson.hpp>
 #include <library/HeatCapacity/AlyLee.hpp>
 #include <library/VaporPressure/AmbroseWalton.hpp>
 
-using PCProps::EquationOfState::EOSPengRobinson;
+using PCProps::EquationOfState::PengRobinson;
 using PCProps::EquationOfState::PhaseDataElement;
-using PCProps::HeatCapacity::AlyLee;
+using PCProps::PCHeatCapacity::AlyLee;
 using PCProps::VaporPressure::AmbroseWalton;
 
 using namespace PCProps::EquationOfState;
@@ -24,7 +24,7 @@ TEST_CASE("EOSPengRobinson Test")
 
     auto            PSat = AmbroseWalton(tc, pc, omega);
     auto            igCp = AlyLee(0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6);
-    EOSPengRobinson propane(tc, pc, omega, mw, PSat, igCp);
+    PengRobinson    propane(tc, pc, omega, mw, PSat, igCp);
 
     SECTION("PT Flash of propane @ 273.15 K and 1 bar")
     {
@@ -660,7 +660,7 @@ TEST_CASE("EOSPengRobinson Test")
 
     SECTION("PT Flash of propane @ 273.15 K and 1 bar - Copy Assignment")
     {
-        EOSPengRobinson temp {};
+        PengRobinson temp {};
         temp        = propane;
         auto result = temp.flashPT(100000.0, 273.15);
 
@@ -682,7 +682,7 @@ TEST_CASE("EOSPengRobinson Test")
 
     SECTION("PT Flash of propane @ 273.15 K and 1 bar - Move Assignment")
     {
-        EOSPengRobinson temp {};
+        PengRobinson temp {};
         temp        = std::move(propane);
         auto result = temp.flashPT(100000.0, 273.15);
 

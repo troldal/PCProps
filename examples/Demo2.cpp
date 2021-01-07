@@ -1,14 +1,14 @@
 #include <iomanip>
 #include <iostream>
 
-#include <library/EquationOfState/EOSPengRobinson.hpp>
+#include <library/EquationOfState/PengRobinson.hpp>
 #include <library/HeatCapacity/AlyLee.hpp>
 #include <library/HeatCapacity/PPDSLiquid.hpp>
 #include <library/LiquidVolume/Rackett.hpp>
 #include <library/PCComponent.hpp>
 #include <library/VaporPressure/AntoineExtended.hpp>
 
-using PCProps::EquationOfState::EOSPengRobinson;
+using PCProps::EquationOfState::PengRobinson;
 using PCProps::HeatCapacity::AlyLee;
 using PCProps::HeatCapacity::PPDSLiquid;
 using PCProps::LiquidVolume::Rackett;
@@ -17,6 +17,9 @@ using PCProps::VaporPressure::AntoineExtended;
 using PCProps::PCComponent;
 using PCProps::PCComponentData;
 using PCProps::PCEquationOfState;
+using PCProps::PCPhase;
+using PCProps::Pressure;
+using PCProps::Temperature;
 
 int main()
 {
@@ -38,7 +41,7 @@ int main()
     data.criticalCompressibility = 0.27629827986994;
     data.acentricFactor          = 0.1523;
 
-    data.equationOfState                      = EOSPengRobinson {};
+    data.equationOfState                      = PengRobinson {};
     data.idealGasCpCorrelation                = AlyLee(AlyLee::CreateFromDIPPR { 0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6 });
     data.liquidCpCorrelation                  = PPDSLiquid(PPDSLiquid::CreateFromDIPPR { 62.983, 113630, 633.21, -873.46, 369.83 });
     data.vaporPressureCorrelation             = AntoineExtended(AntoineExtended::CreateFromDIPPR { 59.078, -3492.6, -6.0669, 1.0919E-05, 2 });
@@ -53,7 +56,7 @@ int main()
 
     auto propane = PCComponent(data);
 
-    std::cout << propane.flash(PCProps::Pressure(1E5), PCProps::Temperature(298.15))[0] << std::endl;
+    std::cout << PCPhase(propane.flash(PCProps::Pressure(1E5), PCProps::Temperature(298.15))[0]) << std::endl;
 
     return 0;
 }

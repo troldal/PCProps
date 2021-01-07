@@ -46,7 +46,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <type_traits>
 
 #include <library/PCEquationOfState.hpp>
-#include <library/PCHeatCapacity.hpp>
+#include <library/PCHeatCapacityCorrelation.hpp>
+#include <library/PCPropsData.hpp>
 #include <library/PCPropsException.hpp>
 #include <library/Utilities/NamedType.hpp>
 
@@ -82,11 +83,6 @@ namespace PCProps
         double gibbsEnergy {};
         double helmholzEnergy {};
     };
-
-    /**
-     * @brief
-     */
-    using Phases = std::vector<PCProperties>;
 
     /**
      * @brief
@@ -140,7 +136,7 @@ namespace PCProps
         std::optional<double> acentricFactor {};          /**< The acentric factor (omega) of a component */
 
         PCProps::PCEquationOfState            equationOfState {};
-        PCProps::PCHeatCapacity               idealGasCpCorrelation {};
+        PCProps::PCHeatCapacityCorrelation    idealGasCpCorrelation {};
         std::function<double(double)>         liquidCpCorrelation {};                  /**< The liquid Cp [HOLD] as a function of temperature [K] */
         std::function<double(double)>         vaporPressureCorrelation {};             /**< The vapor pressure [Pa] as a function of temperature [K] */
         std::function<double(double)>         surfaceTensionCorrelation {};            /**< The surface tension [HOLD] as a function of temperature [K] */
@@ -217,7 +213,7 @@ namespace PCProps
          * @param temperature
          * @return
          */
-        Phases flash(Pressure pressure, Temperature temperature) const;
+        PCPhases flash(Pressure pressure, Temperature temperature) const;
 
         /**
          * @brief
@@ -225,7 +221,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        Phases flash(Pressure pressure, VaporFraction vaporFraction) const;
+        PCPhases flash(Pressure pressure, VaporFraction vaporFraction) const;
 
         /**
          * @brief
@@ -233,7 +229,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        Phases flash(Temperature temperature, VaporFraction vaporFraction) const;
+        PCPhases flash(Temperature temperature, VaporFraction vaporFraction) const;
 
         /**
          * @brief
@@ -241,7 +237,7 @@ namespace PCProps
          * @param enthalpy
          * @return
          */
-        Phases flash(Pressure pressure, Enthalpy enthalpy) const;
+        PCPhases flash(Pressure pressure, Enthalpy enthalpy) const;
 
         /**
          * @brief
@@ -249,7 +245,7 @@ namespace PCProps
          * @param entropy
          * @return
          */
-        Phases flash(Pressure pressure, Entropy entropy) const;
+        PCPhases flash(Pressure pressure, Entropy entropy) const;
 
         /**
          * @brief
@@ -257,7 +253,7 @@ namespace PCProps
          * @param volume
          * @return
          */
-        Phases flash(Temperature temperature, Volume volume) const;
+        PCPhases flash(Temperature temperature, Volume volume) const;
 
         /**
          * @brief Get the name of the component.

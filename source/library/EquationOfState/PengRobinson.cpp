@@ -39,7 +39,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <cmath>
 #include <vector>
 
-#include "EOSPengRobinson.hpp"
+#include "PengRobinson.hpp"
 #include <PCConfig.hpp>
 #include <Utilities/Integration.hpp>
 #include <Utilities/RootFinding.hpp>
@@ -51,7 +51,7 @@ namespace PCProps::EquationOfState
     using PCProps::Globals::STANDARD_P;
     using PCProps::Globals::STANDARD_T;
 
-    class EOSPengRobinson::impl
+    class PengRobinson::impl
     {
     private:
         // ===== Basic fluid properties
@@ -386,27 +386,39 @@ namespace PCProps::EquationOfState
          * @param phi The fugacity coefficient [-].
          * @return A PhaseData object (aka std::tuple) with the output data.
          */
-        PhaseData createEOSData(double moleFraction, double temperature, double pressure, double z, double phi) const
+        PCPhaseData createEOSData(double moleFraction, double temperature, double pressure, double z, double phi) const
         {
             using PCProps::Globals::R_CONST;
             using std::get;
 
-            PhaseData result;
+            PCPhase result;
 
-            get<MolarFraction>(result) = moleFraction;
-            get<Temperature>(result)         = temperature;
-            get<Pressure>(result)            = pressure;
-            get<Volume>(result)              = z * R_CONST * temperature / pressure;
-            get<FugacityCoefficient>(result) = phi;
-            get<Fugacity>(result)            = phi * pressure;
-            get<Compressibility>(result)     = z;
-            get<Enthalpy>(result)            = computeEnthalpy(temperature, pressure, z);
-            get<Entropy>(result)             = computeEntropy(temperature, pressure, z);
-            get<InternalEnergy>(result)      = get<Enthalpy>(result) - pressure * get<Volume>(result);
-            get<GibbsEnergy>(result)         = get<Enthalpy>(result) - temperature * get<Entropy>(result);
-            get<HelmholzEnergy>(result)  = get<InternalEnergy>(result) - temperature * get<Entropy>(result);
+            result.setMolarFraction(moleFraction);
+            result.setTemperature(temperature);
+            result.setPressure(pressure);
+            result.setMolarVolume(z * R_CONST * temperature / pressure);
+            result.setFugacityCoefficient(phi);
+            result.setCompressibility(z);
+            result.setEnthalpy(computeEnthalpy(temperature, pressure, z));
+            result.setEntropy(computeEntropy(temperature, pressure, z));
+            result.setInternalEnergy(result.enthalpy() - pressure * result.molarVolume());
+            result.setGibbsEnergy(result.enthalpy() - temperature * result.entropy());
+            result.setHelmholzEnergy(result.internalEnergy() - temperature * result.entropy());
 
-            return result;
+            //            get<MolarFraction>(result) = moleFraction;
+            //            get<Temperature>(result)         = temperature;
+            //            get<Pressure>(result)            = pressure;
+            //            get<Volume>(result)              = z * R_CONST * temperature / pressure;
+            //            get<FugacityCoefficient>(result) = phi;
+            //            get<Fugacity>(result)            = phi * pressure;
+            //            get<Compressibility>(result)     = z;
+            //            get<Enthalpy>(result)            = computeEnthalpy(temperature, pressure, z);
+            //            get<Entropy>(result)             = computeEntropy(temperature, pressure, z);
+            //            get<InternalEnergy>(result)      = get<Enthalpy>(result) - pressure * get<Volume>(result);
+            //            get<GibbsEnergy>(result)         = get<Enthalpy>(result) - temperature * get<Entropy>(result);
+            //            get<HelmholzEnergy>(result)  = get<InternalEnergy>(result) - temperature * get<Entropy>(result);
+
+            return result.data();
         }
 
         /**
@@ -500,65 +512,65 @@ namespace PCProps::EquationOfState
     };
 
     // ===== Constructor, default
-    EOSPengRobinson::EOSPengRobinson() : m_impl(std::make_unique<impl>(0.0, 0.0, 0.0)) {};
+    PengRobinson::PengRobinson() : m_impl(std::make_unique<impl>(0.0, 0.0, 0.0)) {};
 
     // ===== Constructor
-    EOSPengRobinson::EOSPengRobinson(double criticalTemperature, double criticalPressure, double acentricFactor)
+    PengRobinson::PengRobinson(double criticalTemperature, double criticalPressure, double acentricFactor)
         : m_impl(std::make_unique<impl>(criticalTemperature, criticalPressure, acentricFactor))
     {}
 
     // ===== Copy constructor
-    EOSPengRobinson::EOSPengRobinson(const EOSPengRobinson& other) : m_impl(std::make_unique<impl>(*other.m_impl)) {};
+    PengRobinson::PengRobinson(const PengRobinson& other) : m_impl(std::make_unique<impl>(*other.m_impl)) {};
 
     // ===== Move constructor
-    EOSPengRobinson::EOSPengRobinson(EOSPengRobinson&& other) noexcept = default;
+    PengRobinson::PengRobinson(PengRobinson&& other) noexcept = default;
 
     // ===== Destructor
-    EOSPengRobinson::~EOSPengRobinson() = default;
+    PengRobinson::~PengRobinson() = default;
 
     // ===== Copy assignment operator
-    EOSPengRobinson& EOSPengRobinson::operator=(const EOSPengRobinson& other)
+    PengRobinson& PengRobinson::operator=(const PengRobinson& other)
     {
-        EOSPengRobinson copy = other;
-        *this                = std::move(copy);
+        PengRobinson copy = other;
+        *this             = std::move(copy);
         return *this;
     };
 
     // ===== Move assignment operator
-    EOSPengRobinson& EOSPengRobinson::operator=(EOSPengRobinson&& other) noexcept = default;
+    PengRobinson& PengRobinson::operator=(PengRobinson&& other) noexcept = default;
 
-    void EOSPengRobinson::setProperties(double criticalTemperature, double criticalPressure, double acentricFactor)
+    void PengRobinson::setProperties(double criticalTemperature, double criticalPressure, double acentricFactor)
     {
         m_impl->setProperties(criticalTemperature, criticalPressure, acentricFactor);
     }
 
-    void EOSPengRobinson::setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction)
+    void PengRobinson::setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction)
     {
         m_impl->setVaporPressureFunction(vaporPressureFunction);
     }
 
-    void EOSPengRobinson::setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
+    void PengRobinson::setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
     {
         m_impl->setIdealGasCpFunction(idealGasCpFunction);
     }
 
-    void EOSPengRobinson::setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction)
+    void PengRobinson::setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction)
     {
         m_impl->setIdealGasCpDerivativeFunction(idealGasCpDerivativeFunction);
     }
 
-    void EOSPengRobinson::setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction)
+    void PengRobinson::setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction)
     {
         m_impl->setIdealGasCpIntegralFunction(idealGasCpIntegralFunction);
     }
 
-    void EOSPengRobinson::setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction)
+    void PengRobinson::setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction)
     {
         m_impl->setIdealGasCpOverTIntegralFunction(idealGasOverTIntegralFunction);
     }
 
     // ===== P,T Flash
-    Phases EOSPengRobinson::flashPT(double pressure, double temperature) const
+    PCPhases PengRobinson::flashPT(double pressure, double temperature) const
     {
         using std::get;
 
@@ -573,7 +585,7 @@ namespace PCProps::EquationOfState
     }
 
     // ===== T,x Flash
-    Phases EOSPengRobinson::flashTx(double temperature, double vaporFraction) const
+    PCPhases PengRobinson::flashTx(double temperature, double vaporFraction) const
     {
         // TODO (troldal): This function should take into account the possibility that T > Tc
         using std::get;
@@ -597,7 +609,7 @@ namespace PCProps::EquationOfState
     }
 
     // ===== P,x Flash
-    Phases EOSPengRobinson::flashPx(double pressure, double vaporFraction) const
+    PCPhases PengRobinson::flashPx(double pressure, double vaporFraction) const
     {
         // TODO (troldal): This function should take into account the possibility that P > Pc
         using std::get;
@@ -621,7 +633,7 @@ namespace PCProps::EquationOfState
     }
 
     // ===== P,H Flash
-    Phases EOSPengRobinson::flashPH(double pressure, double enthalpy) const
+    PCPhases PengRobinson::flashPH(double pressure, double enthalpy) const
     {
         // TODO (troldal): This function needs to be cleaned up.
         using std::get;
@@ -703,7 +715,7 @@ namespace PCProps::EquationOfState
     }
 
     // ===== P,S Flash
-    Phases EOSPengRobinson::flashPS(double pressure, double entropy) const
+    PCPhases PengRobinson::flashPS(double pressure, double entropy) const
     {
         // TODO (troldal): This function needs to be cleaned up.
         using std::get;
@@ -785,19 +797,19 @@ namespace PCProps::EquationOfState
     }
 
     // ===== Flash at constant T,V
-    Phases EOSPengRobinson::flashTV(double temperature, double volume) const
+    PCPhases PengRobinson::flashTV(double temperature, double volume) const
     {
-        return PCProps::EquationOfState::Phases();
+        return PCProps::PCPhases();
     }
 
     // ===== Saturation pressure at given temperature
-    double EOSPengRobinson::saturationPressure(double temperature) const
+    double PengRobinson::saturationPressure(double temperature) const
     {
         return m_impl->computeSaturationPressure(temperature);
     }
 
     // ===== Saturation temperature at given pressure
-    double EOSPengRobinson::saturationTemperature(double pressure) const
+    double PengRobinson::saturationTemperature(double pressure) const
     {
         return m_impl->computeSaturationTemperature(pressure);
     }
