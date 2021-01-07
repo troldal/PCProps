@@ -135,14 +135,19 @@ namespace PCProps
         return m_data;
     }
 
-    Phases PCComponent::flashPT(double pressure, double temperature) const
+    Phases PCComponent::flash(Pressure pressure, Temperature temperature) const
     {
         using std::get;
-        auto results = convertFromTuple(m_data.equationOfState.flashPT(pressure, temperature))[0];
-        switch (
-            determinePhaseType(pressure, m_data.criticalPressure.value(), m_data.saturatedLiquidVolumeCorrelation(temperature), temperature, m_data.criticalTemperature.value())) {
+        auto results = convertFromTuple(m_data.equationOfState.flashPT(pressure.get(), temperature.get()))[0];
+        switch (determinePhaseType(
+            pressure.get(),
+            m_data.criticalPressure.value(),
+            m_data.saturatedLiquidVolumeCorrelation(temperature.get()),
+            temperature.get(),
+            m_data.criticalTemperature.value()))
+        {
             case PhaseType::Liquid:
-                results.molarVolume = m_data.saturatedLiquidVolumeCorrelation(temperature);
+                results.molarVolume = m_data.saturatedLiquidVolumeCorrelation(temperature.get());
                 break;
 
             case PhaseType::Vapor:
@@ -162,10 +167,10 @@ namespace PCProps
         return { results };
     }
 
-    Phases PCComponent::flashPx(double pressure, double vaporFraction) const
+    Phases PCComponent::flash(Pressure pressure, VaporFraction vaporFraction) const
     {
         using std::get;
-        auto results = convertFromTuple(m_data.equationOfState.flashPx(pressure, vaporFraction));
+        auto results = convertFromTuple(m_data.equationOfState.flashPx(pressure.get(), vaporFraction.get()));
 
         for (auto& result : results) {
             result.surfaceTension      = 0.0;
@@ -178,10 +183,10 @@ namespace PCProps
         return { results };
     }
 
-    Phases PCComponent::flashTx(double temperature, double vaporFraction) const
+    Phases PCComponent::flash(Temperature temperature, VaporFraction vaporFraction) const
     {
         using std::get;
-        auto results = convertFromTuple(m_data.equationOfState.flashTx(temperature, vaporFraction));
+        auto results = convertFromTuple(m_data.equationOfState.flashTx(temperature.get(), vaporFraction.get()));
 
         for (auto& result : results) {
             result.surfaceTension      = 0.0;
@@ -194,10 +199,10 @@ namespace PCProps
         return { results };
     }
 
-    Phases PCComponent::flashPH(double pressure, double enthalpy) const
+    Phases PCComponent::flash(Pressure pressure, Enthalpy enthalpy) const
     {
         using std::get;
-        auto results = convertFromTuple(m_data.equationOfState.flashPH(pressure, enthalpy));
+        auto results = convertFromTuple(m_data.equationOfState.flashPH(pressure.get(), enthalpy.get()));
 
         for (auto& result : results) {
             result.surfaceTension      = 0.0;
@@ -210,10 +215,10 @@ namespace PCProps
         return { results };
     }
 
-    Phases PCComponent::flashPS(double pressure, double entropy) const
+    Phases PCComponent::flash(Pressure pressure, Entropy entropy) const
     {
         using std::get;
-        auto results = convertFromTuple(m_data.equationOfState.flashPS(pressure, entropy));
+        auto results = convertFromTuple(m_data.equationOfState.flashPS(pressure.get(), entropy.get()));
 
         for (auto& result : results) {
             result.surfaceTension      = 0.0;
@@ -224,6 +229,11 @@ namespace PCProps
         }
 
         return { results };
+    }
+
+    Phases PCComponent::flash(Temperature temperature, Volume volume) const
+    {
+        return PCProps::Phases();
     }
 
     // ===== Get the component name

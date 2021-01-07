@@ -60,7 +60,7 @@ int main()
     auto propane = PCComponent(data);
 
     std::cout << "Propane at 25 C and 2 bar: " << std::endl;
-    auto a = propane.flash(Temperature(298.15), Pressure(2E5));
+    auto a = propane.flash(Pressure(2E5), Temperature(298.15));
     for (const auto& phase : a) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 
