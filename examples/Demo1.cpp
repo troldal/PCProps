@@ -16,9 +16,13 @@ using PCProps::LiquidVolume::Rackett;
 using PCProps::VaporPressure::AmbroseWalton;
 using PCProps::VaporPressure::AntoineExtended;
 
+using PCProps::Enthalpy;
+using PCProps::Entropy;
 using PCProps::PCComponent;
 using PCProps::PCComponentData;
 using PCProps::PCEquationOfState;
+using PCProps::Pressure;
+using PCProps::Temperature;
 
 int main()
 {
@@ -56,24 +60,24 @@ int main()
     auto propane = PCComponent(data);
 
     std::cout << "Propane at 25 C and 2 bar: " << std::endl;
-    auto a = propane.flashPT(2E5, 298.15);
+    auto a = propane.flash(Temperature(298.15), Pressure(2E5));
     for (const auto& phase : a) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 
     std::cout << "Compression to 10 bar: " << std::endl;
-    auto b = propane.flashPS(10E5, a[0].entropy);
+    auto b = propane.flash(Pressure(10E5), Entropy(a[0].entropy));
     for (const auto& phase : b) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 
     std::cout << "Cooling to 25 C: " << std::endl;
-    auto c = propane.flashPT(10E5, 298.15);
+    auto c = propane.flash(Pressure(10E5), Temperature(298.15));
     std::cout << "dT: " << c[0].temperature - b[0].temperature << std::endl;
     std::cout << "dH: " << c[0].enthalpy - b[0].enthalpy << std::endl;
     for (const auto& phase : c) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 
     std::cout << "Throttling to 2 bar: " << std::endl;
-    auto d = propane.flashPH(2E5, c[0].enthalpy);
+    auto d = propane.flash(Pressure(2E5), Enthalpy(c[0].enthalpy));
     for (const auto& phase : d) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 

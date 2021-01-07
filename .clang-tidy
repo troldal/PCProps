@@ -14,6 +14,7 @@ Checks: >-
   -readability-else-after-return,
   -readability-convert-member-functions-to-static,
   -readability-magic-numbers,
+  -readability-function-cognitive-complexity,
   -cppcoreguidelines-avoid-c-arrays,
   -cppcoreguidelines-prefer-member-initializer,
   -cppcoreguidelines-avoid-magic-numbers,

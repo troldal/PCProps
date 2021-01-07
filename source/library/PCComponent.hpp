@@ -43,13 +43,22 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <iostream>
 #include <optional>
 #include <string>
+#include <type_traits>
 
 #include <library/PCEquationOfState.hpp>
 #include <library/PCHeatCapacity.hpp>
 #include <library/PCPropsException.hpp>
+#include <library/Utilities/NamedType.hpp>
 
 namespace PCProps
 {
+    using Temperature   = PCProps::Utilities::NamedType<double, struct TemperatureTag>;
+    using Pressure      = PCProps::Utilities::NamedType<double, struct PressureTag>;
+    using Volume        = PCProps::Utilities::NamedType<double, struct VolumeTag>;
+    using Enthalpy      = PCProps::Utilities::NamedType<double, struct EnthalpyTag>;
+    using Entropy       = PCProps::Utilities::NamedType<double, struct EntropyTag>;
+    using VaporFraction = PCProps::Utilities::NamedType<double, struct VaporFractionTag>;
+
     /**
      * @brief
      */
@@ -74,8 +83,17 @@ namespace PCProps
         double helmholzEnergy {};
     };
 
+    /**
+     * @brief
+     */
     using Phases = std::vector<PCProperties>;
 
+    /**
+     * @brief
+     * @param stream
+     * @param properties
+     * @return
+     */
     inline std::ostream& operator<<(std::ostream& stream, const PCProps::PCProperties& properties)
     {
         return stream << std::setprecision(6) << std::fixed << "Molar Fraction       : " << std::right << std::setw(15) << properties.moleFraction << std::endl
@@ -192,6 +210,100 @@ namespace PCProps
          * @return A copy of the PCComponentData member.
          */
         PCComponentData& data();
+
+        /**
+         * @brief
+         * @tparam T1
+         * @tparam T2
+         * @param specification1
+         * @param specification2
+         * @return
+         */
+        template<typename T1, typename T2>
+        Phases flash(T1 specification1, T2 specification2) const
+        {
+            static_assert(
+                std::is_same_v<T1, Temperature> || std::is_same_v<T1, Pressure> || std::is_same_v<T1, Volume> || std::is_same_v<T1, Enthalpy> || std::is_same_v<T1, Entropy> ||
+                    std::is_same_v<T1, VaporFraction>,
+                "Invalid type(s). Specification must be Temperature, Pressure, Volume, Enthalpy, Entropy or Vapor Fraction.");
+
+            static_assert(
+                std::is_same_v<T2, Temperature> || std::is_same_v<T2, Pressure> || std::is_same_v<T2, Volume> || std::is_same_v<T2, Enthalpy> || std::is_same_v<T2, Entropy> ||
+                    std::is_same_v<T2, VaporFraction>,
+                "Invalid type(s). Specification must be Temperature, Pressure, Volume, Enthalpy, Entropy or Vapor Fraction.");
+
+            static_assert(!std::is_same_v<T1, T2>, "Invalid specification. Specification must be include two independent variables.");
+
+            static_assert(
+                !(std::is_same_v<T1, Temperature> && std::is_same_v<T2, Enthalpy>)&&!(std::is_same_v<T1, Enthalpy> && std::is_same_v<T2, Temperature>),
+                "Invalid specification.");
+            static_assert(
+                !(std::is_same_v<T1, Temperature> && std::is_same_v<T2, Entropy>)&&!(std::is_same_v<T1, Entropy> && std::is_same_v<T2, Temperature>),
+                "Invalid specification.");
+            static_assert(!(std::is_same_v<T1, Pressure> && std::is_same_v<T2, Volume>)&&!(std::is_same_v<T1, Volume> && std::is_same_v<T2, Pressure>), "Invalid specification.");
+            static_assert(!(std::is_same_v<T1, Volume> && std::is_same_v<T2, Enthalpy>)&&!(std::is_same_v<T1, Enthalpy> && std::is_same_v<T2, Volume>), "Invalid specification.");
+            static_assert(!(std::is_same_v<T1, Volume> && std::is_same_v<T2, Entropy>)&&!(std::is_same_v<T1, Entropy> && std::is_same_v<T2, Volume>), "Invalid specification.");
+            static_assert(
+                !(std::is_same_v<T1, Volume> && std::is_same_v<T2, VaporFraction>)&&!(std::is_same_v<T1, VaporFraction> && std::is_same_v<T2, Volume>),
+                "Invalid specification.");
+            static_assert(!(std::is_same_v<T1, Enthalpy> && std::is_same_v<T2, Entropy>)&&!(std::is_same_v<T1, Entropy> && std::is_same_v<T2, Enthalpy>), "Invalid specification.");
+            static_assert(
+                !(std::is_same_v<T1, Enthalpy> && std::is_same_v<T2, VaporFraction>)&&!(std::is_same_v<T1, VaporFraction> && std::is_same_v<T2, Enthalpy>),
+                "Invalid specification.");
+            static_assert(
+                !(std::is_same_v<T1, Entropy> && std::is_same_v<T2, VaporFraction>)&&!(std::is_same_v<T1, VaporFraction> && std::is_same_v<T2, Entropy>),
+                "Invalid specification.");
+
+            if constexpr (std::is_same_v<T1, Pressure> && std::is_same_v<T2, Temperature>) {
+                return flashPT(specification1.get(), specification2.get());
+            }
+
+            if constexpr (std::is_same_v<T1, Temperature> && std::is_same_v<T2, Pressure>) {
+                return flashPT(specification2.get(), specification1.get());
+            }
+
+            if constexpr (std::is_same_v<T1, Pressure> && std::is_same_v<T2, Enthalpy>) {
+                return flashPH(specification1.get(), specification2.get());
+            }
+
+            if constexpr (std::is_same_v<T1, Enthalpy> && std::is_same_v<T2, Pressure>) {
+                return flashPH(specification2.get(), specification1.get());
+            }
+
+            if constexpr (std::is_same_v<T1, Pressure> && std::is_same_v<T2, Entropy>) {
+                return flashPS(specification1.get(), specification2.get());
+            }
+
+            if constexpr (std::is_same_v<T1, Entropy> && std::is_same_v<T2, Pressure>) {
+                return flashPS(specification2.get(), specification1.get());
+            }
+
+            if constexpr (std::is_same_v<T1, Pressure> && std::is_same_v<T2, VaporFraction>) {
+                return flashPx(specification1.get(), specification2.get());
+            }
+
+            if constexpr (std::is_same_v<T1, VaporFraction> && std::is_same_v<T2, Pressure>) {
+                return flashPx(specification2.get(), specification1.get());
+            }
+
+            if constexpr (std::is_same_v<T1, Temperature> && std::is_same_v<T2, VaporFraction>) {
+                return flashTx(specification1.get(), specification2.get());
+            }
+
+            if constexpr (std::is_same_v<T1, VaporFraction> && std::is_same_v<T2, Temperature>) {
+                return flashTx(specification2.get(), specification1.get());
+            }
+
+            if constexpr (std::is_same_v<T1, Temperature> && std::is_same_v<T2, Volume>) {
+                return flashTV(specification1.get(), specification2.get());
+            }
+
+            if constexpr (std::is_same_v<T1, Volume> && std::is_same_v<T2, Temperature>) {
+                return flashTV(specification2.get(), specification1.get());
+            }
+
+            return Phases();
+        }
 
         /**
          * @brief
