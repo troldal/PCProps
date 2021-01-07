@@ -49,68 +49,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <library/PCHeatCapacityCorrelation.hpp>
 #include <library/PCPropsData.hpp>
 #include <library/PCPropsException.hpp>
-#include <library/Utilities/NamedType.hpp>
+#include <library/Utilities/NamedTypes.hpp>
 
 namespace PCProps
 {
-    using Temperature   = PCProps::Utilities::NamedType<double, struct TemperatureTag>;
-    using Pressure      = PCProps::Utilities::NamedType<double, struct PressureTag>;
-    using Volume        = PCProps::Utilities::NamedType<double, struct VolumeTag>;
-    using Enthalpy      = PCProps::Utilities::NamedType<double, struct EnthalpyTag>;
-    using Entropy       = PCProps::Utilities::NamedType<double, struct EntropyTag>;
-    using VaporFraction = PCProps::Utilities::NamedType<double, struct VaporFractionTag>;
-
-    /**
-     * @brief
-     */
-    struct PCProperties
-    {
-        double moleFraction {};
-        double molarVolume {};
-        double surfaceTension {};
-        double thermalConductivity {};
-        double viscosity {};
-        double heatCapacity {};
-        double molecularWeight {};
-        double temperature {};
-        double pressure {};
-        double compressibility {};
-        double fugacityCoefficient {};
-        double fugacity {};
-        double enthalpy {};
-        double entropy {};
-        double internalEnergy {};
-        double gibbsEnergy {};
-        double helmholzEnergy {};
-    };
-
-    /**
-     * @brief
-     * @param stream
-     * @param properties
-     * @return
-     */
-    inline std::ostream& operator<<(std::ostream& stream, const PCProps::PCProperties& properties)
-    {
-        return stream << std::setprecision(6) << std::fixed << "Molar Fraction       : " << std::right << std::setw(15) << properties.moleFraction << std::endl
-                      << "Molar Volume         : " << std::right << std::setw(15) << properties.molarVolume << " m3/mol" << std::endl
-                      << "Surface Tension      : " << std::right << std::setw(15) << properties.surfaceTension << " N/m" << std::endl
-                      << "Thermal Conductivity : " << std::right << std::setw(15) << properties.thermalConductivity << " W/m-K" << std::endl
-                      << "Viscosity            : " << std::right << std::setw(15) << properties.viscosity << " Pa-s" << std::endl
-                      << "Heat Capacity        : " << std::right << std::setw(15) << properties.heatCapacity << " J/mol-K" << std::endl
-                      << "Molecular Weight     : " << std::right << std::setw(15) << properties.molecularWeight << " g/mol" << std::endl
-                      << "Temperature          : " << std::right << std::setw(15) << properties.temperature << " K" << std::endl
-                      << "Pressure             : " << std::right << std::setw(15) << properties.pressure << " Pa" << std::endl
-                      << "Compressibility      : " << std::right << std::setw(15) << properties.compressibility << std::endl
-                      << "Fugacity Coefficient : " << std::right << std::setw(15) << properties.fugacityCoefficient << std::endl
-                      << "Fugacity             : " << std::right << std::setw(15) << properties.fugacity << " Pa" << std::endl
-                      << "Enthalpy             : " << std::right << std::setw(15) << properties.enthalpy << " J/mol" << std::endl
-                      << "Entropy              : " << std::right << std::setw(15) << properties.entropy << " J/mol-K" << std::endl
-                      << "Internal Energy      : " << std::right << std::setw(15) << properties.internalEnergy << " J/mol" << std::endl
-                      << "Gibbs Energy         : " << std::right << std::setw(15) << properties.gibbsEnergy << " J/mol" << std::endl
-                      << "Helmholz Energy      : " << std::right << std::setw(15) << properties.helmholzEnergy << " J/mol" << std::endl;
-    }
-
     /**
      * @brief The PCComponentData struct holds all the raw data and function objects that define a pure component.
      * An object of this type can be used to construct a PCComponent object.
@@ -213,7 +155,7 @@ namespace PCProps
          * @param temperature
          * @return
          */
-        PCPhases flash(Pressure pressure, Temperature temperature) const;
+        PCPhases flash(PCProps::Utilities::Pressure pressure, PCProps::Utilities::Temperature temperature) const;
 
         /**
          * @brief
@@ -221,7 +163,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        PCPhases flash(Pressure pressure, VaporFraction vaporFraction) const;
+        PCPhases flash(PCProps::Utilities::Pressure pressure, PCProps::Utilities::VaporFraction vaporFraction) const;
 
         /**
          * @brief
@@ -229,7 +171,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        PCPhases flash(Temperature temperature, VaporFraction vaporFraction) const;
+        PCPhases flash(PCProps::Utilities::Temperature temperature, PCProps::Utilities::VaporFraction vaporFraction) const;
 
         /**
          * @brief
@@ -237,7 +179,7 @@ namespace PCProps
          * @param enthalpy
          * @return
          */
-        PCPhases flash(Pressure pressure, Enthalpy enthalpy) const;
+        PCPhases flash(PCProps::Utilities::Pressure pressure, PCProps::Utilities::Enthalpy enthalpy) const;
 
         /**
          * @brief
@@ -245,7 +187,7 @@ namespace PCProps
          * @param entropy
          * @return
          */
-        PCPhases flash(Pressure pressure, Entropy entropy) const;
+        PCPhases flash(PCProps::Utilities::Pressure pressure, PCProps::Utilities::Entropy entropy) const;
 
         /**
          * @brief
@@ -253,7 +195,7 @@ namespace PCProps
          * @param volume
          * @return
          */
-        PCPhases flash(Temperature temperature, Volume volume) const;
+        PCPhases flash(PCProps::Utilities::Temperature temperature, PCProps::Utilities::Volume volume) const;
 
         /**
          * @brief Get the name of the component.

@@ -3,8 +3,8 @@
 #   Define external libraries used by OpenXLSX. The libraries (Zippy and PugiXML) are header-only, so
 #   INTERFACE libraries should be defined.
 #=======================================================================================================================
-add_library(external INTERFACE IMPORTED)
-target_include_directories(external SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/>)
+#add_library(external INTERFACE IMPORTED)
+#target_include_directories(external SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/>)
 
 
 #add_library(Zippy INTERFACE IMPORTED)
@@ -86,7 +86,6 @@ target_include_directories(${PROJECT_NAME}-library-static
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/library>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(${PROJECT_NAME}-library-static PRIVATE external)
 target_compile_definitions(${PROJECT_NAME}-library-static PRIVATE OPENXLSX_STATIC_DEFINE)
 
 #=======================================================================================================================
@@ -100,7 +99,6 @@ target_include_directories(${PROJECT_NAME}-library-shared
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/library>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(${PROJECT_NAME}-library-shared PRIVATE external)
 
 #=======================================================================================================================
 # GENERATE EXPORT HEADER

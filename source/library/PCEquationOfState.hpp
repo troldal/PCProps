@@ -42,8 +42,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <library/PCPropsData.hpp>
 
-using PCProps::PCPhases;
-
 namespace PCProps
 {
     /**
@@ -93,7 +91,7 @@ namespace PCProps
          * @return
          */
         template<typename T>
-        PCEquationOfState& operator=(const T& x)
+        inline PCEquationOfState& operator=(const T& x)
         {
             m_equationOfState = std::make_unique<EOSModel<T>>(x);
             return *this;
@@ -104,7 +102,7 @@ namespace PCProps
          * @param other
          * @return
          */
-        PCEquationOfState& operator=(const PCEquationOfState& other)
+        inline PCEquationOfState& operator=(const PCEquationOfState& other)
         {
             PCEquationOfState copy(other);
             *this = std::move(copy);
@@ -116,39 +114,69 @@ namespace PCProps
          * @param other
          * @return
          */
-        PCEquationOfState& operator=(PCEquationOfState&& other) noexcept = default;
+        inline PCEquationOfState& operator=(PCEquationOfState&& other) noexcept = default;
 
-        explicit operator bool() const
+        /**
+         * @brief
+         * @return
+         */
+        inline explicit operator bool() const
         {
             return m_equationOfState != nullptr;
         }
 
-        void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor)
+        /**
+         * @brief
+         * @param criticalTemperature
+         * @param criticalPressure
+         * @param acentricFactor
+         */
+        inline void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor)
         {
             m_equationOfState->setProperties(criticalTemperature, criticalPressure, acentricFactor);
         }
 
-        void setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction)
+        /**
+         * @brief
+         * @param vaporPressureFunction
+         */
+        inline void setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction)
         {
             m_equationOfState->setVaporPressureFunction(vaporPressureFunction);
         }
 
-        void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
+        /**
+         * @brief
+         * @param idealGasCpFunction
+         */
+        inline void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
         {
             m_equationOfState->setIdealGasCpFunction(idealGasCpFunction);
         }
 
-        void setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction)
+        /**
+         * @brief
+         * @param idealGasCpDerivativeFunction
+         */
+        inline void setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction)
         {
             m_equationOfState->setIdealGasCpDerivativeFunction(idealGasCpDerivativeFunction);
         }
 
-        void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction)
+        /**
+         * @brief
+         * @param idealGasCpIntegralFunction
+         */
+        inline void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction)
         {
             m_equationOfState->setIdealGasCpIntegralFunction(idealGasCpIntegralFunction);
         }
 
-        void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction)
+        /**
+         * @brief
+         * @param idealGasOverTIntegralFunction
+         */
+        inline void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction)
         {
             m_equationOfState->setIdealGasCpOverTIntegralFunction(idealGasOverTIntegralFunction);
         }
@@ -159,7 +187,7 @@ namespace PCProps
          * @param temperature
          * @return
          */
-        PCPhases flashPT(double pressure, double temperature) const
+        inline PCPhases flashPT(double pressure, double temperature) const
         {
             return m_equationOfState->flashPT(pressure, temperature);
         }
@@ -170,7 +198,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        PCPhases flashPx(double pressure, double vaporFraction) const
+        inline PCPhases flashPx(double pressure, double vaporFraction) const
         {
             return m_equationOfState->flashPx(pressure, vaporFraction);
         }
@@ -181,7 +209,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        PCPhases flashTx(double temperature, double vaporFraction) const
+        inline PCPhases flashTx(double temperature, double vaporFraction) const
         {
             return m_equationOfState->flashTx(temperature, vaporFraction);
         }
@@ -192,7 +220,7 @@ namespace PCProps
          * @param enthalpy
          * @return
          */
-        PCPhases flashPH(double pressure, double enthalpy) const
+        inline PCPhases flashPH(double pressure, double enthalpy) const
         {
             return m_equationOfState->flashPH(pressure, enthalpy);
         }
@@ -203,7 +231,7 @@ namespace PCProps
          * @param entropy
          * @return
          */
-        PCPhases flashPS(double pressure, double entropy) const
+        inline PCPhases flashPS(double pressure, double entropy) const
         {
             return m_equationOfState->flashPS(pressure, entropy);
         }
@@ -214,7 +242,7 @@ namespace PCProps
          * @param volume
          * @return
          */
-        PCPhases flashTV(double temperature, double volume)
+        inline PCPhases flashTV(double temperature, double volume)
         {
             return m_equationOfState->flashTV(temperature, volume);
         }
@@ -224,7 +252,7 @@ namespace PCProps
          * @param temperature
          * @return
          */
-        double saturationPressure(double temperature) const
+        inline double saturationPressure(double temperature) const
         {
             return m_equationOfState->saturationPressure(temperature);
         }
@@ -234,7 +262,7 @@ namespace PCProps
          * @param pressure
          * @return
          */
-        double saturationTemperature(double pressure) const
+        inline double saturationTemperature(double pressure) const
         {
             return m_equationOfState->saturationTemperature(pressure);
         }
@@ -270,19 +298,19 @@ namespace PCProps
              * @brief
              * @return
              */
-            EOSConcept& operator=(const EOSConcept&) = default;
+            inline EOSConcept& operator=(const EOSConcept&) = default;
 
             /**
              * @brief
              * @return
              */
-            EOSConcept& operator=(EOSConcept&&) noexcept = default;
+            inline EOSConcept& operator=(EOSConcept&&) noexcept = default;
 
             /**
              * @brief
              * @return
              */
-            virtual std::unique_ptr<EOSConcept> clone() const = 0;
+            inline virtual std::unique_ptr<EOSConcept> clone() const = 0;
 
             /**
              * @brief
@@ -290,7 +318,7 @@ namespace PCProps
              * @param temperature
              * @return
              */
-            virtual PCPhases flashPT(double pressure, double temperature) const = 0;
+            inline virtual PCPhases flashPT(double pressure, double temperature) const = 0;
 
             /**
              * @brief
@@ -298,7 +326,7 @@ namespace PCProps
              * @param vaporFraction
              * @return
              */
-            virtual PCPhases flashPx(double pressure, double vaporFraction) const = 0;
+            inline virtual PCPhases flashPx(double pressure, double vaporFraction) const = 0;
 
             /**
              * @brief
@@ -306,7 +334,7 @@ namespace PCProps
              * @param vaporFraction
              * @return
              */
-            virtual PCPhases flashTx(double temperature, double vaporFraction) const = 0;
+            inline virtual PCPhases flashTx(double temperature, double vaporFraction) const = 0;
 
             /**
              * @brief
@@ -314,7 +342,7 @@ namespace PCProps
              * @param enthalpy
              * @return
              */
-            virtual PCPhases flashPH(double pressure, double enthalpy) const = 0;
+            inline virtual PCPhases flashPH(double pressure, double enthalpy) const = 0;
 
             /**
              * @brief
@@ -322,7 +350,7 @@ namespace PCProps
              * @param entropy
              * @return
              */
-            virtual PCPhases flashPS(double pressure, double entropy) const = 0;
+            inline virtual PCPhases flashPS(double pressure, double entropy) const = 0;
 
             /**
              * @brief
@@ -330,21 +358,21 @@ namespace PCProps
              * @param entropy
              * @return
              */
-            virtual PCPhases flashTV(double temperature, double volume) const = 0;
+            inline virtual PCPhases flashTV(double temperature, double volume) const = 0;
 
             /**
              * @brief
              * @param temperature
              * @return
              */
-            virtual double saturationPressure(double temperature) const = 0;
+            inline virtual double saturationPressure(double temperature) const = 0;
 
             /**
              * @brief
              * @param pressure
              * @return
              */
-            virtual double saturationTemperature(double pressure) const = 0;
+            inline virtual double saturationTemperature(double pressure) const = 0;
 
             /**
              * @brief
@@ -352,37 +380,37 @@ namespace PCProps
              * @param criticalPressure
              * @param acentricFactor
              */
-            virtual void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor) = 0;
+            inline virtual void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor) = 0;
 
             /**
              * @brief
              * @param vaporPressureFunction
              */
-            virtual void setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction) = 0;
+            inline virtual void setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction) = 0;
 
             /**
              * @brief
              * @param idealGasCpFunction
              */
-            virtual void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction) = 0;
+            inline virtual void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction) = 0;
 
             /**
              * @brief
              * @param idealGasCpDerivativeFunction
              */
-            virtual void setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction) = 0;
+            inline virtual void setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction) = 0;
 
             /**
              * @brief
              * @param idealGasCpIntegralFunction
              */
-            virtual void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction) = 0;
+            inline virtual void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction) = 0;
 
             /**
              * @brief
              * @param idealGasOverTIntegralFunction
              */
-            virtual void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction) = 0;
+            inline virtual void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction) = 0;
         };
 
         /**
@@ -421,20 +449,20 @@ namespace PCProps
              * @param other
              * @return
              */
-            EOSModel& operator=(const EOSModel& other) = default;
+            inline EOSModel& operator=(const EOSModel& other) = default;
 
             /**
              * @brief
              * @param other
              * @return
              */
-            EOSModel& operator=(EOSModel&& other) noexcept = default;
+            inline EOSModel& operator=(EOSModel&& other) noexcept = default;
 
             /**
              * @brief
              * @return
              */
-            std::unique_ptr<EOSConcept> clone() const override
+            inline std::unique_ptr<EOSConcept> clone() const override
             {
                 return std::make_unique<EOSModel<T>>(EOSType);
             }
@@ -445,7 +473,7 @@ namespace PCProps
              * @param temperature
              * @return
              */
-            PCPhases flashPT(double pressure, double temperature) const override
+            inline PCPhases flashPT(double pressure, double temperature) const override
             {
                 return EOSType.flashPT(pressure, temperature);
             }
@@ -456,7 +484,7 @@ namespace PCProps
              * @param vaporFraction
              * @return
              */
-            PCPhases flashPx(double pressure, double vaporFraction) const override
+            inline PCPhases flashPx(double pressure, double vaporFraction) const override
             {
                 return EOSType.flashPx(pressure, vaporFraction);
             }
@@ -467,7 +495,7 @@ namespace PCProps
              * @param vaporFraction
              * @return
              */
-            PCPhases flashTx(double temperature, double vaporFraction) const override
+            inline PCPhases flashTx(double temperature, double vaporFraction) const override
             {
                 return EOSType.flashTx(temperature, vaporFraction);
             }
@@ -478,7 +506,7 @@ namespace PCProps
              * @param enthalpy
              * @return
              */
-            PCPhases flashPH(double pressure, double enthalpy) const override
+            inline PCPhases flashPH(double pressure, double enthalpy) const override
             {
                 return EOSType.flashPH(pressure, enthalpy);
             }
@@ -489,7 +517,7 @@ namespace PCProps
              * @param entropy
              * @return
              */
-            PCPhases flashPS(double pressure, double entropy) const override
+            inline PCPhases flashPS(double pressure, double entropy) const override
             {
                 return EOSType.flashPS(pressure, entropy);
             }
@@ -500,7 +528,7 @@ namespace PCProps
              * @param volume
              * @return
              */
-            PCPhases flashTV(double temperature, double volume) const override
+            inline PCPhases flashTV(double temperature, double volume) const override
             {
                 return EOSType.flashTV(temperature, volume);
             }
@@ -510,7 +538,7 @@ namespace PCProps
              * @param temperature
              * @return
              */
-            double saturationPressure(double temperature) const override
+            inline double saturationPressure(double temperature) const override
             {
                 return EOSType.saturationPressure(temperature);
             }
@@ -520,37 +548,63 @@ namespace PCProps
              * @param pressure
              * @return
              */
-            double saturationTemperature(double pressure) const override
+            inline double saturationTemperature(double pressure) const override
             {
                 return EOSType.saturationTemperature(pressure);
             }
 
-            void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor) override
+            /**
+             * @brief
+             * @param criticalTemperature
+             * @param criticalPressure
+             * @param acentricFactor
+             */
+            inline void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor) override
             {
                 EOSType.setProperties(criticalTemperature, criticalPressure, acentricFactor);
             }
 
-            void setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction) override
+            /**
+             * @brief
+             * @param vaporPressureFunction
+             */
+            inline void setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction) override
             {
                 EOSType.setVaporPressureFunction(vaporPressureFunction);
             }
 
-            void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction) override
+            /**
+             * @brief
+             * @param idealGasCpFunction
+             */
+            inline void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction) override
             {
                 EOSType.setIdealGasCpFunction(idealGasCpFunction);
             }
 
-            void setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction) override
+            /**
+             * @brief
+             * @param idealGasCpDerivativeFunction
+             */
+            inline void setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction) override
             {
                 EOSType.setIdealGasCpDerivativeFunction(idealGasCpDerivativeFunction);
             }
 
-            void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction) override
+            /**
+             * @brief
+             * @param idealGasCpIntegralFunction
+             */
+            inline void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction) override
             {
                 EOSType.setIdealGasCpIntegralFunction(idealGasCpIntegralFunction);
             }
 
-            void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction) override
+            /**
+             * @brief
+             * @param idealGasOverTIntegralFunction
+             */
+            inline void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction) override
             {
                 EOSType.setIdealGasCpOverTIntegralFunction(idealGasOverTIntegralFunction);
             }

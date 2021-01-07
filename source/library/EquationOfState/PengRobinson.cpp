@@ -40,7 +40,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <vector>
 
 #include "PengRobinson.hpp"
-#include <PCConfig.hpp>
+#include <PCGlobals.hpp>
 #include <Utilities/Integration.hpp>
 #include <Utilities/RootFinding.hpp>
 

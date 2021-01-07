@@ -17,14 +17,15 @@ using PCProps::LiquidVolume::Rackett;
 using PCProps::VaporPressure::AmbroseWalton;
 using PCProps::VaporPressure::AntoineExtended;
 
-using PCProps::Enthalpy;
-using PCProps::Entropy;
 using PCProps::PCComponent;
 using PCProps::PCComponentData;
 using PCProps::PCEquationOfState;
 using PCProps::PCPhase;
-using PCProps::Pressure;
-using PCProps::Temperature;
+
+using PCProps::Utilities::Enthalpy;
+using PCProps::Utilities::Entropy;
+using PCProps::Utilities::Pressure;
+using PCProps::Utilities::Temperature;
 
 int main()
 {

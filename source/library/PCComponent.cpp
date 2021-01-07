@@ -39,42 +39,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <library/PCPropsException.hpp>
 
-// using namespace PCProps::EquationOfState;
-
 namespace
 {
-    //    PCProps::Phases convertFromTuple(PCProps::EquationOfState::Phases phases)
-    //    {
-    //        using std::get;
-    //        PCProps::Phases results;
-    //
-    //        for (const auto& phase : phases) {
-    //            PCProps::PCProperties props;
-    //
-    //            props.moleFraction        = get<MolarFraction>(phase);
-    //            props.molarVolume         = get<Volume>(phase);
-    //            props.surfaceTension      = 0.0;
-    //            props.thermalConductivity = 0.0;
-    //            props.viscosity           = 0.0;
-    //            props.heatCapacity        = 0.0;
-    //            props.molecularWeight     = 0.0;
-    //            props.temperature         = get<Temperature>(phase);
-    //            props.pressure            = get<Pressure>(phase);
-    //            props.compressibility     = get<Compressibility>(phase);
-    //            props.fugacityCoefficient = get<FugacityCoefficient>(phase);
-    //            props.fugacity            = get<Fugacity>(phase);
-    //            props.enthalpy            = get<Enthalpy>(phase);
-    //            props.entropy             = get<Entropy>(phase);
-    //            props.internalEnergy      = get<InternalEnergy>(phase);
-    //            props.gibbsEnergy         = get<GibbsEnergy>(phase);
-    //            props.helmholzEnergy      = get<HelmholzEnergy>(phase);
-    //
-    //            results.emplace_back(props);
-    //        }
-    //
-    //        return results;
-    //    }
-
     enum PhaseType { Liquid, Vapor, Dense, Undefined };
 
     PhaseType determinePhaseType(double pressure, double criticalPressure, double saturationPressure, double temperature, double criticalTemperature)
@@ -134,7 +100,7 @@ namespace PCProps
         return m_data;
     }
 
-    PCPhases PCComponent::flash(Pressure pressure, Temperature temperature) const
+    PCPhases PCComponent::flash(Utilities::Pressure pressure, Utilities::Temperature temperature) const
     {
         using std::get;
         auto results = PCPhase(m_data.equationOfState.flashPT(pressure.get(), temperature.get())[0]);
@@ -166,7 +132,7 @@ namespace PCProps
         return { results.data() };
     }
 
-    PCPhases PCComponent::flash(Pressure pressure, VaporFraction vaporFraction) const
+    PCPhases PCComponent::flash(Utilities::Pressure pressure, Utilities::VaporFraction vaporFraction) const
     {
         using std::get;
         PCPhases results;
@@ -184,7 +150,7 @@ namespace PCProps
         return results;
     }
 
-    PCPhases PCComponent::flash(Temperature temperature, VaporFraction vaporFraction) const
+    PCPhases PCComponent::flash(Utilities::Temperature temperature, Utilities::VaporFraction vaporFraction) const
     {
         using std::get;
         PCPhases results;
@@ -202,7 +168,7 @@ namespace PCProps
         return results;
     }
 
-    PCPhases PCComponent::flash(Pressure pressure, Enthalpy enthalpy) const
+    PCPhases PCComponent::flash(Utilities::Pressure pressure, Utilities::Enthalpy enthalpy) const
     {
         using std::get;
         PCPhases results;
@@ -220,7 +186,7 @@ namespace PCProps
         return results;
     }
 
-    PCPhases PCComponent::flash(Pressure pressure, Entropy entropy) const
+    PCPhases PCComponent::flash(Utilities::Pressure pressure, Utilities::Entropy entropy) const
     {
         using std::get;
         PCPhases results;
@@ -238,7 +204,7 @@ namespace PCProps
         return results;
     }
 
-    PCPhases PCComponent::flash(Temperature temperature, Volume volume) const
+    PCPhases PCComponent::flash(Utilities::Temperature temperature, Utilities::Volume volume) const
     {
         return PCProps::PCPhases();
     }
