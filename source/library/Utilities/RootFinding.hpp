@@ -9,10 +9,26 @@
 #include <array>
 #include <cmath>
 #include <functional>
+#include <iostream>
+
+#include "Calculus.hpp"
 
 namespace PCProps::Numerics
 {
-    double ridders(const std::function<double(double)>& objective, double x1, double x2, double eps = 1.0E-6, double max_iter = 10)
+    double newton(const std::function<double(double)>& func, double x, double eps = 1E-6, int maxiter = 10)
+    {
+        using std::abs;
+        int counter = 0;
+        while (true) {
+            double x1 = x - (func(x) / diff_central(func, x));
+            if (abs(x - x1) < eps) return x1;
+            if (counter > maxiter) return NAN;
+            x = x1;
+            ++counter;
+        }
+    }
+
+    double ridders(const std::function<double(double)>& objective, double x1, double x2, double eps = 1.0E-6, double max_iter = 100)
     {
         using std::abs;
         using std::pow;

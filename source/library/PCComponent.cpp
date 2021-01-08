@@ -72,7 +72,6 @@ namespace PCProps
 
         m_data.equationOfState.setProperties(m_data.criticalTemperature.value(), m_data.criticalPressure.value(), m_data.acentricFactor.value());
 
-        m_data.equationOfState.setVaporPressureFunction(m_data.vaporPressureCorrelation);
         m_data.equationOfState.setIdealGasCpFunction([&](double temperature) { return m_data.idealGasCpCorrelation.evaluateCp(temperature); });
         m_data.equationOfState.setIdealGasCpDerivativeFunction([&](double temperature) { return m_data.idealGasCpCorrelation.derivativeOfCp(temperature); });
         m_data.equationOfState.setIdealGasCpIntegralFunction([&](double temperature) { return m_data.idealGasCpCorrelation.integralOfCp(temperature); });
@@ -207,6 +206,16 @@ namespace PCProps
     PCPhases PCComponent::flash(Utilities::Temperature temperature, Utilities::Volume volume) const
     {
         return PCProps::PCPhases();
+    }
+
+    double PCComponent::saturationPressure(double temperature) const
+    {
+        return m_data.equationOfState.saturationPressure(temperature);
+    }
+
+    double PCComponent::saturationTemperature(double pressure) const
+    {
+        return m_data.equationOfState.saturationTemperature(pressure);
     }
 
     // ===== Get the component name

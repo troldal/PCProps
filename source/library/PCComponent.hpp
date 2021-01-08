@@ -198,6 +198,20 @@ namespace PCProps
         PCPhases flash(PCProps::Utilities::Temperature temperature, PCProps::Utilities::Volume volume) const;
 
         /**
+         * @brief
+         * @param temperature
+         * @return
+         */
+        double saturationPressure(double temperature) const;
+
+        /**
+         * @brief
+         * @param pressure
+         * @return
+         */
+        double saturationTemperature(double pressure) const;
+
+        /**
          * @brief Get the name of the component.
          * @return A std::string with the component name.
          */

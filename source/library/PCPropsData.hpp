@@ -270,6 +270,12 @@ namespace PCProps
                       << "Gibbs Energy         : " << std::right << std::setw(15) << properties.gibbsEnergy() << " J/mol" << std::endl
                       << "Helmholz Energy      : " << std::right << std::setw(15) << properties.helmholzEnergy() << " J/mol" << std::endl;
     }
+
+    inline std::ostream& operator<<(std::ostream& stream, const PCProps::PCPhaseData& properties)
+    {
+        return stream << PCPhase(properties);
+    }
+
 }    // namespace PCProps
 
 #endif    // PCPROPS_PCPROPSDATA_HPP

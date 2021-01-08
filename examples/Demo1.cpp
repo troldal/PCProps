@@ -27,6 +27,8 @@ using PCProps::Utilities::Entropy;
 using PCProps::Utilities::Pressure;
 using PCProps::Utilities::Temperature;
 
+using namespace PCProps;
+
 int main()
 {
     using std::get;
@@ -64,24 +66,24 @@ int main()
 
     std::cout << "Propane at 25 C and 2 bar: " << std::endl;
     auto a = propane.flash(Pressure(2E5), Temperature(298.15));
-    for (const auto& phase : a) std::cout << PCPhase(phase) << std::endl;
+    for (const auto& phase : a) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 
     std::cout << "Compression to 10 bar: " << std::endl;
     auto b = propane.flash(Pressure(10E5), Entropy(PCPhase(a[0]).entropy()));
-    for (const auto& phase : b) std::cout << PCPhase(phase) << std::endl;
+    for (const auto& phase : b) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 
     std::cout << "Cooling to 25 C: " << std::endl;
     auto c = propane.flash(Pressure(10E5), Temperature(298.15));
-    std::cout << "dT: " << c[0][PCProps::PCTemperature] - b[0][PCProps::PCTemperature] << std::endl;
-    std::cout << "dH: " << c[0][PCProps::PCEnthalpy] - b[0][PCProps::PCEnthalpy] << std::endl;
-    for (const auto& phase : c) std::cout << PCPhase(phase) << std::endl;
+    std::cout << "dT: " << c[0][PCTemperature] - b[0][PCTemperature] << std::endl;
+    std::cout << "dH: " << c[0][PCEnthalpy] - b[0][PCEnthalpy] << std::endl;
+    for (const auto& phase : c) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 
     std::cout << "Throttling to 2 bar: " << std::endl;
-    auto d = propane.flash(Pressure(2E5), Enthalpy(c[0][PCProps::PCEnthalpy]));
-    for (const auto& phase : d) std::cout << PCPhase(phase) << std::endl;
+    auto d = propane.flash(Pressure(2E5), Enthalpy(c[0][PCEnthalpy]));
+    for (const auto& phase : d) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 
     return 0;

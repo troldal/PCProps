@@ -138,15 +138,6 @@ namespace PCProps
 
         /**
          * @brief
-         * @param vaporPressureFunction
-         */
-        inline void setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction)
-        {
-            m_equationOfState->setVaporPressureFunction(vaporPressureFunction);
-        }
-
-        /**
-         * @brief
          * @param idealGasCpFunction
          */
         inline void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
@@ -384,12 +375,6 @@ namespace PCProps
 
             /**
              * @brief
-             * @param vaporPressureFunction
-             */
-            inline virtual void setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction) = 0;
-
-            /**
-             * @brief
              * @param idealGasCpFunction
              */
             inline virtual void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction) = 0;
@@ -562,15 +547,6 @@ namespace PCProps
             inline void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor) override
             {
                 EOSType.setProperties(criticalTemperature, criticalPressure, acentricFactor);
-            }
-
-            /**
-             * @brief
-             * @param vaporPressureFunction
-             */
-            inline void setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction) override
-            {
-                EOSType.setVaporPressureFunction(vaporPressureFunction);
             }
 
             /**

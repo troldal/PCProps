@@ -2,8 +2,11 @@
 // Created by Kenneth Balslev on 01/01/2021.
 //
 
-#ifndef PCPROPS_INTEGRATION_HPP
-#define PCPROPS_INTEGRATION_HPP
+#ifndef PCPROPS_CALCULUS_HPP
+#define PCPROPS_CALCULUS_HPP
+
+#include <cmath>
+#include <limits>
 
 namespace PCProps::Numerics
 {
@@ -34,6 +37,24 @@ namespace PCProps::Numerics
         return result;
     }
 
+    double diff_central(const std::function<double(double)>& func, double x)
+    {
+        using std::sqrt;
+
+        auto h = sqrt(std::numeric_limits<double>::epsilon());
+
+        return (func(x + h) - func(x - h)) / (2 * h);
+    }
+
+    double diff_backward(const std::function<double(double)>& func, double x)
+    {
+        using std::sqrt;
+
+        auto h = sqrt(std::numeric_limits<double>::epsilon());
+
+        return (func(x) - func(x - h)) / h;
+    }
+
 }    // namespace PCProps::Numerics
 
-#endif    // PCPROPS_INTEGRATION_HPP
+#endif    // PCPROPS_CALCULUS_HPP

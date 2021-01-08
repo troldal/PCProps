@@ -18,8 +18,11 @@ using PCProps::PCComponent;
 using PCProps::PCComponentData;
 using PCProps::PCEquationOfState;
 using PCProps::PCPhase;
-using PCProps::Pressure;
-using PCProps::Temperature;
+using PCProps::Utilities::Pressure;
+using PCProps::Utilities::Temperature;
+using PCProps::Utilities::VaporFraction;
+
+using namespace PCProps;
 
 int main()
 {
@@ -56,7 +59,17 @@ int main()
 
     auto propane = PCComponent(data);
 
-    std::cout << PCPhase(propane.flash(PCProps::Pressure(1E5), PCProps::Temperature(298.15))[0]) << std::endl;
+    std::cout << propane.saturationPressure(369.83) << std::endl;
+
+    for (const auto& phase : propane.flash(Pressure(4.248E6), VaporFraction(0.5))) std::cout << phase << std::endl;
+
+    for (const auto& phase : propane.flash(Temperature(369.8), VaporFraction(0.5))) std::cout << phase << std::endl;
+    //
+    //    auto psat = AntoineExtended(AntoineExtended::CreateFromDIPPR { 59.078, -3492.6, -6.0669, 1.0919E-05, 2 });
+    //    std::cout << psat(500) << std::endl;
+    //
+    //    for (const auto& phase : propane.flash(Pressure(2.44656E7), Temperature(500)))
+    //        std::cout << phase << std::endl;
 
     return 0;
 }

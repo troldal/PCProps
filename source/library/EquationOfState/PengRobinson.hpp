@@ -107,12 +107,6 @@ namespace PCProps::EquationOfState
 
         /**
          * @brief
-         * @param vaporPressureFunction
-         */
-        void setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction);
-
-        /**
-         * @brief
          * @param idealGasCpFunction
          */
         void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction);
@@ -149,17 +143,27 @@ namespace PCProps::EquationOfState
 
         /**
          * @brief Compute flash at specified temperature and vapor fraction.
+         * @details If the given temperature is higher than the saturation temperature, a hypothetical saturation pressure
+         * is estimated by extrapolation of the vapor pressure curve.
+         * This point will be located in the supercritical region, where there are no saturation conditions.
+         * However, in order to ensure numerical stability, calculating the (unphysical) saturation conditions are preferred.
          * @param temperature The temperature [K]
          * @param vaporFraction The vapor fraction [-]. Must be between 0.0 and 1.0.
          * @return The phase data for the phase(s) resulting from the flash.
+         * @note If the vaporFraction = 0.0 or 1.0, or if the pressure is higher than the critical pressure, only one phase is returned.
          */
         PCPhases flashTx(double temperature, double vaporFraction) const;
 
         /**
-         * @brief Compute flash at specified pressure and vapor fraction
+         * @brief Compute flash at specified pressure and vapor fraction.
+         * @details If the given pressure is higher than the saturation pressure, a hypothetical saturation temperature
+         * is estimated by extrapolation of the vapor pressure curve.
+         * This point will be located in the supercritical region, where there are no saturation conditions.
+         * However, in order to ensure numerical stability, calculating the (unphysical) saturation conditions are preferred.
          * @param pressure The pressure [Pa]
          * @param vaporFraction The vapor fraction [-]. Must be between 0.0 and 1.0.
          * @return The phase data for the phase(s) resulting from the flash.
+         * @note If the vaporFraction = 0.0 or 1.0, or if the temperature is higher than the critical temperature, only one phase is returned.
          */
         PCPhases flashPx(double pressure, double vaporFraction) const;
 
@@ -188,16 +192,18 @@ namespace PCProps::EquationOfState
         PCPhases flashTV(double temperature, double volume) const;
 
         /**
-         * @brief
-         * @param temperature
-         * @return
+         * @brief Calculate the saturation pressure at the given temperature.
+         * @param temperature The temperature [K]
+         * @return The saturation pressure [Pa]
+         * @warning Returns NaN if the temperature is higher than the critical temperature.
          */
         double saturationPressure(double temperature) const;
 
         /**
-         * @brief
-         * @param pressure
-         * @return
+         * @brief Calculate the saturation temperature at the given pressure.
+         * @param pressure The pressure [Pa]
+         * @return The saturation temperature [K]
+         * @warning Returns NaN if pressure is higher than the critical pressure.
          */
         double saturationTemperature(double pressure) const;
 

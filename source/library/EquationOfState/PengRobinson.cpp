@@ -37,12 +37,32 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <vector>
 
 #include "PengRobinson.hpp"
 #include <PCGlobals.hpp>
-#include <Utilities/Integration.hpp>
+#include <Utilities/Calculus.hpp>
 #include <Utilities/RootFinding.hpp>
+#include <library/VaporPressure/AmbroseWalton.hpp>
+
+using PCProps::VaporPressure::AmbroseWalton;
+
+namespace
+{
+    std::pair<double, double> computeInterval(const std::function<double(double)>& obj, double lower, double upper)
+    {
+        auto diff = upper - lower;
+        while (true) {
+            if (obj(lower) * obj(upper) < 0.0) break;
+            lower = upper;
+            upper = lower + diff;
+        }
+
+        return std::make_pair(lower, upper);
+    }
+
+}    // namespace
 
 namespace PCProps::EquationOfState
 {
@@ -57,6 +77,7 @@ namespace PCProps::EquationOfState
         // ===== Basic fluid properties
         double m_criticalTemperature {};
         double m_criticalPressure {};
+        double m_acentricFactor {};
 
         // ===== Calculated constants
         double m_ac {};
@@ -64,7 +85,6 @@ namespace PCProps::EquationOfState
         double m_kappa {};
 
         // ===== User-supplied correlations
-        std::function<double(double)> m_vaporPressureFunction {};
         std::function<double(double)> m_idealGasCpFunction {};
         std::function<double(double)> m_idealGasCpDerivativeFunction {};
         std::function<double(double)> m_idealGasCpIntegralFunction {};
@@ -112,17 +132,6 @@ namespace PCProps::EquationOfState
         inline double alpha(double temperature) const
         {
             return pow(1 + m_kappa * (1 - sqrt(temperature / criticalTemperature())), 2);
-        }
-
-        /**
-         * @brief Compute the vapor pressure at the given T, using the user supplied correlation.
-         * @param temperature The temperature [K].
-         * @return The vapor pressure [Pa].
-         * @todo This may not be needed. Consider removing it.
-         */
-        inline double vaporPressure(double temperature) const
-        {
-            return m_vaporPressureFunction(temperature);
         }
 
         /**
@@ -291,6 +300,7 @@ namespace PCProps::EquationOfState
         impl(double criticalTemperature, double criticalPressure, double acentricFactor)
             : m_criticalTemperature(criticalTemperature),
               m_criticalPressure(criticalPressure),
+              m_acentricFactor(acentricFactor),
               m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(criticalTemperature, 2) / criticalPressure),
               m_b(0.07779607 * PCProps::Globals::R_CONST * criticalTemperature / criticalPressure),
               m_kappa(
@@ -312,15 +322,6 @@ namespace PCProps::EquationOfState
             m_b                   = 0.07779607 * PCProps::Globals::R_CONST * criticalTemperature / criticalPressure;
             m_kappa               = acentricFactor <= 0.49 ? 0.37464 + 1.54226 * acentricFactor - 0.26992 * pow(acentricFactor, 2)
                                                            : 0.379642 + 1.48503 * acentricFactor - 0.164423 * pow(acentricFactor, 2) + 0.016666 * pow(acentricFactor, 3);
-        }
-
-        /**
-         * @brief
-         * @param vaporPressureFunction
-         */
-        void setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction)
-        {
-            m_vaporPressureFunction = vaporPressureFunction;
         }
 
         /**
@@ -375,6 +376,11 @@ namespace PCProps::EquationOfState
         inline double criticalPressure() const
         {
             return m_criticalPressure;
+        }
+
+        inline double acentricFactor() const
+        {
+            return m_acentricFactor;
         }
 
         /**
@@ -445,45 +451,53 @@ namespace PCProps::EquationOfState
          * @brief Compute the fluid saturation pressure at the given T.
          * @param temperature The temperature [K].
          * @return The saturation pressure [Pa].
+         * @warning If temperature is above Tc, NaN will be returned.
+         * @note The Peng Robinson EOS may predict a critical proin slightly different from the input values.
          */
         inline double computeSaturationPressure(double temperature) const
         {
-            // TODO (troldal): I'm not sure this works as intended. What if the fluid is supercritical?
             using std::get;
+            using std::min;
             auto f = [&](double p) {
                 auto phi = computeCompressibilityAndFugacity(temperature, p);
                 if (phi.size() == 1) return get<1>(phi[0]) * p;
 
-                auto phi_v = get<1>(phi[0]);
-                auto phi_l = get<1>(phi[1]);
+                auto phi_l = get<1>(*std::min_element(phi.begin(), phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); }));
+                auto phi_v = get<1>(*std::max_element(phi.begin(), phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); }));
                 return (phi_l - phi_v) * p;
             };
 
-            return PCProps::Numerics::ridders(f, vaporPressure(temperature) * 0.8, vaporPressure(temperature) * 1.2);
+            auto guess  = AmbroseWalton(criticalTemperature(), criticalPressure(), acentricFactor())(temperature);
+            auto result = PCProps::Numerics::newton(f, min(guess, criticalPressure() * 0.99), 1E-6, 100);
+
+            return (std::isnan(result) || result <= 0.0 ? guess : result);
         }
 
         /**
          * @brief Compute the fluid saturation temperature at the given P.
          * @param pressure The pressure [Pa].
          * @return The saturation temperature [K].
+         * @warning If pressure is above Pc, NaN will be returned.
+         * @note The Peng Robinson EOS may predict a critical proin slightly different from the input values.
          */
         inline double computeSaturationTemperature(double pressure) const
         {
-            // TODO (troldal): I'm not sure this works as intended. What if the fluid is supercritical?
+            using std::abs;
             using std::get;
+            using std::sqrt;
             auto f = [&](double t) {
                 auto phi = computeCompressibilityAndFugacity(t, pressure);
                 if (phi.size() == 1) return get<1>(phi[0]) * pressure;
 
-                auto phi_v = get<1>(phi[0]);
-                auto phi_l = get<1>(phi[1]);
+                auto phi_l = get<1>(*std::min_element(phi.begin(), phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); }));
+                auto phi_v = get<1>(*std::max_element(phi.begin(), phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); }));
                 return (phi_l - phi_v) * pressure;
             };
 
-            auto g = [&](double t) { return vaporPressure(t) - pressure; };
-
-            auto guess = PCProps::Numerics::ridders(g, 0, criticalTemperature());
-            return PCProps::Numerics::ridders(f, guess * 0.8, guess * 1.2);
+            auto aw     = AmbroseWalton(criticalTemperature(), criticalPressure(), acentricFactor());
+            auto guess  = PCProps::Numerics::newton([&](double t) { return aw(t) - pressure; }, criticalTemperature() - sqrt(std::numeric_limits<double>::epsilon()));
+            auto result = PCProps::Numerics::newton(f, guess, 1E-6, 100);
+            return (std::isnan(result) || result <= 0.0 ? guess : result);
         }
 
         /**
@@ -544,11 +558,6 @@ namespace PCProps::EquationOfState
         m_impl->setProperties(criticalTemperature, criticalPressure, acentricFactor);
     }
 
-    void PengRobinson::setVaporPressureFunction(const std::function<double(double)>& vaporPressureFunction)
-    {
-        m_impl->setVaporPressureFunction(vaporPressureFunction);
-    }
-
     void PengRobinson::setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
     {
         m_impl->setIdealGasCpFunction(idealGasCpFunction);
@@ -587,49 +596,65 @@ namespace PCProps::EquationOfState
     // ===== T,x Flash
     PCPhases PengRobinson::flashTx(double temperature, double vaporFraction) const
     {
-        // TODO (troldal): This function should take into account the possibility that T > Tc
         using std::get;
 
-        // ===== First, calculate the saturation pressure at the specified pressure.
-        auto pressure = m_impl->computeSaturationPressure(temperature);
+        // ===== If the temperature <= Tc
+        if (temperature <= m_impl->criticalTemperature()) {
+            // ===== First, calculate the saturation pressure at the specified pressure.
+            auto pressure = m_impl->computeSaturationPressure(temperature);
 
-        // ===== Second, compute the compressibility factors and fugacity coefficients for the two phases.
-        auto z_phi        = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
-        auto [z_v, phi_v] = *std::max_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
-        auto [z_l, phi_l] = *std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
+            // ===== Second, compute the compressibility factors and fugacity coefficients for the two phases.
+            auto z_phi        = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
+            auto [z_v, phi_v] = *std::max_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
+            auto [z_l, phi_l] = *std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
 
-        // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
-        if (vaporFraction >= 1.0) return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
+            // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
+            if (vaporFraction >= 1.0) return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
 
-        // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
-        if (vaporFraction <= 0.0) return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
+            // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
+            if (vaporFraction <= 0.0) return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
 
-        // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
-        return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
+            // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
+            return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
+        }
+
+        // ===== If the temperature > Tc, extrapolate to the hypothetical saturation conditions in the supercritical region.
+        auto slope    = PCProps::Numerics::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
+        auto pressure = m_impl->criticalPressure() + (temperature - m_impl->criticalTemperature()) * slope;
+        auto [z, phi] = m_impl->computeCompressibilityAndFugacity(temperature, pressure)[0];
+        return { m_impl->createEOSData(1.0, temperature, pressure, z, phi) };
     }
 
     // ===== P,x Flash
     PCPhases PengRobinson::flashPx(double pressure, double vaporFraction) const
     {
-        // TODO (troldal): This function should take into account the possibility that P > Pc
         using std::get;
 
-        // ===== First, calculate the saturation temperature at the specified pressure.
-        auto temperature = m_impl->computeSaturationTemperature(pressure);
+        // ===== If the pressure <= Pc
+        if (pressure <= m_impl->criticalPressure()) {
+            // ===== First, calculate the saturation temperature at the specified pressure.
+            auto temperature = m_impl->computeSaturationTemperature(pressure);
 
-        // ===== Second, compute the compressibility factors and fugacity coefficients for the two phases.
-        auto z_phi        = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
-        auto [z_v, phi_v] = *std::max_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
-        auto [z_l, phi_l] = *std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
+            // ===== Second, compute the compressibility factors and fugacity coefficients for the two phases.
+            auto z_phi        = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
+            auto [z_v, phi_v] = *std::max_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
+            auto [z_l, phi_l] = *std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
 
-        // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
-        if (vaporFraction >= 1.0) return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
+            // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
+            if (vaporFraction >= 1.0) return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
 
-        // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
-        if (vaporFraction <= 0.0) return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
+            // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
+            if (vaporFraction <= 0.0) return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
 
-        // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
-        return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
+            // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
+            return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
+        }
+
+        // ===== If the pressure > Pc, extrapolate to the hypothetical saturation conditions in the supercritical region.
+        auto slope       = PCProps::Numerics::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
+        auto temperature = m_impl->criticalTemperature() + (pressure - m_impl->criticalPressure()) / slope;
+        auto [z, phi]    = m_impl->computeCompressibilityAndFugacity(temperature, pressure)[0];
+        return { m_impl->createEOSData(1.0, temperature, pressure, z, phi) };
     }
 
     // ===== P,H Flash
@@ -648,15 +673,8 @@ namespace PCProps::EquationOfState
             };
 
             // ===== Determine the interval in which to find the root.
-            auto t1 = 1.0;
-            auto t2 = 1.0 + m_impl->criticalTemperature();
-            while (true) {
-                if (f(t1) * f(t2) < 0.0) break;
-                t1 = t2;
-                t2 = t1 + m_impl->criticalTemperature();
-            }
-
-            auto temp = PCProps::Numerics::ridders(f, t1, t2);
+            auto [lower, upper] = computeInterval(f, 1.0, m_impl->criticalTemperature());
+            auto temp           = PCProps::Numerics::ridders(f, lower, upper);
             return { flashPT(pressure, temp) };
         }
 
@@ -691,21 +709,13 @@ namespace PCProps::EquationOfState
             auto f = [&](double t) {
                 auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
                 auto max = std::max_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
-                auto z_v   = get<0>(*max);
+                auto z_v = get<0>(*max);
                 return m_impl->computeEnthalpy(t, pressure, z_v) - enthalpy;
             };
 
             // ===== Determine the interval in which to find the root.
-            auto diff = m_impl->criticalTemperature() - temperature;
-            auto t1   = temperature;
-            auto t2   = temperature + diff;
-            while (true) {
-                if (f(t1) * f(t2) < 0.0) break;
-                t1 = t2;
-                t2 = t1 + diff;
-            }
-
-            auto temp = PCProps::Numerics::ridders(f, t1, t2);
+            auto [lower, upper] = computeInterval(f, temperature, m_impl->criticalTemperature());
+            auto temp           = PCProps::Numerics::ridders(f, lower, upper);
             return { flashPT(pressure, temp) };
         }
 
@@ -730,15 +740,8 @@ namespace PCProps::EquationOfState
             };
 
             // ===== Determine the interval in which to find the root.
-            auto t1 = 1.0;
-            auto t2 = 1.0 + m_impl->criticalTemperature();
-            while (true) {
-                if (f(t1) * f(t2) < 0.0) break;
-                t1 = t2;
-                t2 = t1 + m_impl->criticalTemperature();
-            }
-
-            auto temp = PCProps::Numerics::ridders(f, t1, t2);
+            auto [lower, upper] = computeInterval(f, 1.0, m_impl->criticalTemperature());
+            auto temp           = PCProps::Numerics::ridders(f, lower, upper);
             return { flashPT(pressure, temp) };
         }
 
@@ -773,21 +776,13 @@ namespace PCProps::EquationOfState
             auto f = [&](double t) {
                 auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
                 auto max = std::max_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
-                auto z_v   = get<0>(*max);
+                auto z_v = get<0>(*max);
                 return m_impl->computeEntropy(t, pressure, z_v) - entropy;
             };
 
             // ===== Determine the interval in which to find the root.
-            auto diff = m_impl->criticalTemperature() - temperature;
-            auto t1   = temperature;
-            auto t2   = temperature + diff;
-            while (true) {
-                if (f(t1) * f(t2) < 0.0) break;
-                t1 = t2;
-                t2 = t1 + diff;
-            }
-
-            auto temp = PCProps::Numerics::ridders(f, t1, t2);
+            auto [lower, upper] = computeInterval(f, temperature, m_impl->criticalTemperature());
+            auto temp           = PCProps::Numerics::ridders(f, lower, upper);
             return { flashPT(pressure, temp) };
         }
 
@@ -796,7 +791,7 @@ namespace PCProps::EquationOfState
         return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
     }
 
-    // ===== Flash at constant T,V
+    // ===== T,V Flash
     PCPhases PengRobinson::flashTV(double temperature, double volume) const
     {
         return PCProps::PCPhases();
