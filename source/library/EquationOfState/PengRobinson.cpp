@@ -44,25 +44,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <PCGlobals.hpp>
 #include <Utilities/Calculus.hpp>
 #include <Utilities/RootFinding.hpp>
+#include <library/PCPropsException.hpp>
 #include <library/VaporPressure/AmbroseWalton.hpp>
 
 using PCProps::VaporPressure::AmbroseWalton;
-
-namespace
-{
-    std::pair<double, double> computeInterval(const std::function<double(double)>& obj, double lower, double upper)
-    {
-        auto diff = upper - lower;
-        while (true) {
-            if (obj(lower) * obj(upper) < 0.0) break;
-            lower = upper;
-            upper = lower + diff;
-        }
-
-        return std::make_pair(lower, upper);
-    }
-
-}    // namespace
 
 namespace PCProps::EquationOfState
 {
@@ -86,7 +71,6 @@ namespace PCProps::EquationOfState
 
         // ===== User-supplied correlations
         std::function<double(double)> m_idealGasCpFunction {};
-        std::function<double(double)> m_idealGasCpDerivativeFunction {};
         std::function<double(double)> m_idealGasCpIntegralFunction {};
         std::function<double(double)> m_idealGasCpOverTemperatureIntegralFunction {};
 
@@ -222,6 +206,8 @@ namespace PCProps::EquationOfState
         inline double idealGasEnthalpy(double temperature) const
         {
             using PCProps::Globals::STANDARD_T;
+
+            if (!m_idealGasCpIntegralFunction) throw PCPropsException("Ideal gas Cp integral not defined for Peng-Robinson.");
             return (m_idealGasCpIntegralFunction(temperature) - m_idealGasCpIntegralFunction(STANDARD_T));
 
             // ===== The following is a backup for testing that the supplied integral expressions are correct
@@ -263,6 +249,7 @@ namespace PCProps::EquationOfState
             using PCProps::Globals::STANDARD_P;
             using PCProps::Globals::STANDARD_T;
 
+            if (!m_idealGasCpOverTemperatureIntegralFunction) throw PCPropsException("Ideal gas Cp/T integral not defined for Peng-Robinson.");
             return (m_idealGasCpOverTemperatureIntegralFunction(t) - m_idealGasCpOverTemperatureIntegralFunction(STANDARD_T)) - R_CONST * log(p / STANDARD_P);
         }
 
@@ -293,9 +280,6 @@ namespace PCProps::EquationOfState
          * @param criticalTemperature The critical temperature [K].
          * @param criticalPressure The critical pressure [Pa]
          * @param acentricFactor The acentric factor [-]
-         * @param molecularWeight The molecular weight [g/mol]
-         * @param vaporPressureFunction Function object for computing the vapor pressure as a function of temperature.
-         * @param idealGasCpFunction Function object for computing the Cp as a function of temperature.
          */
         impl(double criticalTemperature, double criticalPressure, double acentricFactor)
             : m_criticalTemperature(criticalTemperature),
@@ -335,15 +319,6 @@ namespace PCProps::EquationOfState
 
         /**
          * @brief
-         * @param idealGasCpDerivativeFunction
-         */
-        void setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction)
-        {
-            m_idealGasCpDerivativeFunction = idealGasCpDerivativeFunction;
-        }
-
-        /**
-         * @brief
          * @param idealGasCpIntegralFunction
          */
         void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction)
@@ -378,6 +353,10 @@ namespace PCProps::EquationOfState
             return m_criticalPressure;
         }
 
+        /**
+         * @brief
+         * @return
+         */
         inline double acentricFactor() const
         {
             return m_acentricFactor;
@@ -410,19 +389,6 @@ namespace PCProps::EquationOfState
             result.setInternalEnergy(result.enthalpy() - pressure * result.molarVolume());
             result.setGibbsEnergy(result.enthalpy() - temperature * result.entropy());
             result.setHelmholzEnergy(result.internalEnergy() - temperature * result.entropy());
-
-            //            get<MolarFraction>(result) = moleFraction;
-            //            get<Temperature>(result)         = temperature;
-            //            get<Pressure>(result)            = pressure;
-            //            get<Volume>(result)              = z * R_CONST * temperature / pressure;
-            //            get<FugacityCoefficient>(result) = phi;
-            //            get<Fugacity>(result)            = phi * pressure;
-            //            get<Compressibility>(result)     = z;
-            //            get<Enthalpy>(result)            = computeEnthalpy(temperature, pressure, z);
-            //            get<Entropy>(result)             = computeEntropy(temperature, pressure, z);
-            //            get<InternalEnergy>(result)      = get<Enthalpy>(result) - pressure * get<Volume>(result);
-            //            get<GibbsEnergy>(result)         = get<Enthalpy>(result) - temperature * get<Entropy>(result);
-            //            get<HelmholzEnergy>(result)  = get<InternalEnergy>(result) - temperature * get<Entropy>(result);
 
             return result.data();
         }
@@ -553,26 +519,25 @@ namespace PCProps::EquationOfState
     // ===== Move assignment operator
     PengRobinson& PengRobinson::operator=(PengRobinson&& other) noexcept = default;
 
+    // ===== Set critical properties for EOS
     void PengRobinson::setProperties(double criticalTemperature, double criticalPressure, double acentricFactor)
     {
         m_impl->setProperties(criticalTemperature, criticalPressure, acentricFactor);
     }
 
+    // ===== Set the IG Cp function
     void PengRobinson::setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
     {
         m_impl->setIdealGasCpFunction(idealGasCpFunction);
     }
 
-    void PengRobinson::setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction)
-    {
-        m_impl->setIdealGasCpDerivativeFunction(idealGasCpDerivativeFunction);
-    }
-
+    // ===== Set the IG Cp integral function
     void PengRobinson::setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction)
     {
         m_impl->setIdealGasCpIntegralFunction(idealGasCpIntegralFunction);
     }
 
+    // ===== Set the IG CP/T integral function
     void PengRobinson::setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction)
     {
         m_impl->setIdealGasCpOverTIntegralFunction(idealGasOverTIntegralFunction);
@@ -621,8 +586,7 @@ namespace PCProps::EquationOfState
         // ===== If the temperature > Tc, extrapolate to the hypothetical saturation conditions in the supercritical region.
         auto slope    = PCProps::Numerics::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
         auto pressure = m_impl->criticalPressure() + (temperature - m_impl->criticalTemperature()) * slope;
-        auto [z, phi] = m_impl->computeCompressibilityAndFugacity(temperature, pressure)[0];
-        return { m_impl->createEOSData(1.0, temperature, pressure, z, phi) };
+        return flashPT(pressure, temperature);
     }
 
     // ===== P,x Flash
@@ -653,29 +617,26 @@ namespace PCProps::EquationOfState
         // ===== If the pressure > Pc, extrapolate to the hypothetical saturation conditions in the supercritical region.
         auto slope       = PCProps::Numerics::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
         auto temperature = m_impl->criticalTemperature() + (pressure - m_impl->criticalPressure()) / slope;
-        auto [z, phi]    = m_impl->computeCompressibilityAndFugacity(temperature, pressure)[0];
-        return { m_impl->createEOSData(1.0, temperature, pressure, z, phi) };
+        return flashPT(pressure, temperature);
     }
 
     // ===== P,H Flash
     PCPhases PengRobinson::flashPH(double pressure, double enthalpy) const
     {
-        // TODO (troldal): This function needs to be cleaned up.
         using std::get;
 
         if (pressure > m_impl->criticalPressure()) {
             // ===== Define objective function
             auto f = [&](double t) {
-                auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
-                auto max = std::max_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
-                auto z_v = get<0>(*max);
-                return m_impl->computeEnthalpy(t, pressure, z_v) - enthalpy;
+                auto z_phi   = m_impl->computeCompressibilityAndFugacity(t, pressure);
+                auto z = get<0>(*std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<1>(a) < get<1>(b); }));
+                return m_impl->computeEnthalpy(t, pressure, z) - enthalpy;
             };
 
             // ===== Determine the interval in which to find the root.
-            auto [lower, upper] = computeInterval(f, 1.0, m_impl->criticalTemperature());
-            auto temp           = PCProps::Numerics::ridders(f, lower, upper);
-            return { flashPT(pressure, temp) };
+            auto slope       = PCProps::Numerics::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
+            auto guess = m_impl->criticalTemperature() + (pressure - m_impl->criticalPressure()) / slope;
+            return { flashPT(pressure, PCProps::Numerics::newton(f, guess)) };
         }
 
         // ===== First, calculate the saturation temperature at the specified pressure.
@@ -693,30 +654,25 @@ namespace PCProps::EquationOfState
         if (enthalpy < h_l) {
             // ===== Define objective function
             auto f = [&](double t) {
-                auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
-                auto min = std::min_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
-                auto z_l = get<0>(*min);
-                return m_impl->computeEnthalpy(t, pressure, z_l) - enthalpy;
+                auto z_phi   = m_impl->computeCompressibilityAndFugacity(t, pressure);
+                auto z = get<0>(*std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); }));
+                return m_impl->computeEnthalpy(t, pressure, z) - enthalpy;
             };
 
-            auto temp = PCProps::Numerics::ridders(f, 0, temperature);
-            return { flashPT(pressure, temp) };
+            return { flashPT(pressure, PCProps::Numerics::newton(f, temperature)) };
         }
 
         // ===== If the specified enthalpy is higher than the saturated vapor entropy, the fluid is superheated vapor.
         if (enthalpy > h_v) {
             // ===== Define objective function
             auto f = [&](double t) {
-                auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
-                auto max = std::max_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
-                auto z_v = get<0>(*max);
-                return m_impl->computeEnthalpy(t, pressure, z_v) - enthalpy;
+                auto z_phi   = m_impl->computeCompressibilityAndFugacity(t, pressure);
+                auto z = get<0>(*std::max_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); }));
+                return m_impl->computeEnthalpy(t, pressure, z) - enthalpy;
             };
 
             // ===== Determine the interval in which to find the root.
-            auto [lower, upper] = computeInterval(f, temperature, m_impl->criticalTemperature());
-            auto temp           = PCProps::Numerics::ridders(f, lower, upper);
-            return { flashPT(pressure, temp) };
+            return { flashPT(pressure, PCProps::Numerics::newton(f, temperature)) };
         }
 
         // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.
@@ -727,22 +683,20 @@ namespace PCProps::EquationOfState
     // ===== P,S Flash
     PCPhases PengRobinson::flashPS(double pressure, double entropy) const
     {
-        // TODO (troldal): This function needs to be cleaned up.
         using std::get;
 
         if (pressure > m_impl->criticalPressure()) {
             // ===== Define objective function
             auto f = [&](double t) {
-                auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
-                auto max = std::max_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
-                auto z_v = get<0>(*max);
-                return m_impl->computeEntropy(t, pressure, z_v) - entropy;
+                auto z_phi   = m_impl->computeCompressibilityAndFugacity(t, pressure);
+                auto z = get<0>(*std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<1>(a) < get<1>(b); }));
+                return m_impl->computeEntropy(t, pressure, z) - entropy;
             };
 
             // ===== Determine the interval in which to find the root.
-            auto [lower, upper] = computeInterval(f, 1.0, m_impl->criticalTemperature());
-            auto temp           = PCProps::Numerics::ridders(f, lower, upper);
-            return { flashPT(pressure, temp) };
+            auto slope       = PCProps::Numerics::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
+            auto guess = m_impl->criticalTemperature() + (pressure - m_impl->criticalPressure()) / slope;
+            return { flashPT(pressure, PCProps::Numerics::newton(f, guess)) };
         }
 
         // ===== First, calculate the saturation temperature at the specified pressure.
@@ -760,30 +714,25 @@ namespace PCProps::EquationOfState
         if (entropy < s_l) {
             // ===== Define objective function
             auto f = [&](double t) {
-                auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
-                auto min = std::min_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
-                auto z_l = get<0>(*min);
-                return m_impl->computeEntropy(t, pressure, z_l) - entropy;
+                auto z_phi   = m_impl->computeCompressibilityAndFugacity(t, pressure);
+                auto z = get<0>(*std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); }));
+                return m_impl->computeEntropy(t, pressure, z) - entropy;
             };
 
-            auto temp = PCProps::Numerics::ridders(f, 1, temperature);
-            return { flashPT(pressure, temp) };
+            return { flashPT(pressure, PCProps::Numerics::newton(f, temperature)) };
         }
 
         // ===== If the specified entropy is higher than the saturated vapor entropy, the fluid is superheated vapor.
         if (entropy > s_v) {
             // ===== Define objective function
             auto f = [&](double t) {
-                auto z   = m_impl->computeCompressibilityAndFugacity(t, pressure);
-                auto max = std::max_element(z.begin(), z.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
-                auto z_v = get<0>(*max);
-                return m_impl->computeEntropy(t, pressure, z_v) - entropy;
+                auto z_phi   = m_impl->computeCompressibilityAndFugacity(t, pressure);
+                auto z = get<0>(*std::max_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); }));
+                return m_impl->computeEntropy(t, pressure, z) - entropy;
             };
 
             // ===== Determine the interval in which to find the root.
-            auto [lower, upper] = computeInterval(f, temperature, m_impl->criticalTemperature());
-            auto temp           = PCProps::Numerics::ridders(f, lower, upper);
-            return { flashPT(pressure, temp) };
+            return { flashPT(pressure, PCProps::Numerics::newton(f, temperature)) };
         }
 
         // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.

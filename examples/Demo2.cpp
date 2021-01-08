@@ -59,11 +59,11 @@ int main()
 
     auto propane = PCComponent(data);
 
-    std::cout << propane.saturationPressure(369.83) << std::endl;
+//    std::cout << propane.saturationPressure(369.83) << std::endl;
 
-    for (const auto& phase : propane.flash(Pressure(4.248E6), VaporFraction(0.5))) std::cout << phase << std::endl;
+//    for (const auto& phase : propane.flash(Pressure(13.0E6), VaporFraction(0.5))) std::cout << phase << std::endl;
 
-    for (const auto& phase : propane.flash(Temperature(369.8), VaporFraction(0.5))) std::cout << phase << std::endl;
+    for (const auto& phase : propane.flash(Temperature(500), VaporFraction(0.5))) std::cout << phase << std::endl;
     //
     //    auto psat = AntoineExtended(AntoineExtended::CreateFromDIPPR { 59.078, -3492.6, -6.0669, 1.0919E-05, 2 });
     //    std::cout << psat(500) << std::endl;

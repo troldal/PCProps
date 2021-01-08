@@ -37,6 +37,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <catch.hpp>
 #include <library/PCComponent.hpp>
+#include <library/EquationOfState/PengRobinson.hpp>
+#include <library/HeatCapacity/AlyLee.hpp>
+
+using namespace PCProps::HeatCapacity;
 
 TEST_CASE("PCComponent Test")
 {
@@ -57,6 +61,8 @@ TEST_CASE("PCComponent Test")
     pcd.criticalCompressibility = 0.2206;
     pcd.acentricFactor          = 0.2907;
 
+    pcd.equationOfState = PCProps::EquationOfState::PengRobinson {};
+    pcd.idealGasCpCorrelation = AlyLee(AlyLee::CreateFromDIPPR { 0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6 });
     pcd.vaporPressureCorrelation          = [](double temperature) { return temperature; };
     pcd.saturatedLiquidVolumeCorrelation  = [](double temperature) { return temperature; };
     pcd.surfaceTensionCorrelation         = [](double temperature) { return temperature; };
@@ -65,7 +71,6 @@ TEST_CASE("PCComponent Test")
     pcd.liquidThermalConductivityCorrelation = [](double temperature) { return temperature; };
     pcd.vaporViscosityCorrelation            = [](double temperature) { return temperature; };
     pcd.liquidViscosityCorrelation           = [](double temperature) { return temperature; };
-    pcd.idealGasCpFunction                = [](double temperature) { return temperature; };
     pcd.liquidCpCorrelation                  = [](double temperature) { return temperature; };
 
     auto pc = PCProps::PCComponent(pcd);

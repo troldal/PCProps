@@ -59,7 +59,7 @@ TEST_CASE("SLVRackett produces correct saturated liquid volume calculations")
 
     SECTION("Example 4-5b from Poling et. al")
     {
-        auto trifluoroethane = Rackett::Rackett(346.3, 245, 75.38E-6, 0.259);
+        auto trifluoroethane = PCProps::LiquidVolume::Rackett(346.3, 245, 75.38E-6, 0.259);
 
         // ===== The example in Poling et. al errorneously gives 90.59E-6 as the result
         REQUIRE(trifluoroethane(300.0) == Approx(90.7765E-6));
@@ -74,7 +74,7 @@ TEST_CASE("SLVRackett produces correct saturated liquid volume calculations")
 
     SECTION("Example 4-5 from Poling et. al, using a reference point and critical compressibility")
     {
-        auto trifluoroethane = Rackett::Rackett(346.3, 245, 75.38E-6, 0.255);
+        auto trifluoroethane = PCProps::LiquidVolume::Rackett(346.3, 245, 75.38E-6, 0.255);
 
         REQUIRE(trifluoroethane(300.0) == Approx(91.4074E-6));
     }
@@ -96,7 +96,7 @@ TEST_CASE("SLVRackett produces correct saturated liquid volume calculations")
 
     SECTION("Coefficients from Perry's")
     {
-        auto acetonitrile = Rackett::Rackett(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
+        auto acetonitrile = PCProps::LiquidVolume::Rackett(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
 
         REQUIRE(acetonitrile(229.32) == Approx(1.0 / 20.628E3).epsilon(0.001));
         REQUIRE(acetonitrile(545.5) == Approx(1.0 / 5.7813E3).epsilon(0.001));
@@ -104,7 +104,7 @@ TEST_CASE("SLVRackett produces correct saturated liquid volume calculations")
 
     SECTION("Coefficients from Perry's using copy constructor")
     {
-        auto acetonitrile = Rackett::Rackett(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
+        auto acetonitrile = PCProps::LiquidVolume::Rackett(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
         auto copy(acetonitrile);
 
         REQUIRE(copy(229.32) == Approx(1.0 / 20.628E3).epsilon(0.001));
@@ -113,7 +113,7 @@ TEST_CASE("SLVRackett produces correct saturated liquid volume calculations")
 
     SECTION("Coefficients from Perry's using move constructor")
     {
-        auto acetonitrile = Rackett::Rackett(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
+        auto acetonitrile = PCProps::LiquidVolume::Rackett(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
         auto copy(std::move(acetonitrile));
 
         REQUIRE(copy(229.32) == Approx(1.0 / 20.628E3).epsilon(0.001));
@@ -122,7 +122,7 @@ TEST_CASE("SLVRackett produces correct saturated liquid volume calculations")
 
     SECTION("Coefficients from Perry's using copy assignment")
     {
-        auto acetonitrile = Rackett::Rackett(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
+        auto acetonitrile = PCProps::LiquidVolume::Rackett(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
         auto copy         = Rackett();
         copy              = acetonitrile;
 
@@ -132,7 +132,7 @@ TEST_CASE("SLVRackett produces correct saturated liquid volume calculations")
 
     SECTION("Coefficients from Perry's using move assignment")
     {
-        auto acetonitrile = Rackett::Rackett(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
+        auto acetonitrile = PCProps::LiquidVolume::Rackett(1.0 / 1.3064E3, 0.22597, 545.5, 0.28678);
         auto copy         = Rackett();
         copy              = std::move(acetonitrile);
 

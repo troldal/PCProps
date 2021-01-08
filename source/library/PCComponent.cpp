@@ -73,7 +73,6 @@ namespace PCProps
         m_data.equationOfState.setProperties(m_data.criticalTemperature.value(), m_data.criticalPressure.value(), m_data.acentricFactor.value());
 
         m_data.equationOfState.setIdealGasCpFunction([&](double temperature) { return m_data.idealGasCpCorrelation.evaluateCp(temperature); });
-        m_data.equationOfState.setIdealGasCpDerivativeFunction([&](double temperature) { return m_data.idealGasCpCorrelation.derivativeOfCp(temperature); });
         m_data.equationOfState.setIdealGasCpIntegralFunction([&](double temperature) { return m_data.idealGasCpCorrelation.integralOfCp(temperature); });
         m_data.equationOfState.setIdealGasCpOverTIntegralFunction([&](double temperature) { return m_data.idealGasCpCorrelation.integralOfCpOverT(temperature); });
     }

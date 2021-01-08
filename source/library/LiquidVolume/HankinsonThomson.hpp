@@ -81,6 +81,8 @@ namespace PCProps::LiquidVolume
         double m_characteristicVolume = 0.0;
         double m_acentricFactor       = 0.0;
 
+
+    public:
         /**
          * @brief Constructor, taking critical temperature [K], characteristic volume [m3/mol] and SRK acentric factor [-]
          * @details This constructor is private. To create an SLVHankinsonThomson object, use one of the static factory functions.
@@ -92,7 +94,6 @@ namespace PCProps::LiquidVolume
          */
         HankinsonThomson(double criticalTemperature, double characteristicVolume, double acentricFactor);
 
-    public:
         /**
          * @brief An enum class enumerating the different fluid types available when estimating the characteristic volume.
          */

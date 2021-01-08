@@ -22,7 +22,7 @@ namespace PCProps::Numerics
         while (true) {
             double x1 = x - (func(x) / diff_central(func, x));
             if (abs(x - x1) < eps) return x1;
-            if (counter > maxiter) return NAN;
+            if (counter > maxiter) return static_cast<double>(NAN);
             x = x1;
             ++counter;
         }

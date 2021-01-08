@@ -46,7 +46,7 @@ TEST_CASE("CLVThomson produces correct saturated liquid volume calculations")
     {
         auto ammonia_psat = [](double _) { return 10.61E5; };
         auto ammonia_vsat = [](double _) { return 28.38E-6; };
-        auto ammonia      = Thomson::Thomson(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+        auto ammonia      = Thomson::create(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
 
         REQUIRE(ammonia(300.0, 400E5) == Approx(27.2645E-6).epsilon(0.001));
     }
@@ -55,7 +55,7 @@ TEST_CASE("CLVThomson produces correct saturated liquid volume calculations")
     {
         auto ammonia_psat = [](double _) { return 10.61E5; };
         auto ammonia_vsat = [](double _) { return 28.38E-6; };
-        auto ammonia      = Thomson::Thomson(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+        auto ammonia      = Thomson::create(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
 
         auto copy(ammonia);
 
@@ -66,7 +66,7 @@ TEST_CASE("CLVThomson produces correct saturated liquid volume calculations")
     {
         auto ammonia_psat = [](double _) { return 10.61E5; };
         auto ammonia_vsat = [](double _) { return 28.38E-6; };
-        auto ammonia      = Thomson::Thomson(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+        auto ammonia      = Thomson::create(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
 
         auto copy(std::move(ammonia));
 
@@ -77,8 +77,8 @@ TEST_CASE("CLVThomson produces correct saturated liquid volume calculations")
     {
         auto ammonia_psat = [](double _) { return 10.61E5; };
         auto ammonia_vsat = [](double _) { return 28.38E-6; };
-        auto ammonia      = Thomson::Thomson(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
-        auto copy         = Thomson::Thomson(0.0, 0.0, 0.0, {}, {});
+        auto ammonia      = Thomson::create(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+        auto copy         = Thomson::create(0.0, 0.0, 0.0, {}, {});
         copy              = ammonia;
 
         REQUIRE(copy(300.0, 400E5) == Approx(27.2645E-6).epsilon(0.001));
@@ -88,8 +88,8 @@ TEST_CASE("CLVThomson produces correct saturated liquid volume calculations")
     {
         auto ammonia_psat = [](double _) { return 10.61E5; };
         auto ammonia_vsat = [](double _) { return 28.38E-6; };
-        auto ammonia      = Thomson::Thomson(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
-        auto copy         = Thomson::Thomson(0.0, 0.0, 0.0, {}, {});
+        auto ammonia      = Thomson::create(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+        auto copy         = Thomson::create(0.0, 0.0, 0.0, {}, {});
         copy              = std::move(ammonia);
 
         REQUIRE(copy(300.0, 400E5) == Approx(27.2645E-6).epsilon(0.001));

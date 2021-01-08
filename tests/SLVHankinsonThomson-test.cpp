@@ -44,7 +44,7 @@ TEST_CASE("SLVHankinsonThomson produces correct saturated liquid volume calculat
 {
     SECTION("Example from Reid et. al 4th Edition")
     {
-        auto isobutane = HankinsonThomson::HankinsonThomson(408.04, 256.8E-6, 0.1825);
+        auto isobutane = PCProps::LiquidVolume::HankinsonThomson(408.04, 256.8E-6, 0.1825);
 
         REQUIRE(isobutane(310.93) == Approx(108.9E-6).epsilon(0.001));
     }
@@ -58,14 +58,14 @@ TEST_CASE("SLVHankinsonThomson produces correct saturated liquid volume calculat
 
     SECTION("Example from Gmehling et. al 2nd Edition")
     {
-        auto n_hexane = HankinsonThomson::HankinsonThomson(507.8, 386.8E-6, 0.3002);
+        auto n_hexane = PCProps::LiquidVolume::HankinsonThomson(507.8, 386.8E-6, 0.3002);
 
         REQUIRE(n_hexane(293.15) == Approx(136.85E-6).epsilon(0.001));
     }
 
     SECTION("Copy constructor")
     {
-        auto n_hexane = HankinsonThomson::HankinsonThomson(507.8, 386.8E-6, 0.3002);
+        auto n_hexane = PCProps::LiquidVolume::HankinsonThomson(507.8, 386.8E-6, 0.3002);
         auto copy(n_hexane);
 
         REQUIRE(copy(293.15) == Approx(136.85E-6).epsilon(0.001));
@@ -73,7 +73,7 @@ TEST_CASE("SLVHankinsonThomson produces correct saturated liquid volume calculat
 
     SECTION("Move constructor")
     {
-        auto n_hexane = HankinsonThomson::HankinsonThomson(507.8, 386.8E-6, 0.3002);
+        auto n_hexane = PCProps::LiquidVolume::HankinsonThomson(507.8, 386.8E-6, 0.3002);
         auto copy(std::move(n_hexane));
 
         REQUIRE(copy(293.15) == Approx(136.85E-6).epsilon(0.001));
@@ -81,8 +81,8 @@ TEST_CASE("SLVHankinsonThomson produces correct saturated liquid volume calculat
 
     SECTION("Coefficients from Perry's using copy assignment")
     {
-        auto n_hexane = HankinsonThomson::HankinsonThomson(507.8, 386.8E-6, 0.3002);
-        auto copy     = HankinsonThomson::HankinsonThomson(0.0, 0.0, 0.0);
+        auto n_hexane = PCProps::LiquidVolume::HankinsonThomson(507.8, 386.8E-6, 0.3002);
+        auto copy     = PCProps::LiquidVolume::HankinsonThomson(0.0, 0.0, 0.0);
         copy          = n_hexane;
 
         REQUIRE(copy(293.15) == Approx(136.85E-6).epsilon(0.001));
@@ -90,8 +90,8 @@ TEST_CASE("SLVHankinsonThomson produces correct saturated liquid volume calculat
 
     SECTION("Coefficients from Perry's using move assignment")
     {
-        auto n_hexane = HankinsonThomson::HankinsonThomson(507.8, 386.8E-6, 0.3002);
-        auto copy     = HankinsonThomson::HankinsonThomson(0.0, 0.0, 0.0);
+        auto n_hexane = PCProps::LiquidVolume::HankinsonThomson(507.8, 386.8E-6, 0.3002);
+        auto copy     = PCProps::LiquidVolume::HankinsonThomson(0.0, 0.0, 0.0);
         copy          = std::move(n_hexane);
 
         REQUIRE(copy(293.15) == Approx(136.85E-6).epsilon(0.001));

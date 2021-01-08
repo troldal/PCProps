@@ -147,15 +147,6 @@ namespace PCProps
 
         /**
          * @brief
-         * @param idealGasCpDerivativeFunction
-         */
-        inline void setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction)
-        {
-            m_equationOfState->setIdealGasCpDerivativeFunction(idealGasCpDerivativeFunction);
-        }
-
-        /**
-         * @brief
          * @param idealGasCpIntegralFunction
          */
         inline void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction)
@@ -345,8 +336,8 @@ namespace PCProps
 
             /**
              * @brief
-             * @param pressure
-             * @param entropy
+             * @param temperature
+             * @param volume
              * @return
              */
             inline virtual PCPhases flashTV(double temperature, double volume) const = 0;
@@ -378,12 +369,6 @@ namespace PCProps
              * @param idealGasCpFunction
              */
             inline virtual void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction) = 0;
-
-            /**
-             * @brief
-             * @param idealGasCpDerivativeFunction
-             */
-            inline virtual void setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction) = 0;
 
             /**
              * @brief
@@ -556,15 +541,6 @@ namespace PCProps
             inline void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction) override
             {
                 EOSType.setIdealGasCpFunction(idealGasCpFunction);
-            }
-
-            /**
-             * @brief
-             * @param idealGasCpDerivativeFunction
-             */
-            inline void setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction) override
-            {
-                EOSType.setIdealGasCpDerivativeFunction(idealGasCpDerivativeFunction);
             }
 
             /**

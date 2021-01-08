@@ -120,7 +120,7 @@ namespace PCProps::VaporPressure
          * @brief Constructor, taking a CreateFromYaws struct, for creating an object using coefficients from Yaws handbooks.
          * @param coefficients A CreateFromYaws with the Yaws coefficients.
          */
-        AntoineExtended(const CreateFromYaws& c);
+        AntoineExtended(const CreateFromYaws& coefficients);
 
         /**
          * @brief Copy constructor.
