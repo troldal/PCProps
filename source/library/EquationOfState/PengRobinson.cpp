@@ -389,6 +389,7 @@ namespace PCProps::EquationOfState
             result.setInternalEnergy(result.enthalpy() - pressure * result.molarVolume());
             result.setGibbsEnergy(result.enthalpy() - temperature * result.entropy());
             result.setHelmholzEnergy(result.internalEnergy() - temperature * result.entropy());
+            result.setHeatCapacity(PCProps::Numerics::diff_central([&](double t) { return computeEnthalpy(t, pressure, z); } ,temperature));
 
             return result.data();
         }
