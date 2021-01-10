@@ -39,6 +39,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <cmath>
 #include <limits>
 #include <vector>
+#include <tuple>
 
 #include "PengRobinson.hpp"
 #include <PCGlobals.hpp>
@@ -363,38 +364,6 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief Helper function for creating the std::tuple with the output data.
-         * @param moleFraction The number of moles.
-         * @param temperature The temperature [K].
-         * @param pressure The pressure [Pa].
-         * @param z The compressibility factor [-]
-         * @param phi The fugacity coefficient [-].
-         * @return A PhaseData object (aka std::tuple) with the output data.
-         */
-        PCPhaseData createEOSData(double moleFraction, double temperature, double pressure, double z, double phi) const
-        {
-            using PCProps::Globals::R_CONST;
-            using std::get;
-
-            PCPhase result;
-
-            result.setMolarFraction(moleFraction);
-            result.setTemperature(temperature);
-            result.setPressure(pressure);
-            result.setMolarVolume(z * R_CONST * temperature / pressure);
-            result.setFugacityCoefficient(phi);
-            result.setCompressibility(z);
-            result.setEnthalpy(computeEnthalpy(temperature, pressure, z));
-            result.setEntropy(computeEntropy(temperature, pressure, z));
-            result.setInternalEnergy(result.enthalpy() - pressure * result.molarVolume());
-            result.setGibbsEnergy(result.enthalpy() - temperature * result.entropy());
-            result.setHelmholzEnergy(result.internalEnergy() - temperature * result.entropy());
-            result.setHeatCapacity(PCProps::Numerics::diff_central([&](double t) { return computeEnthalpy(t, pressure, z); } ,temperature));
-
-            return result.data();
-        }
-
-        /**
          * @brief Compute the compressibilities and fugacity coefficients for the phases present at the given T and P.
          * @param temperature The temperature [K]
          * @param pressure The pressure [Pa].
@@ -402,7 +371,7 @@ namespace PCProps::EquationOfState
          * @note A flash may yield Z and phi for two phases, even though only one phase is present. The individual
          * flash algorithm will discard the Z/Phi pair that is invalid.
          */
-        std::vector<std::pair<double, double>> computeCompressibilityAndFugacity(double temperature, double pressure) const
+        inline std::vector<std::pair<double, double>> computeCompressibilityAndFugacity(double temperature, double pressure) const
         {
             // ===== Compute the compressibility factor(s)
             auto zs = computeCompressibilityFactors(temperature, pressure);
@@ -490,6 +459,53 @@ namespace PCProps::EquationOfState
         {
             return idealGasEntropy(temperature, pressure) + entropyDeparture(temperature, pressure, compressibility);
         }
+
+        /**
+         * @brief
+         * @param temperature
+         * @param pressure
+         * @return
+         */
+        inline PCPhases computeThermodynamicProperties(double temperature, double pressure) const {
+
+            using std::sqrt;
+            using std::get;
+            using PCProps::Globals::R_CONST;
+
+            auto diff = sqrt(std::numeric_limits<double>::epsilon());
+            PCPhases result;
+
+            auto z_phi = computeCompressibilityAndFugacity(temperature, pressure);
+            for (const auto& item: z_phi) {
+                PCPhaseData data;
+                data[PCPressure] = pressure;
+                data[PCTemperature] = temperature;
+                data[PCCompressibility]     = get<0>(item);
+                data[PCFugacityCoefficient] = get<1>(item);
+                data[PCEnthalpy]            = computeEnthalpy(temperature, pressure, get<0>(item));
+                data[PCEntropy]             = computeEntropy(temperature, pressure, get<0>(item));
+                data[PCMolarVolume] = get<0>(item) * R_CONST * temperature / pressure;
+                data[PCGibbsEnergy] = data[PCEnthalpy] - temperature * data[PCEntropy];
+                data[PCInternalEnergy] = data[PCEnthalpy] - pressure * data[PCMolarVolume];
+                data[PCHelmholzEnergy] = data[PCInternalEnergy] - temperature * data[PCEntropy];
+
+                result.emplace_back(data);
+            }
+
+            auto z1 = computeCompressibilityAndFugacity(temperature - diff, pressure);
+            auto z2 = computeCompressibilityAndFugacity(temperature + diff, pressure);
+
+            uint64_t index = 0;
+            for (auto& item : result) {
+                auto h1 = computeEnthalpy(temperature - diff, pressure, get<0>(z1[index]));
+                auto h2 = computeEnthalpy(temperature + diff, pressure, get<0>(z2[index]));
+
+                item[PCHeatCapacityCp] = (h2 - h1) / (2 * diff);
+                ++index;
+            }
+
+            return result;
+        }
     };
 
     // ===== Constructor, default
@@ -550,13 +566,9 @@ namespace PCProps::EquationOfState
         using std::get;
 
         // ===== Compute compressibility factors and fugacity coefficients at given T and P.
-        auto z_phi = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
-
-        // ===== Identify the Z/Phi with the lowest fugacity coefficient (which is the most stable)
-        auto min = std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<1>(a) < get<1>(b); });
-
-        // ===== Return the resulting phase data
-        return { m_impl->createEOSData(1.0, temperature, pressure, get<0>(*min), get<1>(*min)) };
+        auto phases = m_impl->computeThermodynamicProperties(temperature, pressure);
+        for (auto& phase : phases) phase[PCMolarFraction] = 1.0;
+        return { *std::min_element(phases.begin(), phases.end(), [](const auto& a, const auto& b) { return a[PCFugacityCoefficient] < b[PCFugacityCoefficient]; }) };
     }
 
     // ===== T,x Flash
@@ -568,20 +580,39 @@ namespace PCProps::EquationOfState
         if (temperature <= m_impl->criticalTemperature()) {
             // ===== First, calculate the saturation pressure at the specified pressure.
             auto pressure = m_impl->computeSaturationPressure(temperature);
-
-            // ===== Second, compute the compressibility factors and fugacity coefficients for the two phases.
-            auto z_phi        = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
-            auto [z_v, phi_v] = *std::max_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
-            auto [z_l, phi_l] = *std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
+            auto phases = m_impl->computeThermodynamicProperties(temperature, pressure);
 
             // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
-            if (vaporFraction >= 1.0) return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
+            if (vaporFraction >= 1.0) {
+                auto phase = *std::max_element(phases.begin(),
+                                               phases.end(),
+                                               [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; });
+                phase[PCMolarFraction] = 1.0;
+                return {phase};
+            }
+//                return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
 
             // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
-            if (vaporFraction <= 0.0) return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
+            if (vaporFraction <= 0.0) {
+                auto phase = *std::min_element(phases.begin(),
+                                               phases.end(),
+                                               [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; });
+                phase[PCMolarFraction] = 1.0;
+                return {phase};
+            }
+//                return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
 
             // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
-            return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
+
+            std::min_element(phases.begin(),
+                             phases.end(),
+                             [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = (1 - vaporFraction);
+            std::max_element(phases.begin(),
+                             phases.end(),
+                             [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = vaporFraction;
+
+            return phases;
+
         }
 
         // ===== If the temperature > Tc, extrapolate to the hypothetical saturation conditions in the supercritical region.
@@ -599,20 +630,40 @@ namespace PCProps::EquationOfState
         if (pressure <= m_impl->criticalPressure()) {
             // ===== First, calculate the saturation temperature at the specified pressure.
             auto temperature = m_impl->computeSaturationTemperature(pressure);
-
-            // ===== Second, compute the compressibility factors and fugacity coefficients for the two phases.
-            auto z_phi        = m_impl->computeCompressibilityAndFugacity(temperature, pressure);
-            auto [z_v, phi_v] = *std::max_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
-            auto [z_l, phi_l] = *std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); });
+            auto phases = m_impl->computeThermodynamicProperties(temperature, pressure);
 
             // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
-            if (vaporFraction >= 1.0) return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
+            if (vaporFraction >= 1.0) {
+                auto phase = *std::max_element(phases.begin(),
+                                              phases.end(),
+                                              [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; });
+                phase[PCMolarFraction] = 1.0;
+                return {phase};
+            }
+
+//                return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
 
             // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
-            if (vaporFraction <= 0.0) return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
+            if (vaporFraction <= 0.0) {
+                auto phase = *std::min_element(phases.begin(),
+                                               phases.end(),
+                                               [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; });
+                phase[PCMolarFraction] = 1.0;
+                return {phase};
+            }
+//                return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
 
             // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
-            return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
+//            auto phases = m_impl->computeThermodynamicProperties(temperature, pressure);
+            std::min_element(phases.begin(),
+                             phases.end(),
+                             [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = (1 - vaporFraction);
+            std::max_element(phases.begin(),
+                             phases.end(),
+                             [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = vaporFraction;
+
+            return phases;
+
         }
 
         // ===== If the pressure > Pc, extrapolate to the hypothetical saturation conditions in the supercritical region.
@@ -678,7 +729,15 @@ namespace PCProps::EquationOfState
 
         // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.
         auto vaporFraction = (h_l - enthalpy) / (h_l - h_v);
-        return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
+        auto phases = m_impl->computeThermodynamicProperties(temperature, pressure);
+        std::min_element(phases.begin(),
+                         phases.end(),
+                         [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = (1 - vaporFraction);
+        std::max_element(phases.begin(),
+                         phases.end(),
+                         [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = vaporFraction;
+
+        return phases;
     }
 
     // ===== P,S Flash
@@ -738,7 +797,15 @@ namespace PCProps::EquationOfState
 
         // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.
         auto vaporFraction = (s_l - entropy) / (s_l - s_v);
-        return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v), m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
+        auto phases = m_impl->computeThermodynamicProperties(temperature, pressure);
+        std::min_element(phases.begin(),
+                         phases.end(),
+                         [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = (1 - vaporFraction);
+        std::max_element(phases.begin(),
+                         phases.end(),
+                         [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = vaporFraction;
+
+        return phases;
     }
 
     // ===== T,V Flash

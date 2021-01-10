@@ -201,29 +201,29 @@ TEST_CASE("PengRobinson Test")
     {
         auto result = propane.flashPx(100000.0, 0.5);
 
-        REQUIRE(result[0][PCTemperature] == Approx(230.657526).epsilon(0.001));
-        REQUIRE(result[0][PCPressure] == Approx(100000.0).epsilon(0.001));
-        REQUIRE(result[0][PCCompressibility] == Approx(0.966927).epsilon(0.001));
-        REQUIRE(result[0][PCFugacityCoefficient] == Approx(0.96789922052).epsilon(0.001));
-        REQUIRE(result[0][PCMolarFraction] == Approx(0.5).epsilon(0.001));
-        REQUIRE(result[0][PCMolarVolume] == Approx(0.018544).epsilon(0.001));
-        REQUIRE(result[0][PCEnthalpy] == Approx(-4667.418728).epsilon(0.001));
-        REQUIRE(result[0][PCEntropy] == Approx(-17.493623).epsilon(0.001));
-        REQUIRE(result[0][PCInternalEnergy] == Approx(-6521.785497).epsilon(0.001));
-        REQUIRE(result[0][PCGibbsEnergy] == Approx(-632.382962).epsilon(0.001));
-        REQUIRE(result[0][PCHelmholzEnergy] == Approx(-2486.749730).epsilon(0.001));
-
         REQUIRE(result[1][PCTemperature] == Approx(230.657526).epsilon(0.001));
         REQUIRE(result[1][PCPressure] == Approx(100000.0).epsilon(0.001));
-        REQUIRE(result[1][PCCompressibility] == Approx(0.003697).epsilon(0.001));
-        REQUIRE(result[1][PCFugacityCoefficient] == Approx(0.96789922051).epsilon(0.001));
+        REQUIRE(result[1][PCCompressibility] == Approx(0.966927).epsilon(0.001));
+        REQUIRE(result[1][PCFugacityCoefficient] == Approx(0.96789922052).epsilon(0.001));
         REQUIRE(result[1][PCMolarFraction] == Approx(0.5).epsilon(0.001));
-        REQUIRE(result[1][PCMolarVolume] == Approx(0.000071).epsilon(0.01));
-        REQUIRE(result[1][PCEnthalpy] == Approx(-23379.777150).epsilon(0.001));
-        REQUIRE(result[1][PCEntropy] == Approx(-98.619779).epsilon(0.001));
-        REQUIRE(result[1][PCInternalEnergy] == Approx(-23386.868147).epsilon(0.001));
+        REQUIRE(result[1][PCMolarVolume] == Approx(0.018544).epsilon(0.001));
+        REQUIRE(result[1][PCEnthalpy] == Approx(-4667.418728).epsilon(0.001));
+        REQUIRE(result[1][PCEntropy] == Approx(-17.493623).epsilon(0.001));
+        REQUIRE(result[1][PCInternalEnergy] == Approx(-6521.785497).epsilon(0.001));
         REQUIRE(result[1][PCGibbsEnergy] == Approx(-632.382962).epsilon(0.001));
-        REQUIRE(result[1][PCHelmholzEnergy] == Approx(-639.473959).epsilon(0.001));
+        REQUIRE(result[1][PCHelmholzEnergy] == Approx(-2486.749730).epsilon(0.001));
+
+        REQUIRE(result[0][PCTemperature] == Approx(230.657526).epsilon(0.001));
+        REQUIRE(result[0][PCPressure] == Approx(100000.0).epsilon(0.001));
+        REQUIRE(result[0][PCCompressibility] == Approx(0.003697).epsilon(0.001));
+        REQUIRE(result[0][PCFugacityCoefficient] == Approx(0.96789922051).epsilon(0.001));
+        REQUIRE(result[0][PCMolarFraction] == Approx(0.5).epsilon(0.001));
+        REQUIRE(result[0][PCMolarVolume] == Approx(0.000071).epsilon(0.01));
+        REQUIRE(result[0][PCEnthalpy] == Approx(-23379.777150).epsilon(0.001));
+        REQUIRE(result[0][PCEntropy] == Approx(-98.619779).epsilon(0.001));
+        REQUIRE(result[0][PCInternalEnergy] == Approx(-23386.868147).epsilon(0.001));
+        REQUIRE(result[0][PCGibbsEnergy] == Approx(-632.382962).epsilon(0.001));
+        REQUIRE(result[0][PCHelmholzEnergy] == Approx(-639.473959).epsilon(0.001));
     }
 
     SECTION("Tx Flash of propane @ 223.15 K and x = 0.0 - Saturated Liquid")
@@ -264,58 +264,58 @@ TEST_CASE("PengRobinson Test")
     {
         auto result = propane.flashTx(223.15, 0.5);
 
-        REQUIRE(result[0][PCTemperature] == Approx(223.15).epsilon(0.001));
-        REQUIRE(result[0][PCPressure] == Approx(71038.119363).epsilon(0.001));
-        REQUIRE(result[0][PCCompressibility] == Approx(0.974596).epsilon(0.001));
-        REQUIRE(result[0][PCFugacityCoefficient] == Approx(0.9751737591).epsilon(0.001));
-        REQUIRE(result[0][PCMolarFraction] == Approx(0.5).epsilon(0.001));
-        REQUIRE(result[0][PCMolarVolume] == Approx(0.025454).epsilon(0.001));
-        REQUIRE(result[0][PCEnthalpy] == Approx(-5075.219460).epsilon(0.001));
-        REQUIRE(result[0][PCEntropy] == Approx(-16.530551).epsilon(0.001));
-        REQUIRE(result[0][PCInternalEnergy] == Approx(-6883.457001).epsilon(0.001));
-        REQUIRE(result[0][PCGibbsEnergy] == Approx(-1386.427112).epsilon(0.001));
-        REQUIRE(result[0][PCHelmholzEnergy] == Approx(-3194.664652).epsilon(0.001));
-
         REQUIRE(result[1][PCTemperature] == Approx(223.15).epsilon(0.001));
         REQUIRE(result[1][PCPressure] == Approx(71038.119363).epsilon(0.001));
-        REQUIRE(result[1][PCCompressibility] == Approx(0.002675).epsilon(0.001));
+        REQUIRE(result[1][PCCompressibility] == Approx(0.974596).epsilon(0.001));
         REQUIRE(result[1][PCFugacityCoefficient] == Approx(0.9751737591).epsilon(0.001));
         REQUIRE(result[1][PCMolarFraction] == Approx(0.5).epsilon(0.001));
-        REQUIRE(result[1][PCMolarVolume] == Approx(0.000070).epsilon(0.01));
-        REQUIRE(result[1][PCEnthalpy] == Approx(-24085.412742).epsilon(0.001));
-        REQUIRE(result[1][PCEntropy] == Approx(-101.720751).epsilon(0.001));
-        REQUIRE(result[1][PCInternalEnergy] == Approx(-24090.376323).epsilon(0.001));
+        REQUIRE(result[1][PCMolarVolume] == Approx(0.025454).epsilon(0.001));
+        REQUIRE(result[1][PCEnthalpy] == Approx(-5075.219460).epsilon(0.001));
+        REQUIRE(result[1][PCEntropy] == Approx(-16.530551).epsilon(0.001));
+        REQUIRE(result[1][PCInternalEnergy] == Approx(-6883.457001).epsilon(0.001));
         REQUIRE(result[1][PCGibbsEnergy] == Approx(-1386.427112).epsilon(0.001));
-        REQUIRE(result[1][PCHelmholzEnergy] == Approx(-1391.390693).epsilon(0.001));
+        REQUIRE(result[1][PCHelmholzEnergy] == Approx(-3194.664652).epsilon(0.001));
+
+        REQUIRE(result[0][PCTemperature] == Approx(223.15).epsilon(0.001));
+        REQUIRE(result[0][PCPressure] == Approx(71038.119363).epsilon(0.001));
+        REQUIRE(result[0][PCCompressibility] == Approx(0.002675).epsilon(0.001));
+        REQUIRE(result[0][PCFugacityCoefficient] == Approx(0.9751737591).epsilon(0.001));
+        REQUIRE(result[0][PCMolarFraction] == Approx(0.5).epsilon(0.001));
+        REQUIRE(result[0][PCMolarVolume] == Approx(0.000070).epsilon(0.01));
+        REQUIRE(result[0][PCEnthalpy] == Approx(-24085.412742).epsilon(0.001));
+        REQUIRE(result[0][PCEntropy] == Approx(-101.720751).epsilon(0.001));
+        REQUIRE(result[0][PCInternalEnergy] == Approx(-24090.376323).epsilon(0.001));
+        REQUIRE(result[0][PCGibbsEnergy] == Approx(-1386.427112).epsilon(0.001));
+        REQUIRE(result[0][PCHelmholzEnergy] == Approx(-1391.390693).epsilon(0.001));
     }
 
     SECTION("PH Flash of propane @ 1 bar and H = -14000 - Two-Phase")
     {
         auto result = propane.flashPH(100000, -14000);
 
-        REQUIRE(result[0][PCTemperature] == Approx(230.657526).epsilon(0.001));
-        REQUIRE(result[0][PCPressure] == Approx(100000.0).epsilon(0.001));
-        REQUIRE(result[0][PCCompressibility] == Approx(0.966927).epsilon(0.001));
-        REQUIRE(result[0][PCFugacityCoefficient] == Approx(0.96789922052).epsilon(0.001));
-        REQUIRE(result[0][PCMolarFraction] == Approx(0.501261).epsilon(0.001));
-        REQUIRE(result[0][PCMolarVolume] == Approx(0.018544).epsilon(0.001));
-        REQUIRE(result[0][PCEnthalpy] == Approx(-4667.418728).epsilon(0.001));
-        REQUIRE(result[0][PCEntropy] == Approx(-17.493623).epsilon(0.001));
-        REQUIRE(result[0][PCInternalEnergy] == Approx(-6521.785497).epsilon(0.001));
-        REQUIRE(result[0][PCGibbsEnergy] == Approx(-632.382962).epsilon(0.001));
-        REQUIRE(result[0][PCHelmholzEnergy] == Approx(-2486.749730).epsilon(0.001));
-
         REQUIRE(result[1][PCTemperature] == Approx(230.657526).epsilon(0.001));
         REQUIRE(result[1][PCPressure] == Approx(100000.0).epsilon(0.001));
-        REQUIRE(result[1][PCCompressibility] == Approx(0.003697).epsilon(0.001));
-        REQUIRE(result[1][PCFugacityCoefficient] == Approx(0.96789922051).epsilon(0.001));
-        REQUIRE(result[1][PCMolarFraction] == Approx(0.498739).epsilon(0.001));
-        REQUIRE(result[1][PCMolarVolume] == Approx(0.000071).epsilon(0.01));
-        REQUIRE(result[1][PCEnthalpy] == Approx(-23379.777150).epsilon(0.001));
-        REQUIRE(result[1][PCEntropy] == Approx(-98.619779).epsilon(0.001));
-        REQUIRE(result[1][PCInternalEnergy] == Approx(-23386.868147).epsilon(0.001));
+        REQUIRE(result[1][PCCompressibility] == Approx(0.966927).epsilon(0.001));
+        REQUIRE(result[1][PCFugacityCoefficient] == Approx(0.96789922052).epsilon(0.001));
+        REQUIRE(result[1][PCMolarFraction] == Approx(0.501261).epsilon(0.001));
+        REQUIRE(result[1][PCMolarVolume] == Approx(0.018544).epsilon(0.001));
+        REQUIRE(result[1][PCEnthalpy] == Approx(-4667.418728).epsilon(0.001));
+        REQUIRE(result[1][PCEntropy] == Approx(-17.493623).epsilon(0.001));
+        REQUIRE(result[1][PCInternalEnergy] == Approx(-6521.785497).epsilon(0.001));
         REQUIRE(result[1][PCGibbsEnergy] == Approx(-632.382962).epsilon(0.001));
-        REQUIRE(result[1][PCHelmholzEnergy] == Approx(-639.473959).epsilon(0.001));
+        REQUIRE(result[1][PCHelmholzEnergy] == Approx(-2486.749730).epsilon(0.001));
+
+        REQUIRE(result[0][PCTemperature] == Approx(230.657526).epsilon(0.001));
+        REQUIRE(result[0][PCPressure] == Approx(100000.0).epsilon(0.001));
+        REQUIRE(result[0][PCCompressibility] == Approx(0.003697).epsilon(0.001));
+        REQUIRE(result[0][PCFugacityCoefficient] == Approx(0.96789922051).epsilon(0.001));
+        REQUIRE(result[0][PCMolarFraction] == Approx(0.498739).epsilon(0.001));
+        REQUIRE(result[0][PCMolarVolume] == Approx(0.000071).epsilon(0.01));
+        REQUIRE(result[0][PCEnthalpy] == Approx(-23379.777150).epsilon(0.001));
+        REQUIRE(result[0][PCEntropy] == Approx(-98.619779).epsilon(0.001));
+        REQUIRE(result[0][PCInternalEnergy] == Approx(-23386.868147).epsilon(0.001));
+        REQUIRE(result[0][PCGibbsEnergy] == Approx(-632.382962).epsilon(0.001));
+        REQUIRE(result[0][PCHelmholzEnergy] == Approx(-639.473959).epsilon(0.001));
     }
 
     SECTION("PH Flash of propane @ 1 bar and H = 2000 - Superheated Vapor")
@@ -407,29 +407,29 @@ TEST_CASE("PengRobinson Test")
     {
         auto result = propane.flashPS(100000, -60);
 
-        REQUIRE(result[0][PCTemperature] == Approx(230.657526).epsilon(0.001));
-        REQUIRE(result[0][PCPressure] == Approx(100000.0).epsilon(0.001));
-        REQUIRE(result[0][PCCompressibility] == Approx(0.966927).epsilon(0.001));
-        REQUIRE(result[0][PCFugacityCoefficient] == Approx(0.96789922052).epsilon(0.001));
-        REQUIRE(result[0][PCMolarFraction] == Approx(0.476046).epsilon(0.001));
-        REQUIRE(result[0][PCMolarVolume] == Approx(0.018544).epsilon(0.001));
-        REQUIRE(result[0][PCEnthalpy] == Approx(-4667.418728).epsilon(0.001));
-        REQUIRE(result[0][PCEntropy] == Approx(-17.493623).epsilon(0.001));
-        REQUIRE(result[0][PCInternalEnergy] == Approx(-6521.785497).epsilon(0.001));
-        REQUIRE(result[0][PCGibbsEnergy] == Approx(-632.382962).epsilon(0.001));
-        REQUIRE(result[0][PCHelmholzEnergy] == Approx(-2486.749730).epsilon(0.001));
-
         REQUIRE(result[1][PCTemperature] == Approx(230.657526).epsilon(0.001));
         REQUIRE(result[1][PCPressure] == Approx(100000.0).epsilon(0.001));
-        REQUIRE(result[1][PCCompressibility] == Approx(0.003697).epsilon(0.001));
-        REQUIRE(result[1][PCFugacityCoefficient] == Approx(0.96789922051).epsilon(0.001));
-        REQUIRE(result[1][PCMolarFraction] == Approx(0.523954).epsilon(0.001));
-        REQUIRE(result[1][PCMolarVolume] == Approx(0.000071).epsilon(0.01));
-        REQUIRE(result[1][PCEnthalpy] == Approx(-23379.777150).epsilon(0.001));
-        REQUIRE(result[1][PCEntropy] == Approx(-98.619779).epsilon(0.001));
-        REQUIRE(result[1][PCInternalEnergy] == Approx(-23386.868147).epsilon(0.001));
+        REQUIRE(result[1][PCCompressibility] == Approx(0.966927).epsilon(0.001));
+        REQUIRE(result[1][PCFugacityCoefficient] == Approx(0.96789922052).epsilon(0.001));
+        REQUIRE(result[1][PCMolarFraction] == Approx(0.476046).epsilon(0.001));
+        REQUIRE(result[1][PCMolarVolume] == Approx(0.018544).epsilon(0.001));
+        REQUIRE(result[1][PCEnthalpy] == Approx(-4667.418728).epsilon(0.001));
+        REQUIRE(result[1][PCEntropy] == Approx(-17.493623).epsilon(0.001));
+        REQUIRE(result[1][PCInternalEnergy] == Approx(-6521.785497).epsilon(0.001));
         REQUIRE(result[1][PCGibbsEnergy] == Approx(-632.382962).epsilon(0.001));
-        REQUIRE(result[1][PCHelmholzEnergy] == Approx(-639.473959).epsilon(0.001));
+        REQUIRE(result[1][PCHelmholzEnergy] == Approx(-2486.749730).epsilon(0.001));
+
+        REQUIRE(result[0][PCTemperature] == Approx(230.657526).epsilon(0.001));
+        REQUIRE(result[0][PCPressure] == Approx(100000.0).epsilon(0.001));
+        REQUIRE(result[0][PCCompressibility] == Approx(0.003697).epsilon(0.001));
+        REQUIRE(result[0][PCFugacityCoefficient] == Approx(0.96789922051).epsilon(0.001));
+        REQUIRE(result[0][PCMolarFraction] == Approx(0.523954).epsilon(0.001));
+        REQUIRE(result[0][PCMolarVolume] == Approx(0.000071).epsilon(0.01));
+        REQUIRE(result[0][PCEnthalpy] == Approx(-23379.777150).epsilon(0.001));
+        REQUIRE(result[0][PCEntropy] == Approx(-98.619779).epsilon(0.001));
+        REQUIRE(result[0][PCInternalEnergy] == Approx(-23386.868147).epsilon(0.001));
+        REQUIRE(result[0][PCGibbsEnergy] == Approx(-632.382962).epsilon(0.001));
+        REQUIRE(result[0][PCHelmholzEnergy] == Approx(-639.473959).epsilon(0.001));
     }
 
     SECTION("PS Flash of propane @ 1 bar and S = 7 - Superheated Vapor")

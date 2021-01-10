@@ -45,7 +45,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace PCProps
 {
-    using PCPhaseData = std::array<double, 16>;
+    using PCPhaseData = std::array<double, 17>;
     using PCPhases    = std::vector<PCPhaseData>;
 
     enum PCPhaseDataElement {
@@ -59,7 +59,8 @@ namespace PCProps
         PCViscosity,
         PCSurfaceTension,
         PCThermalConductivity,
-        PCHeatCapacity,
+        PCHeatCapacityCp,
+        PCHeatCapacityCv,
         PCEnthalpy,
         PCEntropy,
         PCInternalEnergy,
@@ -181,12 +182,12 @@ namespace PCProps
 
         inline double heatCapacity() const
         {
-            return m_data[PCHeatCapacity];
+            return m_data[PCHeatCapacityCp];
         }
 
         inline void setHeatCapacity(double heatCapacity)
         {
-            m_data[PCHeatCapacity] = heatCapacity;
+            m_data[PCHeatCapacityCp] = heatCapacity;
         }
 
         inline double enthalpy() const
