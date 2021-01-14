@@ -64,7 +64,7 @@ namespace PCProps
     {
         std::string name;    /**< The name of the component, e.g. Methane */
         std::string formula; /**< The formula of the component, e.g. CH4 */
-        std::string casrn; /** The CAS registration number for the component, e.g. 75-07-0 */
+        std::string casrn;   /** The CAS registration number for the component, e.g. 75-07-0 */
         std::string smiles;  /**< The SMILES string for the component, e.g. C */
 
         std::optional<double> molecularWeight {};         /**< The molecular weight [g/mol] of a component, e.g. 16.043 g/mol */
@@ -76,6 +76,7 @@ namespace PCProps
         std::optional<double> criticalDensity {};         /**< The critical density [kg/m3] of a component */
         std::optional<double> criticalCompressibility {}; /**< The critical compressibility factor [-] of a component */
         std::optional<double> acentricFactor {};          /**< The acentric factor (omega) of a component */
+        std::optional<double> dipoleMoment {};            /**< The dipole moment of the component */
 
         PCProps::PCEquationOfState            equationOfState {};
         PCProps::PCHeatCapacityCorrelation    idealGasCpCorrelation {};
@@ -85,8 +86,8 @@ namespace PCProps
         std::function<double(double)>         heatOfVaporizationCorrelation {};        /**< The latent heat [HOLD] as a function of temperature [K] */
         std::function<double(double)>         vaporThermalConductivityCorrelation {};  /**< The vapor thermal conductivity [HOLD] as a function of temperature [K] */
         std::function<double(double)>         liquidThermalConductivityCorrelation {}; /**< The liquid thermal conductivity [HOLD] as a function of temperature [K] */
-        std::function<double(double)>         vaporViscosityCorrelation {};            /**< The vapor viscosity [HOLD] as a function of temperature [K] */
-        std::function<double(double)>         liquidViscosityCorrelation {};           /**< The liquid viscosity [HOLD] as a function of temperature [K] */
+        std::function<double(double)>         saturatedVaporViscosityCorrelation {};   /**< The vapor viscosity [HOLD] as a function of temperature [K] */
+        std::function<double(double)>         saturatedLiquidViscosityCorrelation {};  /**< The liquid viscosity [HOLD] as a function of temperature [K] */
         std::function<double(double)>         saturatedLiquidVolumeCorrelation {};     /**< The liquid density [HOLD] as a function of temperature [K] */
         std::function<double(double, double)> compressedLiquidVolumeCorrelation {};
     };
@@ -235,262 +236,8 @@ namespace PCProps
          */
         const std::string& smiles() const;
 
-        /**
-         * @brief Check if the molecular weight has been set.
-         * @return true, if the value has been set; otherwise false.
-         */
-        bool hasMolecularWeight() const;
+        void computeViscosity(PCPhases& phases) const;
 
-        /**
-         * @brief Get the molecular weight [g/mol] of the component.
-         * @return A double with the molecular weight.
-         * @throws PCPropsException if the molecularWeight data member has not been set.
-         */
-        double molecularWeight() const;
-
-        /**
-         * @brief Check if the normal boiling point temperature has been set.
-         * @return true, if the value has been set; otherwise false.
-         */
-        bool hasBoilingTemperature() const;
-
-        /**
-         * @brief Get the normal boiling point temperature [K] of the component.
-         * @return A double with the normal boiling temperature.
-         * @throws PCPropsException if the boilingTemperature data member has not been set.
-         */
-        double boilingTemperature() const;
-
-        /**
-         * @brief Check if the freezing point temperature has been set.
-         * @return true, if the value has been set; otherwise false.
-         */
-        bool hasFreezingTemperature() const;
-
-        /**
-         * @brief Get the freezing temperature [K] of the component.
-         * @return A double with the freezing temperature.
-         * @throws PCPropsException if the freezingTemperature data member has not been set.
-         */
-        double freezingTemperature() const;
-
-        /**
-         * @brief Check if the critical temperature has been set.
-         * @return true, if the value has been set; otherwise false.
-         */
-        bool hasCriticalTemperature() const;
-
-        /**
-         * @brief Get the critical temperature [K] of the component.
-         * @return A double with the critical temperature.
-         * @throws PCPropsException if the criticalTemperature data member has not been set.
-         */
-        double criticalTemperature() const;
-
-        /**
-         * @brief Check if the critical pressure has been set.
-         * @return true, if the value has been set; otherwise false.
-         */
-        bool hasCriticalPressure() const;
-
-        /**
-         * @brief Get the critical pressure [Pa] of the component.
-         * @return A double with the critical pressure.
-         * @throws PCPropsException if the criticalPressure data member has not been set.
-         */
-        double criticalPressure() const;
-
-        /**
-         * @brief Check if the critical volume has been set.
-         * @return true, if the value has been set; otherwise false.
-         */
-        bool hasCriticalVolume() const;
-
-        /**
-         * @brief Get the critical molar volume [m3/mol] of the component.
-         * @return A double with the critical volume.
-         * @throws PCPropsException if the criticalVolume data member has not been set.
-         */
-        double criticalVolume() const;
-
-        /**
-         * @brief Check if the critical density has been set.
-         * @return true, if the value has been set; otherwise false.
-         */
-        bool hasCriticalDensity() const;
-
-        /**
-         * @brief Get the critical density [kg/m3] of the component.
-         * @return A double with the critical density.
-         * @throws PCPropsException if the criticalDensity data member has not been set.
-         */
-        double criticalDensity() const;
-
-        /**
-         * @brief Check if the critical compressibility has been set.
-         * @return true, if the value has been set; otherwise false.
-         */
-        bool hasCriticalCompressibility() const;
-
-        /**
-         * @brief Get the critical compressibility factor [-] of the component.
-         * @return A double with the critical compressibility factor.
-         * @throws PCPropsException if the criticalCompressibility data member has not been set.
-         */
-        double criticalCompressibility() const;
-
-        /**
-         * @brief Check if the acentric factor has been set.
-         * @return true, if the value has been set; otherwise false.
-         */
-        bool hasAcentricFactor() const;
-
-        /**
-         * @brief Get the acentric factor [-] of the component.
-         * @return A double with the acentric factor.
-         * @throws PCPropsException if the acentricFactor data member has not been set.
-         */
-        double acentricFactor() const;
-
-        /**
-         * @brief Check if the vapor pressure function has been set.
-         * @return true, if the function has been set; otherwise false.
-         */
-        bool hasVaporPressureFunction() const;
-
-        /**
-         * @brief Compute the vapor pressure [Pa] of the component at the given temperature [K].
-         * @param temperature The temperature at which to evaluate the vapor pressure.
-         * @return The vapor pressure.
-         * @throws PCPropsException if the vaporPressureFunction data member has not been set.
-         */
-        double vaporPressure(double temperature) const;
-
-        /**
-         * @brief Check if the liquid density function has been set.
-         * @return true, if the function has been set; otherwise false.
-         */
-        bool hasLiquidDensityFunction() const;
-
-        /**
-         * @brief Compute the liquid density [HOLD] of the component at the given temperature [K].
-         * @param temperature The temperature at which to evaluate the liquid density.
-         * @return The liquid density.
-         * @throws PCPropsException if the liquidDensityFunction data member has not been set.
-         */
-        double liquidDensity(double temperature) const;
-
-        /**
-         * @brief Check if the surface tension function has been set.
-         * @return true, if the function has been set; otherwise false.
-         */
-        bool hasSurfaceTensionFunction() const;
-
-        /**
-         * @brief Compute the surface tension [HOLD] of the component at the given temperature [K].
-         * @param temperature The temperature at which to evaluate the surface tension.
-         * @return The surface tension.
-         * @throws PCPropsException if the surfaceTensionFunction data member has not been set.
-         */
-        double surfaceTension(double temperature) const;
-
-        /**
-         * @brief Check if the heat of vaporization function has been set.
-         * @return true, if the function has been set; otherwise false.
-         */
-        bool hasHeatOfVaporizationFunction() const;
-
-        /**
-         * @brief Compute the latent heat [HOLD] of the component at the given temperature [K].
-         * @param temperature The temperature at which to evaluate the latent heat.
-         * @return the latent heat (heat of vaporization).
-         * @throws PCPropsException if the heatOfVaporizationFunction data member has not been set.
-         */
-        double heatOfVaporization(double temperature) const;
-
-        /**
-         * @brief Check if the vapor thermal conductivity function has been set.
-         * @return true, if the function has been set; otherwise false.
-         */
-        bool hasVaporThermalConductivityFunction() const;
-
-        /**
-         * @brief Compute the vapor thermal conductivity [HOLD] of the component at the given temperature [K].
-         * @param temperature The temperature at which to evaluate the vapor thermal conductivity.
-         * @return The vapor thermal conductivity.
-         * @throws PCPropsException if the vaporThermalConductivityFunction data member has not been set.
-         */
-        double vaporThermalConductivity(double temperature) const;
-
-        /**
-         * @brief Check if the liquid thermal conductivity function has been set.
-         * @return true, if the function has been set; otherwise false.
-         */
-        bool hasLiquidThermalConductivityFunction() const;
-
-        /**
-         * @brief Compute the liquid thermal conductivity [HOLD] of the component at the given temperature [K].
-         * @param temperature The temperature at which to evaluate the liquid thermal conductivity.
-         * @return The liquid thermal conductivity.
-         * @throws PCPropsException if the liquidThermalConductivityFunction data member has not been set.
-         */
-        double liquidThermalConductivity(double temperature) const;
-
-        /**
-         * @brief Check if the vapor viscosity function has been set.
-         * @return true, if the function has been set; otherwise false.
-         */
-        bool hasVaporViscosityFunction() const;
-
-        /**
-         * @brief Compute the vapor viscosity [HOLD] of the component at the given temperature [K].
-         * @param temperature The temperature at which to evaluate the vapor viscosity.
-         * @return The vapor viscosity.
-         * @throws PCPropsException if the vaporViscosityFunction data member has not been set.
-         */
-        double vaporViscosity(double temperature) const;
-
-        /**
-         * @brief Check if the liquid viscosity function has been set.
-         * @return true, if the function has been set; otherwise false.
-         */
-        bool hasLiquidViscosityFunction() const;
-
-        /**
-         * @brief Compute the liquid viscosity [HOLD] of the component at the given temperature [K].
-         * @param temperature The temperature at which to evaluate the liquid viscosity.
-         * @return The liquid viscosity.
-         * @throws PCPropsException if the liquidViscosityFunction data member has not been set.
-         */
-        double liquidViscosity(double temperature) const;
-
-        /**
-         * @brief Check if the ideal gas Cp function has been set.
-         * @return true, if the function has been set; otherwise false.
-         */
-        bool hasIdealGasCpFunction() const;
-
-        /**
-         * @brief Compute the ideal gas Cp [HOLD] of the component at the given temperature [K].
-         * @param temperature The temperature at which to evaluate the ideal gas Cp.
-         * @return The ideal gas Cp.
-         * @throws PCPropsException if the idealGasCpFunction data member has not been set.
-         */
-        double idealGasCp(double temperature) const;
-
-        /**
-         * @brief Check if the liquid Cp function has been set.
-         * @return true, if the function has been set; otherwise false.
-         */
-        bool hasLiquidCpFunction() const;
-
-        /**
-         * @brief Compute the liquid Cp [HOLD] of the component at the given temperature [K].
-         * @param temperature The temperature at which to evaluate the liquid Cp.
-         * @return The liquid Cp.
-         * @throws PCPropsException if the liquidCpFunction data member has not been set.
-         */
-        double liquidCp(double temperature) const;
     };
 }    // namespace PCProps
 

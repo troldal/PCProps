@@ -69,8 +69,8 @@ TEST_CASE("PCComponent Test")
     pcd.heatOfVaporizationCorrelation     = [](double temperature) { return temperature; };
     pcd.vaporThermalConductivityCorrelation = [](double temperature) { return temperature; };
     pcd.liquidThermalConductivityCorrelation = [](double temperature) { return temperature; };
-    pcd.vaporViscosityCorrelation            = [](double temperature) { return temperature; };
-    pcd.liquidViscosityCorrelation           = [](double temperature) { return temperature; };
+    pcd.saturatedVaporViscosityCorrelation   = [](double temperature) { return temperature; };
+    pcd.saturatedLiquidViscosityCorrelation  = [](double temperature) { return temperature; };
     pcd.liquidCpCorrelation                  = [](double temperature) { return temperature; };
 
     auto pc = PCProps::PCComponent(pcd);
@@ -125,8 +125,8 @@ TEST_CASE("PCComponent Test")
         REQUIRE_THROWS(pc.heatOfVaporization(0.0));
         REQUIRE_THROWS(pc.vaporThermalConductivity(0.0));
         REQUIRE_THROWS(pc.liquidThermalConductivity(0.0));
-        REQUIRE_THROWS(pc.vaporViscosity(0.0));
-        REQUIRE_THROWS(pc.liquidViscosity(0.0));
+        REQUIRE_THROWS(pc.vaporViscosity(0.0, 0));
+        REQUIRE_THROWS(pc.liquidViscosity(0.0, 0));
         REQUIRE_THROWS(pc.idealGasCp(0.0));
         REQUIRE_THROWS(pc.liquidCp(0.0));
     }
@@ -191,8 +191,8 @@ TEST_CASE("PCComponent Test")
         REQUIRE(pc.heatOfVaporization(4.4) == Approx(4.4));
         REQUIRE(pc.vaporThermalConductivity(5.5) == Approx(5.5));
         REQUIRE(pc.liquidThermalConductivity(6.6) == Approx(6.6));
-        REQUIRE(pc.vaporViscosity(7.7) == Approx(7.7));
-        REQUIRE(pc.liquidViscosity(8.8) == Approx(8.8));
+        REQUIRE(pc.vaporViscosity(7.7, 0) == Approx(7.7));
+        REQUIRE(pc.liquidViscosity(8.8, 0) == Approx(8.8));
         REQUIRE(pc.idealGasCp(9.9) == Approx(9.9));
         REQUIRE(pc.liquidCp(10.01) == Approx(10.01));
     }

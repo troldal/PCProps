@@ -499,10 +499,37 @@ namespace PCProps::EquationOfState
             for (auto& item : result) {
                 auto h1 = computeEnthalpy(temperature - diff, pressure, get<0>(z1[index]));
                 auto h2 = computeEnthalpy(temperature + diff, pressure, get<0>(z2[index]));
-
                 item[PCHeatCapacityCp] = (h2 - h1) / (2 * diff);
+
+                auto v1 = get<0>(z1[index]) * R_CONST * (temperature - diff) / pressure;
+                auto v2 = get<0>(z2[index]) * R_CONST * (temperature + diff) / pressure;
+                item[PCThermalExpansionCoefficient] = (1.0 / item[PCMolarVolume]) * (v2 - v1) / (2 * diff);
+                item[PCJouleThomsonCoefficient] = -(item[PCMolarVolume] - temperature * ((v2 - v1) / (2 * diff))) / item[PCHeatCapacityCp];
+
                 ++index;
             }
+
+            z1 = computeCompressibilityAndFugacity(temperature, pressure - diff);
+            z2 = computeCompressibilityAndFugacity(temperature, pressure + diff);
+
+            index = 0;
+            for (auto& item : result) {
+                auto v1 = get<0>(z1[index]) * R_CONST * temperature / (pressure - diff);
+                auto v2 = get<0>(z2[index]) * R_CONST * temperature / (pressure + diff);
+                item[PCIsothermalCompressibility] = - (1.0 / item[PCMolarVolume]) * (v2 - v1) / (2 * diff);
+
+                ++index;
+            }
+
+            index = 0;
+            for (auto& item : result) {
+                item[PCHeatCapacityCv] = item[PCHeatCapacityCp] -
+                                         temperature * item[PCMolarVolume] * pow(item[PCThermalExpansionCoefficient], 2) / item[PCIsothermalCompressibility];
+
+                ++index;
+            }
+
+
 
             return result;
         }

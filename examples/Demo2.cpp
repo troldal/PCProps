@@ -52,8 +52,8 @@ int main()
     data.heatOfVaporizationCorrelation        = {};
     data.vaporThermalConductivityCorrelation  = {};
     data.liquidThermalConductivityCorrelation = {};
-    data.vaporViscosityCorrelation            = {};
-    data.liquidViscosityCorrelation           = {};
+    data.saturatedVaporViscosityCorrelation   = {};
+    data.saturatedLiquidViscosityCorrelation  = {};
     data.saturatedLiquidVolumeCorrelation     = Rackett(Rackett::CreateFromDIPPR { 1.3757, 0.27453, 369.83, 0.29359 });
     data.compressedLiquidVolumeCorrelation    = {};
 

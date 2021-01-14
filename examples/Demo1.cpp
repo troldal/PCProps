@@ -9,18 +9,24 @@
 #include <library/PCPropsData.hpp>
 #include <library/VaporPressure/AmbroseWalton.hpp>
 #include <library/VaporPressure/AntoineExtended.hpp>
+#include <library/Viscosity/DIPPR102.hpp>
+#include <library/Viscosity/KirchhoffExtended.hpp>
+#include <library/Viscosity/Lucas.hpp>
+using PCProps::VaporPressure::AmbroseWalton;
 
 using PCProps::EquationOfState::PengRobinson;
 using PCProps::HeatCapacity::AlyLee;
 using PCProps::HeatCapacity::PPDSLiquid;
 using PCProps::LiquidVolume::Rackett;
-using PCProps::VaporPressure::AmbroseWalton;
 using PCProps::VaporPressure::AntoineExtended;
 
 using PCProps::PCComponent;
 using PCProps::PCComponentData;
 using PCProps::PCEquationOfState;
 using PCProps::PCPhase;
+using PCProps::Viscosity::Lucas;
+using PCProps::Viscosity::DIPPR102;
+using PCProps::Viscosity::KirchhoffExtended;
 
 using PCProps::Utilities::Enthalpy;
 using PCProps::Utilities::Entropy;
@@ -48,6 +54,9 @@ int main()
     data.criticalDensity         = 220.48;
     data.criticalCompressibility = 0.27629827986994;
     data.acentricFactor          = 0.1523;
+    data.dipoleMoment            = 0.083;
+
+    auto psat = AmbroseWalton(369.83, 4.248E6, 0.1523);
 
     data.equationOfState                      = PengRobinson {};
     data.idealGasCpCorrelation                = AlyLee(AlyLee::CreateFromDIPPR { 0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6 });
@@ -57,8 +66,8 @@ int main()
     data.heatOfVaporizationCorrelation        = {};
     data.vaporThermalConductivityCorrelation  = {};
     data.liquidThermalConductivityCorrelation = {};
-    data.vaporViscosityCorrelation            = {};
-    data.liquidViscosityCorrelation           = {};
+    data.saturatedVaporViscosityCorrelation   = Lucas(369.83, 4.248E6, 0.2763, 44.096, 0.083);    //DIPPR102(4.9054E-08, 0.90125);
+    data.saturatedLiquidViscosityCorrelation  = KirchhoffExtended(-17.156,646.25,1.1101,-7.3439E-11, 4);
     data.saturatedLiquidVolumeCorrelation     = Rackett(Rackett::CreateFromDIPPR { 1.3757, 0.27453, 369.83, 0.29359 });
     data.compressedLiquidVolumeCorrelation    = {};
 

@@ -71,6 +71,9 @@ set(PROJECT_TEMPLATE_SOURCES
         library/HeatCapacity/AlyLee.cpp
         library/HeatCapacity/PPDSLiquid.cpp
         library/HeatCapacity/Polynomial.cpp
+        library/Viscosity/DIPPR102.cpp
+        library/Viscosity/KirchhoffExtended.cpp
+        library/Viscosity/Lucas.cpp
         library/EquationOfState/PengRobinson.cpp
         )
 
