@@ -75,6 +75,7 @@ set(PROJECT_TEMPLATE_SOURCES
         library/Viscosity/KirchhoffExtended.cpp
         library/Viscosity/Lucas.cpp
         library/EquationOfState/PengRobinson.cpp
+        library/UnitOps/Pipe.cpp
         )
 
 

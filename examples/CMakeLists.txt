@@ -18,3 +18,10 @@ target_compile_definitions(${PROJECT_NAME}-demo2 PRIVATE OPENXLSX_STATIC_DEFINE)
 add_executable(${PROJECT_NAME}-demo3 Demo3.cpp)
 target_link_libraries(${PROJECT_NAME}-demo3 PRIVATE ${PROJECT_NAME}-library-static)
 target_compile_definitions(${PROJECT_NAME}-demo3 PRIVATE OPENXLSX_STATIC_DEFINE)
+
+#=======================================================================================================================
+# Define Demo4 target
+#=======================================================================================================================
+add_executable(${PROJECT_NAME}-demo4 Demo4.cpp)
+target_link_libraries(${PROJECT_NAME}-demo4 PRIVATE ${PROJECT_NAME}-library-static)
+target_compile_definitions(${PROJECT_NAME}-demo4 PRIVATE OPENXLSX_STATIC_DEFINE)

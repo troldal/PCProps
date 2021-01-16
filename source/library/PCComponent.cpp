@@ -198,7 +198,6 @@ namespace PCProps
 
         results.setSurfaceTension(0.0);
         results.setThermalConductivity(0.0);
-        results.setViscosity(0.0);
         results.setMolarWeight(m_data.molecularWeight.value());
 
         PCPhases result = { results.data() };
@@ -216,7 +215,6 @@ namespace PCProps
             auto result = PCPhase(phase);
             result.setSurfaceTension(0.0);
             result.setThermalConductivity(0.0);
-            result.setViscosity(0.0);
             result.setMolarWeight(m_data.molecularWeight.value());
             results.emplace_back(result.data());
         }
@@ -234,7 +232,6 @@ namespace PCProps
             auto result = PCPhase(phase);
             result.setSurfaceTension(0.0);
             result.setThermalConductivity(0.0);
-            result.setViscosity(0.0);
             result.setMolarWeight(m_data.molecularWeight.value());
             results.emplace_back(result.data());
         }
@@ -252,7 +249,6 @@ namespace PCProps
             auto result = PCPhase(phase);
             result.setSurfaceTension(0.0);
             result.setThermalConductivity(0.0);
-            result.setViscosity(0.0);
             result.setMolarWeight(m_data.molecularWeight.value());
             results.emplace_back(result.data());
         }
@@ -270,7 +266,6 @@ namespace PCProps
             auto result = PCPhase(phase);
             result.setSurfaceTension(0.0);
             result.setThermalConductivity(0.0);
-            result.setViscosity(0.0);
             result.setMolarWeight(m_data.molecularWeight.value());
             results.emplace_back(result.data());
         }
