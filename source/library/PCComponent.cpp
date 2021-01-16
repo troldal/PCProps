@@ -42,6 +42,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <library/PCPropsException.hpp>
 
+#include <external/boost/json/src.hpp>
+#include <external/boost/json.hpp>
+
 namespace
 {
     enum PhaseType { Liquid, Vapor, Dense, Undefined };
@@ -145,11 +148,14 @@ namespace PCProps
         if (!m_data.equationOfState) throw PCPropsException("Error: Invalid EOS object!");
         if (!m_data.idealGasCpCorrelation) throw PCPropsException("Error: Invalid Ideal Gas Cp object!");
 
-        m_data.equationOfState.setProperties(m_data.criticalTemperature.value(), m_data.criticalPressure.value(), m_data.acentricFactor.value());
+//        m_data.equationOfState.setProperties(m_data.criticalTemperature.value(), m_data.criticalPressure.value(), m_data.acentricFactor.value());
+        boost::json::object obj;
+        obj["Tc"] = m_data.criticalTemperature.value();
+        obj["Pc"] = m_data.criticalPressure.value();
+        obj["Omega"] = m_data.acentricFactor.value();
 
-        m_data.equationOfState.setIdealGasCpFunction([&](double temperature) { return m_data.idealGasCpCorrelation.evaluateCp(temperature); });
-        m_data.equationOfState.setIdealGasCpIntegralFunction([&](double temperature) { return m_data.idealGasCpCorrelation.integralOfCp(temperature); });
-        m_data.equationOfState.setIdealGasCpOverTIntegralFunction([&](double temperature) { return m_data.idealGasCpCorrelation.integralOfCpOverT(temperature); });
+        m_data.equationOfState.setProperties(boost::json::serialize(obj));
+        m_data.equationOfState.setIdealGasCpFunction([&](double temperature) { return m_data.idealGasCpCorrelation(temperature); });
     }
 
     // ===== Copy constructor

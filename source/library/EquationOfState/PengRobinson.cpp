@@ -43,10 +43,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "PengRobinson.hpp"
 #include <PCGlobals.hpp>
-#include <Utilities/Calculus.hpp>
+//#include <Utilities/Calculus.hpp>
 #include <Utilities/RootFinding.hpp>
 #include <library/PCPropsException.hpp>
 #include <library/VaporPressure/AmbroseWalton.hpp>
+
+#include <external/boost/json.hpp>
 
 using PCProps::VaporPressure::AmbroseWalton;
 
@@ -72,8 +74,8 @@ namespace PCProps::EquationOfState
 
         // ===== User-supplied correlations
         std::function<double(double)> m_idealGasCpFunction {};
-        std::function<double(double)> m_idealGasCpIntegralFunction {};
-        std::function<double(double)> m_idealGasCpOverTemperatureIntegralFunction {};
+//        std::function<double(double)> m_idealGasCpIntegralFunction {};
+//        std::function<double(double)> m_idealGasCpOverTemperatureIntegralFunction {};
 
         /**
          * @brief Compute the 'a' coefficient for the Peng-robinson EOS.
@@ -207,13 +209,8 @@ namespace PCProps::EquationOfState
         inline double idealGasEnthalpy(double temperature) const
         {
             using PCProps::Globals::STANDARD_T;
-
-            if (!m_idealGasCpIntegralFunction) throw PCPropsException("Ideal gas Cp integral not defined for Peng-Robinson.");
-            return (m_idealGasCpIntegralFunction(temperature) - m_idealGasCpIntegralFunction(STANDARD_T));
-
-            // ===== The following is a backup for testing that the supplied integral expressions are correct
-            //            using PCProps::Numerics::integrate;
-            //            return integrate(m_idealGasCpFunction, PCProps::Globals::STANDARD_T, temperature);
+            using PCProps::Numerics::integrate;
+            return integrate(m_idealGasCpFunction, PCProps::Globals::STANDARD_T, temperature);
         }
 
         /**
@@ -249,9 +246,8 @@ namespace PCProps::EquationOfState
             using PCProps::Globals::R_CONST;
             using PCProps::Globals::STANDARD_P;
             using PCProps::Globals::STANDARD_T;
-
-            if (!m_idealGasCpOverTemperatureIntegralFunction) throw PCPropsException("Ideal gas Cp/T integral not defined for Peng-Robinson.");
-            return (m_idealGasCpOverTemperatureIntegralFunction(t) - m_idealGasCpOverTemperatureIntegralFunction(STANDARD_T)) - R_CONST * log(p / STANDARD_P);
+            using PCProps::Numerics::integrate;
+            return integrate([&](double temp) { return m_idealGasCpFunction(temp) / temp; }, PCProps::Globals::STANDARD_T, t) - R_CONST * log(p / STANDARD_P);
         }
 
         /**
@@ -316,24 +312,6 @@ namespace PCProps::EquationOfState
         void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
         {
             m_idealGasCpFunction = idealGasCpFunction;
-        }
-
-        /**
-         * @brief
-         * @param idealGasCpIntegralFunction
-         */
-        void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction)
-        {
-            m_idealGasCpIntegralFunction = idealGasCpIntegralFunction;
-        }
-
-        /**
-         * @brief
-         * @param idealGasOverTIntegralFunction
-         */
-        void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction)
-        {
-            m_idealGasCpOverTemperatureIntegralFunction = idealGasOverTIntegralFunction;
         }
 
         /**
@@ -564,27 +542,19 @@ namespace PCProps::EquationOfState
     PengRobinson& PengRobinson::operator=(PengRobinson&& other) noexcept = default;
 
     // ===== Set critical properties for EOS
-    void PengRobinson::setProperties(double criticalTemperature, double criticalPressure, double acentricFactor)
-    {
-        m_impl->setProperties(criticalTemperature, criticalPressure, acentricFactor);
+    void PengRobinson::setProperties(const std::string& jsonString) {
+        auto obj = boost::json::parse(jsonString).as_object();
+        double tc = obj["Tc"].as_double();
+        double pc = obj["Pc"].as_double();
+        double omega = obj["Omega"].as_double();
+
+        m_impl->setProperties(tc, pc, omega);
     }
 
     // ===== Set the IG Cp function
     void PengRobinson::setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
     {
         m_impl->setIdealGasCpFunction(idealGasCpFunction);
-    }
-
-    // ===== Set the IG Cp integral function
-    void PengRobinson::setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction)
-    {
-        m_impl->setIdealGasCpIntegralFunction(idealGasCpIntegralFunction);
-    }
-
-    // ===== Set the IG CP/T integral function
-    void PengRobinson::setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction)
-    {
-        m_impl->setIdealGasCpOverTIntegralFunction(idealGasOverTIntegralFunction);
     }
 
     // ===== P,T Flash

@@ -7,31 +7,40 @@
 
 #include <cmath>
 #include <limits>
+#include <utility>
+#include <functional>
 
 namespace PCProps::Numerics
 {
-    double integrate(const std::function<double(double)>& func, double x1, double x2)
+    inline double integrate(const std::function<double(double)>& func, double x1, double x2, double precision = 1E-6)
     {
         using std::abs;
         using std::min;
-        auto trapez = [&](double first, double second) -> double {
-            auto val1 = func(first);
-            auto val2 = func(second);
+        using std::pow;
+        using Point = std::pair<double, double>;
 
-            auto area1 = (second - first) * val1;
-            auto area2 = (second - first) * val2;
+        // ===== Internal recursive lambda.
+        // ===== If the precision is reached, the segment integral (area) is returned. Otherwise, the function is called on two sub-segments.
+        std::function<double(const Point&, const Point&, const Point&)> calcSegmentIntegral = [&] (const Point& lower, const Point& upper, const Point& mid)
+        {
+            if (abs(func(mid.first) - mid.second) / func(mid.first) > (precision == 0.0 ? 1E-6 : precision)) {
+                auto real_mid = std::make_pair(mid.first, func(mid.first));
+                return
+                    calcSegmentIntegral(lower, real_mid, std::make_pair((lower.first + real_mid.first) / 2, (lower.second + real_mid.second) / 2)) +
+                    calcSegmentIntegral(real_mid, upper, std::make_pair((real_mid.first + upper.first) / 2, (real_mid.second + upper.second) / 2));
+            }
 
-            auto diff = abs(area1 - area2);
-
-            return min(area1, area2) + diff / 2.0;
+            return 0.5 * (upper.first - lower.first) * (lower.second + upper.second);
         };
 
-        auto diff      = x2 - x1;
-        auto intervals = 100;
-        auto result    = 0.0;
-
-        for (int i = 0; i < intervals; ++i) {
-            result += trapez(x1 + i * (diff / intervals), x1 + (i + 1) * (diff / intervals));
+        // ===== Ensure that the function is subdivided to at least 10 segments.
+        auto step = (x2 - x1) / 10;
+        double result = 0.0;
+        for (int i = 0; i < 10; ++i) {
+            auto lower = std::make_pair(x1 + i * step, func(x1 + i * step));
+            auto upper = std::make_pair(x1 + (i + 1) * step, func(x1 + (i + 1) * step));
+            auto mid   = std::make_pair((lower.first + upper.first) / 2, (lower.second + upper.second) / 2);
+            result += calcSegmentIntegral(lower, upper, mid);
         }
 
         return result;

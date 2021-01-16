@@ -57,14 +57,6 @@ namespace PCProps::HeatCapacity
         PPDSLiquid& operator=(PPDSLiquid&& other) noexcept;
 
         double operator()(double temperature) const;
-
-        double evaluateCp(double temperature) const;
-
-        double derivativeOfCp(double temperature) const;
-
-        double integralOfCp(double temperature) const;
-
-        double integralOfCpOverT(double temperature) const;
     };
 }    // namespace PCProps::HeatCapacity
 

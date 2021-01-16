@@ -26,34 +26,7 @@ namespace PCProps::HeatCapacity
 
     double Polynomial::operator()(double temperature) const
     {
-        return evaluateCp(temperature);
-    }
-
-    double Polynomial::evaluateCp(double temperature) const
-    {
         using std::pow;
         return m_A + m_B * temperature + m_C * pow(temperature, 2) + m_D * pow(temperature, 3) + m_E * pow(temperature, 4) + m_F * pow(temperature, 5) + m_G * pow(temperature, 6);
     }
-
-    double Polynomial::derivativeOfCp(double temperature) const
-    {
-        using std::pow;
-        return m_B + 2 * m_C * temperature + 3 * m_D * pow(temperature, 2) + 4 * m_E * pow(temperature, 3) + 5 * m_F * pow(temperature, 4) + 6 * m_G * pow(temperature, 5);
-    }
-
-    double Polynomial::integralOfCp(double temperature) const
-    {
-        using std::pow;
-        return m_A * temperature + m_B * pow(temperature, 2) / 2 + m_C * pow(temperature, 3) / 3 + m_D * pow(temperature, 4) / 4 + m_E * pow(temperature, 5) / 5 +
-               m_F * pow(temperature, 6) / 6 + m_G * pow(temperature, 7) / 7;
-    }
-
-    double Polynomial::integralOfCpOverT(double temperature) const
-    {
-        using std::log;
-        using std::pow;
-        return m_A * log(temperature) + m_B * temperature + m_C * pow(temperature, 2) / 2 + m_D * pow(temperature, 3) / 3 + m_E * pow(temperature, 4) / 4 +
-               m_F * pow(temperature, 5) / 5 + m_G * pow(temperature, 6) / 6;
-    }
-
 }    // namespace PCProps::HeatCapacity

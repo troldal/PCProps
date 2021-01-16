@@ -46,7 +46,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <type_traits>
 
 #include <library/PCEquationOfState.hpp>
-#include <library/PCHeatCapacityCorrelation.hpp>
 #include <library/PCPropsData.hpp>
 #include <library/PCPropsException.hpp>
 #include <library/Utilities/NamedTypes.hpp>
@@ -79,7 +78,7 @@ namespace PCProps
         std::optional<double> dipoleMoment {};            /**< The dipole moment of the component */
 
         PCProps::PCEquationOfState            equationOfState {};
-        PCProps::PCHeatCapacityCorrelation    idealGasCpCorrelation {};
+        std::function<double(double)>         idealGasCpCorrelation {};
         std::function<double(double)>         liquidCpCorrelation {};                  /**< The liquid Cp [HOLD] as a function of temperature [K] */
         std::function<double(double)>         vaporPressureCorrelation {};             /**< The vapor pressure [Pa] as a function of temperature [K] */
         std::function<double(double)>         surfaceTensionCorrelation {};            /**< The surface tension [HOLD] as a function of temperature [K] */

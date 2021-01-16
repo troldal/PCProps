@@ -127,13 +127,10 @@ namespace PCProps
 
         /**
          * @brief
-         * @param criticalTemperature
-         * @param criticalPressure
-         * @param acentricFactor
+         * @param jsonString
          */
-        inline void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor)
-        {
-            m_equationOfState->setProperties(criticalTemperature, criticalPressure, acentricFactor);
+        inline void setProperties(const std::string& jsonString) {
+            m_equationOfState->setProperties(jsonString);
         }
 
         /**
@@ -143,24 +140,6 @@ namespace PCProps
         inline void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
         {
             m_equationOfState->setIdealGasCpFunction(idealGasCpFunction);
-        }
-
-        /**
-         * @brief
-         * @param idealGasCpIntegralFunction
-         */
-        inline void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction)
-        {
-            m_equationOfState->setIdealGasCpIntegralFunction(idealGasCpIntegralFunction);
-        }
-
-        /**
-         * @brief
-         * @param idealGasOverTIntegralFunction
-         */
-        inline void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction)
-        {
-            m_equationOfState->setIdealGasCpOverTIntegralFunction(idealGasOverTIntegralFunction);
         }
 
         /**
@@ -358,29 +337,15 @@ namespace PCProps
 
             /**
              * @brief
-             * @param criticalTemperature
-             * @param criticalPressure
-             * @param acentricFactor
+             * @param jsonString
              */
-            inline virtual void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor) = 0;
+            inline virtual void setProperties(const std::string& jsonString) = 0;
 
             /**
              * @brief
              * @param idealGasCpFunction
              */
             inline virtual void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction) = 0;
-
-            /**
-             * @brief
-             * @param idealGasCpIntegralFunction
-             */
-            inline virtual void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction) = 0;
-
-            /**
-             * @brief
-             * @param idealGasOverTIntegralFunction
-             */
-            inline virtual void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction) = 0;
         };
 
         /**
@@ -525,13 +490,10 @@ namespace PCProps
 
             /**
              * @brief
-             * @param criticalTemperature
-             * @param criticalPressure
-             * @param acentricFactor
+             * @param jsonString
              */
-            inline void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor) override
-            {
-                EOSType.setProperties(criticalTemperature, criticalPressure, acentricFactor);
+            inline void setProperties(const std::string& jsonString) override {
+                EOSType.setProperties(jsonString);
             }
 
             /**
@@ -541,24 +503,6 @@ namespace PCProps
             inline void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction) override
             {
                 EOSType.setIdealGasCpFunction(idealGasCpFunction);
-            }
-
-            /**
-             * @brief
-             * @param idealGasCpIntegralFunction
-             */
-            inline void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction) override
-            {
-                EOSType.setIdealGasCpIntegralFunction(idealGasCpIntegralFunction);
-            }
-
-            /**
-             * @brief
-             * @param idealGasOverTIntegralFunction
-             */
-            inline void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction) override
-            {
-                EOSType.setIdealGasCpOverTIntegralFunction(idealGasOverTIntegralFunction);
             }
 
         private:

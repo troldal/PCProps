@@ -83,34 +83,6 @@ namespace PCProps::HeatCapacity
          * @return
          */
         double operator()(double temperature);
-
-        /**
-         * @brief
-         * @param temperature
-         * @return
-         */
-        double evaluateCp(double temperature) const;
-
-        /**
-         * @brief
-         * @param temperature
-         * @return
-         */
-        double derivativeOfCp(double temperature) const;
-
-        /**
-         * @brief
-         * @param temperature
-         * @return
-         */
-        double integralOfCp(double temperature) const;
-
-        /**
-         * @brief
-         * @param temperature
-         * @return
-         */
-        double integralOfCpOverT(double temperature) const;
     };
 
 }    // namespace PCProps::HeatCapacity

@@ -24,8 +24,7 @@ TEST_CASE("PengRobinson Test")
     auto propane = PengRobinson(tc, pc, omega);
 
     auto cp = AlyLee(AlyLee::CreateFromDIPPR { 0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6 });
-    propane.setIdealGasCpIntegralFunction([&](double t){return cp.integralOfCp(t);});
-    propane.setIdealGasCpOverTIntegralFunction([&](double t){return cp.integralOfCpOverT(t);});
+    propane.setIdealGasCpFunction(cp);
 
     SECTION("PT Flash of propane @ 273.15 K and 1 bar")
     {

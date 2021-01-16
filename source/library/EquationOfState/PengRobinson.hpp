@@ -99,35 +99,15 @@ namespace PCProps::EquationOfState
 
         /**
          * @brief
-         * @param criticalTemperature
-         * @param criticalPressure
-         * @param acentricFactor
+         * @param jsonString
          */
-        void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor);
+        void setProperties(const std::string& jsonString);
 
         /**
          * @brief
          * @param idealGasCpFunction
          */
         void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction);
-
-        /**
-         * @brief
-         * @param idealGasCpDerivativeFunction
-         */
-        void setIdealGasCpDerivativeFunction(const std::function<double(double)>& idealGasCpDerivativeFunction);
-
-        /**
-         * @brief
-         * @param idealGasCpIntegralFunction
-         */
-        void setIdealGasCpIntegralFunction(const std::function<double(double)>& idealGasCpIntegralFunction);
-
-        /**
-         * @brief
-         * @param idealGasOverTIntegralFunction
-         */
-        void setIdealGasCpOverTIntegralFunction(const std::function<double(double)>& idealGasOverTIntegralFunction);
 
         // =====================================================================
         // FLASH ALGORITHMS
