@@ -42,8 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <library/PCPropsException.hpp>
 
-#include <external/boost/json/src.hpp>
-#include <external/boost/json.hpp>
+#include <external/json/json.hpp>
 
 namespace
 {
@@ -148,13 +147,12 @@ namespace PCProps
         if (!m_data.equationOfState) throw PCPropsException("Error: Invalid EOS object!");
         if (!m_data.idealGasCpCorrelation) throw PCPropsException("Error: Invalid Ideal Gas Cp object!");
 
-//        m_data.equationOfState.setProperties(m_data.criticalTemperature.value(), m_data.criticalPressure.value(), m_data.acentricFactor.value());
-        boost::json::object obj;
+        nlohmann::json obj;
         obj["Tc"] = m_data.criticalTemperature.value();
         obj["Pc"] = m_data.criticalPressure.value();
         obj["Omega"] = m_data.acentricFactor.value();
 
-        m_data.equationOfState.setProperties(boost::json::serialize(obj));
+        m_data.equationOfState.setProperties(obj.dump());
         m_data.equationOfState.setIdealGasCpFunction([&](double temperature) { return m_data.idealGasCpCorrelation(temperature); });
     }
 

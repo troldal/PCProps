@@ -122,17 +122,20 @@ namespace PCProps::EquationOfState
         PCPhases flashPT(double pressure, double temperature) const;
 
         /**
-         * @brief Compute flash at specified temperature and vapor fraction.
-         * @details If the given temperature is higher than the saturation temperature, a hypothetical saturation pressure
-         * is estimated by extrapolation of the vapor pressure curve.
-         * This point will be located in the supercritical region, where there are no saturation conditions.
-         * However, in order to ensure numerical stability, calculating the (unphysical) saturation conditions are preferred.
-         * @param temperature The temperature [K]
-         * @param vaporFraction The vapor fraction [-]. Must be between 0.0 and 1.0.
+ * @brief Compute flash at specified pressure and computeEnthalpy.
+ * @param pressure The pressure [Pa]
+ * @param enthalpy The computeEnthalpy [J/mol]
+ * @return The phase data for the phase(s) resulting from the flash.
+ */
+        PCPhases flashPH(double pressure, double enthalpy) const;
+
+        /**
+         * @brief Compute flash at specified pressure and computeEntropy.
+         * @param pressure The pressure [Pa]
+         * @param entropy The computeEntropy [J/mol-K]
          * @return The phase data for the phase(s) resulting from the flash.
-         * @note If the vaporFraction = 0.0 or 1.0, or if the pressure is higher than the critical pressure, only one phase is returned.
          */
-        PCPhases flashTx(double temperature, double vaporFraction) const;
+        PCPhases flashPS(double pressure, double entropy) const;
 
         /**
          * @brief Compute flash at specified pressure and vapor fraction.
@@ -148,20 +151,17 @@ namespace PCProps::EquationOfState
         PCPhases flashPx(double pressure, double vaporFraction) const;
 
         /**
-         * @brief Compute flash at specified pressure and computeEnthalpy.
-         * @param pressure The pressure [Pa]
-         * @param enthalpy The computeEnthalpy [J/mol]
+         * @brief Compute flash at specified temperature and vapor fraction.
+         * @details If the given temperature is higher than the saturation temperature, a hypothetical saturation pressure
+         * is estimated by extrapolation of the vapor pressure curve.
+         * This point will be located in the supercritical region, where there are no saturation conditions.
+         * However, in order to ensure numerical stability, calculating the (unphysical) saturation conditions are preferred.
+         * @param temperature The temperature [K]
+         * @param vaporFraction The vapor fraction [-]. Must be between 0.0 and 1.0.
          * @return The phase data for the phase(s) resulting from the flash.
+         * @note If the vaporFraction = 0.0 or 1.0, or if the pressure is higher than the critical pressure, only one phase is returned.
          */
-        PCPhases flashPH(double pressure, double enthalpy) const;
-
-        /**
-         * @brief Compute flash at specified pressure and computeEntropy.
-         * @param pressure The pressure [Pa]
-         * @param entropy The computeEntropy [J/mol-K]
-         * @return The phase data for the phase(s) resulting from the flash.
-         */
-        PCPhases flashPS(double pressure, double entropy) const;
+        PCPhases flashTx(double temperature, double vaporFraction) const;
 
         /**
          * @brief

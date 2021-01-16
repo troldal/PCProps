@@ -38,17 +38,18 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <algorithm>
 #include <cmath>
 #include <limits>
-#include <vector>
 #include <tuple>
+#include <vector>
 
 #include "PengRobinson.hpp"
 #include <PCGlobals.hpp>
-//#include <Utilities/Calculus.hpp>
-#include <Utilities/RootFinding.hpp>
 #include <library/PCPropsException.hpp>
 #include <library/VaporPressure/AmbroseWalton.hpp>
 
-#include <external/boost/json.hpp>
+#include <external/json/json.hpp>
+#include <external/numeric/differentiation.hpp>
+#include <external/numeric/integration.hpp>
+#include <external/numeric/roots.hpp>
 
 using PCProps::VaporPressure::AmbroseWalton;
 
@@ -74,8 +75,6 @@ namespace PCProps::EquationOfState
 
         // ===== User-supplied correlations
         std::function<double(double)> m_idealGasCpFunction {};
-//        std::function<double(double)> m_idealGasCpIntegralFunction {};
-//        std::function<double(double)> m_idealGasCpOverTemperatureIntegralFunction {};
 
         /**
          * @brief Compute the 'a' coefficient for the Peng-robinson EOS.
@@ -209,7 +208,7 @@ namespace PCProps::EquationOfState
         inline double idealGasEnthalpy(double temperature) const
         {
             using PCProps::Globals::STANDARD_T;
-            using PCProps::Numerics::integrate;
+            using numeric::integrate;
             return integrate(m_idealGasCpFunction, PCProps::Globals::STANDARD_T, temperature);
         }
 
@@ -246,7 +245,7 @@ namespace PCProps::EquationOfState
             using PCProps::Globals::R_CONST;
             using PCProps::Globals::STANDARD_P;
             using PCProps::Globals::STANDARD_T;
-            using PCProps::Numerics::integrate;
+            using numeric::integrate;
             return integrate([&](double temp) { return m_idealGasCpFunction(temp) / temp; }, PCProps::Globals::STANDARD_T, t) - R_CONST * log(p / STANDARD_P);
         }
 
@@ -382,7 +381,7 @@ namespace PCProps::EquationOfState
             };
 
             auto guess  = AmbroseWalton(criticalTemperature(), criticalPressure(), acentricFactor())(temperature);
-            auto result = PCProps::Numerics::newton(f, min(guess, criticalPressure() * 0.99), 1E-6, 100);
+            auto result = numeric::newton(f, min(guess, criticalPressure() * 0.99), 1E-6, 100);
 
             return (std::isnan(result) || result <= 0.0 ? guess : result);
         }
@@ -409,8 +408,8 @@ namespace PCProps::EquationOfState
             };
 
             auto aw     = AmbroseWalton(criticalTemperature(), criticalPressure(), acentricFactor());
-            auto guess  = PCProps::Numerics::newton([&](double t) { return aw(t) - pressure; }, criticalTemperature() - sqrt(std::numeric_limits<double>::epsilon()));
-            auto result = PCProps::Numerics::newton(f, guess, 1E-6, 100);
+            auto guess  = numeric::newton([&](double t) { return aw(t) - pressure; }, criticalTemperature() - sqrt(std::numeric_limits<double>::epsilon()));
+            auto result = numeric::newton(f, guess, 1E-6, 100);
             return (std::isnan(result) || result <= 0.0 ? guess : result);
         }
 
@@ -543,10 +542,11 @@ namespace PCProps::EquationOfState
 
     // ===== Set critical properties for EOS
     void PengRobinson::setProperties(const std::string& jsonString) {
-        auto obj = boost::json::parse(jsonString).as_object();
-        double tc = obj["Tc"].as_double();
-        double pc = obj["Pc"].as_double();
-        double omega = obj["Omega"].as_double();
+        using nlohmann::json;
+        auto obj = json::parse(jsonString);
+        double tc = obj["Tc"];
+        double pc = obj["Pc"];
+        double omega = obj["Omega"];
 
         m_impl->setProperties(tc, pc, omega);
     }
@@ -613,7 +613,7 @@ namespace PCProps::EquationOfState
         }
 
         // ===== If the temperature > Tc, extrapolate to the hypothetical saturation conditions in the supercritical region.
-        auto slope    = PCProps::Numerics::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
+        auto slope    = numeric::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
         auto pressure = m_impl->criticalPressure() + (temperature - m_impl->criticalTemperature()) * slope;
         return flashPT(pressure, temperature);
     }
@@ -664,7 +664,7 @@ namespace PCProps::EquationOfState
         }
 
         // ===== If the pressure > Pc, extrapolate to the hypothetical saturation conditions in the supercritical region.
-        auto slope       = PCProps::Numerics::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
+        auto slope       = numeric::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
         auto temperature = m_impl->criticalTemperature() + (pressure - m_impl->criticalPressure()) / slope;
         return flashPT(pressure, temperature);
     }
@@ -683,9 +683,9 @@ namespace PCProps::EquationOfState
             };
 
             // ===== Determine the interval in which to find the root.
-            auto slope       = PCProps::Numerics::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
+            auto slope       = numeric::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
             auto guess = m_impl->criticalTemperature() + (pressure - m_impl->criticalPressure()) / slope;
-            return { flashPT(pressure, PCProps::Numerics::newton(f, guess)) };
+            return { flashPT(pressure, numeric::newton(f, guess)) };
         }
 
         // ===== First, calculate the saturation temperature at the specified pressure.
@@ -708,7 +708,7 @@ namespace PCProps::EquationOfState
                 return m_impl->computeEnthalpy(t, pressure, z) - enthalpy;
             };
 
-            return { flashPT(pressure, PCProps::Numerics::newton(f, temperature)) };
+            return { flashPT(pressure, numeric::newton(f, temperature)) };
         }
 
         // ===== If the specified enthalpy is higher than the saturated vapor entropy, the fluid is superheated vapor.
@@ -721,7 +721,7 @@ namespace PCProps::EquationOfState
             };
 
             // ===== Determine the interval in which to find the root.
-            return { flashPT(pressure, PCProps::Numerics::newton(f, temperature)) };
+            return { flashPT(pressure, numeric::newton(f, temperature)) };
         }
 
         // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.
@@ -751,9 +751,9 @@ namespace PCProps::EquationOfState
             };
 
             // ===== Determine the interval in which to find the root.
-            auto slope       = PCProps::Numerics::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
+            auto slope       = numeric::diff_backward([&](double t) { return m_impl->computeSaturationPressure(t); }, m_impl->criticalTemperature());
             auto guess = m_impl->criticalTemperature() + (pressure - m_impl->criticalPressure()) / slope;
-            return { flashPT(pressure, PCProps::Numerics::newton(f, guess)) };
+            return { flashPT(pressure, numeric::newton(f, guess)) };
         }
 
         // ===== First, calculate the saturation temperature at the specified pressure.
@@ -776,7 +776,7 @@ namespace PCProps::EquationOfState
                 return m_impl->computeEntropy(t, pressure, z) - entropy;
             };
 
-            return { flashPT(pressure, PCProps::Numerics::newton(f, temperature)) };
+            return { flashPT(pressure, numeric::newton(f, temperature)) };
         }
 
         // ===== If the specified entropy is higher than the saturated vapor entropy, the fluid is superheated vapor.
@@ -789,7 +789,7 @@ namespace PCProps::EquationOfState
             };
 
             // ===== Determine the interval in which to find the root.
-            return { flashPT(pressure, PCProps::Numerics::newton(f, temperature)) };
+            return { flashPT(pressure, numeric::newton(f, temperature)) };
         }
 
         // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.

@@ -1,26 +1,28 @@
 //
-// Created by Kenneth Balslev on 29/12/2020.
+// Created by Kenneth Balslev on 16/01/2021.
 //
 
-#ifndef PCPROPS_ROOTFINDING_HPP
-#define PCPROPS_ROOTFINDING_HPP
+#ifndef PCPROPS_ROOTS_HPP
+#define PCPROPS_ROOTS_HPP
 
-#include <algorithm>
-#include <array>
-#include <cmath>
 #include <functional>
-#include <iostream>
 
-#include "Calculus.hpp"
+namespace numeric {
 
-namespace PCProps::Numerics
-{
-    double newton(const std::function<double(double)>& func, double x, double eps = 1E-6, int maxiter = 10)
+    /**
+     * @brief
+     * @param func
+     * @param x
+     * @param eps
+     * @param maxiter
+     * @return
+     */
+    inline double newton(const std::function<double(double)>& func, double x, double eps = 1E-6, int maxiter = 20)
     {
         using std::abs;
         int counter = 0;
         while (true) {
-            double x1 = x - (func(x) / diff_central(func, x));
+            double x1 = x - (func(x) / numeric::diff_central(func, x));
             if (abs(x - x1) < eps) return x1;
             if (counter > maxiter) return static_cast<double>(NAN);
             x = x1;
@@ -28,7 +30,16 @@ namespace PCProps::Numerics
         }
     }
 
-    double ridders(const std::function<double(double)>& objective, double x1, double x2, double eps = 1.0E-6, double max_iter = 100)
+    /**
+     * @brief
+     * @param objective
+     * @param x1
+     * @param x2
+     * @param eps
+     * @param max_iter
+     * @return
+     */
+    inline double ridders(const std::function<double(double)>& objective, double x1, double x2, double eps = 1.0E-6, double max_iter = 100)
     {
         using std::abs;
         using std::pow;
@@ -47,7 +58,7 @@ namespace PCProps::Numerics
             sign      = ((objective(values[0]) - objective(values[1])) < 0.0 ? -1 : 1);
             values[3] =
                 values[2] + (values[2] - values[0]) * ((sign * objective(values[2])) /
-                                                       sqrt(pow(objective(values[2]), 2) - objective(values[0]) * objective(values[1])));
+                    sqrt(pow(objective(values[2]), 2) - objective(values[0]) * objective(values[1])));
 
             if (abs(objective(values[3])) < eps) break;
 
@@ -63,6 +74,6 @@ namespace PCProps::Numerics
         return values[3];
     }
 
-}    // namespace PCProps::Numerics
+} // namespace numeric
 
-#endif    // PCPROPS_ROOTFINDING_HPP
+#endif    // PCPROPS_ROOTS_HPP
