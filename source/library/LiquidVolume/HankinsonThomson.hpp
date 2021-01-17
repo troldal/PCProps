@@ -38,6 +38,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef PCPROPS_HANKINSONTHOMSON_HPP
 #define PCPROPS_HANKINSONTHOMSON_HPP
 
+#include <cmath>
+
 namespace PCProps::LiquidVolume
 {
     /**
@@ -81,18 +83,7 @@ namespace PCProps::LiquidVolume
         double m_characteristicVolume = 0.0;
         double m_acentricFactor       = 0.0;
 
-
     public:
-        /**
-         * @brief Constructor, taking critical temperature [K], characteristic volume [m3/mol] and SRK acentric factor [-]
-         * @details This constructor is private. To create an SLVHankinsonThomson object, use one of the static factory functions.
-         * @param criticalTemperature The critical temperature [K]
-         * @param characteristicVolume The characteristic volume [m3/mol]
-         * @param acentricFactor The SRK acentric factor [-]
-         * @note If the characteristic volume and/or the SRK acentric factor is not available, the critical volume and
-         * the true acentric factor can be used with little loss of accuracy.
-         */
-        HankinsonThomson(double criticalTemperature, double characteristicVolume, double acentricFactor);
 
         /**
          * @brief An enum class enumerating the different fluid types available when estimating the characteristic volume.
@@ -110,48 +101,30 @@ namespace PCProps::LiquidVolume
         };
 
         /**
-         * @brief Copy constructor.
+         * @brief
          */
-        HankinsonThomson(const HankinsonThomson& other);
+        struct CreateFromEstimatedProperties {
+
+            double criticalTemperature {};
+            double criticalPressure {};
+            double acentricFactor {};
+            HankinsonThomson::FluidType type = FluidType::Hydrocarbon;
+        };
 
         /**
-         * @brief Move constructor
-         */
-        HankinsonThomson(HankinsonThomson&& other) noexcept;
-
-        /**
-         * @brief Destructor
-         */
-        ~HankinsonThomson();
-
-        /**
-         * @brief Copy assignment operator.
-         */
-        HankinsonThomson& operator=(const HankinsonThomson& other);
-
-        /**
-         * @brief Move assignment operator.
-         */
-        HankinsonThomson& operator=(HankinsonThomson&& other) noexcept;
-
-        /**
-         * @brief Function call operator, taking temperature [K] as an argument and returns the liquid molar volume [m3/mol]
-         * @param temperature The temperature [K]
-         * @return The saturated liquid molar volume [m3/mol]
-         */
-        double operator()(double temperature) const;
-
-        /**
-         * @brief Static factory function, creating an SLVHankinsonThomson object from the critical temperature [K],
-         * characteristic volume [m3/mol] and SRK acentric factor [-]
+         * @brief Constructor, taking critical temperature [K], characteristic volume [m3/mol] and SRK acentric factor [-]
+         * @details This constructor is private. To create an SLVHankinsonThomson object, use one of the static factory functions.
          * @param criticalTemperature The critical temperature [K]
          * @param characteristicVolume The characteristic volume [m3/mol]
          * @param acentricFactor The SRK acentric factor [-]
          * @note If the characteristic volume and/or the SRK acentric factor is not available, the critical volume and
          * the true acentric factor can be used with little loss of accuracy.
-         * @return An SLVHankinsonThomson created from the input parameters.
          */
-        static HankinsonThomson createFromCharacteristicVolume(double criticalTemperature, double characteristicVolume, double acentricFactor);
+        HankinsonThomson(double criticalTemperature, double characteristicVolume, double acentricFactor)
+            : m_criticalTemperature(criticalTemperature),
+              m_characteristicVolume(characteristicVolume),
+              m_acentricFactor(acentricFactor)
+        {}
 
         /**
          * @brief Static factory function, creating an SLVHankinsonThomson object from the critical temperature [K],
@@ -164,8 +137,111 @@ namespace PCProps::LiquidVolume
          * @note If the SRK acentric factor is not available, the true acentric factor can be used with little loss of accuracy.
          * @return An SLVHankinsonThomson created from critical properties and en estimated characteristic volume.
          */
-        static HankinsonThomson
-            createFromEstimatedProperties(double criticalTemperature, double criticalPressure, double acentricFactor, HankinsonThomson::FluidType type = FluidType::Hydrocarbon);
+        explicit HankinsonThomson(const CreateFromEstimatedProperties& coeff) {
+            using std::pow;
+            double a = 0.2851686;
+            double b = -0.06379110;
+            double c = 0.01379173;
+
+            switch (coeff.type) {
+                case FluidType::Paraffin:
+                    a = 0.2905331;
+                    b = -0.0857958;
+                    c = 0.02276965;
+                    break;
+
+                case FluidType::Olefin:
+                    a = 0.3070619;
+                    b = -0.2368581;
+                    c = 0.2834693;
+                    break;
+
+                case FluidType::Cycloparaffin:
+                    a = 0.6564296;
+                    b = -3.391715;
+                    c = 7.442388;
+                    break;
+
+                case FluidType::Aromatic:
+                    a = 0.2717636;
+                    b = -0.05759377;
+                    c = 0.05527757;
+                    break;
+
+                case FluidType::SulfurCompound:
+                    a = 0.3053426;
+                    b = -0.1703247;
+                    c = 0.1753972;
+                    break;
+
+                case FluidType::FluoroCarbon:
+                    a = 0.5218098;
+                    b = -2.349616;
+                    c = 5.407302;
+                    break;
+
+                case FluidType::CryogenicLiquid:
+                    a = 0.2960998;
+                    b = -0.05468500;
+                    c = -0.1901563;
+                    break;
+
+                case FluidType::CondensableGas:
+                    a = 0.2828447;
+                    b = -0.1183987;
+                    c = 0.1050570;
+                    break;
+
+                default:    // ===== FluidType::Hydrocarbons
+                    break;
+            }
+
+            double V_char = (8.31446261815324 * coeff.criticalTemperature / coeff.criticalPressure) * (a + b * coeff.acentricFactor + c * pow(coeff.acentricFactor, 2));
+
+            *this = HankinsonThomson(coeff.criticalTemperature, V_char, coeff.acentricFactor);
+        }
+
+        /**
+         * @brief Copy constructor.
+         */
+        HankinsonThomson(const HankinsonThomson& other) = default;
+
+        /**
+         * @brief Move constructor
+         */
+        HankinsonThomson(HankinsonThomson&& other) noexcept = default;
+
+        /**
+         * @brief Destructor
+         */
+        ~HankinsonThomson() = default;
+
+        /**
+         * @brief Copy assignment operator.
+         */
+        HankinsonThomson& operator=(const HankinsonThomson& other) = default;
+
+        /**
+         * @brief Move assignment operator.
+         */
+        HankinsonThomson& operator=(HankinsonThomson&& other) noexcept = default;
+
+        /**
+         * @brief Function call operator, taking temperature [K] as an argument and returns the liquid molar volume [m3/mol]
+         * @param temperature The temperature [K]
+         * @return The saturated liquid molar volume [m3/mol]
+         */
+        double operator()(double temperature) const
+        {
+            using std::pow;
+            double tr = temperature / m_criticalTemperature;
+
+            double V_0 = 1 - 1.528160 * pow(1 - tr, 1.0 / 3.0) + 1.439070 * pow(1 - tr, 2.0 / 3.0) - 0.814460 * (1 - tr) + 0.190454 * pow(1 - tr, 4.0 / 3.0);
+
+            double V_Delta = (-0.296123 + 0.386914 * tr - 0.0427258 * pow(tr, 2) - 0.0480645 * pow(tr, 3)) / (tr - 1.00001);
+
+            return m_characteristicVolume * V_0 * (1 - m_acentricFactor * V_Delta);
+        }
     };
 
 }    // namespace PCProps::LiquidVolume

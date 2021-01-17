@@ -1,10 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include <library/Utilities/Calculus.hpp>
 #include <external/numeric/integration.hpp>
-
-using namespace PCProps::Numerics;
 
 int main()
 {

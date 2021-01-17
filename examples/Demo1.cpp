@@ -28,10 +28,10 @@ using PCProps::Viscosity::Lucas;
 using PCProps::Viscosity::DIPPR102;
 using PCProps::Viscosity::KirchhoffExtended;
 
-using PCProps::Utilities::Enthalpy;
-using PCProps::Utilities::Entropy;
-using PCProps::Utilities::Pressure;
-using PCProps::Utilities::Temperature;
+using PCProps::Enthalpy;
+using PCProps::Entropy;
+using PCProps::Pressure;
+using PCProps::Temperature;
 
 using namespace PCProps;
 

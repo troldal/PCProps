@@ -45,12 +45,6 @@ TEST_CASE("VPRiedel Test")
     SECTION("Default Construction")
     {
         psat        = PCProps::VaporPressure::Riedel {};
-        auto coeffs = psat.coefficients();
-
-        REQUIRE(coeffs[0] == Approx(0.0));
-        REQUIRE(coeffs[1] == Approx(0.0));
-        REQUIRE(coeffs[2] == Approx(0.0));
-        REQUIRE(coeffs[3] == Approx(0.0));
 
         // This checks for NaN. If the value is NaN, any comparison (even with itself) will return false.
         REQUIRE(psat(300.0) != psat(300.0));
@@ -58,12 +52,6 @@ TEST_CASE("VPRiedel Test")
 
     SECTION("Object Construction")
     {
-        auto coeffs = psat.coefficients();
-
-        REQUIRE(coeffs[0] == Approx(9.5814).epsilon(0.001));
-        REQUIRE(coeffs[1] == Approx(-9.8552).epsilon(0.001));
-        REQUIRE(coeffs[2] == Approx(-4.4729).epsilon(0.001));
-        REQUIRE(coeffs[3] == Approx(0.2738).epsilon(0.001));
 
         REQUIRE(psat(300) == Approx(0.01755E5).epsilon(0.001));
         REQUIRE(psat(350) == Approx(0.172E5).epsilon(0.001));
@@ -74,11 +62,6 @@ TEST_CASE("VPRiedel Test")
         REQUIRE(psat(600) == Approx(31.20E5).epsilon(0.001));
 
         psat = PCProps::VaporPressure::Riedel { 632.35, 45.1911E5, 9.5814, -9.8552, -4.4729, 0.2738 };
-
-        REQUIRE(coeffs[0] == Approx(9.5814).epsilon(0.001));
-        REQUIRE(coeffs[1] == Approx(-9.8552).epsilon(0.001));
-        REQUIRE(coeffs[2] == Approx(-4.4729).epsilon(0.001));
-        REQUIRE(coeffs[3] == Approx(0.2738).epsilon(0.001));
 
         REQUIRE(psat(300) == Approx(0.01755E5).epsilon(0.001));
         REQUIRE(psat(350) == Approx(0.172E5).epsilon(0.001));

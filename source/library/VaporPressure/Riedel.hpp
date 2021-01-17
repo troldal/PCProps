@@ -39,6 +39,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define PCPROPS_RIEDEL_HPP
 
 #include <array>
+#include <cmath>
 #include <string>
 
 namespace PCProps::VaporPressure
@@ -60,7 +61,7 @@ namespace PCProps::VaporPressure
          * @brief Constructor, default, with no parameters. Calling the operator() on a default constructed object
          * will yield NaN as the result. To turn it into a valid object, use the move or copy assignment operator.
          */
-        Riedel();
+        Riedel() = default;
 
         /**
          * @brief Constructor, taking the normal boiling temperature [K], the critical temperature [K]
@@ -70,7 +71,36 @@ namespace PCProps::VaporPressure
          * @param criticalPressure The critical pressure of the fluid [Pa].
          * @param type The type of component; can be acid, alcohol or general organic compound.
          */
-        Riedel(double boilingTemperature, double criticalTemperature, double criticalPressure, VPRiedelType type = VPRiedelType::Organic);
+        Riedel(double boilingTemperature, double criticalTemperature, double criticalPressure, VPRiedelType type = VPRiedelType::Organic)
+            : m_criticalTemperature { criticalTemperature },
+              m_criticalPressure { criticalPressure }
+        {
+            double tbr = boilingTemperature / criticalTemperature;
+            double h = tbr * std::log(criticalPressure/101325.0)/(1.0 - tbr);
+            double K = [&]() {
+                   switch (type) {
+                       case VPRiedelType::Organic:
+                           return 0.0838;
+
+                       case VPRiedelType::Acid:
+                           return -0.12 + 0.025 * h;
+
+                       case VPRiedelType::Alcohol:
+                           return 0.373 - 0.030 * h;
+
+                       default:
+                           return 0.0;
+                   }
+            }();
+
+            double psi     = -35.0 + 36.0 / tbr + 42.0 * std::log(tbr) - std::pow(tbr, 6);
+            double alpha_c = (3.758 * K * psi + std::log(criticalPressure / 101325.0)) / (K * psi - std::log(tbr));
+
+            m_coefficients[3] = K * (alpha_c - 3.758);
+            m_coefficients[2] = alpha_c - 42.0 * m_coefficients[3];
+            m_coefficients[1] = -36.0 * m_coefficients[3];
+            m_coefficients[0] = 35.0 * m_coefficients[3];
+        }
 
         /**
          * @brief
@@ -81,32 +111,36 @@ namespace PCProps::VaporPressure
          * @param coeffC
          * @param coeffD
          */
-        Riedel(double criticalTemperature, double criticalPressure, double coeffA, double coeffB, double coeffC, double coeffD);
+        Riedel(double criticalTemperature, double criticalPressure, double coeffA, double coeffB, double coeffC, double coeffD)
+            : m_criticalTemperature { criticalTemperature },
+              m_criticalPressure { criticalPressure },
+              m_coefficients { coeffA, coeffB, coeffC, coeffD }
+        {}
 
         /**
          * @brief Destructor
          */
-        ~Riedel();
+        ~Riedel() = default;
 
         /**
          * @brief Copy constructor
          */
-        Riedel(const Riedel& other);
+        Riedel(const Riedel& other) = default;
 
         /**
          * @brief Move constructor
          */
-        Riedel(Riedel&& other) noexcept;
+        Riedel(Riedel&& other) noexcept = default;
 
         /**
          * @brief Copy assignment operator
          */
-        Riedel& operator=(const Riedel& other);
+        Riedel& operator=(const Riedel& other) = default;
 
         /**
          * @brief Move assignment operator
          */
-        Riedel& operator=(Riedel&& other) noexcept;
+        Riedel& operator=(Riedel&& other) noexcept = default;
 
         /**
          * @brief operator(), yielding the saturation pressure at the requested temperature for the fluid.
@@ -115,26 +149,13 @@ namespace PCProps::VaporPressure
          * @warning If the object is default constructed only, operator() will yield NaN as the result.
          * To make the object valid, call the reset member function.
          */
-        double operator()(double temperature) const;
-
-        /**
-         * @brief Get the critical temperature used for the vapor pressure estimation.
-         * @return The critical temperature [K]
-         */
-        double criticalTemperature() const;
-
-        /**
-         * @brief Get the critical pressure used for the vapor pressure estimation.
-         * @return The critical pressure [Pa]
-         */
-        double criticalPressure() const;
-
-        /**
-         * @brief Get the Riedel equation coefficients.
-         * @return A std::array with the four Riedel coefficients.
-         */
-        std::array<double, 4> coefficients() const;
-
+        double operator()(double temperature) const
+        {
+            using std::log;
+            using std::pow;
+            auto tr = temperature / m_criticalTemperature;
+            return exp(m_coefficients[0] + m_coefficients[1] / tr + m_coefficients[2] * log(tr) + m_coefficients[3] * pow(tr, 6)) * m_criticalPressure;
+        }
     };
 } // namespace PCProps::VaporPressure
 

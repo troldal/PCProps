@@ -39,6 +39,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define PCPROPS_ANTOINEEXTENDED_HPP
 
 #include <array>
+#include <cmath>
 
 namespace PCProps::VaporPressure
 {
@@ -93,7 +94,7 @@ namespace PCProps::VaporPressure
          * be modifed after object construction, a default constructed VPAntoineExt object is in itself of little use; the
          * main purpose is to serve as a placeholder for a correctly constructed object later on.
          */
-        AntoineExtended();
+        AntoineExtended() = default;
 
         /**
          * @brief Constructor, taking three or more coefficients as input.
@@ -108,44 +109,57 @@ namespace PCProps::VaporPressure
          * the equation uses natural logarithms (rather than base-10 logarithm). If coefficients exists with a different
          * basis, they will have to be converted first.
          */
-        AntoineExtended(double A, double B, double C, double D = 0.0, double E = 0.0, double F = 0.0, double G = 0.0);
+        AntoineExtended(double A, double B, double C, double D = 0.0, double E = 0.0, double F = 0.0, double G = 0.0)
+            : m_coeffA { A },
+              m_coeffB { B },
+              m_coeffC { C },
+              m_coeffD { D },
+              m_coeffE { E },
+              m_coeffF { F },
+              m_coeffG { G }
+        {}
 
         /**
          * @brief Constructor, taking a CreateFromDIPPR struct, for creating an object using DIPPR coefficients (eg. from Perry)
          * @param coefficients A CreateFromDIPPR with the DIPPR coefficients.
          */
-        AntoineExtended(const CreateFromDIPPR& coefficients);
+        explicit AntoineExtended(const CreateFromDIPPR& coefficients)
+            : AntoineExtended { coefficients.A, coefficients.B, 0.0, 0.0, coefficients.C, coefficients.D, coefficients.E }
+        {}
 
         /**
          * @brief Constructor, taking a CreateFromYaws struct, for creating an object using coefficients from Yaws handbooks.
          * @param coefficients A CreateFromYaws with the Yaws coefficients.
          */
-        AntoineExtended(const CreateFromYaws& coefficients);
+        explicit AntoineExtended(const CreateFromYaws& c)
+            : AntoineExtended(log(133.322368) + c.A * log(10), c.B * log(10), 0.0, c.D * log(10), c.C, c.E * log(10), 2)
+        {}
+
 
         /**
          * @brief Copy constructor.
          */
-        AntoineExtended(const AntoineExtended& other);
+        AntoineExtended(const AntoineExtended& other) = default;
 
         /**
          * @brief Move constructor.
          */
-        AntoineExtended(AntoineExtended&& other) noexcept;
+        AntoineExtended(AntoineExtended&& other) noexcept = default;
 
         /**
          * @brief Destructor.
          */
-        ~AntoineExtended();
+        ~AntoineExtended() = default;
 
         /**
          * @brief Copy assignment operator.
          */
-        AntoineExtended& operator=(const AntoineExtended& other);
+        AntoineExtended& operator=(const AntoineExtended& other) = default;
 
         /**
          * @brief Move assignment operator.
          */
-        AntoineExtended& operator=(AntoineExtended&& other) noexcept;
+        AntoineExtended& operator=(AntoineExtended&& other) noexcept = default;
 
         /**
          * @brief Function call operator, yielding the saturation pressure [Pa] at the requested temperature [K] for the component.
@@ -153,7 +167,13 @@ namespace PCProps::VaporPressure
          * @return The vapor pressure [Pa].
          * @warning If the object is default constructed only, operator() will yield 1.0 as the result.
          */
-        double operator()(double temperature) const;
+        double operator()(double temperature) const
+        {
+            using std::exp;
+            using std::log;
+            using std::pow;
+            return exp(m_coeffA + m_coeffB / (temperature + m_coeffC) + m_coeffD * temperature + m_coeffE * log(temperature) + m_coeffF * pow(temperature, static_cast<int>(m_coeffG)));
+        }
 
     };
 

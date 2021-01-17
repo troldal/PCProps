@@ -38,6 +38,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef PCPROPS_AMBROSEWALTON_HPP
 #define PCPROPS_AMBROSEWALTON_HPP
 
+#include <cmath>
+
 namespace PCProps::VaporPressure
 {
     /**
@@ -56,7 +58,7 @@ namespace PCProps::VaporPressure
          * be modifed after object construction, a default constructed VPAmbroseWalton object is in itself of little use; the
          * main purpose is to serve as a placeholder for a correctly constructed object later on.
          */
-        AmbroseWalton();
+        AmbroseWalton() = default;
 
         /**
          * @brief Constructor, taking critical properties and acentric factor as arguments.
@@ -64,32 +66,36 @@ namespace PCProps::VaporPressure
          * @param criticalPressure The critical pressure [Pa]
          * @param acentricFactor The acentric factor [-]
          */
-        AmbroseWalton(double criticalTemperature, double criticalPressure, double acentricFactor);
+        AmbroseWalton(double criticalTemperature, double criticalPressure, double acentricFactor)
+            : m_criticalTemperature { criticalTemperature },
+              m_criticalPressure { criticalPressure },
+              m_acentricFactor { acentricFactor }
+        {}
 
         /**
          * @brief Copy constructor
          */
-        AmbroseWalton(const AmbroseWalton& other);
+        AmbroseWalton(const AmbroseWalton& other) = default;
 
         /**
          * @brief Move constructor
          */
-        AmbroseWalton(AmbroseWalton&& other) noexcept;
+        AmbroseWalton(AmbroseWalton&& other) noexcept = default;
 
         /**
          * @brief Destructor
          */
-        ~AmbroseWalton();
+        ~AmbroseWalton() = default;
 
         /**
          * @brief Copy assignment operator
          */
-        AmbroseWalton& operator=(const AmbroseWalton& other);
+        AmbroseWalton& operator=(const AmbroseWalton& other) = default;
 
         /**
          * @brief Move assignment operator
          */
-        AmbroseWalton& operator=(AmbroseWalton&& other) noexcept;
+        AmbroseWalton& operator=(AmbroseWalton&& other) noexcept = default;
 
         /**
          * @brief Function call operator, taking the temperature as an argument, and returns the vapor
@@ -98,26 +104,17 @@ namespace PCProps::VaporPressure
          * @return The vapor pressure [Pa]
          * @warning If the object is default constructed only, operator() will yield NaN as the result.
          */
-        double operator()(double temperature) const;
+        double operator()(double temperature) const
+        {
+            using std::exp;
+            using std::pow;
+            auto tau = 1 - (temperature / m_criticalTemperature);
+            auto f0  = (-5.97616 * tau + 1.29874 * pow(tau, 1.5) - 0.60394 * pow(tau, 2.5) - 1.06841 * pow(tau, 5)) / (1 - tau);
+            auto f1  = (-5.03365 * tau + 1.11505 * pow(tau, 1.5) - 5.41217 * pow(tau, 2.5) - 7.46628 * pow(tau, 5)) / (1 - tau);
+            auto f2  = (-0.64771 * tau + 2.41539 * pow(tau, 1.5) - 4.26979 * pow(tau, 2.5) + 3.25259 * pow(tau, 5)) / (1 - tau);
 
-        /**
-         * @brief Getter for the critical temperature used for the vapor pressure estimation.
-         * @return The critical temperature [K]
-         */
-        double criticalTemperature() const;
-
-        /**
-         * @brief Getter for the critical pressure used for the vapor pressure estimation.
-         * @return The critical pressure [Pa]
-         */
-        double criticalPressure() const;
-
-        /**
-         * @brief Getter for the critical pressure used for the vapor pressure estimation.
-         * @return The acentric factor [-]
-         */
-        double acentricFactor() const;
-
+            return exp(f0 + m_acentricFactor * f1 + pow(m_acentricFactor, 2) * f2) * m_criticalPressure;
+        }
     };
 } // namespace PCProps::VaporPressure
 

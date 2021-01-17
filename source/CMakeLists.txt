@@ -56,24 +56,7 @@ add_compile_definitions(BOOST_JSON_STANDALONE)
 #=======================================================================================================================
 set(PROJECT_TEMPLATE_SOURCES
         library/PCComponent.cpp
-        library/VaporPressure/Riedel.cpp
-        library/VaporPressure/AntoineExtended.cpp
-        library/VaporPressure/Wagner.cpp
-        library/VaporPressure/AmbroseWalton.cpp
-        library/VaporPressure/HoffmannFlorin.cpp
         library/ConstantData/CDJoback.cpp
-        library/LiquidVolume/Rackett.cpp
-        library/LiquidVolume/HankinsonThomson.cpp
-        library/LiquidVolume/YenWoods.cpp
-        library/LiquidVolume/Elbro.cpp
-        library/LiquidVolume/Thomson.cpp
-        library/LiquidVolume/Aalto.cpp
-        library/HeatCapacity/AlyLee.cpp
-        library/HeatCapacity/PPDSLiquid.cpp
-        library/HeatCapacity/Polynomial.cpp
-        library/Viscosity/DIPPR102.cpp
-        library/Viscosity/KirchhoffExtended.cpp
-        library/Viscosity/Lucas.cpp
         library/EquationOfState/PengRobinson.cpp
         library/UnitOps/Pipe.cpp
         )

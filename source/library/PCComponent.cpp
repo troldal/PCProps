@@ -177,7 +177,7 @@ namespace PCProps
         return m_data;
     }
 
-    PCPhases PCComponent::flash(Utilities::Pressure pressure, Utilities::Temperature temperature) const
+    PCPhases PCComponent::flash(Pressure pressure, Temperature temperature) const
     {
         using std::get;
         auto results = PCPhase(m_data.equationOfState.flashPT(pressure.get(), temperature.get())[0]);
@@ -210,7 +210,7 @@ namespace PCProps
         return { result };
     }
 
-    PCPhases PCComponent::flash(Utilities::Pressure pressure, Utilities::VaporFraction vaporFraction) const
+    PCPhases PCComponent::flash(Pressure pressure, VaporFraction vaporFraction) const
     {
         using std::get;
         PCPhases results;
@@ -227,7 +227,7 @@ namespace PCProps
         return results;
     }
 
-    PCPhases PCComponent::flash(Utilities::Temperature temperature, Utilities::VaporFraction vaporFraction) const
+    PCPhases PCComponent::flash(Temperature temperature, VaporFraction vaporFraction) const
     {
         using std::get;
         PCPhases results;
@@ -244,7 +244,7 @@ namespace PCProps
         return results;
     }
 
-    PCPhases PCComponent::flash(Utilities::Pressure pressure, Utilities::Enthalpy enthalpy) const
+    PCPhases PCComponent::flash(Pressure pressure, Enthalpy enthalpy) const
     {
         using std::get;
         PCPhases results;
@@ -261,7 +261,7 @@ namespace PCProps
         return results;
     }
 
-    PCPhases PCComponent::flash(Utilities::Pressure pressure, Utilities::Entropy entropy) const
+    PCPhases PCComponent::flash(Pressure pressure, Entropy entropy) const
     {
         using std::get;
         PCPhases results;
@@ -278,7 +278,7 @@ namespace PCProps
         return results;
     }
 
-    PCPhases PCComponent::flash(Utilities::Temperature temperature, Utilities::Volume volume) const
+    PCPhases PCComponent::flash(Temperature temperature, Volume volume) const
     {
         return PCProps::PCPhases();
     }

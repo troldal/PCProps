@@ -51,7 +51,7 @@ TEST_CASE("SLVHankinsonThomson produces correct saturated liquid volume calculat
 
     SECTION("Example using estimated properties")
     {
-        auto isobutane2 = HankinsonThomson::createFromEstimatedProperties(408.04, 3640000, 0.1825);
+        auto isobutane2 = HankinsonThomson(HankinsonThomson::CreateFromEstimatedProperties { 408.04, 3640000, 0.1825 });
 
         REQUIRE(isobutane2(310.93) == Approx(108.255E-6).epsilon(0.001));
     }

@@ -51,7 +51,7 @@ TEST_CASE("SLVRackett produces correct saturated liquid volume calculations")
 
     SECTION("Example 4-5a from Poling et. al")
     {
-        auto trifluoroethane = Rackett::createFromCriticalProperties(346.3, 37.92E5, 0.255);
+        auto trifluoroethane = Rackett(Rackett::CreateFromCriticalProperties{346.3, 37.92E5, 0.255});
 
         // ===== The example in Poling et. al errorneously gives 89.726E-6 as the result
         REQUIRE(trifluoroethane(300.0) == Approx(89.7395E-6));
@@ -59,7 +59,7 @@ TEST_CASE("SLVRackett produces correct saturated liquid volume calculations")
 
     SECTION("Example 4-5b from Poling et. al")
     {
-        auto trifluoroethane = PCProps::LiquidVolume::Rackett(346.3, 245, 75.38E-6, 0.259);
+        auto trifluoroethane = Rackett(Rackett::CreateFromReferencePointA{346.3, 245, 75.38E-6, 0.259});
 
         // ===== The example in Poling et. al errorneously gives 90.59E-6 as the result
         REQUIRE(trifluoroethane(300.0) == Approx(90.7765E-6));
@@ -67,28 +67,28 @@ TEST_CASE("SLVRackett produces correct saturated liquid volume calculations")
 
     SECTION("Example 4-5 from Poling et. al, using Yamada-Gunn")
     {
-        auto trifluoroethane = Rackett::createFromAcentricFactor(346.3, 37.92E5, 0.259);
+        auto trifluoroethane = Rackett(Rackett::CreateFromYamadaGunn {346.3, 37.92E5, 0.259});
 
         REQUIRE(trifluoroethane(300.0) == Approx(96.8963E-6));
     }
 
     SECTION("Example 4-5 from Poling et. al, using a reference point and critical compressibility")
     {
-        auto trifluoroethane = PCProps::LiquidVolume::Rackett(346.3, 245, 75.38E-6, 0.255);
+        auto trifluoroethane = Rackett(Rackett::CreateFromReferencePointB{346.3, 245, 75.38E-6, 0.255});
 
         REQUIRE(trifluoroethane(300.0) == Approx(91.4074E-6));
     }
 
     SECTION("Example 1 from Perry's")
     {
-        auto acetonitrile = Rackett::createFromCriticalProperties(545.5, 4.83E6, 0.184);
+        auto acetonitrile = Rackett(Rackett::CreateFromCriticalProperties{545.5, 4.83E6, 0.184});
 
         REQUIRE(acetonitrile(376.69) == Approx(1.0 / 19.42E3).epsilon(0.001));
     }
 
     SECTION("Example 2 from Perry's")
     {
-        auto acetonitrile = Rackett::createFromCriticalProperties(545.5, 4.83E6, 0.202);
+        auto acetonitrile = Rackett(Rackett::CreateFromCriticalProperties{545.5, 4.83E6, 0.202});
 
         // ===== This example uses Z_RA instead of the critical compressibility
         REQUIRE(acetonitrile(376.69) == Approx(1.0 / 16.577E3).epsilon(0.01));

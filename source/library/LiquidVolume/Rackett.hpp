@@ -38,6 +38,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef PCPROPS_RACKETT_HPP
 #define PCPROPS_RACKETT_HPP
 
+#include <cmath>
+
 namespace PCProps::LiquidVolume
 {
     /**
@@ -90,12 +92,42 @@ namespace PCProps::LiquidVolume
             double molecularWeight;
         };
 
+        struct CreateFromReferencePointA
+        {
+            double criticalTemperature;
+            double experimentalTemperature;
+            double experimentalVolume;
+            double acentricFactor;
+        };
+
+        struct CreateFromReferencePointB
+        {
+            double criticalTemperature;
+            double experimentalTemperature;
+            double experimentalVolume;
+            double criticalCompressibility;
+        };
+
+        struct CreateFromYamadaGunn
+        {
+            double criticalTemperature;
+            double criticalPressure;
+            double acentricFactor;
+        };
+
+        struct CreateFromCriticalProperties
+        {
+            double criticalTemperature;
+            double criticalPressure;
+            double criticalCompressibility;
+        };
+
         /**
          * @brief Constructor, default. Sets all coefficients to zero.
          * @warning Calling the function call operator on a default constructed SLVRackett object will result in
          * division by zero and return NaN.
          */
-        Rackett();
+        Rackett() = default;
 
         /**
          * @brief Constructor, taking the four Rackett coefficients as arguments.
@@ -106,72 +138,20 @@ namespace PCProps::LiquidVolume
          * @note The coefficients must be based on an temperature input in Kelvin, and a density return value
          * in m3/mol.
          */
-        Rackett(double coeffA, double coeffB, double coeffC, double coeffD);
+        Rackett(double coeffA, double coeffB, double coeffC, double coeffD)
+            : m_A { coeffA }, m_B { coeffB }, m_C { coeffC }, m_D { coeffD } {}
 
         /**
          * @brief
          * @param coefficients
          */
-        Rackett(const CreateFromDIPPR& coefficients);
+        explicit Rackett(const CreateFromDIPPR& c) : Rackett(1 / (1000 * c.A), c.B, c.C, c.D) {}
 
         /**
          * @brief
          * @param coefficients
          */
-        Rackett(const CreateFromYaws& coefficients);
-
-        /**
-         * @brief Copy constructor.
-         */
-        Rackett(const Rackett& other);
-
-        /**
-         * @brief Move constructor.
-         */
-        Rackett(Rackett&& other) noexcept;
-
-        /**
-         * @brief Destructor.
-         */
-        ~Rackett();
-
-        // ===== Manipulators ===== //
-
-        /**
-         * @brief Copy assignment operator.
-         */
-        Rackett& operator=(const Rackett& other);
-
-        /**
-         * @brief Move assignment operator.
-         */
-        Rackett& operator=(Rackett&& other) noexcept;
-
-        // ===== Accessors ===== //
-
-        /**
-         * @brief Function call operator. This function is used to calculate the saturated liquid volume [m3/mol] at a
-         * given temperature [K]
-         * @param temperature The temperature [K] at which to evaluate the saturated liquid density.
-         * @return The saturated liquid volume [m3/mol]
-         * @warning Using the function call operator on a default constructed SLVRackett object will return zero.
-         */
-        double operator()(double temperature) const;
-
-        // ===== Static Functions ===== //
-
-        /**
-         * @brief Factory function, for creating an SLVRackett object from the four Rackett coefficients. This is
-         * identical to calling the constructor.
-         * @param coeffA Rackett coefficient A.
-         * @param coeffB Rackett coefficient B.
-         * @param coeffC Rackett coefficient C.
-         * @param coeffD Rackett coefficient D.
-         * @return An SLVRackett object created from four Rackett coefficients.
-         * @note The coefficients must be based on an temperature input in Kelvin, and a molar volume return value
-         * in m3/mol.
-         */
-        static Rackett createFromCoefficients(double coeffA, double coeffB, double coeffC, double coeffD);
+        explicit Rackett(const CreateFromYaws& c) : Rackett(c.molecularWeight / (c.A * c.B * 1E6), c.B, c.Tc, c.n) {}
 
         /**
          * @brief Factory function, for creating an SLVRackett object from critical properties.
@@ -187,7 +167,9 @@ namespace PCProps::LiquidVolume
          * @param criticalCompressibility The pure component critical compressibility [-] or the Rackett compressibility, if available.
          * @return An SLVRackett object created from Rackett coefficients estimated from critical properties.
          */
-        static Rackett createFromCriticalProperties(double criticalTemperature, double criticalPressure, double criticalCompressibility);
+        explicit Rackett(const CreateFromCriticalProperties& c) {
+            *this = Rackett((8.31446261815324 * c.criticalTemperature) / c.criticalPressure, c.criticalCompressibility, c.criticalTemperature, 2.0 / 7.0);
+        }
 
         /**
          * @brief Factory function for creating an SLVRackett object using the Yamada-Gunn relation.
@@ -204,7 +186,9 @@ namespace PCProps::LiquidVolume
          * @param acentricFactor The pure component acentric factor [-]
          * @return An SLVRackett object created from Rackett coefficients estimated using the Yamada-Gunn relation.
          */
-        static Rackett createFromAcentricFactor(double criticalTemperature, double criticalPressure, double acentricFactor);
+        explicit Rackett(const CreateFromYamadaGunn& c) {
+            *this = Rackett((8.31446261815324 * c.criticalTemperature) / c.criticalPressure, (0.29056 - 0.08775 * c.acentricFactor), c.criticalTemperature, 2.0 / 7.0);
+        }
 
         /**
          * @brief Factory function for creating an SLVRackett object using a known reference point and the Yamada-Gunn relation.
@@ -223,7 +207,15 @@ namespace PCProps::LiquidVolume
          * @return An SLVRackett object created from Rackett coefficients estimated using a known reference point
          * and the Yamada-Gunn relation.
          */
-        static Rackett createFromReferencePointA(double criticalTemperature, double experimentalTemperature, double experimentalVolume, double acentricFactor);
+        explicit Rackett(const CreateFromReferencePointA& c) {
+
+            using std::pow;
+            auto k = pow(1.0 - c.experimentalTemperature / c.criticalTemperature, 2.0 / 7.0);
+            auto z = (0.29056 - 0.08775 * c.acentricFactor);
+
+            *this = Rackett(c.experimentalVolume / pow(z, 1 + k), z, c.criticalTemperature, 2.0 / 7.0);
+
+        }
 
         /**
          * @brief Factory function for creating an SLVRackett object using a known reference point and the critical compressibility.
@@ -243,7 +235,56 @@ namespace PCProps::LiquidVolume
          * @return An SLVRackett object created from Rackett coefficients estimated using a known reference point
          * and the critical compressibility.
          */
-        static Rackett createFromReferencePointB(double criticalTemperature, double experimentalTemperature, double experimentalVolume, double criticalCompressibility);
+        explicit Rackett(const CreateFromReferencePointB& c) {
+
+            using std::pow;
+            auto k = pow(1.0 - c.experimentalTemperature / c.criticalTemperature, 2.0 / 7.0);
+
+            *this = Rackett(c.experimentalVolume / pow(c.criticalCompressibility, 1 + k), c.criticalCompressibility, c.criticalTemperature, 2.0 / 7.0);
+        }
+
+        /**
+         * @brief Copy constructor.
+         */
+        Rackett(const Rackett& other) = default;
+
+        /**
+         * @brief Move constructor.
+         */
+        Rackett(Rackett&& other) noexcept = default;
+
+        /**
+         * @brief Destructor.
+         */
+        ~Rackett() = default;
+
+        // ===== Manipulators ===== //
+
+        /**
+         * @brief Copy assignment operator.
+         */
+        Rackett& operator=(const Rackett& other) = default;
+
+        /**
+         * @brief Move assignment operator.
+         */
+        Rackett& operator=(Rackett&& other) noexcept = default;
+
+        // ===== Accessors ===== //
+
+        /**
+         * @brief Function call operator. This function is used to calculate the saturated liquid volume [m3/mol] at a
+         * given temperature [K]
+         * @param temperature The temperature [K] at which to evaluate the saturated liquid density.
+         * @return The saturated liquid volume [m3/mol]
+         * @warning Using the function call operator on a default constructed SLVRackett object will return zero.
+         */
+        double operator()(double temperature) const
+        {
+            using std::pow;
+            auto temp = m_A * pow(m_B, 1 + pow(1 - temperature / m_C, m_D));
+            return m_A * pow(m_B, 1 + pow(1 - temperature / m_C, m_D));
+        }
     };
 
 }    // namespace PCProps::LiquidVolume

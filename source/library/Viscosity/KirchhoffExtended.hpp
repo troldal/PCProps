@@ -31,7 +31,7 @@ namespace PCProps::Viscosity
 * @warning Calling the function call operator on a default constructed SLVRackett object will result in
 * division by zero and return NaN.
 */
-        KirchhoffExtended();
+        KirchhoffExtended() = default;
 
         /**
          * @brief Constructor, taking the four Rackett coefficients as arguments.
@@ -42,40 +42,48 @@ namespace PCProps::Viscosity
          * @note The coefficients must be based on an temperature input in Kelvin, and a density return value
          * in m3/mol.
          */
-        KirchhoffExtended(double coeffA, double coeffB, double coeffC = 0.0, double coeffD = 0.0, double coeffE = 0.0);
+        KirchhoffExtended(double coeffA, double coeffB, double coeffC = 0.0, double coeffD = 0.0, double coeffE = 0.0)
+            : m_A(coeffA),
+              m_B(coeffB),
+              m_C(coeffC),
+              m_D(coeffD),
+              m_E(coeffE)
+        {}
 
         /**
          * @brief
          * @param coefficients
          */
-        KirchhoffExtended(const CreateFromDIPPR& coefficients);
+        explicit KirchhoffExtended(const CreateFromDIPPR& c)
+            : KirchhoffExtended(c.A, c.B, c.C, c.D, c.E)
+        {}
 
         /**
          * @brief Copy constructor.
          */
-        KirchhoffExtended(const KirchhoffExtended& other);
+        KirchhoffExtended(const KirchhoffExtended& other) = default;
 
         /**
          * @brief Move constructor.
          */
-        KirchhoffExtended(KirchhoffExtended&& other) noexcept;
+        KirchhoffExtended(KirchhoffExtended&& other) noexcept = default;
 
         /**
          * @brief Destructor.
          */
-        ~KirchhoffExtended();
+        ~KirchhoffExtended() = default;
 
         // ===== Manipulators ===== //
 
         /**
          * @brief Copy assignment operator.
          */
-        KirchhoffExtended& operator=(const KirchhoffExtended& other);
+        KirchhoffExtended& operator=(const KirchhoffExtended& other) = default;
 
         /**
          * @brief Move assignment operator.
          */
-        KirchhoffExtended& operator=(KirchhoffExtended&& other) noexcept;
+        KirchhoffExtended& operator=(KirchhoffExtended&& other) noexcept = default;
 
         // ===== Accessors ===== //
 
@@ -86,9 +94,13 @@ namespace PCProps::Viscosity
          * @return The saturated liquid volume [m3/mol]
          * @warning Using the function call operator on a default constructed SLVRackett object will return zero.
          */
-        double operator()(double temperature) const;
-
-
+        double operator()(double temperature) const
+        {
+            using std::exp;
+            using std::pow;
+            using std::log;
+            return exp(m_A + m_B/temperature + m_C * log(temperature) + m_D * pow(temperature, m_E));
+        }
     };
 }    // namespace PCProps::Viscosity
 

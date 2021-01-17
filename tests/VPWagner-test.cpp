@@ -45,15 +45,6 @@ TEST_CASE("VPWagner Test")
     SECTION("Default Construction")
     {
         psat        = PCProps::VaporPressure::Wagner {};
-        auto coeffs = psat.coefficients();
-
-        REQUIRE(psat.criticalTemperature() == Approx(0.0));
-        REQUIRE(psat.criticalPressure() == Approx(0.0));
-
-        REQUIRE(coeffs[0] == Approx(0.0));
-        REQUIRE(coeffs[1] == Approx(0.0));
-        REQUIRE(coeffs[2] == Approx(0.0));
-        REQUIRE(coeffs[3] == Approx(0.0));
 
         // This checks for NaN. If the value is NaN, any comparison (even with itself) will return false.
         REQUIRE(psat(273.15) != psat(273.15));
@@ -61,16 +52,6 @@ TEST_CASE("VPWagner Test")
 
     SECTION("Object Construction")
     {
-        auto coeffs = psat.coefficients();
-
-        REQUIRE(psat.criticalTemperature() == Approx(466.05));
-        REQUIRE(psat.criticalPressure() == Approx(55.5E5));
-
-        REQUIRE(coeffs[0] == Approx(-7.48323));
-        REQUIRE(coeffs[1] == Approx(1.89754));
-        REQUIRE(coeffs[2] == Approx(-1.87991));
-        REQUIRE(coeffs[3] == Approx(-2.74165));
-
         REQUIRE(psat(273.15 + 19.9) == Approx(1E5).epsilon(0.001));
     }
 

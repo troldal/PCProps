@@ -45,20 +45,11 @@ TEST_CASE("VPAmbroseWalton Test")
     SECTION("Default Construction")
     {
         psat = PCProps::VaporPressure::AmbroseWalton {};
-
-        REQUIRE(psat.criticalTemperature() == Approx(0.0));
-        REQUIRE(psat.criticalPressure() == Approx(0.0));
-        REQUIRE(psat.acentricFactor() == Approx(0.0));
-
         REQUIRE(psat(300.0) != psat(300.0));
     }
 
     SECTION("Object Construction")
     {
-        REQUIRE(psat.criticalTemperature() == Approx(632.35));
-        REQUIRE(psat.criticalPressure() == Approx(45.1911E5));
-        REQUIRE(psat.acentricFactor() == Approx(0.249857));
-
         REQUIRE(psat(300.00) == Approx(0.0178E5).epsilon(0.001));
         REQUIRE(psat(350.00) == Approx(0.174E5).epsilon(0.001));
         REQUIRE(psat(400.00) == Approx(0.885E5).epsilon(0.001));

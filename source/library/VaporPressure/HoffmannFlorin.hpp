@@ -39,6 +39,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define PCPROPS_HOFFMANNFLORIN_HPP
 
 #include <array>
+#include <cmath>
+
+namespace PCProps::VaporPressure::detail
+{
+    double hfFunc(double temperature)
+    {
+        using std::log10;
+        return (1.0 / temperature) - 7.9151E-3 + 2.6726E-3 * log10(temperature) - 0.8625E-6 * temperature;
+    }
+}    // namespace PCProps::VaporPressure::detail
 
 namespace PCProps::VaporPressure
 {
@@ -53,7 +63,7 @@ namespace PCProps::VaporPressure
         /**
          * @brief Constructor, default
          */
-        HoffmannFlorin();
+        HoffmannFlorin() = default;
 
         /**
          * @brief Constructor, taking temperature and vapor pressure for two reference points.
@@ -62,52 +72,62 @@ namespace PCProps::VaporPressure
          * @param ref2Temp Reference 2 temperature [K]
          * @param ref2Psat Reference 2 vapor pressure [Pa]
          */
-        HoffmannFlorin(double ref1Temp, double ref1Psat, double ref2Temp, double ref2Psat);
+        HoffmannFlorin(double ref1Temp, double ref1Psat, double ref2Temp, double ref2Psat)
+            : m_coefficients { std::log(ref1Psat) - std::log(ref1Psat / ref2Psat) * detail::hfFunc(ref1Temp) / (detail::hfFunc(ref1Temp) - detail::hfFunc(ref2Temp)),
+                               std::log(ref1Psat / ref2Psat) / (detail::hfFunc(ref1Temp) - detail::hfFunc(ref2Temp)) }
+        {}
 
         /**
          * @brief Constructor, taking the two Hoffmann-Florin coefficients as arguments.
          * @param coeffA Coefficient A.
          * @param coeffB Coefficient B.
          */
-        HoffmannFlorin(double coeffA, double coeffB);
+        HoffmannFlorin(double coeffA, double coeffB) : m_coefficients { coeffA, coeffB } {}
 
         /**
          * @brief Copy constructor
          */
-        HoffmannFlorin(const HoffmannFlorin& other);
+        HoffmannFlorin(const HoffmannFlorin& other) = default;
 
         /**
          * @brief Move constructor
          */
-        HoffmannFlorin(HoffmannFlorin&& other) noexcept;
+        HoffmannFlorin(HoffmannFlorin&& other) noexcept = default;
 
         /**
          * @brief Destructor
          */
-        ~HoffmannFlorin();
+        ~HoffmannFlorin() = default;
 
         /**
          * @brief Copy assignment operator
          */
-        HoffmannFlorin& operator=(const HoffmannFlorin& other);
+        HoffmannFlorin& operator=(const HoffmannFlorin& other) = default;
 
         /**
          * @brief Move assignment operator
          */
-        HoffmannFlorin& operator=(HoffmannFlorin&& other) noexcept;
+        HoffmannFlorin& operator=(HoffmannFlorin&& other) noexcept = default;
 
         /**
          * @brief Function call operator, taking temperature [K] as an argument and returns the vapor pressure [Pa]
          * @param temperature The temperature at which to calculate the capor pressure [K]
          * @return The vapor pressure [Pa]
          */
-        double operator()(double temperature) const;
+        double operator()(double temperature) const
+        {
+            using std::exp;
+            return exp(m_coefficients[0] + m_coefficients[1] * detail::hfFunc(temperature));
+        }
 
         /**
          * @brief Getter for the Hoffman-Florin coefficients.
          * @return A std::array with the two coefficients.
          */
-        std::array<double, 2> coefficients() const;
+        std::array<double, 2> coefficients() const
+        {
+            return m_coefficients;
+        }
     };
 
 }    // namespace PCProps::VaporPressure

@@ -6,6 +6,7 @@
 #define PCPROPS_INTEGRATION_HPP
 
 #include <cmath>
+#include <functional>
 
 namespace numeric {
 
@@ -30,9 +31,8 @@ namespace numeric {
         {
                if (abs(func(mid.first) - mid.second) / func(mid.first) > (precision == 0.0 ? 1E-6 : precision)) {
                    auto real_mid = std::make_pair(mid.first, func(mid.first));
-                   return
-                       calcSegmentIntegral(lower, real_mid, std::make_pair((lower.first + real_mid.first) / 2, (lower.second + real_mid.second) / 2)) +
-                           calcSegmentIntegral(real_mid, upper, std::make_pair((real_mid.first + upper.first) / 2, (real_mid.second + upper.second) / 2));
+                   return calcSegmentIntegral(lower, real_mid, std::make_pair((lower.first + real_mid.first) / 2, (lower.second + real_mid.second) / 2)) +
+                          calcSegmentIntegral(real_mid, upper, std::make_pair((real_mid.first + upper.first) / 2, (real_mid.second + upper.second) / 2));
                }
 
                return 0.5 * (upper.first - lower.first) * (lower.second + upper.second);

@@ -38,6 +38,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef PCPROPS_YENWOODS_HPP
 #define PCPROPS_YENWOODS_HPP
 
+#include <cmath>
+
 namespace PCProps::LiquidVolume
 {
     /**
@@ -127,40 +129,78 @@ namespace PCProps::LiquidVolume
          * @param coeffD The D coefficient of the original Yen-Woods equation.
          * @param type The form of the equation used (original or modified).
          */
-        YenWoods(double criticalTemperature, double criticalVolume, double coeffA, double coeffB, double coeffC, double coeffD, YenWoods::Form type = Form::Modified);
+        YenWoods(double criticalTemperature, double criticalVolume, double coeffA, double coeffB, double coeffC, double coeffD, YenWoods::Form type = Form::Modified)
+            : m_type(type),
+              m_criticalTemperature(criticalTemperature),
+              m_criticalVolume(criticalVolume),
+              m_A(coeffA),
+              m_B(coeffB),
+              m_C(coeffC),
+              m_D(coeffD)
+        {}
 
     public:
-        /**
-         * @brief Copy constructor
-         */
-        YenWoods(const YenWoods& other);
 
         /**
-         * @brief Move constructor
+         * @brief
          */
-        YenWoods(YenWoods&& other) noexcept;
+        struct CreateFromOriginalYenWoodsCoefficients
+        {
+            double criticalTemperature;
+            double criticalVolume;
+            double coeffA;
+            double coeffB;
+            double coeffC;
+            double coeffD;
+        };
 
         /**
-         * @brief Destructor
+         * @brief
          */
-        ~YenWoods();
+        struct CreateFromModifiedYenWoodsCoefficients
+        {
+            double criticalTemperature;
+            double criticalVolume;
+            double coeffA;
+            double coeffB;
+            double coeffC;
+            double coeffD;
+        };
 
         /**
-         * @brief Copy assignment operator
+         * @brief
          */
-        YenWoods& operator=(const YenWoods& other);
+        struct CreateFromPPDSCoefficients
+        {
+            double criticalTemperature;
+            double criticalVolume;
+            double molecularWeight;
+            double coeffA;
+            double coeffB;
+            double coeffC;
+            double coeffD;
+        };
 
         /**
-         * @brief Move assignment operator
+         * @brief
          */
-        YenWoods& operator=(YenWoods&& other) noexcept;
+        struct CreateFromDIPPR116Coefficients{
+            double criticalTemperature;
+            double criticalVolume;
+            double coeffA;
+            double coeffB;
+            double coeffC;
+            double coeffD;
+        };
 
         /**
-         * @brief Function call operator, taking temperature [K] as an argument and returns the liquid molar volume [m3/mol]
-         * @param temperature The temperature [K]
-         * @return The saturated liquid molar volume [m3/mol]
+         * @brief
          */
-        double operator()(double temperature);
+        struct CreateFromYenWoodsEstimation{
+            double criticalTemperature;
+            double criticalVolume;
+            double criticalCompressibility;
+        };
 
         /**
          * @brief Factory function for creating an SLVYenWoods object using Original Yen-Woods coefficients.
@@ -181,7 +221,10 @@ namespace PCProps::LiquidVolume
          * @return A SLVYenWoods object constructed from Original Yen-Woods coefficients.
          * @note This function will create an object corresponding to the original form of the Yen-Woods equation.
          */
-        static YenWoods createFromOriginalYenWoodsCoefficients(double criticalTemperature, double criticalVolume, double coeffA, double coeffB, double coeffC, double coeffD);
+        explicit YenWoods(const CreateFromOriginalYenWoodsCoefficients& c) {
+
+            *this = YenWoods(c.criticalTemperature, c.criticalVolume, c.coeffA, c.coeffB, c.coeffC, c.coeffD, Form::Original);
+        }
 
         /**
          * @brief Factory function for creating an SLVYenWoods object using Modified Yen-Woods coefficients.
@@ -202,7 +245,10 @@ namespace PCProps::LiquidVolume
          * @return A SLVYenWoods object constructed from Modified Yen-Woods coefficients.
          * @note This function will create an object corresponding to the modified form of the Yen-Woods equation.
          */
-        static YenWoods createFromModifiedYenWoodsCoefficients(double criticalTemperature, double criticalVolume, double coeffA, double coeffB, double coeffC, double coeffD);
+        explicit YenWoods(const CreateFromModifiedYenWoodsCoefficients& c) {
+
+            *this = YenWoods(c.criticalTemperature, c.criticalVolume, c.coeffA, c.coeffB, c.coeffC, c.coeffD, Form::Modified);
+        }
 
         /**
          * @brief Factory function for creating an SLVYenWoods object using PPDS coefficients.
@@ -220,8 +266,14 @@ namespace PCProps::LiquidVolume
          * @return A SLVYenWoods object constructed from PPDS coefficients.
          * @note This function will create an object corresponding to the modified form of the Yen-Woods equation.
          */
-        static YenWoods
-            createFromPPDSCoefficients(double criticalTemperature, double criticalVolume, double molecularWeight, double coeffA, double coeffB, double coeffC, double coeffD);
+        explicit YenWoods(const CreateFromPPDSCoefficients& c) {
+            double A = c.coeffA * 1000 * c.criticalVolume / c.molecularWeight;
+            double B = c.coeffB * 1000 * c.criticalVolume / c.molecularWeight;
+            double C = c.coeffC * 1000 * c.criticalVolume / c.molecularWeight;
+            double D = c.coeffD * 1000 * c.criticalVolume / c.molecularWeight;
+
+            *this = YenWoods(c.criticalTemperature, c.criticalVolume, A, B, C, D, Form::Modified);
+        }
 
         /**
          * @brief Factory function for creating an SLVYenWoods object using DIPPR 116 coefficients.
@@ -238,25 +290,90 @@ namespace PCProps::LiquidVolume
          * @return A SLVYenWoods object constructed from DIPPR 116 coefficients.
          * @note This function will create an object corresponding to the modified form of the Yen-Woods equation.
          */
-        static YenWoods createFromDIPPR116Coefficients(double criticalTemperature, double criticalVolume, double coeffA, double coeffB, double coeffC, double coeffD);
+        explicit YenWoods(const CreateFromDIPPR116Coefficients& c) {
+
+            double A = c.coeffA * 1000 * c.criticalVolume;
+            double B = c.coeffB * 1000 * c.criticalVolume;
+            double C = c.coeffC * 1000 * c.criticalVolume;
+            double D = c.coeffD * 1000 * c.criticalVolume;
+
+            *this = YenWoods(c.criticalTemperature, c.criticalVolume, A, B, C, D, Form::Modified);
+        }
 
         /**
-         * @brief Factory function for creating an SLVYenWoods object using the original correlations in the paper
-         * by Yen and Woods. This should only be used if coefficients are not directly available.
-         * @details In the original paper by Yen and Woods, the authors proposes a set of simple correlations, that can
-         * be used to estimate the four coefficients from the critical compressibility, \f$ {Z_{c}} \f$, in case
-         * coefficients fitted to experimental data are not available. The coefficients are estimated as follows:
-         * \f[ A = 17.4425 - 214.578 \cdot Z_{z} + 989.625 \cdot Z_{c}^2 - 1522.06 \cdot Z_{c}^3 \f]
-         * \f[ B = -3.28257 + 13.6377 \cdot Z_{z} + 107.4844 \cdot Z_{c}^2 - 384.211 \cdot Z_{c}^3 \ \textrm{(if} \ Z_{c} \leq \textrm{
-         * 0.26)} \f] \f[ B = 60.2091 - 402.063 \cdot Z_{z} + 501.0 \cdot Z_{c}^2 + 641.0 \cdot Z_{c}^3 \ \textrm{(if} \ Z_{c} > \textrm{
-         * 0.26)} \f] \f[ C = 0 \f] \f[ D = 0.93 - B \f]
-         * @param criticalTemperature The critical temperature [K]
-         * @param criticalVolume The critical volume [m3/mol]
-         * @param criticalCompressibility The critical compressibility [-]
-         * @return A SLVYenWoods object constructed from Yen and Woods estimation procedure.
-         * @note This function will create an object corresponding to the original form of the Yen-Woods equation.
+          * @brief Factory function for creating an SLVYenWoods object using the original correlations in the paper
+          * by Yen and Woods. This should only be used if coefficients are not directly available.
+          * @details In the original paper by Yen and Woods, the authors proposes a set of simple correlations, that can
+          * be used to estimate the four coefficients from the critical compressibility, \f$ {Z_{c}} \f$, in case
+          * coefficients fitted to experimental data are not available. The coefficients are estimated as follows:
+          * \f[ A = 17.4425 - 214.578 \cdot Z_{z} + 989.625 \cdot Z_{c}^2 - 1522.06 \cdot Z_{c}^3 \f]
+          * \f[ B = -3.28257 + 13.6377 \cdot Z_{z} + 107.4844 \cdot Z_{c}^2 - 384.211 \cdot Z_{c}^3 \ \textrm{(if} \ Z_{c} \leq \textrm{
+          * 0.26)} \f] \f[ B = 60.2091 - 402.063 \cdot Z_{z} + 501.0 \cdot Z_{c}^2 + 641.0 \cdot Z_{c}^3 \ \textrm{(if} \ Z_{c} > \textrm{
+          * 0.26)} \f] \f[ C = 0 \f] \f[ D = 0.93 - B \f]
+          * @param criticalTemperature The critical temperature [K]
+          * @param criticalVolume The critical volume [m3/mol]
+          * @param criticalCompressibility The critical compressibility [-]
+          * @return A SLVYenWoods object constructed from Yen and Woods estimation procedure.
+          * @note This function will create an object corresponding to the original form of the Yen-Woods equation.
+          */
+        explicit YenWoods(const CreateFromYenWoodsEstimation& c) {
+
+            using std::pow;
+
+            double A = 17.4425 - 214.578 * c.criticalCompressibility + 989.625 * pow(c.criticalCompressibility, 2) - 1522.06 * pow(c.criticalCompressibility, 3);
+            double B = [&]() {
+                   if (c.criticalCompressibility <= 0.26)
+                       return -3.28257 + 13.6377 * c.criticalCompressibility + 107.4844 * pow(c.criticalCompressibility, 2) - 384.211 * pow(c.criticalCompressibility, 3);
+
+                   return 60.2091 - 402.063 * c.criticalCompressibility + 501.0 * pow(c.criticalCompressibility, 2) +
+                       641.0 * pow(c.criticalCompressibility, 3);
+            }();
+
+            double C = 0.0;
+            double D = 0.93 - B;
+
+            *this = YenWoods(c.criticalTemperature, c.criticalVolume, A, B, C, D, Form::Original);
+        }
+
+        /**
+         * @brief Copy constructor
          */
-        static YenWoods createFromYenWoodsEstimation(double criticalTemperature, double criticalVolume, double criticalCompressibility);
+        YenWoods(const YenWoods& other) = default;
+
+        /**
+         * @brief Move constructor
+         */
+        YenWoods(YenWoods&& other) noexcept = default;
+
+        /**
+         * @brief Destructor
+         */
+        ~YenWoods() = default;
+
+        /**
+         * @brief Copy assignment operator
+         */
+        YenWoods& operator=(const YenWoods& other) = default;
+
+        /**
+         * @brief Move assignment operator
+         */
+        YenWoods& operator=(YenWoods&& other) noexcept = default;
+
+        /**
+         * @brief Function call operator, taking temperature [K] as an argument and returns the liquid molar volume [m3/mol]
+         * @param temperature The temperature [K]
+         * @return The saturated liquid molar volume [m3/mol]
+         */
+        double operator()(double temperature)
+        {
+            using std::pow;
+            auto tau = 1 - (temperature / m_criticalTemperature);
+
+            if (m_type == Form::Original) return m_criticalVolume / (1 + m_A * pow(tau, 1.0 / 3.0) + m_B * pow(tau, 2.0 / 3.0) + m_C * tau + m_D * pow(tau, 4.0 / 3.0));
+
+            return m_criticalVolume / (1 + m_A * pow(tau, 0.35) + m_B * pow(tau, 2.0 / 3.0) + m_C * tau + m_D * pow(tau, 4.0 / 3.0));
+        }
     };
 
 }    // namespace PCProps::LiquidVolume

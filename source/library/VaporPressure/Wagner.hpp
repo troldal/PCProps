@@ -39,6 +39,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define PCPROPS_WAGNER_HPP
 
 #include <array>
+#include <cmath>
 
 namespace PCProps::VaporPressure
 {
@@ -82,7 +83,7 @@ namespace PCProps::VaporPressure
          * result in division-by-zero and will return NaN. The main purpose is to serve as a placeholder for a correctly
          * constructed object later on.
          */
-        Wagner();
+        Wagner() = default;
 
         /**
          * @brief Constructor, taking three or more coefficients as input.
@@ -97,32 +98,38 @@ namespace PCProps::VaporPressure
          * the equation uses natural logarithms (rather than base-10 logarithm). If coefficients exists with a different
          * basis, they will have to be converted first.
          */
-        Wagner(double criticalTemperature, double criticalPressure, double A, double B, double C, double D, VPWagnerForm form = VPWagnerForm::Form25);
+        Wagner(double criticalTemperature, double criticalPressure, double A, double B, double C, double D, VPWagnerForm form = VPWagnerForm::Form25)
+            : m_criticalTemperature { criticalTemperature },
+              m_criticalPressure { criticalPressure },
+              m_coefficients { A, B, C, D },
+              m_expC { form == VPWagnerForm::Form25 ? 2.5 : 3.0 },
+              m_expD { form == VPWagnerForm::Form25 ? 5.0 : 6.0 }
+        {}
 
         /**
          * @brief Copy constructor.
          */
-        Wagner(const Wagner& other);
+        Wagner(const Wagner& other) = default;
 
         /**
          * @brief Move constructor.
          */
-        Wagner(Wagner&& other) noexcept;
+        Wagner(Wagner&& other) noexcept = default;
 
         /**
          * @brief Destructor.
          */
-        ~Wagner();
+        ~Wagner() = default;
 
         /**
          * @brief Copy assignment operator.
          */
-        Wagner& operator=(const Wagner& other);
+        Wagner& operator=(const Wagner& other) = default;
 
         /**
          * @brief Move assignment operator.
          */
-        Wagner& operator=(Wagner&& other) noexcept;
+        Wagner& operator=(Wagner&& other) noexcept = default;
 
         /**
          * @brief Function call operator, yielding the saturation pressure [Pa] at the requested temperature [K] for the component.
@@ -130,31 +137,16 @@ namespace PCProps::VaporPressure
          * @return The vapor pressure [Pa].
          * @warning If the object is default constructed only, operator() will return NaN.
          */
-        double operator()(double temperature) const;
+        double operator()(double temperature) const
+        {
+            using std::exp;
+            using std::log;
+            using std::pow;
+            auto tr = temperature / m_criticalTemperature;
 
-        /**
-         * @brief Get the critical temperature used in the correlation.
-         * @return The critical temperature [K].
-         */
-        double criticalTemperature() const;
-
-        /**
-         * @brief Get the critical pressure used in the correlation.
-         * @return The critical temperature [Pa].
-         */
-        double criticalPressure() const;
-
-        /**
-         * @brief Get the coefficients of the current object.
-         * @return An array with the coefficients A-D.
-         */
-        std::array<double, 4> coefficients() const;
-
-        /**
-         * @brief Get the form of the Wagner equation (2.5-5 or 3-6)
-         * @return A VPWagnerForm object, representing the Wagner form.
-         */
-        VPWagnerForm form() const;
+            return exp((1.0 / tr) *
+                (m_coefficients[0] * (1 - tr) + m_coefficients[1] * pow(1 - tr, 1.5) + m_coefficients[2] * pow(1 - tr, m_expC) + m_coefficients[3] * pow(1 - tr, m_expD))) * m_criticalPressure;
+        }
     };
 
 }    // namespace PCProps::VaporPressure

@@ -48,10 +48,18 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <library/PCEquationOfState.hpp>
 #include <library/PCPropsData.hpp>
 #include <library/PCPropsException.hpp>
-#include <library/Utilities/NamedTypes.hpp>
+
+#include <external/types/types.hpp>
 
 namespace PCProps
 {
+    using Temperature   = types::NamedType<double, struct TemperatureTag>;
+    using Pressure      = types::NamedType<double, struct PressureTag>;
+    using Volume        = types::NamedType<double, struct VolumeTag>;
+    using Enthalpy      = types::NamedType<double, struct EnthalpyTag>;
+    using Entropy       = types::NamedType<double, struct EntropyTag>;
+    using VaporFraction = types::NamedType<double, struct VaporFractionTag>;
+
     /**
      * @brief The PCComponentData struct holds all the raw data and function objects that define a pure component.
      * An object of this type can be used to construct a PCComponent object.
@@ -155,7 +163,7 @@ namespace PCProps
          * @param temperature
          * @return
          */
-        PCPhases flash(PCProps::Utilities::Pressure pressure, PCProps::Utilities::Temperature temperature) const;
+        PCPhases flash(Pressure pressure, Temperature temperature) const;
 
         /**
          * @brief
@@ -163,7 +171,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        PCPhases flash(PCProps::Utilities::Pressure pressure, PCProps::Utilities::VaporFraction vaporFraction) const;
+        PCPhases flash(Pressure pressure, VaporFraction vaporFraction) const;
 
         /**
          * @brief
@@ -171,7 +179,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        PCPhases flash(PCProps::Utilities::Temperature temperature, PCProps::Utilities::VaporFraction vaporFraction) const;
+        PCPhases flash(Temperature temperature, VaporFraction vaporFraction) const;
 
         /**
          * @brief
@@ -179,7 +187,7 @@ namespace PCProps
          * @param enthalpy
          * @return
          */
-        PCPhases flash(PCProps::Utilities::Pressure pressure, PCProps::Utilities::Enthalpy enthalpy) const;
+        PCPhases flash(Pressure pressure, Enthalpy enthalpy) const;
 
         /**
          * @brief
@@ -187,7 +195,7 @@ namespace PCProps
          * @param entropy
          * @return
          */
-        PCPhases flash(PCProps::Utilities::Pressure pressure, PCProps::Utilities::Entropy entropy) const;
+        PCPhases flash(Pressure pressure, Entropy entropy) const;
 
         /**
          * @brief
@@ -195,7 +203,7 @@ namespace PCProps
          * @param volume
          * @return
          */
-        PCPhases flash(PCProps::Utilities::Temperature temperature, PCProps::Utilities::Volume volume) const;
+        PCPhases flash(Temperature temperature, Volume volume) const;
 
         /**
          * @brief

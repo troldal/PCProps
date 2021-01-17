@@ -38,6 +38,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef PCPROPS_AALTO_HPP
 #define PCPROPS_AALTO_HPP
 
+#include <cmath>
 #include <functional>
 
 namespace PCProps::LiquidVolume
@@ -73,6 +74,13 @@ namespace PCProps::LiquidVolume
         double C { 2.718281828 };
         double B {};
 
+    public:
+
+        /**
+         * @brief
+         */
+        Aalto() = default;
+
         /**
          * @brief Constructor, taking critical properties and function objects for
          * saturated liquid volume and vapor pressure as arguments.
@@ -87,33 +95,38 @@ namespace PCProps::LiquidVolume
             double                               criticalPressure,
             double                               acentricFactor,
             const std::function<double(double)>& satVolumeFunction,
-            const std::function<double(double)>& vaporPressureFunction);
+            const std::function<double(double)>& vaporPressureFunction)
+            : m_saturatedVolumeFunction(satVolumeFunction),
+              m_vaporPressureFunction(vaporPressureFunction),
+              m_criticalTemperature(criticalTemperature),
+              m_criticalPressure(criticalPressure),
+              B { 0.164813 - 0.0914427 * acentricFactor }
+        {}
 
-    public:
         /**
          * @brief Copy constructor
          */
-        Aalto(const Aalto& other);
+        Aalto(const Aalto& other) = default;
 
         /**
          * @brief Move constructor
          */
-        Aalto(Aalto&& other) noexcept;
+        Aalto(Aalto&& other) noexcept = default;
 
         /**
          * @brief Destructor
          */
-        ~Aalto();
+        ~Aalto() = default;
 
         /**
          * @brief Copy assignment operator
          */
-        Aalto& operator=(const Aalto& other);
+        Aalto& operator=(const Aalto& other) = default;
 
         /**
          * @brief Move assignment operator
          */
-        Aalto& operator=(Aalto&& other) noexcept;
+        Aalto& operator=(Aalto&& other) noexcept = default;
 
         /**
          * @brief Function call operator, taking temperature [K] and pressure [Pa] as arguments
@@ -122,23 +135,16 @@ namespace PCProps::LiquidVolume
          * @param pressure The pressure [Pa]
          * @return The compressed liquid volume [m3/mol]
          */
-        double operator()(double temperature, double pressure) const;
+        double operator()(double temperature, double pressure) const
+        {
+            using std::pow;
+            double tr = temperature / m_criticalTemperature;
 
-        /**
-         * @brief Static factory function for creating an CLVAalto object.
-         * @param criticalTemperature The critical temperature [K]
-         * @param criticalPressure The critical pressure [Pa]
-         * @param acentricFactor The acentric factor [-]
-         * @param satVolumeFunction Function object for calculating saturated liquid volume [m3/mol] as function of temperature [K]
-         * @param vaporPressureFunction Function object for calculating vapor pressure [Pa] as function of temperature [K]
-         * @return An CLVAalto object
-         */
-        static Aalto create(
-            double                               criticalTemperature,
-            double                               criticalPressure,
-            double                               acentricFactor,
-            const std::function<double(double)>& satVolumeFunction,
-            const std::function<double(double)>& vaporPressureFunction);
+            double A = -170.335 - 28.578 * tr + 124.809 * pow(tr, 3) - 55.5393 * pow(tr, 6) + 130.01 / tr;
+
+            return m_saturatedVolumeFunction(temperature) * ((A * m_criticalPressure + pow(C, pow(D - tr, B)) * (pressure - m_vaporPressureFunction(temperature))) /
+                (A * m_criticalPressure + C * (pressure - m_vaporPressureFunction(temperature))));
+        }
     };
 }    // namespace PCProps::LiquidVolume
 
