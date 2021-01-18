@@ -49,7 +49,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <library/PCPropsData.hpp>
 #include <library/PCPropsException.hpp>
 
-#include <external/types/types.hpp>
+#include <types/types.hpp>
 
 namespace PCProps
 {

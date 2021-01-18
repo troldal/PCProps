@@ -45,10 +45,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <library/PCPropsException.hpp>
 #include <library/VaporPressure/AmbroseWalton.hpp>
 
-#include <external/json/json.hpp>
-#include <external/numeric/differentiation.hpp>
-#include <external/numeric/integration.hpp>
-#include <external/numeric/roots.hpp>
+
+#include <json/json.hpp>
+#include <numeric/differentiation.hpp>
+#include <numeric/integration.hpp>
+#include <numeric/roots.hpp>
 
 using PCProps::VaporPressure::AmbroseWalton;
 

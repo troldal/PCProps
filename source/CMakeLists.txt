@@ -1,56 +1,4 @@
 #=======================================================================================================================
-# EXTERNAL LIBRARIES
-#   Define external libraries used by OpenXLSX. The libraries (Zippy and PugiXML) are header-only, so
-#   INTERFACE libraries should be defined.
-#=======================================================================================================================
-add_library(external INTERFACE IMPORTED)
-target_include_directories(external SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/>)
-add_compile_definitions(BOOST_JSON_STANDALONE)
-
-#add_library(Zippy INTERFACE IMPORTED)
-#target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/zippy/>)
-#
-#add_library(PugiXML INTERFACE IMPORTED)
-#target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/pugixml/>)
-#if (${ENABLE_COMPACT_MODE})
-#    target_compile_definitions(PugiXML INTERFACE PUGIXML_COMPACT)
-#endif ()
-#
-#add_library(NoWide INTERFACE IMPORTED)
-#target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
-#
-#if (${ENABLE_UNICODE_FILENAMES})
-#    add_compile_definitions(UNICODE_FILENAMES_ENABLED)
-#endif ()
-
-
-#=======================================================================================================================
-# COMPILER FEATURES
-#   Some older C++17 compilers don't support the char_conv features. If the compiler doesn't support it,
-#   a less optimal work-around will be used.
-#=======================================================================================================================
-#include(CheckCXXSourceCompiles)
-#check_cxx_source_compiles("
-#                          #include <array>
-#                          #include <string>
-#                          #include <charconv>
-#
-#                          int main() {
-#                                  std::array<char, 7> str {};
-#                                  auto p = std::to_chars(str.data(), str.data() + str.size(), 12345).ptr;
-#                                  auto strResult = std::string(str.data(), p - str.data());
-#
-#                                  unsigned long value = 0;
-#                                  std::from_chars(strResult.data(), strResult.data() + strResult.size(), value);
-#
-#                                  return 0;
-#                          }" CHARCONV_RESULT)
-#
-#if (CHARCONV_RESULT)
-#    add_compile_definitions(CHARCONV_ENABLED)
-#endif ()
-
-#=======================================================================================================================
 # PROJECT FILES
 #   List of project source files
 #=======================================================================================================================
@@ -73,7 +21,7 @@ target_include_directories(${PROJECT_NAME}-library-static
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/library>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(${PROJECT_NAME}-library-static PRIVATE external)
+target_link_libraries(${PROJECT_NAME}-library-static PUBLIC dependencies)
 target_compile_definitions(${PROJECT_NAME}-library-static PUBLIC OPENXLSX_STATIC_DEFINE)
 
 #=======================================================================================================================
@@ -87,7 +35,7 @@ target_include_directories(${PROJECT_NAME}-library-shared
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/library>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(${PROJECT_NAME}-library-shared PUBLIC external)
+target_link_libraries(${PROJECT_NAME}-library-shared PUBLIC dependencies)
 
 #=======================================================================================================================
 # GENERATE EXPORT HEADER
