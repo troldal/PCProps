@@ -67,8 +67,8 @@ TEST_CASE("PCComponent Test")
     pcd.saturatedLiquidVolumeCorrelation  = [](double temperature) { return temperature; };
     pcd.surfaceTensionCorrelation         = [](double temperature) { return temperature; };
     pcd.heatOfVaporizationCorrelation     = [](double temperature) { return temperature; };
-    pcd.vaporThermalConductivityCorrelation = [](double temperature) { return temperature; };
-    pcd.liquidThermalConductivityCorrelation = [](double temperature) { return temperature; };
+    pcd.saturatedVaporThermalConductivityCorrelation = [](double temperature) { return temperature; };
+    pcd.saturatedLiquidThermalConductivityCorrelation = [](double temperature) { return temperature; };
     pcd.saturatedVaporViscosityCorrelation   = [](double temperature) { return temperature; };
     pcd.saturatedLiquidViscosityCorrelation  = [](double temperature) { return temperature; };
     pcd.liquidCpCorrelation                  = [](double temperature) { return temperature; };

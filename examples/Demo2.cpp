@@ -50,8 +50,8 @@ int main()
     data.vaporPressureCorrelation             = AntoineExtended(AntoineExtended::CreateFromDIPPR { 59.078, -3492.6, -6.0669, 1.0919E-05, 2 });
     data.surfaceTensionCorrelation            = {};
     data.heatOfVaporizationCorrelation        = {};
-    data.vaporThermalConductivityCorrelation  = {};
-    data.liquidThermalConductivityCorrelation = {};
+    data.saturatedVaporThermalConductivityCorrelation = {};
+    data.saturatedLiquidThermalConductivityCorrelation = {};
     data.saturatedVaporViscosityCorrelation   = {};
     data.saturatedLiquidViscosityCorrelation  = {};
     data.saturatedLiquidVolumeCorrelation     = Rackett(Rackett::CreateFromDIPPR { 1.3757, 0.27453, 369.83, 0.29359 });

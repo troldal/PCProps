@@ -85,18 +85,22 @@ namespace PCProps
         std::optional<double> acentricFactor {};          /**< The acentric factor (omega) of a component */
         std::optional<double> dipoleMoment {};            /**< The dipole moment of the component */
 
-        PCProps::PCEquationOfState            equationOfState {};
-        std::function<double(double)>         idealGasCpCorrelation {};
-        std::function<double(double)>         liquidCpCorrelation {};                  /**< The liquid Cp [HOLD] as a function of temperature [K] */
-        std::function<double(double)>         vaporPressureCorrelation {};             /**< The vapor pressure [Pa] as a function of temperature [K] */
-        std::function<double(double)>         surfaceTensionCorrelation {};            /**< The surface tension [HOLD] as a function of temperature [K] */
-        std::function<double(double)>         heatOfVaporizationCorrelation {};        /**< The latent heat [HOLD] as a function of temperature [K] */
-        std::function<double(double)>         vaporThermalConductivityCorrelation {};  /**< The vapor thermal conductivity [HOLD] as a function of temperature [K] */
-        std::function<double(double)>         liquidThermalConductivityCorrelation {}; /**< The liquid thermal conductivity [HOLD] as a function of temperature [K] */
-        std::function<double(double)>         saturatedVaporViscosityCorrelation {};   /**< The vapor viscosity [HOLD] as a function of temperature [K] */
-        std::function<double(double)>         saturatedLiquidViscosityCorrelation {};  /**< The liquid viscosity [HOLD] as a function of temperature [K] */
-        std::function<double(double)>         saturatedLiquidVolumeCorrelation {};     /**< The liquid density [HOLD] as a function of temperature [K] */
+        PCProps::PCEquationOfState    equationOfState {};
+        std::function<double(double)> saturatedLiquidVolumeCorrelation {}; /**< The liquid density [HOLD] as a function of temperature [K] */
+        std::function<double(double)> idealGasCpCorrelation {};
+        std::function<double(double)> liquidCpCorrelation {};           /**< The liquid Cp [HOLD] as a function of temperature [K] */
+        std::function<double(double)> vaporPressureCorrelation {};      /**< The vapor pressure [Pa] as a function of temperature [K] */
+        std::function<double(double)> surfaceTensionCorrelation {};     /**< The surface tension [HOLD] as a function of temperature [K] */
+        std::function<double(double)> heatOfVaporizationCorrelation {}; /**< The latent heat [HOLD] as a function of temperature [K] */
+
+        std::function<double(double)> saturatedVaporThermalConductivityCorrelation {};  /**< The vapor thermal conductivity [HOLD] as a function of temperature [K] */
+        std::function<double(double)> saturatedLiquidThermalConductivityCorrelation {}; /**< The liquid thermal conductivity [HOLD] as a function of temperature [K] */
+        std::function<double(double)> saturatedVaporViscosityCorrelation {};            /**< The vapor viscosity [HOLD] as a function of temperature [K] */
+        std::function<double(double)> saturatedLiquidViscosityCorrelation {};           /**< The liquid viscosity [HOLD] as a function of temperature [K] */
+
         std::function<double(double, double)> compressedLiquidVolumeCorrelation {};
+        // Compressed vapor/liquid thermal conductivity
+        // Compressed vapor/liquid viscosity
     };
 
     /**

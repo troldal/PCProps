@@ -70,8 +70,8 @@ int main()
     data.vaporPressureCorrelation             = AntoineExtended(AntoineExtended::CreateFromDIPPR { 73.649, -7258.2, -7.3037, 4.1653E-06, 2 });
     data.surfaceTensionCorrelation            = {};
     data.heatOfVaporizationCorrelation        = {};
-    data.vaporThermalConductivityCorrelation  = {};
-    data.liquidThermalConductivityCorrelation = {};
+    data.saturatedVaporThermalConductivityCorrelation = {};
+    data.saturatedLiquidThermalConductivityCorrelation = {};
     data.saturatedVaporViscosityCorrelation   = DIPPR102(1.7096E-08, 1.1146);
     data.saturatedLiquidViscosityCorrelation  = KirchhoffExtended(-52.843,3703.6,5.866,-5.879E-29, 10);
     data.saturatedLiquidVolumeCorrelation     = YenWoods::createFromYenWoodsEstimation(647.10, 0.0000559472, 0.229435018515262);
