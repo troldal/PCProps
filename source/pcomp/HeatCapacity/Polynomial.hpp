@@ -5,6 +5,8 @@
 #ifndef PCPROPS_POLYNOMIAL_HPP
 #define PCPROPS_POLYNOMIAL_HPP
 
+#include <cmath>
+
 namespace PCProps::HeatCapacity
 {
     class Polynomial

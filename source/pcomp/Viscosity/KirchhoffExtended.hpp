@@ -5,6 +5,8 @@
 #ifndef PCPROPS_KIRCHHOFFEXTENDED_HPP
 #define PCPROPS_KIRCHHOFFEXTENDED_HPP
 
+#include <cmath>
+
 namespace PCProps::Viscosity
 {
     class KirchhoffExtended

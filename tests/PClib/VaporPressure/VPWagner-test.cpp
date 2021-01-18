@@ -36,7 +36,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <VaporPressure/Wagner.hpp>
-#include <catch.hpp>
+#include <catch/catch.hpp>
 
 TEST_CASE("VPWagner Test")
 {

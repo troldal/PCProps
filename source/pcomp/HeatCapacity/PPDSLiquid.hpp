@@ -5,6 +5,8 @@
 #ifndef PCPROPS_PPDSLIQUID_HPP
 #define PCPROPS_PPDSLIQUID_HPP
 
+#include <cmath>
+
 namespace PCProps::HeatCapacity
 {
     class PPDSLiquid

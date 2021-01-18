@@ -2,10 +2,10 @@
 // Created by Kenneth Balslev on 03/01/2021.
 //
 
-#include <catch.hpp>
+#include <HeatCapacity/AlyLee.hpp>
+#include <PengRobinson/PengRobinson.hpp>
+#include <catch/catch.hpp>
 #include <common/PropertyData.hpp>
-#include <library/EquationOfState/PengRobinson.hpp>
-#include <library/HeatCapacity/AlyLee.hpp>
 
 using PCProps::EquationOfState::PengRobinson;
 using PCProps::PCPhase;

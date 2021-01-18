@@ -5,6 +5,8 @@
 #ifndef PCPROPS_DIPPR102_HPP
 #define PCPROPS_DIPPR102_HPP
 
+#include <cmath>
+
 namespace PCProps::Viscosity
 {
     class DIPPR102

@@ -45,21 +45,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <string>
 #include <type_traits>
 
-#include <common/PropertyData.hpp>
-#include <PCEquationOfState.hpp>
-#include <PCPropsException.hpp>
-
-#include <types/types.hpp>
-
 namespace PCProps
 {
-    using Temperature   = types::NamedType<double, struct TemperatureTag>;
-    using Pressure      = types::NamedType<double, struct PressureTag>;
-    using Volume        = types::NamedType<double, struct VolumeTag>;
-    using Enthalpy      = types::NamedType<double, struct EnthalpyTag>;
-    using Entropy       = types::NamedType<double, struct EntropyTag>;
-    using VaporFraction = types::NamedType<double, struct VaporFractionTag>;
-
     /**
      * @brief The PCComponentData struct holds all the raw data and function objects that define a pure component.
      * An object of this type can be used to construct a PCComponent object.
@@ -85,7 +72,7 @@ namespace PCProps
         std::optional<double> acentricFactor {};          /**< The acentric factor (omega) of a component */
         std::optional<double> dipoleMoment {};            /**< The dipole moment of the component */
 
-        PCProps::PCEquationOfState    equationOfState {};
+//        PCProps::PCEquationOfState    equationOfState {};
         std::function<double(double)> saturatedLiquidVolumeCorrelation {}; /**< The liquid density [HOLD] as a function of temperature [K] */
         std::function<double(double)> idealGasCpCorrelation {};
         std::function<double(double)> liquidCpCorrelation {};           /**< The liquid Cp [HOLD] as a function of temperature [K] */
@@ -98,7 +85,7 @@ namespace PCProps
         std::function<double(double)> saturatedVaporViscosityCorrelation {};            /**< The vapor viscosity [HOLD] as a function of temperature [K] */
         std::function<double(double)> saturatedLiquidViscosityCorrelation {};           /**< The liquid viscosity [HOLD] as a function of temperature [K] */
 
-        std::function<double(double, double)> compressedLiquidVolumeCorrelation {};
+//        std::function<double(double, double)> compressedLiquidVolumeCorrelation {};
         // Compressed vapor/liquid thermal conductivity
         // Compressed vapor/liquid viscosity
     };
@@ -122,44 +109,47 @@ namespace PCProps
         /**
          * @brief Default constructor.
          */
-        PCComponent();
+        PCComponent() = default;
 
         /**
          * @brief Constructor, taking a PCComponentData object as an argument.
          * @param data A PCComponentData object with the component data.
          */
-        explicit PCComponent(const PCComponentData& data);
+        explicit PCComponent(const PCComponentData& data) : m_data(data) {}
 
         /**
          * @brief Copy constructor.
          */
-        PCComponent(const PCComponent& other);
+        PCComponent(const PCComponent& other) = default;
 
         /**
          * @brief Move constructor.
          */
-        PCComponent(PCComponent&& other) noexcept;
+        PCComponent(PCComponent&& other) noexcept = default;
 
         /**
          * @brief Destructor.
          */
-        ~PCComponent();
+        ~PCComponent() = default;
 
         /**
          * @brief Copy assignment operator.
          */
-        PCComponent& operator=(const PCComponent& other);
+        PCComponent& operator=(const PCComponent& other) = default;
 
         /**
          * @brief Move assignment operator.
          */
-        PCComponent& operator=(PCComponent&& other) noexcept;
+        PCComponent& operator=(PCComponent&& other) noexcept = default;
 
         /**
          * @brief Get a copy of the PCComponentData object contained in the current object.
          * @return A copy of the PCComponentData member.
          */
-        PCComponentData& data();
+        PCComponentData& data()
+        {
+            return m_data;
+        }
 
         /**
          * @brief
@@ -167,7 +157,7 @@ namespace PCProps
          * @param temperature
          * @return
          */
-        PCPhases flash(Pressure pressure, Temperature temperature) const;
+//        PCPhases flash(Pressure pressure, Temperature temperature) const;
 
         /**
          * @brief
@@ -175,7 +165,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        PCPhases flash(Pressure pressure, VaporFraction vaporFraction) const;
+//        PCPhases flash(Pressure pressure, VaporFraction vaporFraction) const;
 
         /**
          * @brief
@@ -183,7 +173,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        PCPhases flash(Temperature temperature, VaporFraction vaporFraction) const;
+//        PCPhases flash(Temperature temperature, VaporFraction vaporFraction) const;
 
         /**
          * @brief
@@ -191,7 +181,7 @@ namespace PCProps
          * @param enthalpy
          * @return
          */
-        PCPhases flash(Pressure pressure, Enthalpy enthalpy) const;
+//        PCPhases flash(Pressure pressure, Enthalpy enthalpy) const;
 
         /**
          * @brief
@@ -199,7 +189,7 @@ namespace PCProps
          * @param entropy
          * @return
          */
-        PCPhases flash(Pressure pressure, Entropy entropy) const;
+//        PCPhases flash(Pressure pressure, Entropy entropy) const;
 
         /**
          * @brief
@@ -207,47 +197,59 @@ namespace PCProps
          * @param volume
          * @return
          */
-        PCPhases flash(Temperature temperature, Volume volume) const;
+//        PCPhases flash(Temperature temperature, Volume volume) const;
 
         /**
          * @brief
          * @param temperature
          * @return
          */
-        double saturationPressure(double temperature) const;
+//        double saturationPressure(double temperature) const;
 
         /**
          * @brief
          * @param pressure
          * @return
          */
-        double saturationTemperature(double pressure) const;
+//        double saturationTemperature(double pressure) const;
 
         /**
          * @brief Get the name of the component.
          * @return A std::string with the component name.
          */
-        const std::string& name() const;
+        const std::string& name() const
+        {
+            return m_data.name;
+        }
 
         /**
          * @brief Get the formula of the component.
          * @return A std::string with the component name.
          */
-        const std::string& formula() const;
+        const std::string& formula() const
+        {
+            return m_data.formula;
+        }
 
         /**
          * @brief Get the CAS number of the component.
          * @return A std::string with the CAS number.
          */
-        const std::string& casrn() const;
+        const std::string& casrn() const
+        {
+            return m_data.casrn;
+        }
 
         /**
          * @brief Get the SMILES string for the component.
          * @return A std::string with the SMILES string.
          */
-        const std::string& smiles() const;
+        const std::string& smiles() const
+        {
+            return m_data.smiles;
+        }
 
-        void computeViscosity(PCPhases& phases) const;
+//        void computeViscosity(PCPhases& phases) const;
 
     };
 }    // namespace PCProps

@@ -5,9 +5,9 @@
 #ifndef PCPROPS_LUCAS_HPP
 #define PCPROPS_LUCAS_HPP
 
+#include <cmath>
 #include <functional>
-
-#include <PCPropsException.hpp>
+#include <stdexcept>
 
 namespace PCProps::Viscosity
 {
@@ -100,7 +100,7 @@ namespace PCProps::Viscosity
                    if (mu_r >= 0.0 && mu_r <= 0.022) return 1.0;
                    if (mu_r > 0.22 && mu_r <= 0.075) return 1.0 + 30.55 * pow(0.292 - m_criticalCompressibility, 1.72);
                    if (mu_r > 0.075) return 1.0 + (30.55 * pow(0.292 - m_criticalCompressibility, 1.72) * abs(0.96 + 0.1 * (tr - 0.7)));
-                   throw PCProps::PCPropsException("Invalid dipole moment value.");
+                   throw std::invalid_argument("Invalid dipole moment value.");
             }();
 
             double ksi = 0.176 * pow(m_criticalTemperature, 1.0/6) * pow(m_molarWeight, -0.5) * pow(m_criticalPressure / 1E5, -2.0/3);

@@ -36,7 +36,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <LiquidVolume/Elbro.hpp>
-#include <catch.hpp>
+#include <catch/catch.hpp>
 #include <list>
 #include <utility>
 

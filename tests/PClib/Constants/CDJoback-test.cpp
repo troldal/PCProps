@@ -36,7 +36,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <ConstantData/CDJoback.hpp>
-#include <catch.hpp>
+#include <catch/catch.hpp>
 
 using PCProps::ConstantData::CDJoback;
 using PCProps::ConstantData::CDJobackGroup;
