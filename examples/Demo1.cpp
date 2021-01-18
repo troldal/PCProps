@@ -1,17 +1,17 @@
 #include <iomanip>
 #include <iostream>
 
-#include <library/EquationOfState/PengRobinson.hpp>
-#include <library/HeatCapacity/AlyLee.hpp>
-#include <library/HeatCapacity/PPDSLiquid.hpp>
-#include <library/LiquidVolume/Rackett.hpp>
-#include <library/PCComponent.hpp>
-#include <library/PCPropsData.hpp>
-#include <library/VaporPressure/AmbroseWalton.hpp>
-#include <library/VaporPressure/AntoineExtended.hpp>
-#include <library/Viscosity/DIPPR102.hpp>
-#include <library/Viscosity/KirchhoffExtended.hpp>
-#include <library/Viscosity/Lucas.hpp>
+#include <common/PropertyData.hpp>
+#include <PengRobinson/PengRobinson.hpp>
+#include <HeatCapacity/AlyLee.hpp>
+#include <HeatCapacity/PPDSLiquid.hpp>
+#include <LiquidVolume/Rackett.hpp>
+#include <PCComponent.hpp>
+#include <VaporPressure/AmbroseWalton.hpp>
+#include <VaporPressure/AntoineExtended.hpp>
+#include <Viscosity/DIPPR102.hpp>
+#include <Viscosity/KirchhoffExtended.hpp>
+#include <Viscosity/Lucas.hpp>
 using PCProps::VaporPressure::AmbroseWalton;
 
 using PCProps::EquationOfState::PengRobinson;

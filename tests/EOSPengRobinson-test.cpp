@@ -3,9 +3,9 @@
 //
 
 #include <catch.hpp>
+#include <common/PropertyData.hpp>
 #include <library/EquationOfState/PengRobinson.hpp>
 #include <library/HeatCapacity/AlyLee.hpp>
-#include <library/PCPropsData.hpp>
 
 using PCProps::EquationOfState::PengRobinson;
 using PCProps::PCPhase;

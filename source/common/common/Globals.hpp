@@ -2,8 +2,8 @@
 // Created by Kenneth Balslev on 31/12/2020.
 //
 
-#ifndef PCPROPS_PCGLOBALS_HPP
-#define PCPROPS_PCGLOBALS_HPP
+#ifndef PCPROPS_GLOBALS_HPP
+#define PCPROPS_GLOBALS_HPP
 
 namespace PCProps::Globals
 {
@@ -15,4 +15,4 @@ namespace PCProps::Globals
 
 }    // namespace PCProps::Globals
 
-#endif    // PCPROPS_PCGLOBALS_HPP
+#endif    // PCPROPS_GLOBALS_HPP

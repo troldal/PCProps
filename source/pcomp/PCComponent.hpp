@@ -45,9 +45,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <string>
 #include <type_traits>
 
-#include <library/PCEquationOfState.hpp>
-#include <library/PCPropsData.hpp>
-#include <library/PCPropsException.hpp>
+#include <common/PropertyData.hpp>
+#include <PCEquationOfState.hpp>
+#include <PCPropsException.hpp>
 
 #include <types/types.hpp>
 

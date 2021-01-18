@@ -4,8 +4,8 @@
 
 #include "Pipe.hpp"
 
-#include <library/PCGlobals.hpp>
-#include <library/PCPropsException.hpp>
+#include <common/Globals.hpp>
+#include <pcomp/PCPropsException.hpp>
 
 #include <cmath>
 

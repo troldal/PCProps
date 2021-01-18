@@ -5,7 +5,7 @@
 #ifndef PCPROPS_PIPE_HPP
 #define PCPROPS_PIPE_HPP
 
-#include <PCPropsData.hpp>
+#include <common/PropertyData.hpp>
 
 namespace PCProps::UnitOps
 {

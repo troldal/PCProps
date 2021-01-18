@@ -40,7 +40,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "PCComponent.hpp"
 
-#include <library/PCPropsException.hpp>
+#include <PCPropsException.hpp>
 
 #include <json/json.hpp>
 

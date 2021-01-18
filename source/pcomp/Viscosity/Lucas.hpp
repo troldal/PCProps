@@ -7,7 +7,7 @@
 
 #include <functional>
 
-#include <library/PCPropsException.hpp>
+#include <PCPropsException.hpp>
 
 namespace PCProps::Viscosity
 {

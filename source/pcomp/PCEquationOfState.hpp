@@ -40,7 +40,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <memory>
 
-#include <library/PCPropsData.hpp>
+#include <common/PropertyData.hpp>
 
 namespace PCProps
 {

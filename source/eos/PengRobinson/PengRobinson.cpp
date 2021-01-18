@@ -41,9 +41,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <vector>
 
 #include "PengRobinson.hpp"
-#include <PCGlobals.hpp>
-#include <library/PCPropsException.hpp>
-#include <library/VaporPressure/AmbroseWalton.hpp>
+#include <common/Globals.hpp>
+#include <PCPropsException.hpp>
+#include <VaporPressure/AmbroseWalton.hpp>
 
 
 #include <json/json.hpp>

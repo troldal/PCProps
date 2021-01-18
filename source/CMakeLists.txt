@@ -1,54 +1,4 @@
 #=======================================================================================================================
-# PROJECT FILES
-#   List of project source files
-#=======================================================================================================================
-set(PROJECT_TEMPLATE_SOURCES
-        library/PCComponent.cpp
-        library/ConstantData/CDJoback.cpp
-        library/EquationOfState/PengRobinson.cpp
-        library/UnitOps/Pipe.cpp
-        )
-
-
-#=======================================================================================================================
-# STATIC LIBRARY
-#   Define the static library
-#=======================================================================================================================
-add_library(${PROJECT_NAME}-library-static STATIC "")
-target_sources(${PROJECT_NAME}-library-static PRIVATE ${PROJECT_TEMPLATE_SOURCES})
-target_include_directories(${PROJECT_NAME}-library-static
-        PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/library>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(${PROJECT_NAME}-library-static PUBLIC dependencies)
-target_compile_definitions(${PROJECT_NAME}-library-static PUBLIC OPENXLSX_STATIC_DEFINE)
-
-#=======================================================================================================================
-# SHARED LIBRARY
-#   Define the shared library
-#=======================================================================================================================
-add_library(${PROJECT_NAME}-library-shared SHARED "")
-target_sources(${PROJECT_NAME}-library-shared PRIVATE ${PROJECT_TEMPLATE_SOURCES})
-target_include_directories(${PROJECT_NAME}-library-shared
-        PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/library>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(${PROJECT_NAME}-library-shared PUBLIC dependencies)
-
-#=======================================================================================================================
-# GENERATE EXPORT HEADER
-#   Generate preprocessor definitions for setting symbol visibility.
-#=======================================================================================================================
-include(GenerateExportHeader)
-generate_export_header(${PROJECT_NAME}-library-shared)
-        #BASE_NAME openxlsx
-        #EXPORT_FILE_NAME OpenXLSX-Exports.hpp
-        #EXPORT_MACRO_NAME OPENXLSX_EXPORT
-        #NO_EXPORT_MACRO_NAME OPENXLSX_HIDDEN)
-
-#=======================================================================================================================
 # COMPILER FLAGS
 #   Set compiler debug flags for GCC, Clang and MSVC.
 #=======================================================================================================================
@@ -104,48 +54,95 @@ list(APPEND RELEASE_FLAGS_MSVC
         "/wd4251"
         "/wd4275")
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    target_compile_options(${PROJECT_NAME}-library-shared PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_GNU}>)
-    target_compile_options(${PROJECT_NAME}-library-static PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_GNU}>)
 
-elseif (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR
-        ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang") OR
-        ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-    target_compile_options(${PROJECT_NAME}-library-shared PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_GNUCLANG}>)
-    target_compile_options(${PROJECT_NAME}-library-static PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_GNUCLANG}>)
+add_subdirectory(common)
+add_subdirectory(eos)
+add_subdirectory(pcomp)
 
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    string(REGEX REPLACE "/W[3|4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    target_compile_options(${PROJECT_NAME}-library-shared PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_MSVC}>)
-    target_compile_options(${PROJECT_NAME}-library-static PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_MSVC}>)
-    target_compile_options(${PROJECT_NAME}-library-shared PRIVATE $<$<CONFIG:Release>:${RELEASE_FLAGS_MSVC}>)
-    target_compile_options(${PROJECT_NAME}-library-static PRIVATE $<$<CONFIG:Release>:${RELEASE_FLAGS_MSVC}>)
-endif ()
+##=======================================================================================================================
+## PROJECT FILES
+##   List of project source files
+##=======================================================================================================================
+#set(PROJECT_TEMPLATE_SOURCES
+#        pcomp/PCComponent.cpp
+#        pcomp/ConstantData/CDJoback.cpp
+#        eos/PengRobinson/PengRobinson.cpp
+#        pcomp/UnitOps/Pipe.cpp
+#        )
+#
+#
+##=======================================================================================================================
+## STATIC LIBRARY
+##   Define the static library
+##=======================================================================================================================
+#add_library(${PROJECT_NAME}-library-static STATIC "")
+#target_sources(${PROJECT_NAME}-library-static PRIVATE ${PROJECT_TEMPLATE_SOURCES})
+#target_include_directories(${PROJECT_NAME}-library-static
+#        PUBLIC
+#        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+#        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/library>
+#        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
+#target_link_libraries(${PROJECT_NAME}-library-static PUBLIC dependencies common)
+#target_compile_definitions(${PROJECT_NAME}-library-static PUBLIC OPENXLSX_STATIC_DEFINE)
+#
+##=======================================================================================================================
+## SHARED LIBRARY
+##   Define the shared library
+##=======================================================================================================================
+#add_library(${PROJECT_NAME}-library-shared SHARED "")
+#target_sources(${PROJECT_NAME}-library-shared PRIVATE ${PROJECT_TEMPLATE_SOURCES})
+#target_include_directories(${PROJECT_NAME}-library-shared
+#        PUBLIC
+#        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+#        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/library>
+#        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
+#target_link_libraries(${PROJECT_NAME}-library-shared PUBLIC dependencies common)
+#
+##=======================================================================================================================
+## GENERATE EXPORT HEADER
+##   Generate preprocessor definitions for setting symbol visibility.
+##=======================================================================================================================
+#include(GenerateExportHeader)
+#generate_export_header(${PROJECT_NAME}-library-shared)
+#        #BASE_NAME openxlsx
+#        #EXPORT_FILE_NAME OpenXLSX-Exports.hpp
+#        #EXPORT_MACRO_NAME OPENXLSX_EXPORT
+#        #NO_EXPORT_MACRO_NAME OPENXLSX_HIDDEN)
+#
+##=======================================================================================================================
+## SET TARGET COMPILE OPTIONS
+##   ---
+##=======================================================================================================================
+#
+#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+#    target_compile_options(${PROJECT_NAME}-library-shared PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_GNU}>)
+#    target_compile_options(${PROJECT_NAME}-library-static PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_GNU}>)
+#
+#elseif (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR
+#        ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang") OR
+#        ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+#    target_compile_options(${PROJECT_NAME}-library-shared PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_GNUCLANG}>)
+#    target_compile_options(${PROJECT_NAME}-library-static PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_GNUCLANG}>)
+#
+#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+#    string(REGEX REPLACE "/W[3|4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+#    target_compile_options(${PROJECT_NAME}-library-shared PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_MSVC}>)
+#    target_compile_options(${PROJECT_NAME}-library-static PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_MSVC}>)
+#    target_compile_options(${PROJECT_NAME}-library-shared PRIVATE $<$<CONFIG:Release>:${RELEASE_FLAGS_MSVC}>)
+#    target_compile_options(${PROJECT_NAME}-library-static PRIVATE $<$<CONFIG:Release>:${RELEASE_FLAGS_MSVC}>)
+#endif ()
+#
+##=======================================================================================================================
+## Enable Link-Time Optimization
+##=======================================================================================================================
+#if (CMAKE_BUILD_TYPE STREQUAL "Release")
+#    include(CheckIPOSupported)
+#    check_ipo_supported(RESULT result OUTPUT output)
+#    if (result)
+#        set_property(TARGET ${PROJECT_NAME}-library-shared PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+#    endif ()
+#endif ()
 
-#=======================================================================================================================
-# Enable Link-Time Optimization
-#=======================================================================================================================
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    include(CheckIPOSupported)
-    check_ipo_supported(RESULT result OUTPUT output)
-    if (result)
-        set_property(TARGET ${PROJECT_NAME}-library-shared PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-    endif ()
-endif ()
-
-
-#=======================================================================================================================
-# Enable code coverage
-#=======================================================================================================================
-if (ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT WIN32)
-        target_compile_options(${PROJECT_NAME}-library-shared PRIVATE -fprofile-instr-generate -fcoverage-mapping)
-        target_link_options(${PROJECT_NAME}-library-shared PRIVATE -fprofile-instr-generate)
-    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        target_compile_options(${PROJECT_NAME}-library-shared PRIVATE --coverage)
-        target_link_options(${PROJECT_NAME}-library-shared PRIVATE --coverage)
-    endif ()
-endif ()
 
 
 #=======================================================================================================================

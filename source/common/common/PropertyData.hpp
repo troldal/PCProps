@@ -35,8 +35,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_PCPROPSDATA_HPP
-#define PCPROPS_PCPROPSDATA_HPP
+#ifndef PCPROPS_PROPERTYDATA_HPP
+#define PCPROPS_PROPERTYDATA_HPP
 
 #include <array>
 #include <iomanip>
@@ -321,4 +321,4 @@ namespace PCProps
 
 }    // namespace PCProps
 
-#endif    // PCPROPS_PCPROPSDATA_HPP
+#endif    // PCPROPS_PROPERTYDATA_HPP
