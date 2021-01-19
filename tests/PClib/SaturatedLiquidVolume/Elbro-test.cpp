@@ -35,65 +35,67 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <LiquidVolume/HankinsonThomson.hpp>
+#include <SaturatedLiquidVolume/Elbro.hpp>
 #include <catch/catch.hpp>
+#include <list>
+#include <utility>
 
-using PCProps::LiquidVolume::HankinsonThomson;
+using PCProps::LiquidVolume::Elbro;
 
-TEST_CASE("SLVHankinsonThomson produces correct saturated liquid volume calculations")
+TEST_CASE("SLVElbro produces correct saturated liquid volume calculations")
 {
-    SECTION("Example from Reid et. al 4th Edition")
+    SECTION("Example 1 from Reid et. al 5th Edition, with std::vector")
     {
-        auto isobutane = PCProps::LiquidVolume::HankinsonThomson(408.04, 256.8E-6, 0.1825);
+        auto hexadecane = Elbro({ { 1, 2 }, { 2, 14 } });
 
-        REQUIRE(isobutane(310.93) == Approx(108.9E-6).epsilon(0.001));
+        REQUIRE(hexadecane(298.15) == Approx(294.39E-6).epsilon(0.001));
     }
 
-    SECTION("Example using estimated properties")
+    SECTION("Example 1 from Reid et. al 5th Edition, with std::list")
     {
-        auto isobutane2 = HankinsonThomson(HankinsonThomson::CreateFromEstimatedProperties { 408.04, 3640000, 0.1825 });
+        auto hexadecane = Elbro(std::list { std::make_pair(1, 2), std::make_pair(2, 14) });
 
-        REQUIRE(isobutane2(310.93) == Approx(108.255E-6).epsilon(0.001));
+        REQUIRE(hexadecane(298.15) == Approx(294.39E-6).epsilon(0.001));
     }
 
-    SECTION("Example from Gmehling et. al 2nd Edition")
+    SECTION("Example 2 from Reid et. al 5th Edition")
     {
-        auto n_hexane = PCProps::LiquidVolume::HankinsonThomson(507.8, 386.8E-6, 0.3002);
+        auto polymethylacrylate = Elbro({ { 1, 1 }, { 2, 1 }, { 22, 1 } });
 
-        REQUIRE(n_hexane(293.15) == Approx(136.85E-6).epsilon(0.001));
+        REQUIRE(polymethylacrylate(298.15) == Approx(71.4E-6).epsilon(0.001));
     }
 
     SECTION("Copy constructor")
     {
-        auto n_hexane = PCProps::LiquidVolume::HankinsonThomson(507.8, 386.8E-6, 0.3002);
-        auto copy(n_hexane);
+        auto hexadecane = Elbro({ { 1, 2 }, { 2, 14 } });
+        auto copy(hexadecane);
 
-        REQUIRE(copy(293.15) == Approx(136.85E-6).epsilon(0.001));
+        REQUIRE(copy(298.15) == Approx(294.39E-6).epsilon(0.001));
     }
 
     SECTION("Move constructor")
     {
-        auto n_hexane = PCProps::LiquidVolume::HankinsonThomson(507.8, 386.8E-6, 0.3002);
-        auto copy(std::move(n_hexane));
+        auto hexadecane = Elbro({ { 1, 2 }, { 2, 14 } });
+        auto copy(std::move(hexadecane));
 
-        REQUIRE(copy(293.15) == Approx(136.85E-6).epsilon(0.001));
+        REQUIRE(copy(298.15) == Approx(294.39E-6).epsilon(0.001));
     }
 
     SECTION("Coefficients from Perry's using copy assignment")
     {
-        auto n_hexane = PCProps::LiquidVolume::HankinsonThomson(507.8, 386.8E-6, 0.3002);
-        auto copy     = PCProps::LiquidVolume::HankinsonThomson(0.0, 0.0, 0.0);
-        copy          = n_hexane;
+        auto hexadecane = Elbro({ { 1, 2 }, { 2, 14 } });
+        auto copy       = Elbro();
+        copy            = hexadecane;
 
-        REQUIRE(copy(293.15) == Approx(136.85E-6).epsilon(0.001));
+        REQUIRE(copy(298.15) == Approx(294.39E-6).epsilon(0.001));
     }
 
     SECTION("Coefficients from Perry's using move assignment")
     {
-        auto n_hexane = PCProps::LiquidVolume::HankinsonThomson(507.8, 386.8E-6, 0.3002);
-        auto copy     = PCProps::LiquidVolume::HankinsonThomson(0.0, 0.0, 0.0);
-        copy          = std::move(n_hexane);
+        auto hexadecane = Elbro({ { 1, 2 }, { 2, 14 } });
+        auto copy       = Elbro();
+        copy            = std::move(hexadecane);
 
-        REQUIRE(copy(293.15) == Approx(136.85E-6).epsilon(0.001));
+        REQUIRE(copy(298.15) == Approx(294.39E-6).epsilon(0.001));
     }
 }

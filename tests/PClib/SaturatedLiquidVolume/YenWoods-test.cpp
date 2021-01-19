@@ -35,7 +35,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <LiquidVolume/YenWoods.hpp>
+#include <SaturatedLiquidVolume/YenWoods.hpp>
 #include <catch/catch.hpp>
 
 using PCProps::LiquidVolume::YenWoods;

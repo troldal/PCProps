@@ -35,17 +35,17 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <ConstantData/CDJoback.hpp>
+#include <ConstantData/Joback.hpp>
 #include <catch/catch.hpp>
 
-using PCProps::ConstantData::CDJoback;
-using PCProps::ConstantData::CDJobackGroup;
+using PCProps::ConstantData::JobackGroup;
+using PCProps::ConstantData::Joback;
 
 TEST_CASE("CDJoback Test")
 {
     SECTION("Property Estimation - Wikipedia Example")
     {
-        CDJoback acetone(std::vector<CDJobackGroup> { { 1, 2 }, { 24, 1 } }, 58.08, 10, 0.0);
+        Joback acetone(std::vector<JobackGroup> { { 1, 2 }, { 24, 1 } }, 58.08, 10, 0.0);
 
         REQUIRE(acetone.boilingTemperatureIsValid());
         REQUIRE(acetone.meltingTemperatureIsValid());
@@ -74,7 +74,7 @@ TEST_CASE("CDJoback Test")
 
     SECTION("Property Estimation - Perry Example")
     {
-        CDJoback o_xylene(std::vector<CDJobackGroup> { { 14, 4 }, { 15, 2 }, { 1, 2 } }, 122.16, 18, 417.58);
+        Joback o_xylene(std::vector<JobackGroup> { { 14, 4 }, { 15, 2 }, { 1, 2 } }, 122.16, 18, 417.58);
 
         REQUIRE(o_xylene.criticalTemperatureIsValid());
         REQUIRE(o_xylene.criticalPressureIsValid());
@@ -87,7 +87,7 @@ TEST_CASE("CDJoback Test")
 
     SECTION("Property Estimation - Poling & Prausnitz Example")
     {
-        CDJoback ethylphenol_a(std::vector<CDJobackGroup> { { 1, 1 }, { 2, 1 }, { 14, 4 }, { 15, 2 }, { 21, 1 } }, 106.16, 19, 477.67);
+        Joback ethylphenol_a(std::vector<JobackGroup> { { 1, 1 }, { 2, 1 }, { 14, 4 }, { 15, 2 }, { 21, 1 } }, 106.16, 19, 477.67);
 
         REQUIRE(ethylphenol_a.criticalTemperatureIsValid());
         REQUIRE(ethylphenol_a.criticalPressureIsValid());
@@ -97,7 +97,7 @@ TEST_CASE("CDJoback Test")
         REQUIRE(ethylphenol_a.criticalPressure() == Approx(44.09E5).epsilon(0.001));
         REQUIRE(ethylphenol_a.criticalVolume() == Approx(341.5E-6).epsilon(0.001));
 
-        CDJoback ethylphenol_b(std::vector<CDJobackGroup> { { 1, 1 }, { 2, 1 }, { 14, 4 }, { 15, 2 }, { 21, 1 } }, 106.16, 19);
+        Joback ethylphenol_b(std::vector<JobackGroup> { { 1, 1 }, { 2, 1 }, { 14, 4 }, { 15, 2 }, { 21, 1 } }, 106.16, 19);
 
         REQUIRE(ethylphenol_b.criticalTemperatureIsValid());
         REQUIRE(ethylphenol_b.criticalTemperature() == Approx(715.5).epsilon(0.001));

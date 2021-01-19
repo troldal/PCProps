@@ -49,7 +49,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace PCProps::ConstantData::detail
 {
-    using CDJobackGroupDef = std::tuple<
+    using JobackGroupDef = std::tuple<
         std::optional<double>,
         std::optional<double>,
         std::optional<double>,
@@ -66,10 +66,10 @@ namespace PCProps::ConstantData::detail
         std::optional<double>,
         std::optional<double>>;
 
-    enum CDJobackProperty { Tc, Pc, Vc, Tb, Tm, Hform, Gform, igCp_a, igCp_b, igCp_c, igCp_d, Hfus, Hvap, liqVis_a, liqVis_b };
+    enum JobackProperty { Tc, Pc, Vc, Tb, Tm, Hform, Gform, igCp_a, igCp_b, igCp_c, igCp_d, Hfus, Hvap, liqVis_a, liqVis_b };
 
-    constexpr std::array<CDJobackGroupDef, 41> JobackGroups {
-        /*  1: −CH3 (non-ring)       */ CDJobackGroupDef { 0.0141,
+    constexpr std::array<JobackGroupDef, 41> JobackGroups {
+        /*  1: −CH3 (non-ring)       */ JobackGroupDef { 0.0141,
                                                            -0.0012,
                                                            65,
                                                            23.58,
@@ -85,7 +85,7 @@ namespace PCProps::ConstantData::detail
                                                            548.29,
                                                            -1.719 },
         /*  2: −CH2− (non-ring)      */
-                                        CDJobackGroupDef { 0.0189,
+        JobackGroupDef { 0.0189,
                                                            0.0000,
                                                            56,
                                                            22.88,
@@ -101,7 +101,7 @@ namespace PCProps::ConstantData::detail
                                                            94.16,
                                                            -0.199 },
         /*  3: >CH− (non-ring)       */
-                                        CDJobackGroupDef { 0.0164,
+        JobackGroupDef { 0.0164,
                                                            0.0020,
                                                            41,
                                                            21.74,
@@ -117,7 +117,7 @@ namespace PCProps::ConstantData::detail
                                                            -322.15,
                                                            1.187 },
         /*  4: >C< (non-ring)        */
-                                        CDJobackGroupDef { 0.0067,
+        JobackGroupDef { 0.0067,
                                                            0.0043,
                                                            27,
                                                            18.25,
@@ -133,7 +133,7 @@ namespace PCProps::ConstantData::detail
                                                            -573.56,
                                                            2.307 },
         /*  5: =CH2 (non-ring)       */
-                                        CDJobackGroupDef { 0.0113,
+        JobackGroupDef { 0.0113,
                                                            -0.0028,
                                                            56,
                                                            18.18,
@@ -149,9 +149,9 @@ namespace PCProps::ConstantData::detail
                                                            495.01,
                                                            -1.539 },
         /*  6: =CH− (non-ring)       */
-                                        CDJobackGroupDef { 0.0129, -0.0006, 46, 24.96, 8.73, 37.97, 48.53, -8.00, 1.05E-1, -9.63E-5, 3.56E-8, 2.691, 2.205, 82.28, -0.242 },
+        JobackGroupDef { 0.0129, -0.0006, 46, 24.96, 8.73, 37.97, 48.53, -8.00, 1.05E-1, -9.63E-5, 3.56E-8, 2.691, 2.205, 82.28, -0.242 },
         /*  7: =C< (non-ring)        */
-                                        CDJobackGroupDef { 0.0117,
+        JobackGroupDef { 0.0117,
                                                            0.0011,
                                                            38,
                                                            24.14,
@@ -167,7 +167,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /*  8: =C= (non-ring)        */
-                                        CDJobackGroupDef { 0.0026,
+        JobackGroupDef { 0.0026,
                                                            0.0028,
                                                            36,
                                                            26.15,
@@ -183,7 +183,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /*  9: ≡CH (non-ring)        */
-                                        CDJobackGroupDef { 0.0027,
+        JobackGroupDef { 0.0027,
                                                            -0.0008,
                                                            46,
                                                            9.20,
@@ -199,7 +199,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 10: ≡C− (non-ring)        */
-                                        CDJobackGroupDef { 0.0020,
+        JobackGroupDef { 0.0020,
                                                            0.0016,
                                                            37,
                                                            27.38,
@@ -215,7 +215,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 11: −CH2− (ring)          */
-                                        CDJobackGroupDef { 0.0100,
+        JobackGroupDef { 0.0100,
                                                            0.0025,
                                                            48,
                                                            27.15,
@@ -231,7 +231,7 @@ namespace PCProps::ConstantData::detail
                                                            307.53,
                                                            -0.798 },
         /* 12: >CH− (ring)           */
-                                        CDJobackGroupDef { 0.0122,
+        JobackGroupDef { 0.0122,
                                                            0.0004,
                                                            38,
                                                            21.78,
@@ -247,7 +247,7 @@ namespace PCProps::ConstantData::detail
                                                            -394.29,
                                                            1.251 },
         /* 13: >C< (ring)            */
-                                        CDJobackGroupDef { 0.0042,
+        JobackGroupDef { 0.0042,
                                                            0.0061,
                                                            27,
                                                            21.32,
@@ -263,9 +263,9 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 14: =CH− (ring)           */
-                                        CDJobackGroupDef { 0.0082, 0.0011, 41, 26.73, 8.13, 2.09, 11.30, -2.14, 5.74E-2, -1.64E-6, -1.59E-8, 1.101, 2.544, 259.65, -0.702 },
+        JobackGroupDef { 0.0082, 0.0011, 41, 26.73, 8.13, 2.09, 11.30, -2.14, 5.74E-2, -1.64E-6, -1.59E-8, 1.101, 2.544, 259.65, -0.702 },
         /* 15: =C< (ring)            */
-                                        CDJobackGroupDef { 0.0143,
+        JobackGroupDef { 0.0143,
                                                            0.0008,
                                                            32,
                                                            31.01,
@@ -281,7 +281,7 @@ namespace PCProps::ConstantData::detail
                                                            -245.74,
                                                            0.912 },
         /* 16: −F                    */
-                                        CDJobackGroupDef { 0.0111,
+        JobackGroupDef { 0.0111,
                                                            -0.0057,
                                                            27,
                                                            -0.03,
@@ -297,7 +297,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 17: −Cl                   */
-                                        CDJobackGroupDef { 0.0105,
+        JobackGroupDef { 0.0105,
                                                            -0.0049,
                                                            58,
                                                            38.13,
@@ -313,7 +313,7 @@ namespace PCProps::ConstantData::detail
                                                            625.45,
                                                            -1.814 },
         /* 18: −Br                   */
-                                        CDJobackGroupDef { 0.0133,
+        JobackGroupDef { 0.0133,
                                                            0.0057,
                                                            71,
                                                            66.86,
@@ -329,7 +329,7 @@ namespace PCProps::ConstantData::detail
                                                            738.91,
                                                            -2.038 },
         /* 19: −I                    */
-                                        CDJobackGroupDef { 0.0068,
+        JobackGroupDef { 0.0068,
                                                            -0.0034,
                                                            97,
                                                            93.84,
@@ -345,7 +345,7 @@ namespace PCProps::ConstantData::detail
                                                            809.55,
                                                            -2.224 },
         /* 20: −OH (alcohol)         */
-                                        CDJobackGroupDef { 0.0741,
+        JobackGroupDef { 0.0741,
                                                            0.0112,
                                                            28,
                                                            92.88,
@@ -361,7 +361,7 @@ namespace PCProps::ConstantData::detail
                                                            2173.72,
                                                            -5.057 },
         /* 21: −OH (phenol)          */
-                                        CDJobackGroupDef { 0.0240,
+        JobackGroupDef { 0.0240,
                                                            0.0184,
                                                            -25,
                                                            76.34,
@@ -377,7 +377,7 @@ namespace PCProps::ConstantData::detail
                                                            3018.17,
                                                            -7.314 },
         /* 22: −O− (non-ring)        */
-                                        CDJobackGroupDef { 0.0168,
+        JobackGroupDef { 0.0168,
                                                            0.0015,
                                                            18,
                                                            22.42,
@@ -393,7 +393,7 @@ namespace PCProps::ConstantData::detail
                                                            122.09,
                                                            -0.386 },
         /* 23: −O− (ring)            */
-                                        CDJobackGroupDef { 0.0098,
+        JobackGroupDef { 0.0098,
                                                            0.0048,
                                                            13,
                                                            31.22,
@@ -409,7 +409,7 @@ namespace PCProps::ConstantData::detail
                                                            440.24,
                                                            -0.953 },
         /* 24: >C=O (non-ring)       */
-                                        CDJobackGroupDef { 0.0380,
+        JobackGroupDef { 0.0380,
                                                            0.0031,
                                                            62,
                                                            76.75,
@@ -425,7 +425,7 @@ namespace PCProps::ConstantData::detail
                                                            340.35,
                                                            -0.350 },
         /* 25: >C=O (ring)           */
-                                        CDJobackGroupDef { 0.0284,
+        JobackGroupDef { 0.0284,
                                                            0.0028,
                                                            55,
                                                            94.97,
@@ -441,7 +441,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 26: O=CH− (aldehyde)      */
-                                        CDJobackGroupDef { 0.0379,
+        JobackGroupDef { 0.0379,
                                                            0.0030,
                                                            82,
                                                            72.24,
@@ -457,7 +457,7 @@ namespace PCProps::ConstantData::detail
                                                            740.92,
                                                            -1.713 },
         /* 27: −COOH (acid)          */
-                                        CDJobackGroupDef { 0.0791,
+        JobackGroupDef { 0.0791,
                                                            0.0077,
                                                            89,
                                                            169.09,
@@ -473,7 +473,7 @@ namespace PCProps::ConstantData::detail
                                                            1317.23,
                                                            -2.578 },
         /* 28: −COO− (ester)         */
-                                        CDJobackGroupDef { 0.0481,
+        JobackGroupDef { 0.0481,
                                                            0.0005,
                                                            82,
                                                            81.10,
@@ -489,7 +489,7 @@ namespace PCProps::ConstantData::detail
                                                            483.88,
                                                            -0.966 },
         /* 29: =O (other than above) */
-                                        CDJobackGroupDef { 0.0143,
+        JobackGroupDef { 0.0143,
                                                            0.0101,
                                                            36,
                                                            -10.50,
@@ -505,7 +505,7 @@ namespace PCProps::ConstantData::detail
                                                            675.24,
                                                            -1.340 },
         /* 30: −NH2                  */
-                                        CDJobackGroupDef { 0.0243,
+        JobackGroupDef { 0.0243,
                                                            0.0109,
                                                            38,
                                                            73.23,
@@ -521,7 +521,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 31: >NH (non-ring)        */
-                                        CDJobackGroupDef { 0.0295,
+        JobackGroupDef { 0.0295,
                                                            0.0077,
                                                            35,
                                                            50.17,
@@ -537,7 +537,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 32: >NH (ring)            */
-                                        CDJobackGroupDef { 0.0130,
+        JobackGroupDef { 0.0130,
                                                            0.0114,
                                                            29,
                                                            52.82,
@@ -553,7 +553,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 33: >N− (non-ring)        */
-                                        CDJobackGroupDef { 0.0169,
+        JobackGroupDef { 0.0169,
                                                            0.0074,
                                                            9,
                                                            11.74,
@@ -569,7 +569,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 34: −N= (non-ring)        */
-                                        CDJobackGroupDef { 0.0255,
+        JobackGroupDef { 0.0255,
                                                            -0.0099,
                                                            std::nullopt,
                                                            74.60,
@@ -585,7 +585,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 35: −N= (ring)            */
-                                        CDJobackGroupDef { 0.0085,
+        JobackGroupDef { 0.0085,
                                                            0.0076,
                                                            34,
                                                            57.55,
@@ -601,7 +601,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 36: =NH                   */
-                                        CDJobackGroupDef { std::nullopt,
+        JobackGroupDef { std::nullopt,
                                                            std::nullopt,
                                                            std::nullopt,
                                                            83.08,
@@ -617,7 +617,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 37: −CN                   */
-                                        CDJobackGroupDef { 0.0496,
+        JobackGroupDef { 0.0496,
                                                            -0.0101,
                                                            91,
                                                            125.66,
@@ -633,7 +633,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 38: −NO2                  */
-                                        CDJobackGroupDef { 0.0437,
+        JobackGroupDef { 0.0437,
                                                            0.0064,
                                                            91,
                                                            152.54,
@@ -649,7 +649,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 39: −SH                   */
-                                        CDJobackGroupDef { 0.0031,
+        JobackGroupDef { 0.0031,
                                                            0.0084,
                                                            63,
                                                            63.56,
@@ -665,7 +665,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 40: −S− (non-ring)        */
-                                        CDJobackGroupDef { 0.0119,
+        JobackGroupDef { 0.0119,
                                                            0.0049,
                                                            54,
                                                            68.78,
@@ -681,7 +681,7 @@ namespace PCProps::ConstantData::detail
                                                            std::nullopt,
                                                            std::nullopt },
         /* 41: −S− (ring)            */
-                                        CDJobackGroupDef { 0.0019,
+        JobackGroupDef { 0.0019,
                                                            0.0051,
                                                            38,
                                                            52.10,
@@ -738,7 +738,7 @@ namespace PCProps::ConstantData
      * example, Acetone consists of two methyl groups and one keton group. Methyl has an index of 1 and keton
      * has an index 24. Hence the CDJobackGroup definitions are <1, 2> and <24, 1>
      */
-    using CDJobackGroup = std::pair<int, int>;
+    using JobackGroup = std::pair<int, int>;
 
     /**
      * @brief The CDJoback class implements the Joback group contribution method for estimating pure component properties.
@@ -799,7 +799,7 @@ namespace PCProps::ConstantData
      * 41 | −S− (ring)
      *
      */
-    class CDJoback
+    class Joback
     {
         std::optional<double> m_sumTc;       /**< The sum of Joback terms for Tc estimation. */
         std::optional<double> m_sumPc;       /**< The sum of Joback terms for Pc estimation. */
@@ -827,7 +827,7 @@ namespace PCProps::ConstantData
         /**
          * @brief Constructor, default
          */
-        CDJoback() = default;
+        Joback() = default;
 
         /**
          * @brief Constructor, taking Joback groups, molecular weight and atom count as arguments.
@@ -837,7 +837,7 @@ namespace PCProps::ConstantData
          * @param boilingTemperature The normal boiling point of the component (needed for Tc estimation).
          * If not available, the normal boiling point can be estimated using the boilingTemperature() member function.
          */
-        CDJoback(const std::vector<CDJobackGroup>& groups, double molecularWeight, int atomCount, double boilingTemperature = 0.0)
+        Joback(const std::vector<JobackGroup>& groups, double molecularWeight, int atomCount, double boilingTemperature = 0.0)
             : m_sumTc { detail::accumulate<detail::Tc>(groups) },
               m_sumPc { detail::accumulate<detail::Pc>(groups) },
               m_sumVc { detail::accumulate<detail::Vc>(groups) },
@@ -868,40 +868,40 @@ namespace PCProps::ConstantData
          * @param atomCount The number of atoms in the compound.
          */
         template<typename Container>
-        CDJoback(const Container& groups, double molecularWeight, int atomCount)
+        Joback(const Container& groups, double molecularWeight, int atomCount)
         {
-            std::vector<CDJobackGroup> groupvec;
+            std::vector<JobackGroup> groupvec;
             for (const auto& item : groups) groupvec.template emplace_back(item);
 
-            *this = CDJoback(groupvec, molecularWeight, atomCount, 0.0);
+            *this = Joback(groupvec, molecularWeight, atomCount, 0.0);
         }
 
         /**
          * @brief Copy constructor.
          */
-        CDJoback(const CDJoback& other) = default;
+        Joback(const Joback& other) = default;
 
         /**
          * @brief Move constructor.
          */
-        CDJoback(CDJoback&& other) noexcept = default;
+        Joback(Joback&& other) noexcept = default;
 
         /**
          * @brief Destructor.
          */
-        ~CDJoback() = default;
+        ~Joback() = default;
 
         // ===== Manipulators ===== //
 
         /**
          * @brief Copy assignment operator.
          */
-        CDJoback& operator=(const CDJoback& other) = default;
+        Joback& operator=(const Joback& other) = default;
 
         /**
          * @brief Move assignment operator.
          */
-        CDJoback& operator=(CDJoback&& other) noexcept = default;
+        Joback& operator=(Joback&& other) noexcept = default;
 
         // ===== Accessors ===== //
 

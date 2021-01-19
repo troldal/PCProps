@@ -35,67 +35,63 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <LiquidVolume/Elbro.hpp>
+#include <CompressedLiquidVolume/Thomson.hpp>
 #include <catch/catch.hpp>
-#include <list>
-#include <utility>
 
-using PCProps::LiquidVolume::Elbro;
+using PCProps::LiquidVolume::Thomson;
 
-TEST_CASE("SLVElbro produces correct saturated liquid volume calculations")
+TEST_CASE("CLVThomson produces correct saturated liquid volume calculations")
 {
-    SECTION("Example 1 from Reid et. al 5th Edition, with std::vector")
+    SECTION("Example 1 from Reid et. al 5th Edition @ 300K")
     {
-        auto hexadecane = Elbro({ { 1, 2 }, { 2, 14 } });
+        auto ammonia_psat = [](double _) { return 10.61E5; };
+        auto ammonia_vsat = [](double _) { return 28.38E-6; };
+        auto ammonia      = Thomson(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
 
-        REQUIRE(hexadecane(298.15) == Approx(294.39E-6).epsilon(0.001));
-    }
-
-    SECTION("Example 1 from Reid et. al 5th Edition, with std::list")
-    {
-        auto hexadecane = Elbro(std::list { std::make_pair(1, 2), std::make_pair(2, 14) });
-
-        REQUIRE(hexadecane(298.15) == Approx(294.39E-6).epsilon(0.001));
-    }
-
-    SECTION("Example 2 from Reid et. al 5th Edition")
-    {
-        auto polymethylacrylate = Elbro({ { 1, 1 }, { 2, 1 }, { 22, 1 } });
-
-        REQUIRE(polymethylacrylate(298.15) == Approx(71.4E-6).epsilon(0.001));
+        REQUIRE(ammonia(300.0, 400E5) == Approx(27.2645E-6).epsilon(0.001));
     }
 
     SECTION("Copy constructor")
     {
-        auto hexadecane = Elbro({ { 1, 2 }, { 2, 14 } });
-        auto copy(hexadecane);
+        auto ammonia_psat = [](double _) { return 10.61E5; };
+        auto ammonia_vsat = [](double _) { return 28.38E-6; };
+        auto ammonia      = Thomson(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
 
-        REQUIRE(copy(298.15) == Approx(294.39E-6).epsilon(0.001));
+        auto copy(ammonia);
+
+        REQUIRE(copy(300.0, 400E5) == Approx(27.2645E-6).epsilon(0.001));
     }
 
     SECTION("Move constructor")
     {
-        auto hexadecane = Elbro({ { 1, 2 }, { 2, 14 } });
-        auto copy(std::move(hexadecane));
+        auto ammonia_psat = [](double _) { return 10.61E5; };
+        auto ammonia_vsat = [](double _) { return 28.38E-6; };
+        auto ammonia      = Thomson(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
 
-        REQUIRE(copy(298.15) == Approx(294.39E-6).epsilon(0.001));
+        auto copy(std::move(ammonia));
+
+        REQUIRE(copy(300.0, 400E5) == Approx(27.2645E-6).epsilon(0.001));
     }
 
     SECTION("Coefficients from Perry's using copy assignment")
     {
-        auto hexadecane = Elbro({ { 1, 2 }, { 2, 14 } });
-        auto copy       = Elbro();
-        copy            = hexadecane;
+        auto ammonia_psat = [](double _) { return 10.61E5; };
+        auto ammonia_vsat = [](double _) { return 28.38E-6; };
+        auto ammonia      = Thomson(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+        auto copy         = Thomson(0.0, 0.0, 0.0, {}, {});
+        copy              = ammonia;
 
-        REQUIRE(copy(298.15) == Approx(294.39E-6).epsilon(0.001));
+        REQUIRE(copy(300.0, 400E5) == Approx(27.2645E-6).epsilon(0.001));
     }
 
     SECTION("Coefficients from Perry's using move assignment")
     {
-        auto hexadecane = Elbro({ { 1, 2 }, { 2, 14 } });
-        auto copy       = Elbro();
-        copy            = std::move(hexadecane);
+        auto ammonia_psat = [](double _) { return 10.61E5; };
+        auto ammonia_vsat = [](double _) { return 28.38E-6; };
+        auto ammonia      = Thomson(405.4, 113.53E5, 0.256, ammonia_vsat, ammonia_psat);
+        auto copy         = Thomson(0.0, 0.0, 0.0, {}, {});
+        copy              = std::move(ammonia);
 
-        REQUIRE(copy(298.15) == Approx(294.39E-6).epsilon(0.001));
+        REQUIRE(copy(300.0, 400E5) == Approx(27.2645E-6).epsilon(0.001));
     }
 }
