@@ -122,11 +122,11 @@ namespace PCProps::EquationOfState
         PCPhases flashPT(double pressure, double temperature) const;
 
         /**
- * @brief Compute flash at specified pressure and computeEnthalpy.
- * @param pressure The pressure [Pa]
- * @param enthalpy The computeEnthalpy [J/mol]
- * @return The phase data for the phase(s) resulting from the flash.
- */
+         * @brief Compute flash at specified pressure and computeEnthalpy.
+         * @param pressure The pressure [Pa]
+         * @param enthalpy The computeEnthalpy [J/mol]
+         * @return The phase data for the phase(s) resulting from the flash.
+         */
         PCPhases flashPH(double pressure, double enthalpy) const;
 
         /**

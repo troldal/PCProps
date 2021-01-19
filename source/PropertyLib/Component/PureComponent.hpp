@@ -72,17 +72,17 @@ namespace PCProps
         std::optional<double> acentricFactor {};          /**< The acentric factor (omega) of a component */
         std::optional<double> dipoleMoment {};            /**< The dipole moment of the component */
 
-        std::function<double(double)> saturatedLiquidVolumeCorrelation {}; /**< The liquid density [HOLD] as a function of temperature [K] */
+        std::function<double(double)> satLiquidVolumeCorrelation {}; /**< The liquid density [HOLD] as a function of temperature [K] */
         std::function<double(double)> idealGasCpCorrelation {};            /**<  */
         std::function<double(double)> liquidCpCorrelation {};              /**< The liquid Cp [HOLD] as a function of temperature [K] */
         std::function<double(double)> vaporPressureCorrelation {};         /**< The vapor pressure [Pa] as a function of temperature [K] */
         std::function<double(double)> surfaceTensionCorrelation {};        /**< The surface tension [HOLD] as a function of temperature [K] */
         std::function<double(double)> heatOfVaporizationCorrelation {};    /**< The latent heat [HOLD] as a function of temperature [K] */
 
-        std::function<double(double)> saturatedVaporThermalConductivityCorrelation {};  /**< The vapor thermal conductivity [HOLD] as a function of temperature [K] */
-        std::function<double(double)> saturatedLiquidThermalConductivityCorrelation {}; /**< The liquid thermal conductivity [HOLD] as a function of temperature [K] */
-        std::function<double(double)> saturatedVaporViscosityCorrelation {};            /**< The vapor viscosity [HOLD] as a function of temperature [K] */
-        std::function<double(double)> saturatedLiquidViscosityCorrelation {};           /**< The liquid viscosity [HOLD] as a function of temperature [K] */
+        std::function<double(double)> satVaporThermalConductivityCorrelation {};  /**< The vapor thermal conductivity [HOLD] as a function of temperature [K] */
+        std::function<double(double)> satLiquidThermalConductivityCorrelation {}; /**< The liquid thermal conductivity [HOLD] as a function of temperature [K] */
+        std::function<double(double)> satVaporViscosityCorrelation {};            /**< The vapor viscosity [HOLD] as a function of temperature [K] */
+        std::function<double(double)> satLiquidViscosityCorrelation {};           /**< The liquid viscosity [HOLD] as a function of temperature [K] */
 
     };
 
@@ -273,11 +273,11 @@ namespace PCProps
         // ===== Accessors (Temperature Dependent) ===== //
 
         bool satLiquidVolumeIsValid() const {
-            return static_cast<bool>(m_data.saturatedLiquidVolumeCorrelation);
+            return static_cast<bool>(m_data.satLiquidVolumeCorrelation);
         }
 
         double satLiquidVolume(double temperature) const {
-            return m_data.saturatedLiquidVolumeCorrelation(temperature);
+            return m_data.satLiquidVolumeCorrelation(temperature);
         }
 
         bool idealGasCpIsValid() const {
@@ -321,35 +321,35 @@ namespace PCProps
         }
 
         bool satVaporThermalConductivityIsValid() const {
-            return static_cast<bool>(m_data.saturatedVaporThermalConductivityCorrelation);
+            return static_cast<bool>(m_data.satVaporThermalConductivityCorrelation);
         }
 
         double satVaporThermalConductivity(double temperature) const {
-            return m_data.saturatedVaporThermalConductivityCorrelation(temperature);
+            return m_data.satVaporThermalConductivityCorrelation(temperature);
         }
 
         bool satLiquidThermalConductivityIsValid() const {
-            return static_cast<bool>(m_data.saturatedLiquidThermalConductivityCorrelation);
+            return static_cast<bool>(m_data.satLiquidThermalConductivityCorrelation);
         }
 
         double satLiquidThermalConductivity(double temperature) const {
-            return m_data.saturatedLiquidThermalConductivityCorrelation(temperature);
+            return m_data.satLiquidThermalConductivityCorrelation(temperature);
         }
 
         bool satVaporViscosityIsValid() const {
-            return static_cast<bool>(m_data.saturatedVaporViscosityCorrelation);
+            return static_cast<bool>(m_data.satVaporViscosityCorrelation);
         }
 
         double satVaporViscosity(double temperature) const {
-            return m_data.saturatedVaporViscosityCorrelation(temperature);
+            return m_data.satVaporViscosityCorrelation(temperature);
         }
 
         bool satLiquidViscosityIsValid() const {
-            return static_cast<bool>(m_data.saturatedLiquidViscosityCorrelation);
+            return static_cast<bool>(m_data.satLiquidViscosityCorrelation);
         }
 
         double satLiquidViscosity(double temperature) const {
-            return m_data.saturatedLiquidViscosityCorrelation(temperature);
+            return m_data.satLiquidViscosityCorrelation(temperature);
         }
 
 

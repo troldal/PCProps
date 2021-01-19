@@ -63,13 +63,13 @@ TEST_CASE("PCComponent Test")
 //    pcd.equationOfState = PCProps::EquationOfState::PengRobinson {};
     pcd.idealGasCpCorrelation = AlyLee(AlyLee::CreateFromDIPPR { 0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6 });
     pcd.vaporPressureCorrelation          = [](double temperature) { return temperature; };
-    pcd.saturatedLiquidVolumeCorrelation  = [](double temperature) { return temperature; };
+    pcd.satLiquidVolumeCorrelation                    = [](double temperature) { return temperature; };
     pcd.surfaceTensionCorrelation         = [](double temperature) { return temperature; };
     pcd.heatOfVaporizationCorrelation     = [](double temperature) { return temperature; };
-    pcd.saturatedVaporThermalConductivityCorrelation = [](double temperature) { return temperature; };
-    pcd.saturatedLiquidThermalConductivityCorrelation = [](double temperature) { return temperature; };
-    pcd.saturatedVaporViscosityCorrelation   = [](double temperature) { return temperature; };
-    pcd.saturatedLiquidViscosityCorrelation  = [](double temperature) { return temperature; };
+    pcd.satVaporThermalConductivityCorrelation        = [](double temperature) { return temperature; };
+    pcd.satLiquidThermalConductivityCorrelation       = [](double temperature) { return temperature; };
+    pcd.satVaporViscosityCorrelation                  = [](double temperature) { return temperature; };
+    pcd.satLiquidViscosityCorrelation                 = [](double temperature) { return temperature; };
     pcd.liquidCpCorrelation                  = [](double temperature) { return temperature; };
 
     auto pc = PCProps::PureComponent(pcd);

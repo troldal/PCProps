@@ -1,13 +1,31 @@
 #include <iomanip>
 #include <iostream>
 
-#include <library/Viscosity/KirchhoffExtended.hpp>
-#include <library/Viscosity/LucasHPL.hpp>
-#include <library/VaporPressure/AmbroseWalton.hpp>
+#include <EOSLib.hpp>
+#include <Fluid.hpp>
+#include <PropertyLib.hpp>
 
-using PCProps::Viscosity::LucasHPL;
-using PCProps::Viscosity::KirchhoffExtended;
+#include <common/PropertyData.hpp>
+
 using PCProps::VaporPressure::AmbroseWalton;
+
+using PCProps::EquationOfState::PengRobinson;
+using PCProps::HeatCapacity::AlyLee;
+using PCProps::HeatCapacity::PPDSLiquid;
+using PCProps::LiquidVolume::Rackett;
+using PCProps::VaporPressure::AntoineExtended;
+
+using PCProps::PCComponentData;
+using PCProps::PCPhase;
+using PCProps::Viscosity::Lucas;
+using PCProps::Viscosity::DIPPR102;
+using PCProps::Viscosity::KirchhoffExtended;
+
+using PCProps::Enthalpy;
+using PCProps::Entropy;
+using PCProps::Pressure;
+using PCProps::Temperature;
+
 using namespace PCProps;
 
 int main()

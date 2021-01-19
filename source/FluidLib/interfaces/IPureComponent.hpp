@@ -136,6 +136,16 @@ namespace PCProps {
             return m_pureComponent->satLiquidVolume(temperature);
         }
 
+        double satVaporViscosity(double temperature) const
+        {
+            return m_pureComponent->satVaporViscosity(temperature);
+        }
+
+        double satLiquidViscosity(double temperature) const
+        {
+            return m_pureComponent->satLiquidViscosity(temperature);
+        }
+
 
     private:
         /**
@@ -201,6 +211,10 @@ namespace PCProps {
             virtual double idealGasCp(double temperature) const = 0;
 
             virtual double satLiquidVolume(double temperature) const = 0;
+
+            virtual double satVaporViscosity(double temperature) const = 0;
+
+            virtual double satLiquidViscosity(double temperature) const = 0;
 
         };
 
@@ -301,6 +315,16 @@ namespace PCProps {
             double satLiquidVolume(double temperature) const override
             {
                 return PCType.satLiquidVolume(temperature);
+            }
+
+            double satVaporViscosity(double temperature) const override
+            {
+                return PCType.satVaporViscosity(temperature);
+            }
+
+            double satLiquidViscosity(double temperature) const override
+            {
+                return PCType.satLiquidViscosity(temperature);
             }
 
         private:
