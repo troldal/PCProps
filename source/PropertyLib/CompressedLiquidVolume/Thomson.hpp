@@ -38,8 +38,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef PCPROPS_THOMSON_HPP
 #define PCPROPS_THOMSON_HPP
 
-#include "../../../../../../../../usr/local/opt/llvm@9/include/c++/v1/cmath"
-#include "../../../../../../../../usr/local/opt/llvm@9/include/c++/v1/functional"
+#include <cmath>
+#include <functional>
 
 namespace PCProps::LiquidVolume
 {

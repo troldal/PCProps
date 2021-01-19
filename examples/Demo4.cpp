@@ -12,7 +12,9 @@ using PCProps::VaporPressure::AmbroseWalton;
 using PCProps::EquationOfState::PengRobinson;
 using PCProps::HeatCapacity::AlyLee;
 using PCProps::HeatCapacity::PPDSLiquid;
+using PCProps::HeatCapacity::Polynomial;
 using PCProps::LiquidVolume::Rackett;
+using PCProps::LiquidVolume::YenWoods;
 using PCProps::VaporPressure::AntoineExtended;
 
 using PCProps::PCComponentData;
@@ -62,17 +64,18 @@ int main()
     data.satLiquidThermalConductivityCorrelation       = {};
     data.satVaporViscosityCorrelation                  = DIPPR102(1.7096E-08, 1.1146);
     data.satLiquidViscosityCorrelation                 = KirchhoffExtended(-52.843,3703.6,5.866,-5.879E-29, 10);
-    data.satLiquidVolumeCorrelation                    = YenWoods::createFromYenWoodsEstimation(647.10, 0.0000559472, 0.229435018515262);
+    data.satLiquidVolumeCorrelation                    = YenWoods(YenWoods::CreateFromYenWoodsEstimation{647.10, 0.0000559472, 0.229435018515262});
 
-    auto propane = PCComponent(data);
+    auto propane = PureComponent(data);
+    auto fluid = Fluid(propane, PengRobinson{});
 
     std::cout << "Water at 25 C and 1 atm: " << std::endl;
-    auto a = propane.flash(Pressure(101325), Temperature(298.15));
+    auto a = fluid.flash(Pressure(101325), Temperature(298.15));
     for (const auto& phase : a) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 
-    auto pipe = Pipe(9000, 152.0/1000, 7, 0);
-    std::cout << pipe.computeOutletPressure(a, 2620) << std::endl;
+//    auto pipe = Pipe(9000, 152.0/1000, 7, 0);
+//    std::cout << pipe.computeOutletPressure(a, 2620) << std::endl;
 
 
     return 0;
