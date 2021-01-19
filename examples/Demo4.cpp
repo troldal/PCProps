@@ -52,7 +52,7 @@ int main()
     data.name  = "H2=";
     data.casrn = "7732-18-5";
 
-    data.molecularWeight         = 18.015;
+    data.molarWeight             = 18.015;
     data.boilingTemperature      = 373.15;
     data.freezingTemperature     = 273.15;
     data.criticalTemperature     = 647.10;

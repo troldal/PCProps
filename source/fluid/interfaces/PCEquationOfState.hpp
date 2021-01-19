@@ -38,6 +38,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef PCPROPS_PCEQUATIONOFSTATE_HPP
 #define PCPROPS_PCEQUATIONOFSTATE_HPP
 
+#include <functional>
 #include <memory>
 
 #include <common/PropertyData.hpp>
@@ -64,7 +65,7 @@ namespace PCProps
          * @param x The target object
          */
         template<typename T>
-        explicit PCEquationOfState(const T& x) : m_equationOfState { std::make_unique<EOSModel<T>>(x) }
+        PCEquationOfState(const T& x) : m_equationOfState { std::make_unique<EOSModel<T>>(x) }
         {}
 
         /**

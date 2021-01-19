@@ -50,7 +50,7 @@ TEST_CASE("PCComponent Test")
     pcd.casrn   = "75-07-0";
     pcd.smiles  = "CC=O";
 
-    pcd.molecularWeight         = 44.053;
+    pcd.molarWeight             = 44.053;
     pcd.boilingTemperature      = 293.300;
     pcd.freezingTemperature     = 0.0;
     pcd.criticalTemperature     = 466.00;

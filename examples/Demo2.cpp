@@ -34,7 +34,7 @@ int main()
     data.name  = "C3H8";
     data.casrn = "74-98-6";
 
-    data.molecularWeight         = 44.096;
+    data.molarWeight             = 44.096;
     data.boilingTemperature      = 231.050008111111;
     data.freezingTemperature     = 85.15;
     data.criticalTemperature     = 369.83;

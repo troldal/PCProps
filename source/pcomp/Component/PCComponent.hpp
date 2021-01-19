@@ -61,7 +61,7 @@ namespace PCProps
         std::string casrn;   /** The CAS registration number for the component, e.g. 75-07-0 */
         std::string smiles;  /**< The SMILES string for the component, e.g. C */
 
-        std::optional<double> molecularWeight {};         /**< The molecular weight [g/mol] of a component, e.g. 16.043 g/mol */
+        std::optional<double> molarWeight {};             /**< The molecular weight [g/mol] of a component, e.g. 16.043 g/mol */
         std::optional<double> boilingTemperature {};      /**< The normal boiling temperature [K] (at 101325 Pa) of a component */
         std::optional<double> freezingTemperature {};     /**< The freezing point temperature [K] of a component */
         std::optional<double> criticalTemperature {};     /**< The critical temperature [K] of a component */
@@ -72,22 +72,18 @@ namespace PCProps
         std::optional<double> acentricFactor {};          /**< The acentric factor (omega) of a component */
         std::optional<double> dipoleMoment {};            /**< The dipole moment of the component */
 
-//        PCProps::PCEquationOfState    equationOfState {};
         std::function<double(double)> saturatedLiquidVolumeCorrelation {}; /**< The liquid density [HOLD] as a function of temperature [K] */
-        std::function<double(double)> idealGasCpCorrelation {};
-        std::function<double(double)> liquidCpCorrelation {};           /**< The liquid Cp [HOLD] as a function of temperature [K] */
-        std::function<double(double)> vaporPressureCorrelation {};      /**< The vapor pressure [Pa] as a function of temperature [K] */
-        std::function<double(double)> surfaceTensionCorrelation {};     /**< The surface tension [HOLD] as a function of temperature [K] */
-        std::function<double(double)> heatOfVaporizationCorrelation {}; /**< The latent heat [HOLD] as a function of temperature [K] */
+        std::function<double(double)> idealGasCpCorrelation {};            /**<  */
+        std::function<double(double)> liquidCpCorrelation {};              /**< The liquid Cp [HOLD] as a function of temperature [K] */
+        std::function<double(double)> vaporPressureCorrelation {};         /**< The vapor pressure [Pa] as a function of temperature [K] */
+        std::function<double(double)> surfaceTensionCorrelation {};        /**< The surface tension [HOLD] as a function of temperature [K] */
+        std::function<double(double)> heatOfVaporizationCorrelation {};    /**< The latent heat [HOLD] as a function of temperature [K] */
 
         std::function<double(double)> saturatedVaporThermalConductivityCorrelation {};  /**< The vapor thermal conductivity [HOLD] as a function of temperature [K] */
         std::function<double(double)> saturatedLiquidThermalConductivityCorrelation {}; /**< The liquid thermal conductivity [HOLD] as a function of temperature [K] */
         std::function<double(double)> saturatedVaporViscosityCorrelation {};            /**< The vapor viscosity [HOLD] as a function of temperature [K] */
         std::function<double(double)> saturatedLiquidViscosityCorrelation {};           /**< The liquid viscosity [HOLD] as a function of temperature [K] */
 
-//        std::function<double(double, double)> compressedLiquidVolumeCorrelation {};
-        // Compressed vapor/liquid thermal conductivity
-        // Compressed vapor/liquid viscosity
     };
 
     /**
@@ -104,8 +100,10 @@ namespace PCProps
         // ===== Private Data Members
         PCComponentData m_data = {}; /**< The data object, holding raw data and correlations for a pure component */
 
-        // ===== Public members
     public:
+
+        // ===== Constructors & Assignment Operators ===== //
+
         /**
          * @brief Default constructor.
          */
@@ -142,6 +140,9 @@ namespace PCProps
          */
         PCComponent& operator=(PCComponent&& other) noexcept = default;
 
+
+        // ===== Accessors (Constants) ===== //
+
         /**
          * @brief Get a copy of the PCComponentData object contained in the current object.
          * @return A copy of the PCComponentData member.
@@ -150,68 +151,6 @@ namespace PCProps
         {
             return m_data;
         }
-
-        /**
-         * @brief
-         * @param pressure
-         * @param temperature
-         * @return
-         */
-//        PCPhases flash(Pressure pressure, Temperature temperature) const;
-
-        /**
-         * @brief
-         * @param pressure
-         * @param vaporFraction
-         * @return
-         */
-//        PCPhases flash(Pressure pressure, VaporFraction vaporFraction) const;
-
-        /**
-         * @brief
-         * @param temperature
-         * @param vaporFraction
-         * @return
-         */
-//        PCPhases flash(Temperature temperature, VaporFraction vaporFraction) const;
-
-        /**
-         * @brief
-         * @param pressure
-         * @param enthalpy
-         * @return
-         */
-//        PCPhases flash(Pressure pressure, Enthalpy enthalpy) const;
-
-        /**
-         * @brief
-         * @param pressure
-         * @param entropy
-         * @return
-         */
-//        PCPhases flash(Pressure pressure, Entropy entropy) const;
-
-        /**
-         * @brief
-         * @param temperature
-         * @param volume
-         * @return
-         */
-//        PCPhases flash(Temperature temperature, Volume volume) const;
-
-        /**
-         * @brief
-         * @param temperature
-         * @return
-         */
-//        double saturationPressure(double temperature) const;
-
-        /**
-         * @brief
-         * @param pressure
-         * @return
-         */
-//        double saturationTemperature(double pressure) const;
 
         /**
          * @brief Get the name of the component.
@@ -248,6 +187,172 @@ namespace PCProps
         {
             return m_data.smiles;
         }
+
+
+
+        bool molecularWeightIsValid() const {
+            return m_data.molarWeight.has_value();
+        }
+
+        double molarWeight() const {
+            return m_data.molarWeight.value();
+        }
+
+        bool boilingTemperatureIsValid() const {
+            return m_data.boilingTemperature.has_value();
+        }
+
+        double boilingTemperature() const {
+            return m_data.boilingTemperature.value();
+        }
+
+        bool freezingTemperatureIsValid() const {
+            return m_data.freezingTemperature.has_value();
+        }
+
+        double freezingTemperature() const {
+            return m_data.freezingTemperature.value();
+        }
+
+        bool criticalTemperatureIsValid() const {
+            return m_data.criticalTemperature.has_value();
+        }
+
+        double criticalTemperature() const {
+            return m_data.criticalTemperature.value();
+        }
+
+        bool criticalPressureIsValid() const {
+            return m_data.criticalPressure.has_value();
+        }
+
+        double criticalPressure() const {
+            return m_data.criticalPressure.value();
+        }
+
+        bool criticalVolumeIsValid() const {
+            return m_data.criticalVolume.has_value();
+        }
+
+        double criticalVolume() const {
+            return m_data.criticalVolume.value();
+        }
+
+        bool criticalDensityIsValid() const {
+            return m_data.criticalDensity.has_value();
+        }
+
+        double criticalDensity() const {
+            return m_data.criticalDensity.value();
+        }
+
+        bool criticalCompressibilityIsValid() const {
+            return m_data.criticalCompressibility.has_value();
+        }
+
+        double criticalCompressibility() const {
+            return m_data.criticalCompressibility.value();
+        }
+
+        bool acentricFactorIsValid() const {
+            return m_data.acentricFactor.has_value();
+        }
+
+        double acentricFactor() const {
+            return m_data.acentricFactor.value();
+        }
+
+        bool dipoleMomentIsValid() const {
+            return m_data.dipoleMoment.has_value();
+        }
+
+        double dipoleMoment() const {
+            return m_data.dipoleMoment.value();
+        }
+
+        // ===== Accessors (Temperature Dependent) ===== //
+
+        bool satLiquidVolumeIsValid() const {
+            return static_cast<bool>(m_data.saturatedLiquidVolumeCorrelation);
+        }
+
+        double satLiquidVolume(double temperature) const {
+            return m_data.saturatedLiquidVolumeCorrelation(temperature);
+        }
+
+        bool idealGasCpIsValid() const {
+            return static_cast<bool>(m_data.idealGasCpCorrelation);
+        }
+
+        double idealGasCp(double temperature) const {
+            return m_data.idealGasCpCorrelation(temperature);
+        }
+
+        bool satLiquidCpIsValid() const {
+            return static_cast<bool>(m_data.liquidCpCorrelation);
+        }
+
+        double satLiquidCp(double temperature) const {
+            return m_data.liquidCpCorrelation(temperature);
+        }
+
+        bool vaporPressureIsValid() const {
+            return static_cast<bool>(m_data.vaporPressureCorrelation);
+        }
+
+        double vaporPressure(double temperature) const {
+            return m_data.vaporPressureCorrelation(temperature);
+        }
+
+        bool surfaceTensionIsValid() const{
+            return static_cast<bool>(m_data.surfaceTensionCorrelation);
+        }
+
+        double surfaceTension(double temperature) const {
+            return m_data.surfaceTensionCorrelation(temperature);
+        }
+
+        bool heatOfVaporizationIsValid() const {
+            return static_cast<bool>(m_data.heatOfVaporizationCorrelation);
+        }
+
+        double heatOfVaporization(double temperature) const {
+            return m_data.heatOfVaporizationCorrelation(temperature);
+        }
+
+        bool satVaporThermalConductivityIsValid() const {
+            return static_cast<bool>(m_data.saturatedVaporThermalConductivityCorrelation);
+        }
+
+        double satVaporThermalConductivity(double temperature) const {
+            return m_data.saturatedVaporThermalConductivityCorrelation(temperature);
+        }
+
+        bool satLiquidThermalConductivityIsValid() const {
+            return static_cast<bool>(m_data.saturatedLiquidThermalConductivityCorrelation);
+        }
+
+        double satLiquidThermalConductivity(double temperature) const {
+            return m_data.saturatedLiquidThermalConductivityCorrelation(temperature);
+        }
+
+        bool satVaporViscosityIsValid() const {
+            return static_cast<bool>(m_data.saturatedVaporViscosityCorrelation);
+        }
+
+        double satVaporViscosity(double temperature) const {
+            return m_data.saturatedVaporViscosityCorrelation(temperature);
+        }
+
+        bool satLiquidViscosityIsValid() const {
+            return static_cast<bool>(m_data.saturatedLiquidViscosityCorrelation);
+        }
+
+        double satLiquidViscosity(double temperature) const {
+            return m_data.saturatedLiquidViscosityCorrelation(temperature);
+        }
+
+
 
 //        void computeViscosity(PCPhases& phases) const;
 
