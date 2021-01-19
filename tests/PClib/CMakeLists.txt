@@ -20,4 +20,4 @@ target_sources(PClib-tests
         CompressedLiquidVolume/Aalto-test.cpp
         )
 
-target_link_libraries(PClib-tests PRIVATE dependencies pclib)
+target_link_libraries(PClib-tests PRIVATE dependencies PropertyLib)

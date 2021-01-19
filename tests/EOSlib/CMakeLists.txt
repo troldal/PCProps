@@ -8,4 +8,4 @@ target_sources(EOSlib-tests
         EOSPengRobinson-test.cpp
         )
 
-target_link_libraries(EOSlib-tests PRIVATE dependencies pclib eoslib)
+target_link_libraries(EOSlib-tests PRIVATE dependencies PropertyLib EOSLib)

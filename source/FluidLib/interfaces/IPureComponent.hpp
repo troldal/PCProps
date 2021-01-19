@@ -2,8 +2,8 @@
 // Created by Kenneth Balslev on 18/01/2021.
 //
 
-#ifndef PCPROPS_PCPURECOMPONENT_HPP
-#define PCPROPS_PCPURECOMPONENT_HPP
+#ifndef PCPROPS_IPURECOMPONENT_HPP
+#define PCPROPS_IPURECOMPONENT_HPP
 
 #include <functional>
 #include <memory>
@@ -16,13 +16,13 @@ namespace PCProps {
  * @details This class works by applying 'type erasure'. This enables the use of objects of any class, the only
  * requirement being that it provides the right interface. No inheritance from a base class is needed.
  */
-    class PCPureComponent
+    class IPureComponent
     {
     public:
         /**
          * @brief Default constructor
          */
-        PCPureComponent() : m_pureComponent() {}
+        IPureComponent() : m_pureComponent() {}
 
         /**
          * @brief Constructor, taking the target object as an argument.
@@ -30,25 +30,25 @@ namespace PCProps {
          * @param x The target object
          */
         template<typename T>
-        PCPureComponent(const T& x) : m_pureComponent { std::make_unique<PCModel<T>>(x) }
+        IPureComponent(const T& x) : m_pureComponent { std::make_unique<PCModel<T>>(x) }
         {}
 
         /**
          * @brief
          * @param other
          */
-        PCPureComponent(const PCPureComponent& other) : m_pureComponent(other.m_pureComponent ? other.m_pureComponent->clone() : nullptr) {}
+        IPureComponent(const IPureComponent& other) : m_pureComponent(other.m_pureComponent ? other.m_pureComponent->clone() : nullptr) {}
 
         /**
          * @brief
          * @param other
          */
-        PCPureComponent(PCPureComponent&& other) noexcept = default;
+        IPureComponent(IPureComponent&& other) noexcept = default;
 
         /**
          * @brief
          */
-        ~PCPureComponent() = default;
+        ~IPureComponent() = default;
 
         /**
          * @brief
@@ -57,7 +57,7 @@ namespace PCProps {
          * @return
          */
         template<typename T>
-        PCPureComponent& operator=(const T& x)
+        IPureComponent& operator=(const T& x)
         {
             m_pureComponent = std::make_unique<PCModel<T>>(x);
             return *this;
@@ -68,9 +68,9 @@ namespace PCProps {
          * @param other
          * @return
          */
-        PCPureComponent& operator=(const PCPureComponent& other)
+        IPureComponent& operator=(const IPureComponent& other)
         {
-            PCPureComponent copy(other);
+            IPureComponent copy(other);
             *this = std::move(copy);
             return *this;
         }
@@ -80,7 +80,7 @@ namespace PCProps {
          * @param other
          * @return
          */
-        PCPureComponent& operator=(PCPureComponent&& other) noexcept = default;
+        IPureComponent& operator=(IPureComponent&& other) noexcept = default;
 
         /**
          * @brief
@@ -312,4 +312,4 @@ namespace PCProps {
 
 }
 
-#endif    // PCPROPS_PCPURECOMPONENT_HPP
+#endif    // PCPROPS_IPURECOMPONENT_HPP

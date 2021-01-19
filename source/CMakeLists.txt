@@ -61,9 +61,9 @@ list(APPEND RELEASE_FLAGS_MSVC
 #=======================================================================================================================
 
 add_subdirectory(common)
-add_subdirectory(eos)
-add_subdirectory(pcomp)
-add_subdirectory(fluid)
+add_subdirectory(EOSLib)
+add_subdirectory(PropertyLib)
+add_subdirectory(FluidLib)
 
 
 #=======================================================================================================================

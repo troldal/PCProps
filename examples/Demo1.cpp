@@ -1,19 +1,18 @@
 #include <iomanip>
 #include <iostream>
 
-#include <Component/PCComponent.hpp>
+#include <Component/PureComponent.hpp>
+#include <Fluid.hpp>
 #include <HeatCapacity/AlyLee.hpp>
 #include <HeatCapacity/PPDSLiquid.hpp>
-#include <LiquidVolume/Rackett.hpp>
 #include <PengRobinson/PengRobinson.hpp>
+#include <SaturatedLiquidVolume/Rackett.hpp>
 #include <VaporPressure/AmbroseWalton.hpp>
 #include <VaporPressure/AntoineExtended.hpp>
 #include <Viscosity/DIPPR102.hpp>
 #include <Viscosity/KirchhoffExtended.hpp>
 #include <Viscosity/Lucas.hpp>
 #include <common/PropertyData.hpp>
-#include <PCFluid.hpp>
-
 
 using PCProps::VaporPressure::AmbroseWalton;
 
@@ -23,9 +22,9 @@ using PCProps::HeatCapacity::PPDSLiquid;
 using PCProps::LiquidVolume::Rackett;
 using PCProps::VaporPressure::AntoineExtended;
 
-using PCProps::PCComponent;
 using PCProps::PCComponentData;
-using PCProps::PCEquationOfState;
+using PCProps::PCComponentData;
+using PCProps::PCComponentData;
 using PCProps::PCPhase;
 using PCProps::Viscosity::Lucas;
 using PCProps::Viscosity::DIPPR102;
@@ -72,8 +71,8 @@ int main()
     data.saturatedLiquidViscosityCorrelation  = KirchhoffExtended(-17.156,646.25,1.1101,-7.3439E-11, 4);
     data.saturatedLiquidVolumeCorrelation     = Rackett(Rackett::CreateFromDIPPR { 1.3757, 0.27453, 369.83, 0.29359 });
 
-    auto propane = PCComponent(data);
-    auto fluid = PCFluid(propane, PengRobinson{});
+    auto propane = PureComponent(data);
+    auto fluid = Fluid(propane, PengRobinson{});
 
     std::cout << "Propane at 25 C and 2 bar: " << std::endl;
     auto a = fluid.flash(Pressure(2E5), Temperature(298.15));

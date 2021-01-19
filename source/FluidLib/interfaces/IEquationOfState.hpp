@@ -35,8 +35,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_PCEQUATIONOFSTATE_HPP
-#define PCPROPS_PCEQUATIONOFSTATE_HPP
+#ifndef PCPROPS_IEQUATIONOFSTATE_HPP
+#define PCPROPS_IEQUATIONOFSTATE_HPP
 
 #include <functional>
 #include <memory>
@@ -51,13 +51,13 @@ namespace PCProps
      * @details This class works by applying 'type erasure'. This enables the use of objects of any class, the only
      * requirement being that it provides the right interface. No inheritance from a base class is needed.
      */
-    class PCEquationOfState
+    class IEquationOfState
     {
     public:
         /**
          * @brief Default constructor
          */
-        PCEquationOfState() : m_equationOfState() {}
+        IEquationOfState() : m_equationOfState() {}
 
         /**
          * @brief Constructor, taking the target object as an argument.
@@ -65,25 +65,25 @@ namespace PCProps
          * @param x The target object
          */
         template<typename T>
-        PCEquationOfState(const T& x) : m_equationOfState { std::make_unique<EOSModel<T>>(x) }
+        IEquationOfState(const T& x) : m_equationOfState { std::make_unique<EOSModel<T>>(x) }
         {}
 
         /**
          * @brief
          * @param other
          */
-        PCEquationOfState(const PCEquationOfState& other) : m_equationOfState(other.m_equationOfState ? other.m_equationOfState->clone() : nullptr) {}
+        IEquationOfState(const IEquationOfState& other) : m_equationOfState(other.m_equationOfState ? other.m_equationOfState->clone() : nullptr) {}
 
         /**
          * @brief
          * @param other
          */
-        PCEquationOfState(PCEquationOfState&& other) noexcept = default;
+        IEquationOfState(IEquationOfState&& other) noexcept = default;
 
         /**
          * @brief
          */
-        ~PCEquationOfState() = default;
+        ~IEquationOfState() = default;
 
         /**
          * @brief
@@ -92,7 +92,7 @@ namespace PCProps
          * @return
          */
         template<typename T>
-        inline PCEquationOfState& operator=(const T& x)
+        inline IEquationOfState& operator=(const T& x)
         {
             m_equationOfState = std::make_unique<EOSModel<T>>(x);
             return *this;
@@ -103,9 +103,9 @@ namespace PCProps
          * @param other
          * @return
          */
-        inline PCEquationOfState& operator=(const PCEquationOfState& other)
+        inline IEquationOfState& operator=(const IEquationOfState& other)
         {
-            PCEquationOfState copy(other);
+            IEquationOfState copy(other);
             *this = std::move(copy);
             return *this;
         }
@@ -115,7 +115,7 @@ namespace PCProps
          * @param other
          * @return
          */
-        inline PCEquationOfState& operator=(PCEquationOfState&& other) noexcept = default;
+        inline IEquationOfState& operator=(IEquationOfState&& other) noexcept = default;
 
         /**
          * @brief
@@ -515,4 +515,4 @@ namespace PCProps
 
 }    // namespace PCProps
 
-#endif    // PCPROPS_PCEQUATIONOFSTATE_HPP
+#endif    // PCPROPS_IEQUATIONOFSTATE_HPP

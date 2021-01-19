@@ -2,11 +2,11 @@
 // Created by Kenneth Balslev on 18/01/2021.
 //
 
-#ifndef PCPROPS_PCFLUID_HPP
-#define PCPROPS_PCFLUID_HPP
+#ifndef PCPROPS_FLUID_HPP
+#define PCPROPS_FLUID_HPP
 
-#include <interfaces/PCEquationOfState.hpp>
-#include <interfaces/PCPureComponent.hpp>
+#include <interfaces/IEquationOfState.hpp>
+#include <interfaces/IPureComponent.hpp>
 #include <types/types.hpp>
 
 namespace PCProps
@@ -19,27 +19,25 @@ namespace PCProps
     using MolarVolume = types::NamedType<double, struct MolarVolumeTag>;
 
 
-    class PCFluid
+    class Fluid
     {
-
-        PCPureComponent m_pureComponent {};
-        PCEquationOfState m_equationOfState {};
+        IPureComponent   m_pureComponent {};
+        IEquationOfState m_equationOfState {};
 
     public:
+        Fluid();
 
-        PCFluid();
+        Fluid(const IPureComponent& pc, const IEquationOfState& eos);
 
-        PCFluid(const PCPureComponent& pc, const PCEquationOfState& eos);
+        Fluid(const Fluid& other);
 
-        PCFluid(const PCFluid& other);
+        Fluid(Fluid&& other) noexcept;
 
-        PCFluid(PCFluid&& other) noexcept;
+        ~Fluid();
 
-        ~PCFluid();
+        Fluid& operator=(const Fluid& other);
 
-        PCFluid& operator=(const PCFluid& other);
-
-        PCFluid& operator=(PCFluid&& other) noexcept;
+        Fluid& operator=(Fluid&& other) noexcept;
 
         PCPhases flash(Pressure pressure, Temperature temperature) const;
 
@@ -57,4 +55,4 @@ namespace PCProps
     };
 }    // namespace PCProps
 
-#endif    // PCPROPS_PCFLUID_HPP
+#endif    // PCPROPS_FLUID_HPP

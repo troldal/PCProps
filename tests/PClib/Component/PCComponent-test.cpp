@@ -35,7 +35,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <Component/PCComponent.hpp>
+#include <Component/PureComponent.hpp>
 #include <HeatCapacity/AlyLee.hpp>
 #include <catch/catch.hpp>
 
@@ -72,7 +72,7 @@ TEST_CASE("PCComponent Test")
     pcd.saturatedLiquidViscosityCorrelation  = [](double temperature) { return temperature; };
     pcd.liquidCpCorrelation                  = [](double temperature) { return temperature; };
 
-    auto pc = PCProps::PCComponent(pcd);
+    auto pc = PCProps::PureComponent(pcd);
 
     /**
      * @brief Test that accessing values and functions of a default constructed PCComponent object will trow an exception,
@@ -81,7 +81,7 @@ TEST_CASE("PCComponent Test")
     SECTION("Default Construction")
     {
         pcd = PCProps::PCComponentData {};
-        pc  = PCProps::PCComponent(pcd);
+        pc  = PCProps::PureComponent(pcd);
 
         REQUIRE(pc.name().empty());
         REQUIRE(pc.formula().empty());

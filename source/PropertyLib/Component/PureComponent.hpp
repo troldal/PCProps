@@ -35,8 +35,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_PCCOMPONENT_HPP
-#define PCPROPS_PCCOMPONENT_HPP
+#ifndef PCPROPS_PURECOMPONENT_HPP
+#define PCPROPS_PURECOMPONENT_HPP
 
 #include <functional>
 #include <iomanip>
@@ -95,7 +95,7 @@ namespace PCProps
      * object after construction, this should be done by copying the data object, modify the data and construct a new object
      * in the same place as the old object.
      */
-    class PCComponent
+    class PureComponent
     {
         // ===== Private Data Members
         PCComponentData m_data = {}; /**< The data object, holding raw data and correlations for a pure component */
@@ -107,38 +107,38 @@ namespace PCProps
         /**
          * @brief Default constructor.
          */
-        PCComponent() = default;
+        PureComponent() = default;
 
         /**
          * @brief Constructor, taking a PCComponentData object as an argument.
          * @param data A PCComponentData object with the component data.
          */
-        explicit PCComponent(const PCComponentData& data) : m_data(data) {}
+        explicit PureComponent(const PCComponentData& data) : m_data(data) {}
 
         /**
          * @brief Copy constructor.
          */
-        PCComponent(const PCComponent& other) = default;
+        PureComponent(const PureComponent& other) = default;
 
         /**
          * @brief Move constructor.
          */
-        PCComponent(PCComponent&& other) noexcept = default;
+        PureComponent(PureComponent&& other) noexcept = default;
 
         /**
          * @brief Destructor.
          */
-        ~PCComponent() = default;
+        ~PureComponent() = default;
 
         /**
          * @brief Copy assignment operator.
          */
-        PCComponent& operator=(const PCComponent& other) = default;
+        PureComponent& operator=(const PureComponent& other) = default;
 
         /**
          * @brief Move assignment operator.
          */
-        PCComponent& operator=(PCComponent&& other) noexcept = default;
+        PureComponent& operator=(PureComponent&& other) noexcept = default;
 
 
         // ===== Accessors (Constants) ===== //
@@ -359,4 +359,4 @@ namespace PCProps
     };
 }    // namespace PCProps
 
-#endif    // PCPROPS_PCCOMPONENT_HPP
+#endif    // PCPROPS_PURECOMPONENT_HPP

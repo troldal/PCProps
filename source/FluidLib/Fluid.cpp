@@ -2,7 +2,7 @@
 // Created by Kenneth Balslev on 18/01/2021.
 //
 
-#include "PCFluid.hpp"
+#include "Fluid.hpp"
 
 #include <json/json.hpp>
 
@@ -103,9 +103,9 @@ namespace
 
 namespace PCProps
 {
-    PCFluid::PCFluid() = default;
+    Fluid::Fluid() = default;
 
-    PCFluid::PCFluid(const PCPureComponent& pc, const PCEquationOfState& eos) : m_pureComponent{pc}, m_equationOfState{eos} {
+    Fluid::Fluid(const IPureComponent& pc, const IEquationOfState& eos) : m_pureComponent{pc}, m_equationOfState{eos} {
 
         nlohmann::json obj;
         obj["Tc"] = m_pureComponent.criticalTemperature();
@@ -116,17 +116,17 @@ namespace PCProps
         m_equationOfState.setIdealGasCpFunction([&](double t) {return m_pureComponent.idealGasCp(t);} );
     }
 
-    PCFluid::PCFluid(const PCFluid& other) = default;
+    Fluid::Fluid(const Fluid& other) = default;
 
-    PCFluid::PCFluid(PCFluid&& other) noexcept = default;
+    Fluid::Fluid(Fluid&& other) noexcept = default;
 
-    PCFluid::~PCFluid() = default;
+    Fluid::~Fluid() = default;
 
-    PCFluid& PCFluid::operator=(const PCFluid& other) = default;
+    Fluid& Fluid::operator=(const Fluid& other) = default;
 
-    PCFluid& PCFluid::operator=(PCFluid&& other) noexcept = default;
+    Fluid& Fluid::operator=(Fluid&& other) noexcept = default;
 
-    PCPhases PCFluid::flash(Pressure pressure, Temperature temperature) const
+    PCPhases Fluid::flash(Pressure pressure, Temperature temperature) const
     {
         using std::get;
         auto results = PCPhase(m_equationOfState.flashPT(pressure.get(), temperature.get())[0]);
@@ -159,7 +159,7 @@ namespace PCProps
         return { result };
     }
 
-    PCPhases PCFluid::flash(Pressure pressure, VaporFraction vaporFraction) const
+    PCPhases Fluid::flash(Pressure pressure, VaporFraction vaporFraction) const
     {
         using std::get;
         PCPhases results;
@@ -176,7 +176,7 @@ namespace PCProps
         return results;
     }
 
-    PCPhases PCFluid::flash(Temperature temperature, VaporFraction vaporFraction) const
+    PCPhases Fluid::flash(Temperature temperature, VaporFraction vaporFraction) const
     {
         using std::get;
         PCPhases results;
@@ -193,7 +193,7 @@ namespace PCProps
         return results;
     }
 
-    PCPhases PCFluid::flash(Pressure pressure, Enthalpy enthalpy) const
+    PCPhases Fluid::flash(Pressure pressure, Enthalpy enthalpy) const
     {
         using std::get;
         PCPhases results;
@@ -210,7 +210,7 @@ namespace PCProps
         return results;
     }
 
-    PCPhases PCFluid::flash(Pressure pressure, Entropy entropy) const
+    PCPhases Fluid::flash(Pressure pressure, Entropy entropy) const
     {
         using std::get;
         PCPhases results;
@@ -227,7 +227,7 @@ namespace PCProps
         return results;
     }
 
-    PCPhases PCFluid::flash(Temperature temperature, MolarVolume volume) const
+    PCPhases Fluid::flash(Temperature temperature, MolarVolume volume) const
     {
         return PCProps::PCPhases();
     }
