@@ -21,11 +21,6 @@ using PCProps::Viscosity::Lucas;
 using PCProps::Viscosity::DIPPR102;
 using PCProps::Viscosity::KirchhoffExtended;
 
-using PCProps::Enthalpy;
-using PCProps::Entropy;
-using PCProps::Pressure;
-using PCProps::Temperature;
-
 using namespace PCProps;
 
 int main()
@@ -64,24 +59,24 @@ int main()
     auto fluid = Fluid(propane, PengRobinson{});
 
     std::cout << "Propane at 25 C and 2 bar: " << std::endl;
-    auto a = fluid.flash(Pressure(2E5), Temperature(298.15));
+    auto a = fluid.flashPT((2E5), (298.15));
     for (const auto& phase : a) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 
     std::cout << "Compression to 10 bar: " << std::endl;
-    auto b = fluid.flash(Pressure(10E5), Entropy(PCPhase(a[0]).entropy()));
+    auto b = fluid.flashPS((10E5), (PCPhase(a[0])[PCEntropy]));
     for (const auto& phase : b) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 
     std::cout << "Cooling to 25 C: " << std::endl;
-    auto c = fluid.flash(Pressure(10E5), Temperature(298.15));
+    auto c = fluid.flashPT((10E5), (298.15));
     std::cout << "dT: " << c[0][PCTemperature] - b[0][PCTemperature] << std::endl;
     std::cout << "dH: " << c[0][PCEnthalpy] - b[0][PCEnthalpy] << std::endl;
     for (const auto& phase : c) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 
     std::cout << "Throttling to 2 bar: " << std::endl;
-    auto d = fluid.flash(Pressure(2E5), Enthalpy(c[0][PCEnthalpy]));
+    auto d = fluid.flashPH((2E5), (c[0][PCEnthalpy]));
     for (const auto& phase : d) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 

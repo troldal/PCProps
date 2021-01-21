@@ -64,6 +64,7 @@ add_subdirectory(common)
 add_subdirectory(EOSLib)
 add_subdirectory(PropertyLib)
 add_subdirectory(FluidLib)
+add_subdirectory(unitops)
 
 
 #=======================================================================================================================

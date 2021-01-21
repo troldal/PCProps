@@ -1,37 +1,29 @@
 //
-// Created by Kenneth Balslev on 15/01/2021.
+// Created by Kenneth Balslev on 20/01/2021.
 //
 
 #include "Pipe.hpp"
 
-#include <common/Globals.hpp>
-#include <pcomp/PCPropsException.hpp>
-
-#include <cmath>
-
-namespace PCProps::UnitOps
-{
+namespace PCProps::UnitOps {
     Pipe::Pipe() = default;
 
-    Pipe::Pipe(double length, double diameter, double inclination, double roughness)
-        : m_length(length),
-          m_diameter(diameter),
-          m_inclination(inclination),
-          m_roughness(roughness)
-    {}
-
-    double Pipe::computeOutletPressure(const PCPhases& fluid, double molarFlow)
-    {
-        using std::sin;
-        using std::pow;
-        if (fluid.size() > 1) throw PCPropsException("Invalid fluid");
-        double elevationGradient = -(1.0 / fluid[0][PCMolarVolume]) * (fluid[0][PCMolarWeight] / 1000.0) * Globals::G_ACCL * sin(m_inclination * 0.01745329252);
-        double flowArea = Globals::PI * pow(m_diameter,2) / 4.0;
-        double volumeFlow = molarFlow * fluid[0][PCMolarVolume];
-        double velocity = volumeFlow / flowArea;
-        double reynoldsNumber = (1.0 / fluid[0][PCMolarVolume]) * (fluid[0][PCMolarWeight] / 1000.0) * velocity * m_diameter / fluid[0][PCViscosity];
-
-        return reynoldsNumber;
+    Pipe::Pipe(double length, double diameter, double inclination, double roughness) {
+        m_pipeSegments.emplace_back(PipeSegmentLiquid(length, diameter, inclination, roughness));
     }
 
-} // namespace PCProps::UnitOps
+    double Pipe::computeOutletPressure(const IFluid& inletFluid, double molarFlow)
+    {
+        return m_pipeSegments[0].computeOutletPressure(inletFluid, molarFlow);
+    }
+
+    double Pipe::computeInletPressure(const IFluid& outletFluid, double molarFlow)
+    {
+        return m_pipeSegments[0].computeInletPressure(outletFluid, molarFlow);;
+    }
+
+    double Pipe::computeMolarFlow(const IFluid& inletFluid, const IFluid& outletFluid)
+    {
+        return 0;
+    }
+
+}

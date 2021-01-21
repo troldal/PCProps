@@ -9,7 +9,7 @@
 
 using PCProps::EquationOfState::PengRobinson;
 using PCProps::PCPhase;
-using PCProps::PCPhaseData;
+using PCProps::EquationOfState::PengRobinson;
 using PCProps::PCPhases;
 
 using namespace PCProps;

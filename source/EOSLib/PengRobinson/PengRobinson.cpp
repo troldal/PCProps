@@ -453,7 +453,7 @@ namespace PCProps::EquationOfState
 
             auto z_phi = computeCompressibilityAndFugacity(temperature, pressure);
             for (const auto& item: z_phi) {
-                PCPhaseData data;
+                PCPhase data;
                 data[PCPressure] = pressure;
                 data[PCTemperature] = temperature;
                 data[PCCompressibility]     = get<0>(item);
@@ -464,6 +464,7 @@ namespace PCProps::EquationOfState
                 data[PCGibbsEnergy] = data[PCEnthalpy] - temperature * data[PCEntropy];
                 data[PCInternalEnergy] = data[PCEnthalpy] - pressure * data[PCMolarVolume];
                 data[PCHelmholzEnergy] = data[PCInternalEnergy] - temperature * data[PCEntropy];
+                data[PCVaporPressure] = computeSaturationPressure(temperature);
 
                 result.emplace_back(data);
             }

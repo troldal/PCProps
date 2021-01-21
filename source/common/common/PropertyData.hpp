@@ -45,8 +45,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace PCProps
 {
-    using PCPhaseData = std::array<double, 20>;
-    using PCPhases    = std::vector<PCPhaseData>;
+    using PCPhase     = std::array<double, 21>;
+    using PCPhases    = std::vector<PCPhase>;
 
     enum PCPhaseDataElement {
         PCPressure,
@@ -64,6 +64,7 @@ namespace PCProps
         PCIsothermalCompressibility,
         PCThermalExpansionCoefficient,
         PCJouleThomsonCoefficient,
+        PCVaporPressure,
         PCEnthalpy,
         PCEntropy,
         PCInternalEnergy,
@@ -71,252 +72,44 @@ namespace PCProps
         PCHelmholzEnergy
     };
 
-    /**
-     * @brief
-     */
-    class PCPhase
-    {
-        PCPhaseData m_data;
+    using PCFlowData = std::array<double, 4>;
 
-    public:
-        PCPhase() : m_data() {}
-
-        explicit PCPhase(const PCPhaseData& data) : m_data(data) {}
-
-        inline double pressure() const
-        {
-            return m_data[PCPressure];
-        }
-
-        inline void setPressure(double pressure)
-        {
-            m_data[PCPressure] = pressure;
-        }
-
-        inline double temperature() const
-        {
-            return m_data[PCTemperature];
-        }
-
-        inline void setTemperature(double temperature)
-        {
-            m_data[PCTemperature] = temperature;
-        }
-
-        inline double molarVolume() const
-        {
-            return m_data[PCMolarVolume];
-        }
-
-        inline void setMolarVolume(double molarVolume)
-        {
-            m_data[PCMolarVolume] = molarVolume;
-        }
-
-        inline double molarWeight() const
-        {
-            return m_data[PCMolarWeight];
-        }
-
-        inline void setMolarWeight(double molarWeight)
-        {
-            m_data[PCMolarWeight] = molarWeight;
-        }
-
-        inline double molarFraction() const
-        {
-            return m_data[PCMolarFraction];
-        }
-
-        inline void setMolarFraction(double molarFraction)
-        {
-            m_data[PCMolarFraction] = molarFraction;
-        }
-
-        inline double compressibility() const
-        {
-            return m_data[PCCompressibility];
-        }
-
-        inline void setCompressibility(double compressibility)
-        {
-            m_data[PCCompressibility] = compressibility;
-        }
-
-        inline double fugacityCoefficient() const
-        {
-            return m_data[PCFugacityCoefficient];
-        }
-
-        inline void setFugacityCoefficient(double fugacityCoefficient)
-        {
-            m_data[PCFugacityCoefficient] = fugacityCoefficient;
-        }
-
-        inline double viscosity() const
-        {
-            return m_data[PCViscosity];
-        }
-
-        inline void setViscosity(double viscosity)
-        {
-            m_data[PCViscosity] = viscosity;
-        }
-
-        inline double surfaceTension() const
-        {
-            return m_data[PCSurfaceTension];
-        }
-
-        inline void setSurfaceTension(double surfaceTension)
-        {
-            m_data[PCSurfaceTension] = surfaceTension;
-        }
-
-        inline double thermalConductivity() const
-        {
-            return m_data[PCThermalConductivity];
-        }
-
-        inline void setThermalConductivity(double thermalConductivity)
-        {
-            m_data[PCThermalConductivity] = thermalConductivity;
-        }
-
-        inline double heatCapacityCp() const
-        {
-            return m_data[PCHeatCapacityCp];
-        }
-
-        inline void setHeatCapacityCp(double heatCapacity)
-        {
-            m_data[PCHeatCapacityCp] = heatCapacity;
-        }
-
-        inline double heatCapacityCv() const
-        {
-            return m_data[PCHeatCapacityCv];
-        }
-
-        inline void setHeatCapacityCv(double heatCapacity)
-        {
-            m_data[PCHeatCapacityCv] = heatCapacity;
-        }
-
-        inline double isothermalCompressibility() const {
-            return m_data[PCIsothermalCompressibility];
-        }
-
-        inline void setIsothermalCompressibility(double isothermalCompressibility) {
-            m_data[PCIsothermalCompressibility] = isothermalCompressibility;
-        }
-
-        inline double thermalExpansionCoefficient() const {
-            return m_data[PCThermalExpansionCoefficient];
-        }
-
-        inline void setThermalExpansionCoefficient(double thermalExpansionCoefficient) {
-            m_data[PCThermalExpansionCoefficient] = thermalExpansionCoefficient;
-        }
-
-        inline double jouleThomsonCoefficient() const {
-            return m_data[PCJouleThomsonCoefficient];
-        }
-
-        inline void setJouleThomsonCoefficient(double jouleThomsonCoefficient) {
-            m_data[PCJouleThomsonCoefficient] = jouleThomsonCoefficient;
-        }
-
-        inline double enthalpy() const
-        {
-            return m_data[PCEnthalpy];
-        }
-
-        inline void setEnthalpy(double enthalpy)
-        {
-            m_data[PCEnthalpy] = enthalpy;
-        }
-
-        inline double entropy() const
-        {
-            return m_data[PCEntropy];
-        }
-
-        inline void setEntropy(double entropy)
-        {
-            m_data[PCEntropy] = entropy;
-        }
-
-        inline double internalEnergy() const
-        {
-            return m_data[PCInternalEnergy];
-        }
-
-        inline void setInternalEnergy(double internalEnergy)
-        {
-            m_data[PCInternalEnergy] = internalEnergy;
-        }
-
-        inline double gibbsEnergy() const
-        {
-            return m_data[PCGibbsEnergy];
-        }
-
-        inline void setGibbsEnergy(double gibbsEnergy)
-        {
-            m_data[PCGibbsEnergy] = gibbsEnergy;
-        }
-
-        inline double helmholzEnergy() const
-        {
-            return m_data[PCHelmholzEnergy];
-        }
-
-        inline void setHelmholzEnergy(double helmholzEnergy)
-        {
-            m_data[PCHelmholzEnergy] = helmholzEnergy;
-        }
-
-        inline const PCPhaseData& data() const
-        {
-            return m_data;
-        }
+    enum FlowPropertyElement {
+        PCMolarFlow,
+        PCVelocity,
+        PCReynoldsNumber,
+        PCLiquidHoldup
     };
 
-    /**
-     * @brief
-     * @param stream
-     * @param properties
-     * @return
-     */
     inline std::ostream& operator<<(std::ostream& stream, const PCProps::PCPhase& properties)
     {
-        return stream << std::setprecision(8) << std::fixed
-                      << "Molar Fraction                : " << std::right << std::setw(20) << properties.molarFraction() << std::endl
-                      << "Molar Volume                  : " << std::right << std::setw(20) << properties.molarVolume() << " m3/mol" << std::endl
-                      << "Surface Tension               : " << std::right << std::setw(20) << properties.surfaceTension() << " N/m" << std::endl
-                      << "Thermal Conductivity          : " << std::right << std::setw(20) << properties.thermalConductivity() << " W/m-K" << std::endl
-                      << "Viscosity                     : " << std::right << std::setw(20) << properties.viscosity() << " Pa-s" << std::endl
-                      << "Cp                            : " << std::right << std::setw(20) << properties.heatCapacityCp() << " J/mol-K" << std::endl
-                      << "Cv                            : " << std::right << std::setw(20) << properties.heatCapacityCv() << " J/mol-K" << std::endl
-                      << "Isothermal Compressibility    : " << std::right << std::setw(20) << properties.isothermalCompressibility() << " 1/Pa" << std::endl
-                      << "Thermal Expansion Coefficient : " << std::right << std::setw(20) << properties.thermalExpansionCoefficient() << " 1/K" << std::endl
-                      << "Joule-Thomson Coefficient     : " << std::right << std::setw(20) << properties.jouleThomsonCoefficient() << " K/Pa" << std::endl
-                      << "Molecular Weight              : " << std::right << std::setw(20) << properties.molarWeight() << " g/mol" << std::endl
-                      << "Temperature                   : " << std::right << std::setw(20) << properties.temperature() << " K" << std::endl
-                      << "Pressure                      : " << std::right << std::setw(20) << properties.pressure() << " Pa" << std::endl
-                      << "Compressibility               : " << std::right << std::setw(20) << properties.compressibility() << std::endl
-                      << "Fugacity Coefficient          : " << std::right << std::setw(20) << properties.fugacityCoefficient() << std::endl
-                      << "Enthalpy                      : " << std::right << std::setw(20) << properties.enthalpy() << " J/mol" << std::endl
-                      << "Entropy                       : " << std::right << std::setw(20) << properties.entropy() << " J/mol-K" << std::endl
-                      << "Internal Energy               : " << std::right << std::setw(20) << properties.internalEnergy() << " J/mol" << std::endl
-                      << "Gibbs Energy                  : " << std::right << std::setw(20) << properties.gibbsEnergy() << " J/mol" << std::endl
-                      << "Helmholz Energy               : " << std::right << std::setw(20) << properties.helmholzEnergy() << " J/mol" << std::endl;
-    }
 
-    inline std::ostream& operator<<(std::ostream& stream, const PCProps::PCPhaseData& properties)
-    {
-        return stream << PCPhase(properties);
+        return stream << std::setprecision(8) << std::fixed
+                      << "Molar Fraction                : " << std::right << std::setw(20) << properties[PCMolarFraction] << std::endl
+                      << "Molar Volume                  : " << std::right << std::setw(20) << properties[PCMolarVolume] << " m3/mol" << std::endl
+                      << "Surface Tension               : " << std::right << std::setw(20) << properties[PCSurfaceTension] << " N/m" << std::endl
+                      << "Thermal Conductivity          : " << std::right << std::setw(20) << properties[PCThermalConductivity] << " W/m-K" << std::endl
+                      << "Viscosity                     : " << std::right << std::setw(20) << properties[PCViscosity] << " Pa-s" << std::endl
+                      << "Cp                            : " << std::right << std::setw(20) << properties[PCHeatCapacityCp] << " J/mol-K" << std::endl
+                      << "Cv                            : " << std::right << std::setw(20) << properties[PCHeatCapacityCv] << " J/mol-K" << std::endl
+                      << "Isothermal Compressibility    : " << std::right << std::setw(20) << properties[PCIsothermalCompressibility] << " 1/Pa" << std::endl
+                      << "Thermal Expansion Coefficient : " << std::right << std::setw(20) << properties[PCThermalExpansionCoefficient] << " 1/K" << std::endl
+                      << "Joule-Thomson Coefficient     : " << std::right << std::setw(20) << properties[PCJouleThomsonCoefficient] << " K/Pa" << std::endl
+                      << "Molecular Weight              : " << std::right << std::setw(20) << properties[PCMolarWeight] << " g/mol" << std::endl
+                      << "Temperature                   : " << std::right << std::setw(20) << properties[PCTemperature] << " K" << std::endl
+                      << "Pressure                      : " << std::right << std::setw(20) << properties[PCPressure] << " Pa" << std::endl
+                      << "Compressibility               : " << std::right << std::setw(20) << properties[PCCompressibility] << " -" << std::endl
+                      << "Fugacity Coefficient          : " << std::right << std::setw(20) << properties[PCFugacityCoefficient] << " -" << std::endl
+                      << "Vapor Pressure                : " << std::right << std::setw(20) << properties[PCVaporPressure] << " Pa" << std::endl
+                      << "Enthalpy                      : " << std::right << std::setw(20) << properties[PCEnthalpy] << " J/mol" << std::endl
+                      << "Entropy                       : " << std::right << std::setw(20) << properties[PCEntropy] << " J/mol-K" << std::endl
+                      << "Internal Energy               : " << std::right << std::setw(20) << properties[PCInternalEnergy] << " J/mol" << std::endl
+                      << "Gibbs Energy                  : " << std::right << std::setw(20) << properties[PCGibbsEnergy] << " J/mol" << std::endl
+                      << "Helmholz Energy               : " << std::right << std::setw(20) << properties[PCHelmholzEnergy] << " J/mol" << std::endl;
+
+
+
+//        return stream << PCPhase(properties);
     }
 
 }    // namespace PCProps

@@ -40,19 +40,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <interfaces/IEquationOfState.hpp>
 #include <interfaces/IPureComponent.hpp>
-#include <types/types.hpp>
 
 #include <memory>
 
 namespace PCProps
 {
-    using Pressure      = types::NamedType<double, struct PressureTag>;
-    using Temperature   = types::NamedType<double, struct TemperatureTag>;
-    using VaporFraction = types::NamedType<double, struct VaporFractionTag>;
-    using Enthalpy      = types::NamedType<double, struct EnthalpyTag>;
-    using Entropy       = types::NamedType<double, struct EntropyTag>;
-    using MolarVolume   = types::NamedType<double, struct MolarVolumeTag>;
-
     class Fluid
     {
     public:
@@ -78,17 +70,19 @@ namespace PCProps
         // FLASH ALGORITHMS
         // =====================================================================
 
-        PCPhases flash(Pressure pressure, Temperature temperature) const;
+        const PCPhases& flashPT(double pressure, double temperature) const;
 
-        PCPhases flash(Pressure pressure, VaporFraction vaporFraction) const;
+        const PCPhases& flashPx(double pressure, double vaporFraction) const;
 
-        PCPhases flash(Temperature temperature, VaporFraction vaporFraction) const;
+        const PCPhases& flashTx(double temperature, double vaporFraction) const;
 
-        PCPhases flash(Pressure pressure, Enthalpy enthalpy) const;
+        const PCPhases& flashPH(double pressure, double enthalpy) const;
 
-        PCPhases flash(Pressure pressure, Entropy entropy) const;
+        const PCPhases& flashPS(double pressure, double entropy) const;
 
-        PCPhases flash(Temperature temperature, MolarVolume volume) const;
+        const PCPhases& flashTV(double temperature, double volume) const;
+
+        const PCPhases& getProperties() const;
 
     private:
         class impl;

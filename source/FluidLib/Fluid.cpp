@@ -21,6 +21,8 @@ namespace PCProps
         std::function<double(double, double)> m_compressedLiquidViscosity;
         std::function<double(double, double)> m_compressedVaporViscosity;
 
+        mutable PCPhases m_phaseData {};
+
         enum PhaseType { Liquid, Vapor, Dense, Undefined };
 
         PhaseType determinePhaseType(const PCProps::PCPhase& phase) const
@@ -29,11 +31,11 @@ namespace PCProps
 
             auto tc = m_pureComponent.criticalTemperature();
             auto pc = m_pureComponent.criticalPressure();
-            auto t = phase.temperature();
-            auto p = phase.pressure();
-            auto x = phase.molarFraction();
-            auto z = phase.compressibility();
-            auto psat = m_equationOfState.saturationPressure(t);
+            auto t = phase[PCTemperature];
+            auto p = phase[PCPressure];
+            auto x = phase[PCMolarFraction];
+            auto z = phase[PCCompressibility];
+            auto psat = phase[PCVaporPressure]; //   m_equationOfState.saturationPressure(t);
 
             if (t > tc && p > pc)
                 return PhaseType::Dense;
@@ -52,25 +54,25 @@ namespace PCProps
         void computePhaseProperties(PCProps::PCPhase& phase) const
         {
             auto type = determinePhaseType(phase);
-            auto t = phase.temperature();
-            auto p = phase.pressure();
+            auto t = phase[PCTemperature];
+            auto p = phase[PCPressure];
 
-            phase.setMolarWeight(m_pureComponent.molarWeight());
+            phase[PCMolarWeight] = m_pureComponent.molarWeight();
 
             switch (type)
             {
                 case PhaseType::Liquid:
-                    phase.setMolarVolume(m_compressedLiquidVolume(t, p));
-                    phase.setSurfaceTension(0.0);
-                    phase.setThermalConductivity(0.0);
-                    phase.setViscosity(m_compressedLiquidViscosity(t, p));
+                    phase[PCMolarWeight] = m_compressedLiquidVolume(t, p);
+                    phase[PCSurfaceTension] = 0.0;
+                    phase[PCThermalConductivity] = 0.0;
+                    phase[PCViscosity] = 0.0;
 
                     break;
 
                 case PhaseType::Vapor:
-                    phase.setSurfaceTension(0.0);
-                    phase.setThermalConductivity(0.0);
-                    phase.setViscosity(m_compressedVaporViscosity(t, p));
+                    phase[PCSurfaceTension] = 0.0;
+                    phase[PCThermalConductivity] = 0.0;
+                    phase[PCViscosity] = m_compressedVaporViscosity(t, p);
                     break;
 
                 case PhaseType::Dense:
@@ -119,69 +121,78 @@ namespace PCProps
                 [&](double t) { return m_equationOfState.saturationPressure(t); });
         }
 
-        PCPhases flash(Pressure pressure, Temperature temperature) const
+        const PCPhases& flashPT(double pressure, double temperature) const
         {
             PCPhases results;
-            for (auto& phase : m_equationOfState.flashPT(pressure.get(), temperature.get())) {
+            for (auto& phase : m_equationOfState.flashPT(pressure, temperature)) {
                 auto result = PCPhase(phase);
                 computePhaseProperties(result);
-                results.emplace_back(result.data());
+                results.emplace_back(result);
             }
 
-            return results;
+            m_phaseData = std::move(results);
+            return m_phaseData;
         }
 
-        PCPhases flash(Pressure pressure, VaporFraction vaporFraction) const
+        const PCPhases& flashPx(double pressure, double vaporFraction) const
         {
             PCPhases results;
-            for (auto& phase : m_equationOfState.flashPx(pressure.get(), vaporFraction.get())) {
+            for (auto& phase : m_equationOfState.flashPx(pressure, vaporFraction)) {
                 auto result = PCPhase(phase);
                 computePhaseProperties(result);
-                results.emplace_back(result.data());
+                results.emplace_back(result);
             }
 
-            return results;
+            m_phaseData = std::move(results);
+            return m_phaseData;
         }
 
-        PCPhases flash(Temperature temperature, VaporFraction vaporFraction) const
+        const PCPhases& flashTx(double temperature, double vaporFraction) const
         {
             PCPhases results;
-            for (auto& phase : m_equationOfState.flashTx(temperature.get(), vaporFraction.get())) {
+            for (auto& phase : m_equationOfState.flashTx(temperature, vaporFraction)) {
                 auto result = PCPhase(phase);
                 computePhaseProperties(result);
-                results.emplace_back(result.data());
+                results.emplace_back(result);
             }
 
-            return results;
+            m_phaseData = std::move(results);
+            return m_phaseData;
         }
 
-        PCPhases flash(Pressure pressure, Enthalpy enthalpy) const
+        const PCPhases& flashPH(double pressure, double enthalpy) const
         {
             PCPhases results;
-            for (auto& phase : m_equationOfState.flashPH(pressure.get(), enthalpy.get())) {
+            for (auto& phase : m_equationOfState.flashPH(pressure, enthalpy)) {
                 auto result = PCPhase(phase);
                 computePhaseProperties(result);
-                results.emplace_back(result.data());
+                results.emplace_back(result);
             }
 
-            return results;
+            m_phaseData = std::move(results);
+            return m_phaseData;
         }
 
-        PCPhases flash(Pressure pressure, Entropy entropy) const
+        const PCPhases& flashPS(double pressure, double entropy) const
         {
             PCPhases results;
-            for (auto& phase : m_equationOfState.flashPS(pressure.get(), entropy.get())) {
+            for (auto& phase : m_equationOfState.flashPS(pressure, entropy)) {
                 auto result = PCPhase(phase);
                 computePhaseProperties(result);
-                results.emplace_back(result.data());
+                results.emplace_back(result);
             }
 
-            return results;
+            m_phaseData = std::move(results);
+            return m_phaseData;
         }
 
-        PCPhases flash(Temperature temperature, MolarVolume volume) const {
+        const PCPhases& flashTV(double temperature, double volume) const {
 
-            return PCProps::PCPhases();
+            return m_phaseData;
+        }
+
+        const PCPhases& getProperties() const {
+            return m_phaseData;
         }
     };
 
@@ -208,34 +219,39 @@ namespace PCProps
 
     Fluid& Fluid::operator=(Fluid&& other) noexcept = default;
 
-    PCPhases Fluid::flash(Pressure pressure, Temperature temperature) const
+    const PCPhases& Fluid::flashPT(double pressure, double temperature) const
     {
-        return m_impl->flash(pressure, temperature);
+        return m_impl->flashPT(pressure, temperature);
     }
 
-    PCPhases Fluid::flash(Pressure pressure, VaporFraction vaporFraction) const
+    const PCPhases& Fluid::flashPx(double pressure, double vaporFraction) const
     {
-        return m_impl->flash(pressure, vaporFraction);
+        return m_impl->flashPx(pressure, vaporFraction);
     }
 
-    PCPhases Fluid::flash(Temperature temperature, VaporFraction vaporFraction) const
+    const PCPhases& Fluid::flashTx(double temperature, double vaporFraction) const
     {
-        return m_impl->flash(temperature, vaporFraction);
+        return m_impl->flashTx(temperature, vaporFraction);
     }
 
-    PCPhases Fluid::flash(Pressure pressure, Enthalpy enthalpy) const
+    const PCPhases& Fluid::flashPH(double pressure, double enthalpy) const
     {
-        return m_impl->flash(pressure, enthalpy);
+        return m_impl->flashPH(pressure, enthalpy);
     }
 
-    PCPhases Fluid::flash(Pressure pressure, Entropy entropy) const
+    const PCPhases& Fluid::flashPS(double pressure, double entropy) const
     {
-        return m_impl->flash(pressure, entropy);
+        return m_impl->flashPS(pressure, entropy);
     }
 
-    PCPhases Fluid::flash(Temperature temperature, MolarVolume volume) const
+    const PCPhases& Fluid::flashTV(double temperature, double volume) const
     {
-        return m_impl->flash(temperature, volume);
+        return m_impl->flashTV(temperature, volume);
+    }
+
+    const PCPhases& Fluid::getProperties() const
+    {
+        return m_impl->getProperties();
     }
 
 }    // namespace PCProps

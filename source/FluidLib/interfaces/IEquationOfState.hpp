@@ -219,16 +219,6 @@ namespace PCProps
             return m_equationOfState->saturationPressure(temperature);
         }
 
-        /**
-         * @brief
-         * @param pressure
-         * @return
-         */
-        inline double saturationTemperature(double pressure) const
-        {
-            return m_equationOfState->saturationTemperature(pressure);
-        }
-
     private:
         /**
          * @brief
@@ -328,13 +318,6 @@ namespace PCProps
              * @return
              */
             inline virtual double saturationPressure(double temperature) const = 0;
-
-            /**
-             * @brief
-             * @param pressure
-             * @return
-             */
-            inline virtual double saturationTemperature(double pressure) const = 0;
 
             /**
              * @brief
@@ -477,16 +460,6 @@ namespace PCProps
             inline double saturationPressure(double temperature) const override
             {
                 return EOSType.saturationPressure(temperature);
-            }
-
-            /**
-             * @brief
-             * @param pressure
-             * @return
-             */
-            inline double saturationTemperature(double pressure) const override
-            {
-                return EOSType.saturationTemperature(pressure);
             }
 
             /**

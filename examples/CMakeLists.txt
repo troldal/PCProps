@@ -20,4 +20,4 @@ target_link_libraries(${PROJECT_NAME}-demo3 PRIVATE common PropertyLib EOSLib Fl
 # Define Demo4 target
 #=======================================================================================================================
 add_executable(${PROJECT_NAME}-demo4 Demo4.cpp)
-target_link_libraries(${PROJECT_NAME}-demo4 PRIVATE common PropertyLib EOSLib FluidLib)
+target_link_libraries(${PROJECT_NAME}-demo4 PRIVATE common PropertyLib EOSLib FluidLib UnitOps)
