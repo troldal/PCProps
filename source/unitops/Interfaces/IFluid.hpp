@@ -5,6 +5,8 @@
 #ifndef PCPROPS_IFLUID_HPP
 #define PCPROPS_IFLUID_HPP
 
+#include <iostream>
+
 #include <common/PropertyData.hpp>
 
 namespace PCProps::UnitOps
@@ -37,12 +39,12 @@ namespace PCProps::UnitOps
          * @brief
          * @param other
          */
-        IFluid(IFluid&& other) noexcept = default;
+        IFluid(IFluid&& other) noexcept {}
 
         /**
          * @brief
          */
-        ~IFluid() = default;
+        ~IFluid() {}
 
         /**
          * @brief
@@ -53,6 +55,7 @@ namespace PCProps::UnitOps
         template<typename T>
         IFluid& operator=(const T& x)
         {
+            std::cout << "IFluid (template) copy assignment operator called" << std::endl;
             m_fluid = std::make_unique<FluidModel<T>>(x);
             return *this;
         }
@@ -64,6 +67,7 @@ namespace PCProps::UnitOps
          */
         IFluid& operator=(const IFluid& other)
         {
+            std::cout << "IFluid copy assignment operator called" << std::endl;
             IFluid copy(other);
             *this = std::move(copy);
             return *this;
@@ -74,7 +78,11 @@ namespace PCProps::UnitOps
          * @param other
          * @return
          */
-        IFluid& operator=(IFluid&& other) noexcept = default;
+        IFluid& operator=(IFluid&& other) noexcept {
+            std::cout << "IFluid move assignment operator called" << std::endl;
+            m_fluid = std::move(other.m_fluid);
+            return *this;
+        }
 
         /**
          * @brief
@@ -109,8 +117,8 @@ namespace PCProps::UnitOps
             return m_fluid->flashPS(temperature, volume);
         }
 
-        const PCPhases& getProperties() const {
-            return m_fluid->getProperties();
+        const PCPhases& properties() const {
+            return m_fluid->properties();
         }
 
     private:
@@ -206,7 +214,7 @@ namespace PCProps::UnitOps
              */
             virtual const PCPhases& flashTV(double temperature, double volume) const = 0;
 
-            virtual const PCPhases& getProperties() const = 0;
+            virtual const PCPhases& properties() const = 0;
 
         };
 
@@ -294,9 +302,9 @@ namespace PCProps::UnitOps
                 return FluidType.flashTV(temperature, volume);
             }
 
-            const PCPhases& getProperties() const override
+            const PCPhases& properties() const override
             {
-                return FluidType.getProperties();
+                return FluidType.properties();
             }
 
         private:

@@ -34,7 +34,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.978939).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.97931788809).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.022233).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(-1899.261857).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-6.496219).epsilon(0.001));
@@ -51,7 +51,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.003766).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.69350105382).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.000070).epsilon(0.01));
         REQUIRE(result[PCEnthalpy] == Approx(-24084.251701).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-101.724616).epsilon(0.001));
@@ -68,7 +68,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.986760).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.98690029547).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.026512).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(1803.116466).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(5.926803).epsilon(0.001));
@@ -85,7 +85,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.995756).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.99576428359).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.038896).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(15577.940459).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(40.740519).epsilon(0.001));
@@ -102,7 +102,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(5000000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.171348).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.3014710365).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.000092).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(-13089.953760).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-62.826659).epsilon(0.001));
@@ -119,7 +119,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(5000000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.794804).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.8106014669).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.000621).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(12596.727773).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(3.579012).epsilon(0.001));
@@ -136,7 +136,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(10.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.000007).epsilon(0.1));
 //        REQUIRE(result[PCFugacityCoefficient] == Approx(0.0).epsilon(0.01));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.000056).epsilon(0.01));
         REQUIRE(result[PCEnthalpy] == Approx(-43434.5901840318).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-417.1895727118).epsilon(0.001));
@@ -153,7 +153,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(4248000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.305823).epsilon(0.1));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.6426352828).epsilon(0.01));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.000221).epsilon(0.01));
         REQUIRE(result[PCEnthalpy] == Approx(-2372.295636).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-32.215245).epsilon(0.001));
@@ -170,7 +170,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.003697).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.96789922051).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.000071).epsilon(0.01));
         REQUIRE(result[PCEnthalpy] == Approx(-23379.777150).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-98.619779).epsilon(0.001));
@@ -187,7 +187,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.966927).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.96789922052).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.018544).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(-4667.418728).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-17.493623).epsilon(0.001));
@@ -204,7 +204,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[1][PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[1][PCCompressibility] == Approx(0.966927).epsilon(0.001));
         REQUIRE(result[1][PCFugacityCoefficient] == Approx(0.96789922052).epsilon(0.001));
-        REQUIRE(result[1][PCMolarFraction] == Approx(0.5).epsilon(0.001));
+        REQUIRE(result[1][PCMolarFlow] == Approx(0.5).epsilon(0.001));
         REQUIRE(result[1][PCMolarVolume] == Approx(0.018544).epsilon(0.001));
         REQUIRE(result[1][PCEnthalpy] == Approx(-4667.418728).epsilon(0.001));
         REQUIRE(result[1][PCEntropy] == Approx(-17.493623).epsilon(0.001));
@@ -216,7 +216,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[0][PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[0][PCCompressibility] == Approx(0.003697).epsilon(0.001));
         REQUIRE(result[0][PCFugacityCoefficient] == Approx(0.96789922051).epsilon(0.001));
-        REQUIRE(result[0][PCMolarFraction] == Approx(0.5).epsilon(0.001));
+        REQUIRE(result[0][PCMolarFlow] == Approx(0.5).epsilon(0.001));
         REQUIRE(result[0][PCMolarVolume] == Approx(0.000071).epsilon(0.01));
         REQUIRE(result[0][PCEnthalpy] == Approx(-23379.777150).epsilon(0.001));
         REQUIRE(result[0][PCEntropy] == Approx(-98.619779).epsilon(0.001));
@@ -233,7 +233,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(71038.119363).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.002675).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.9751737591).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.000070).epsilon(0.01));
         REQUIRE(result[PCEnthalpy] == Approx(-24085.412742).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-101.720751).epsilon(0.001));
@@ -250,7 +250,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(71038.119363).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.974596).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.9751737591).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.025454).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(-5075.219460).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-16.530551).epsilon(0.001));
@@ -267,7 +267,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[1][PCPressure] == Approx(71038.119363).epsilon(0.001));
         REQUIRE(result[1][PCCompressibility] == Approx(0.974596).epsilon(0.001));
         REQUIRE(result[1][PCFugacityCoefficient] == Approx(0.9751737591).epsilon(0.001));
-        REQUIRE(result[1][PCMolarFraction] == Approx(0.5).epsilon(0.001));
+        REQUIRE(result[1][PCMolarFlow] == Approx(0.5).epsilon(0.001));
         REQUIRE(result[1][PCMolarVolume] == Approx(0.025454).epsilon(0.001));
         REQUIRE(result[1][PCEnthalpy] == Approx(-5075.219460).epsilon(0.001));
         REQUIRE(result[1][PCEntropy] == Approx(-16.530551).epsilon(0.001));
@@ -279,7 +279,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[0][PCPressure] == Approx(71038.119363).epsilon(0.001));
         REQUIRE(result[0][PCCompressibility] == Approx(0.002675).epsilon(0.001));
         REQUIRE(result[0][PCFugacityCoefficient] == Approx(0.9751737591).epsilon(0.001));
-        REQUIRE(result[0][PCMolarFraction] == Approx(0.5).epsilon(0.001));
+        REQUIRE(result[0][PCMolarFlow] == Approx(0.5).epsilon(0.001));
         REQUIRE(result[0][PCMolarVolume] == Approx(0.000070).epsilon(0.01));
         REQUIRE(result[0][PCEnthalpy] == Approx(-24085.412742).epsilon(0.001));
         REQUIRE(result[0][PCEntropy] == Approx(-101.720751).epsilon(0.001));
@@ -296,7 +296,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[1][PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[1][PCCompressibility] == Approx(0.966927).epsilon(0.001));
         REQUIRE(result[1][PCFugacityCoefficient] == Approx(0.96789922052).epsilon(0.001));
-        REQUIRE(result[1][PCMolarFraction] == Approx(0.501261).epsilon(0.001));
+        REQUIRE(result[1][PCMolarFlow] == Approx(0.501261).epsilon(0.001));
         REQUIRE(result[1][PCMolarVolume] == Approx(0.018544).epsilon(0.001));
         REQUIRE(result[1][PCEnthalpy] == Approx(-4667.418728).epsilon(0.001));
         REQUIRE(result[1][PCEntropy] == Approx(-17.493623).epsilon(0.001));
@@ -308,7 +308,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[0][PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[0][PCCompressibility] == Approx(0.003697).epsilon(0.001));
         REQUIRE(result[0][PCFugacityCoefficient] == Approx(0.96789922051).epsilon(0.001));
-        REQUIRE(result[0][PCMolarFraction] == Approx(0.498739).epsilon(0.001));
+        REQUIRE(result[0][PCMolarFlow] == Approx(0.498739).epsilon(0.001));
         REQUIRE(result[0][PCMolarVolume] == Approx(0.000071).epsilon(0.01));
         REQUIRE(result[0][PCEnthalpy] == Approx(-23379.777150).epsilon(0.001));
         REQUIRE(result[0][PCEntropy] == Approx(-98.619779).epsilon(0.001));
@@ -325,7 +325,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.987043).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.98717657406).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.026723).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(2000).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(6.533741).epsilon(0.001));
@@ -342,7 +342,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.995872).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.99587960365).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.039223).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(16000).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(41.635185).epsilon(0.001));
@@ -359,7 +359,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.003757).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.72299863177).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.000070).epsilon(0.01));
         REQUIRE(result[PCEnthalpy] == Approx(-24000).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-101.347824).epsilon(0.001));
@@ -376,7 +376,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(5000000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.171527).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.0749889902).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.000075).epsilon(0.01));
         REQUIRE(result[PCEnthalpy] == Approx(-20000).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-86.373130).epsilon(0.001));
@@ -393,7 +393,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(5000000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.785893).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.8040055372).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.000608).epsilon(0.01));
         REQUIRE(result[PCEnthalpy] == Approx(12000).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(2.302270).epsilon(0.001));
@@ -410,7 +410,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[1][PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[1][PCCompressibility] == Approx(0.966927).epsilon(0.001));
         REQUIRE(result[1][PCFugacityCoefficient] == Approx(0.96789922052).epsilon(0.001));
-        REQUIRE(result[1][PCMolarFraction] == Approx(0.476046).epsilon(0.001));
+        REQUIRE(result[1][PCMolarFlow] == Approx(0.476046).epsilon(0.001));
         REQUIRE(result[1][PCMolarVolume] == Approx(0.018544).epsilon(0.001));
         REQUIRE(result[1][PCEnthalpy] == Approx(-4667.418728).epsilon(0.001));
         REQUIRE(result[1][PCEntropy] == Approx(-17.493623).epsilon(0.001));
@@ -422,7 +422,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[0][PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[0][PCCompressibility] == Approx(0.003697).epsilon(0.001));
         REQUIRE(result[0][PCFugacityCoefficient] == Approx(0.96789922051).epsilon(0.001));
-        REQUIRE(result[0][PCMolarFraction] == Approx(0.523954).epsilon(0.001));
+        REQUIRE(result[0][PCMolarFlow] == Approx(0.523954).epsilon(0.001));
         REQUIRE(result[0][PCMolarVolume] == Approx(0.000071).epsilon(0.01));
         REQUIRE(result[0][PCEnthalpy] == Approx(-23379.777150).epsilon(0.001));
         REQUIRE(result[0][PCEntropy] == Approx(-98.619779).epsilon(0.001));
@@ -439,7 +439,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.987255).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.98738413477).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.026886).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(2152.271027).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(7.0).epsilon(0.001));
@@ -456,7 +456,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.995657).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.99566632742).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.038625).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(15231.239828).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(40.0).epsilon(0.001));
@@ -473,7 +473,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.003727).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.83688539684).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.000070).epsilon(0.01));
         REQUIRE(result[PCEnthalpy] == Approx(-23695.822221).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-100.0).epsilon(0.001));
@@ -490,7 +490,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(5000000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.170734).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.0833455104).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.000076).epsilon(0.01));
         REQUIRE(result[PCEnthalpy] == Approx(-19636.022175).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-85.0).epsilon(0.001));
@@ -507,7 +507,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(5000000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.790814).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.8076329386).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.000615).epsilon(0.01));
         REQUIRE(result[PCEnthalpy] == Approx(12325.343803).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(3.0).epsilon(0.001));
@@ -525,7 +525,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.978939).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.97931788809).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.022233).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(-1899.261857).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-6.496219).epsilon(0.001));
@@ -543,7 +543,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.978939).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.97931788809).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.022233).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(-1899.261857).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-6.496219).epsilon(0.001));
@@ -562,7 +562,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.978939).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.97931788809).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.022233).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(-1899.261857).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-6.496219).epsilon(0.001));
@@ -581,7 +581,7 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCPressure] == Approx(100000.0).epsilon(0.001));
         REQUIRE(result[PCCompressibility] == Approx(0.978939).epsilon(0.001));
         REQUIRE(result[PCFugacityCoefficient] == Approx(0.97931788809).epsilon(0.001));
-        REQUIRE(result[PCMolarFraction] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
         REQUIRE(result[PCMolarVolume] == Approx(0.022233).epsilon(0.001));
         REQUIRE(result[PCEnthalpy] == Approx(-1899.261857).epsilon(0.001));
         REQUIRE(result[PCEntropy] == Approx(-6.496219).epsilon(0.001));

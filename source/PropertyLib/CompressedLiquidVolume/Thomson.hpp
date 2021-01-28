@@ -87,8 +87,8 @@ namespace PCProps::LiquidVolume
             double                               criticalTemperature,
             double                               criticalPressure,
             double                               acentricFactor,
-            const std::function<double(double)>& satVolumeFunction,
-            const std::function<double(double)>& vaporPressureFunction)
+            const std::function<double(double)>& satVolumeFunction = {},
+            const std::function<double(double)>& vaporPressureFunction = {})
             : m_saturatedVolumeFunction(satVolumeFunction),
               m_vaporPressureFunction(vaporPressureFunction),
               m_criticalTemperature(criticalTemperature),
@@ -121,16 +121,9 @@ namespace PCProps::LiquidVolume
          */
         Thomson& operator=(Thomson&& other) noexcept = default;
 
-        /**
-         * @brief Function call operator, taking temperature [K] and pressure [Pa] as arguments
-         * and returns compressed liquid volume [m3/mol]
-         * @param temperature The temperature [K]
-         * @param pressure The pressure [Pa]
-         * @return The compressed liquid volume [m3/mol]
-         * @warning This may yield NaN as the result when T is close to Tc.
-         */
-        double operator()(double temperature, double pressure)
-        {
+
+        double operator()(double temperature, double pressure, double satPressure, double satVolume) const {
+
             using std::exp;
             using std::log;
             using std::pow;
@@ -140,10 +133,36 @@ namespace PCProps::LiquidVolume
             double B  = m_criticalPressure * (-1 - 9.070217 * pow(1 - tr, 1.0 / 3.0) + 62.45326 * pow(1 - tr, 2.0 / 3.0) - 135.1102 * (1 - tr) +
                 exp(4.79594 + 0.250047 * m_acentricFactor + 1.14188 * pow(m_acentricFactor, 2)) * pow(1 - tr, 4.0 / 3.0));
 
-            double psat = m_vaporPressureFunction(temperature);
-            double vsat = m_saturatedVolumeFunction(temperature);
+            return satVolume * (1 - C * log((B + pressure) / (B + satPressure)));
 
-            return vsat * (1 - C * log((B + pressure) / (B + psat)));
+        }
+
+        /**
+         * @brief Function call operator, taking temperature [K] and pressure [Pa] as arguments
+         * and returns compressed liquid volume [m3/mol]
+         * @param temperature The temperature [K]
+         * @param pressure The pressure [Pa]
+         * @return The compressed liquid volume [m3/mol]
+         * @warning This may yield NaN as the result when T is close to Tc.
+         */
+        double operator()(double temperature, double pressure) const
+        {
+
+            return operator()(temperature, pressure, m_vaporPressureFunction(temperature), m_saturatedVolumeFunction(temperature));
+
+//            using std::exp;
+//            using std::log;
+//            using std::pow;
+//
+//            double tr = temperature / m_criticalTemperature;
+//            double C  = 0.0861488 + 0.0344483 * m_acentricFactor;
+//            double B  = m_criticalPressure * (-1 - 9.070217 * pow(1 - tr, 1.0 / 3.0) + 62.45326 * pow(1 - tr, 2.0 / 3.0) - 135.1102 * (1 - tr) +
+//                exp(4.79594 + 0.250047 * m_acentricFactor + 1.14188 * pow(m_acentricFactor, 2)) * pow(1 - tr, 4.0 / 3.0));
+//
+//            double psat = m_vaporPressureFunction(temperature);
+//            double vsat = m_saturatedVolumeFunction(temperature);
+//
+//            return vsat * (1 - C * log((B + pressure) / (B + psat)));
         }
     };
 

@@ -6,5 +6,6 @@
 #define PCPROPS_UNITOPS_HPP
 
 #include "Pipe/Pipe.hpp"
+#include "Pump/CentrifugalPump.hpp"
 
 #endif    // PCPROPS_UNITOPS_HPP

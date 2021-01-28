@@ -564,7 +564,7 @@ namespace PCProps::EquationOfState
 
         // ===== Compute compressibility factors and fugacity coefficients at given T and P.
         auto phases = m_impl->computeThermodynamicProperties(temperature, pressure);
-        for (auto& phase : phases) phase[PCMolarFraction] = 1.0;
+        for (auto& phase : phases) phase[PCMolarFlow] = 1.0;
         return { *std::min_element(phases.begin(), phases.end(), [](const auto& a, const auto& b) { return a[PCFugacityCoefficient] < b[PCFugacityCoefficient]; }) };
     }
 
@@ -584,7 +584,7 @@ namespace PCProps::EquationOfState
                 auto phase = *std::max_element(phases.begin(),
                                                phases.end(),
                                                [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; });
-                phase[PCMolarFraction] = 1.0;
+                phase[PCMolarFlow] = 1.0;
                 return {phase};
             }
 //                return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
@@ -594,7 +594,7 @@ namespace PCProps::EquationOfState
                 auto phase = *std::min_element(phases.begin(),
                                                phases.end(),
                                                [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; });
-                phase[PCMolarFraction] = 1.0;
+                phase[PCMolarFlow] = 1.0;
                 return {phase};
             }
 //                return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
@@ -603,10 +603,10 @@ namespace PCProps::EquationOfState
 
             std::min_element(phases.begin(),
                              phases.end(),
-                             [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = (1 - vaporFraction);
+                             [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFlow) = (1 - vaporFraction);
             std::max_element(phases.begin(),
                              phases.end(),
-                             [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = vaporFraction;
+                             [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFlow) = vaporFraction;
 
             return phases;
 
@@ -634,7 +634,7 @@ namespace PCProps::EquationOfState
                 auto phase = *std::max_element(phases.begin(),
                                               phases.end(),
                                               [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; });
-                phase[PCMolarFraction] = 1.0;
+                phase[PCMolarFlow] = 1.0;
                 return {phase};
             }
 
@@ -645,7 +645,7 @@ namespace PCProps::EquationOfState
                 auto phase = *std::min_element(phases.begin(),
                                                phases.end(),
                                                [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; });
-                phase[PCMolarFraction] = 1.0;
+                phase[PCMolarFlow] = 1.0;
                 return {phase};
             }
 //                return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
@@ -654,10 +654,10 @@ namespace PCProps::EquationOfState
 //            auto phases = m_impl->computeThermodynamicProperties(temperature, pressure);
             std::min_element(phases.begin(),
                              phases.end(),
-                             [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = (1 - vaporFraction);
+                             [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFlow) = (1 - vaporFraction);
             std::max_element(phases.begin(),
                              phases.end(),
-                             [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = vaporFraction;
+                             [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFlow) = vaporFraction;
 
             return phases;
 
@@ -729,10 +729,10 @@ namespace PCProps::EquationOfState
         auto phases = m_impl->computeThermodynamicProperties(temperature, pressure);
         std::min_element(phases.begin(),
                          phases.end(),
-                         [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = (1 - vaporFraction);
+                         [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFlow) = (1 - vaporFraction);
         std::max_element(phases.begin(),
                          phases.end(),
-                         [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = vaporFraction;
+                         [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFlow) = vaporFraction;
 
         return phases;
     }
@@ -797,10 +797,10 @@ namespace PCProps::EquationOfState
         auto phases = m_impl->computeThermodynamicProperties(temperature, pressure);
         std::min_element(phases.begin(),
                          phases.end(),
-                         [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = (1 - vaporFraction);
+                         [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFlow) = (1 - vaporFraction);
         std::max_element(phases.begin(),
                          phases.end(),
-                         [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFraction) = vaporFraction;
+                         [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFlow) = vaporFraction;
 
         return phases;
     }

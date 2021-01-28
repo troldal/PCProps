@@ -94,8 +94,8 @@ namespace PCProps::LiquidVolume
             double                               criticalTemperature,
             double                               criticalPressure,
             double                               acentricFactor,
-            const std::function<double(double)>& satVolumeFunction,
-            const std::function<double(double)>& vaporPressureFunction)
+            const std::function<double(double)>& satVolumeFunction = {},
+            const std::function<double(double)>& vaporPressureFunction = {})
             : m_saturatedVolumeFunction(satVolumeFunction),
               m_vaporPressureFunction(vaporPressureFunction),
               m_criticalTemperature(criticalTemperature),
@@ -128,6 +128,19 @@ namespace PCProps::LiquidVolume
          */
         Aalto& operator=(Aalto&& other) noexcept = default;
 
+        double operator()(double temperature, double pressure, double satPressure, double satVolume) const {
+
+            using std::pow;
+            double tr = temperature / m_criticalTemperature;
+
+            double A = -170.335 - 28.578 * tr + 124.809 * pow(tr, 3) - 55.5393 * pow(tr, 6) + 130.01 / tr;
+
+            return satVolume * ((A * m_criticalPressure + pow(C, pow(D - tr, B)) * (pressure - satPressure)) /
+                (A * m_criticalPressure + C * (pressure - satPressure)));
+
+        }
+
+
         /**
          * @brief Function call operator, taking temperature [K] and pressure [Pa] as arguments
          * and returns compressed liquid volume [m3/mol]
@@ -137,13 +150,16 @@ namespace PCProps::LiquidVolume
          */
         double operator()(double temperature, double pressure) const
         {
-            using std::pow;
-            double tr = temperature / m_criticalTemperature;
 
-            double A = -170.335 - 28.578 * tr + 124.809 * pow(tr, 3) - 55.5393 * pow(tr, 6) + 130.01 / tr;
+            return operator()(temperature, pressure, m_vaporPressureFunction(temperature), m_saturatedVolumeFunction(temperature));
 
-            return m_saturatedVolumeFunction(temperature) * ((A * m_criticalPressure + pow(C, pow(D - tr, B)) * (pressure - m_vaporPressureFunction(temperature))) /
-                (A * m_criticalPressure + C * (pressure - m_vaporPressureFunction(temperature))));
+//            using std::pow;
+//            double tr = temperature / m_criticalTemperature;
+//
+//            double A = -170.335 - 28.578 * tr + 124.809 * pow(tr, 3) - 55.5393 * pow(tr, 6) + 130.01 / tr;
+//
+//            return m_saturatedVolumeFunction(temperature) * ((A * m_criticalPressure + pow(C, pow(D - tr, B)) * (pressure - m_vaporPressureFunction(temperature))) /
+//                (A * m_criticalPressure + C * (pressure - m_vaporPressureFunction(temperature))));
         }
     };
 }    // namespace PCProps::LiquidVolume

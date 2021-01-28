@@ -5,6 +5,9 @@
 set(EOSLIB_SOURCES
         Pipe/Pipe.cpp
         Pipe/PipeSegmentLiquid.cpp
+
+        Pump/CentrifugalPump.cpp
+        Stream/Stream.cpp
         )
 
 #=======================================================================================================================

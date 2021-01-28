@@ -24,6 +24,7 @@ using PCProps::Viscosity::DIPPR102;
 using PCProps::Viscosity::KirchhoffExtended;
 using PCProps::Viscosity::Lucas;
 
+using PCProps::UnitOps::CentrifugalPump;
 using PCProps::UnitOps::Pipe;
 
 using namespace PCProps;
@@ -61,15 +62,26 @@ int main()
     data.satLiquidVolumeCorrelation              = YenWoods(YenWoods::CreateFromYenWoodsEstimation { 647.10, 0.0000559472, 0.229435018515262 });
 
     auto propane = PureComponent(data);
-    auto fluid   = Fluid(propane, PengRobinson {});
+    auto fluid   = UnitOps::Stream(Fluid(PureComponent(data), PengRobinson {}), 10.0);
 
-    std::cout << "Water at 25 C and 1 atm: " << std::endl;
-    auto a = fluid.flashPT(2.07E6, 298.15);
+
+    std::cout << "Water at 25 C and 5 bar: " << std::endl;
+    auto a = fluid.flashPT(5E5, 298.15);
     for (const auto& phase : a) std::cout << phase << std::endl;
     std::cout << "==================================================" << std::endl;
 
-    auto pipe = Pipe(9000, 152.0 / 1000, 7, 0.0);
-    std::cout << pipe.computeInletPressure(fluid, 2600) << std::endl;
+    auto cp = CentrifugalPump();
+    cp.setDifferentialPressure(20E5);
+    cp.setInletStream(&fluid);
+    auto b = cp().properties();
+
+//    std::cout << "Water at 25 C and 25 bar: " << std::endl;
+//    auto b = fluid.flashPT(25E6, 298.15);
+    for (const auto& phase : b) std::cout << phase << std::endl;
+    std::cout << "==================================================" << std::endl;
+
+//    auto pipe = Pipe(9000, 152.0 / 1000, 7, 0.0);
+//    std::cout << pipe.computeInletPressure(fluid, 2600) << std::endl;
 
     return 0;
 }

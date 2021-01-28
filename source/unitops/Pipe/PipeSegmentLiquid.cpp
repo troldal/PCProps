@@ -60,31 +60,31 @@ namespace PCProps::UnitOps
         double computeOutletPressure(const IFluid& fluid, double molarFlow) const {
             using std::sin;
             using std::pow;
-            if (fluid.getProperties().size() > 1) throw std::invalid_argument("Invalid fluid");
-            double elevationGradient = computeElevationGradient(fluid.getProperties());
-            double volumeFlow        = computeVolumeFlow(fluid.getProperties(), molarFlow);
+            if (fluid.properties().size() > 1) throw std::invalid_argument("Invalid fluid");
+            double elevationGradient = computeElevationGradient(fluid.properties());
+            double volumeFlow        = computeVolumeFlow(fluid.properties(), molarFlow);
             double velocity          = volumeFlow / m_flowArea;
-            double reynoldsNumber    = computeReynoldsNumber(fluid.getProperties(), velocity);
+            double reynoldsNumber    = computeReynoldsNumber(fluid.properties(), velocity);
             double dpdl = -computeFrictionFactor(reynoldsNumber) *
-                          (1.0 / fluid.getProperties()[0][PCMolarVolume]) *
-                          (fluid.getProperties()[0][PCMolarWeight] / 1000.0) * pow(velocity, 2) / (2 * m_diameter);
+                          (1.0 / fluid.properties()[0][PCMolarVolume]) *
+                          (fluid.properties()[0][PCMolarWeight] / 1000.0) * pow(velocity, 2) / (2 * m_diameter);
 
-            return fluid.getProperties()[0][PCPressure] + (dpdl + elevationGradient) * m_length;
+            return fluid.properties()[0][PCPressure] + (dpdl + elevationGradient) * m_length;
         }
 
         double computeInletPressure(const IFluid& fluid, double molarFlow) {
             using std::sin;
             using std::pow;
-            if (fluid.getProperties().size() > 1) throw std::invalid_argument("Invalid fluid");
-            double elevationGradient = computeElevationGradient(fluid.getProperties());
-            double volumeFlow        = computeVolumeFlow(fluid.getProperties(), molarFlow);
+            if (fluid.properties().size() > 1) throw std::invalid_argument("Invalid fluid");
+            double elevationGradient = computeElevationGradient(fluid.properties());
+            double volumeFlow        = computeVolumeFlow(fluid.properties(), molarFlow);
             double velocity          = volumeFlow / m_flowArea;
-            double reynoldsNumber    = computeReynoldsNumber(fluid.getProperties(), velocity);
+            double reynoldsNumber    = computeReynoldsNumber(fluid.properties(), velocity);
             double dpdl = -computeFrictionFactor(reynoldsNumber) *
-                (1.0 / fluid.getProperties()[0][PCMolarVolume]) *
-                (fluid.getProperties()[0][PCMolarWeight] / 1000.0) * pow(velocity, 2) / (2 * m_diameter);
+                (1.0 / fluid.properties()[0][PCMolarVolume]) *
+                (fluid.properties()[0][PCMolarWeight] / 1000.0) * pow(velocity, 2) / (2 * m_diameter);
 
-            return fluid.getProperties()[0][PCPressure] - (dpdl + elevationGradient) * m_length;
+            return fluid.properties()[0][PCPressure] - (dpdl + elevationGradient) * m_length;
         }
 
     };

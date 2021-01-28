@@ -31,7 +31,9 @@ namespace PCProps {
          */
         template<typename T>
         IPureComponent(const T& x) : m_pureComponent { std::make_unique<PCModel<T>>(x) }
-        {}
+        {
+            int i = 0;
+        }
 
         /**
          * @brief
@@ -146,7 +148,6 @@ namespace PCProps {
             return m_pureComponent->satLiquidViscosity(temperature);
         }
 
-
     private:
         /**
          * @brief
@@ -205,8 +206,6 @@ namespace PCProps {
             virtual double acentricFactor() const = 0;
 
             virtual double dipoleMoment() const = 0;
-
-
 
             virtual double idealGasCp(double temperature) const = 0;
 
@@ -334,6 +333,6 @@ namespace PCProps {
         std::unique_ptr<PCConcept> m_pureComponent;
     };
 
-}
+} // namespace PCProps
 
 #endif    // PCPROPS_IPURECOMPONENT_HPP

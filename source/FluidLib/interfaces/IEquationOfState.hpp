@@ -66,7 +66,9 @@ namespace PCProps
          */
         template<typename T>
         IEquationOfState(const T& x) : m_equationOfState { std::make_unique<EOSModel<T>>(x) }
-        {}
+        {
+            int i = 0;
+        }
 
         /**
          * @brief

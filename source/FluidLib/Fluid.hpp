@@ -52,6 +52,7 @@ namespace PCProps
         // CONSTRUCTORS & ASSIGNMENT OPERATORS
         // =====================================================================
 
+
         Fluid();
 
         Fluid(const IPureComponent& pc, const IEquationOfState& eos);
@@ -70,19 +71,59 @@ namespace PCProps
         // FLASH ALGORITHMS
         // =====================================================================
 
+        /**
+         * @brief
+         * @param pressure
+         * @param temperature
+         * @return
+         */
         const PCPhases& flashPT(double pressure, double temperature) const;
 
+        /**
+         * @brief
+         * @param pressure
+         * @param vaporFraction
+         * @return
+         */
         const PCPhases& flashPx(double pressure, double vaporFraction) const;
 
+        /**
+         * @brief
+         * @param temperature
+         * @param vaporFraction
+         * @return
+         */
         const PCPhases& flashTx(double temperature, double vaporFraction) const;
 
+        /**
+         * @brief
+         * @param pressure
+         * @param enthalpy
+         * @return
+         */
         const PCPhases& flashPH(double pressure, double enthalpy) const;
 
+        /**
+         * @brief
+         * @param pressure
+         * @param entropy
+         * @return
+         */
         const PCPhases& flashPS(double pressure, double entropy) const;
 
+        /**
+         * @brief
+         * @param temperature
+         * @param volume
+         * @return
+         */
         const PCPhases& flashTV(double temperature, double volume) const;
 
-        const PCPhases& getProperties() const;
+        /**
+         * @brief
+         * @return
+         */
+        const PCPhases& properties() const;
 
     private:
         class impl;

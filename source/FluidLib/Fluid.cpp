@@ -17,9 +17,9 @@ namespace PCProps
         IPureComponent   m_pureComponent {};
         IEquationOfState m_equationOfState {};
 
-        std::function<double(double, double)> m_compressedLiquidVolume;
-        std::function<double(double, double)> m_compressedLiquidViscosity;
-        std::function<double(double, double)> m_compressedVaporViscosity;
+        std::function<double(double, double, double, double)> m_compressedLiquidVolume;
+        std::function<double(double, double, double, double)> m_compressedLiquidViscosity;
+        std::function<double(double, double, double, double)> m_compressedVaporViscosity;
 
         mutable PCPhases m_phaseData {};
 
@@ -33,7 +33,7 @@ namespace PCProps
             auto pc = m_pureComponent.criticalPressure();
             auto t = phase[PCTemperature];
             auto p = phase[PCPressure];
-            auto x = phase[PCMolarFraction];
+            auto x = phase[PCMolarFlow];
             auto z = phase[PCCompressibility];
             auto psat = phase[PCVaporPressure]; //   m_equationOfState.saturationPressure(t);
 
@@ -62,17 +62,17 @@ namespace PCProps
             switch (type)
             {
                 case PhaseType::Liquid:
-                    phase[PCMolarWeight] = m_compressedLiquidVolume(t, p);
+                    phase[PCMolarWeight] = m_compressedLiquidVolume(t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satLiquidVolume(t));
                     phase[PCSurfaceTension] = 0.0;
                     phase[PCThermalConductivity] = 0.0;
-                    phase[PCViscosity] = 0.0;
+                    phase[PCViscosity] = m_compressedLiquidViscosity(t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satLiquidViscosity(t));;
 
                     break;
 
                 case PhaseType::Vapor:
                     phase[PCSurfaceTension] = 0.0;
                     phase[PCThermalConductivity] = 0.0;
-                    phase[PCViscosity] = m_compressedVaporViscosity(t, p);
+                    phase[PCViscosity] = m_compressedVaporViscosity(t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satVaporViscosity(t));
                     break;
 
                 case PhaseType::Dense:
@@ -92,23 +92,21 @@ namespace PCProps
             obj["Omega"] = m_pureComponent.acentricFactor();
 
             m_equationOfState.setProperties(obj.dump());
-            m_equationOfState.setIdealGasCpFunction([&](double t) { return m_pureComponent.idealGasCp(t); });
+
+            using PCProps::HeatCapacity::AlyLee;
+            m_equationOfState.setIdealGasCpFunction([pc=m_pureComponent](double t) { return pc.idealGasCp(t); } );
 
             using PCProps::LiquidVolume::Thomson;
             m_compressedLiquidVolume = Thomson(
                 m_pureComponent.criticalTemperature(),
                 m_pureComponent.criticalPressure(),
-                m_pureComponent.acentricFactor(),
-                [&](double t) { return m_pureComponent.satLiquidVolume(t); },
-                [&](double t) { return m_equationOfState.saturationPressure(t); });
+                m_pureComponent.acentricFactor());
 
             using namespace PCProps::CompressedLiquidViscosity;
             m_compressedLiquidViscosity = CompressedLiquidViscosity::Lucas(
                 m_pureComponent.criticalTemperature(),
                 m_pureComponent.criticalPressure(),
-                m_pureComponent.acentricFactor(),
-                [&](double t) { return m_pureComponent.satLiquidViscosity(t); },
-                [&](double t) { return m_equationOfState.saturationPressure(t); });
+                m_pureComponent.acentricFactor());
 
             using namespace PCProps::CompressedVaporViscosity;
             m_compressedVaporViscosity = CompressedVaporViscosity::Lucas(
@@ -116,15 +114,14 @@ namespace PCProps
                 m_pureComponent.criticalPressure(),
                 m_pureComponent.criticalCompressibility(),
                 m_pureComponent.molarWeight(),
-                m_pureComponent.dipoleMoment(),
-                [&](double t) { return m_pureComponent.satVaporViscosity(t); },
-                [&](double t) { return m_equationOfState.saturationPressure(t); });
+                m_pureComponent.dipoleMoment());
         }
 
         const PCPhases& flashPT(double pressure, double temperature) const
         {
             PCPhases results;
-            for (auto& phase : m_equationOfState.flashPT(pressure, temperature)) {
+            auto temp = m_equationOfState.flashPT(pressure, temperature);
+            for (auto& phase : temp) {
                 auto result = PCPhase(phase);
                 computePhaseProperties(result);
                 results.emplace_back(result);
@@ -202,9 +199,13 @@ namespace PCProps
 
     Fluid::Fluid() = default;
 
-    Fluid::Fluid(const IPureComponent& pc, const IEquationOfState& eos) : m_impl(std::make_unique<impl>(pc, eos)) {}
+    Fluid::Fluid(const IPureComponent& pc, const IEquationOfState& eos) : m_impl(std::make_unique<impl>(pc, eos)) {
+        int i = 0;
+    }
 
-    Fluid::Fluid(const Fluid& other) : m_impl(std::make_unique<impl>(*other.m_impl)) {};
+    Fluid::Fluid(const Fluid& other) : m_impl(std::make_unique<impl>(*other.m_impl)) {
+        int i = 0;
+    }
 
     Fluid::Fluid(Fluid&& other) noexcept = default;
 
@@ -249,7 +250,7 @@ namespace PCProps
         return m_impl->flashTV(temperature, volume);
     }
 
-    const PCPhases& Fluid::getProperties() const
+    const PCPhases& Fluid::properties() const
     {
         return m_impl->getProperties();
     }

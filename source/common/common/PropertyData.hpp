@@ -53,7 +53,7 @@ namespace PCProps
         PCTemperature,
         PCMolarVolume,
         PCMolarWeight,
-        PCMolarFraction,
+        PCMolarFlow,
         PCCompressibility,
         PCFugacityCoefficient,
         PCViscosity,
@@ -71,21 +71,21 @@ namespace PCProps
         PCGibbsEnergy,
         PCHelmholzEnergy
     };
-
-    using PCFlowData = std::array<double, 4>;
-
-    enum FlowPropertyElement {
-        PCMolarFlow,
-        PCVelocity,
-        PCReynoldsNumber,
-        PCLiquidHoldup
-    };
+//
+//    using PCFlowData = std::array<double, 4>;
+//
+//    enum FlowPropertyElement {
+//        PCMolarFlow,
+//        PCVelocity,
+//        PCReynoldsNumber,
+//        PCLiquidHoldup
+//    };
 
     inline std::ostream& operator<<(std::ostream& stream, const PCProps::PCPhase& properties)
     {
 
         return stream << std::setprecision(8) << std::fixed
-                      << "Molar Fraction                : " << std::right << std::setw(20) << properties[PCMolarFraction] << std::endl
+                      << "Molar Flow                    : " << std::right << std::setw(20) << properties[PCMolarFlow] << std::endl
                       << "Molar Volume                  : " << std::right << std::setw(20) << properties[PCMolarVolume] << " m3/mol" << std::endl
                       << "Surface Tension               : " << std::right << std::setw(20) << properties[PCSurfaceTension] << " N/m" << std::endl
                       << "Thermal Conductivity          : " << std::right << std::setw(20) << properties[PCThermalConductivity] << " W/m-K" << std::endl

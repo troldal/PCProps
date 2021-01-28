@@ -272,80 +272,40 @@ namespace PCProps
 
         // ===== Accessors (Temperature Dependent) ===== //
 
-        bool satLiquidVolumeIsValid() const {
-            return static_cast<bool>(m_data.satLiquidVolumeCorrelation);
-        }
-
         double satLiquidVolume(double temperature) const {
             return m_data.satLiquidVolumeCorrelation(temperature);
-        }
-
-        bool idealGasCpIsValid() const {
-            return static_cast<bool>(m_data.idealGasCpCorrelation);
         }
 
         double idealGasCp(double temperature) const {
             return m_data.idealGasCpCorrelation(temperature);
         }
 
-        bool satLiquidCpIsValid() const {
-            return static_cast<bool>(m_data.liquidCpCorrelation);
-        }
-
         double satLiquidCp(double temperature) const {
             return m_data.liquidCpCorrelation(temperature);
-        }
-
-        bool vaporPressureIsValid() const {
-            return static_cast<bool>(m_data.vaporPressureCorrelation);
         }
 
         double vaporPressure(double temperature) const {
             return m_data.vaporPressureCorrelation(temperature);
         }
 
-        bool surfaceTensionIsValid() const{
-            return static_cast<bool>(m_data.surfaceTensionCorrelation);
-        }
-
         double surfaceTension(double temperature) const {
             return m_data.surfaceTensionCorrelation(temperature);
-        }
-
-        bool heatOfVaporizationIsValid() const {
-            return static_cast<bool>(m_data.heatOfVaporizationCorrelation);
         }
 
         double heatOfVaporization(double temperature) const {
             return m_data.heatOfVaporizationCorrelation(temperature);
         }
 
-        bool satVaporThermalConductivityIsValid() const {
-            return static_cast<bool>(m_data.satVaporThermalConductivityCorrelation);
-        }
-
         double satVaporThermalConductivity(double temperature) const {
             return m_data.satVaporThermalConductivityCorrelation(temperature);
-        }
-
-        bool satLiquidThermalConductivityIsValid() const {
-            return static_cast<bool>(m_data.satLiquidThermalConductivityCorrelation);
         }
 
         double satLiquidThermalConductivity(double temperature) const {
             return m_data.satLiquidThermalConductivityCorrelation(temperature);
         }
 
-        bool satVaporViscosityIsValid() const {
-            return static_cast<bool>(m_data.satVaporViscosityCorrelation);
-        }
-
         double satVaporViscosity(double temperature) const {
             return m_data.satVaporViscosityCorrelation(temperature);
-        }
-
-        bool satLiquidViscosityIsValid() const {
-            return static_cast<bool>(m_data.satLiquidViscosityCorrelation);
         }
 
         double satLiquidViscosity(double temperature) const {
