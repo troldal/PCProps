@@ -516,6 +516,120 @@ TEST_CASE("PengRobinson Test")
         REQUIRE(result[PCHelmholzEnergy] == Approx(7847.926917).epsilon(0.001));
     }
 
+    SECTION("TV Flash of propane @ 230 K and V = 0.009 m3/mol - Two-Phase")
+    {
+        auto result = propane.flashTV(230.0, 0.009);
+
+        REQUIRE(result[0][PCTemperature] == Approx(230.0).epsilon(0.001));
+        REQUIRE(result[0][PCPressure] == Approx(97144.839849).epsilon(0.001));
+        REQUIRE(result[0][PCCompressibility] == Approx(0.00359739).epsilon(0.001));
+        REQUIRE(result[0][PCFugacityCoefficient] == Approx(0.96858534).epsilon(0.001));
+        REQUIRE(result[0][PCMolarFlow] == Approx(0.52949255).epsilon(0.001));
+        REQUIRE(result[0][PCMolarVolume] == Approx(0.00007082).epsilon(0.01));
+        REQUIRE(result[0][PCEnthalpy] == Approx(-23442.17199529).epsilon(0.001));
+        REQUIRE(result[0][PCEntropy] == Approx(-98.88979104).epsilon(0.001));
+        REQUIRE(result[0][PCInternalEnergy] == Approx(-23449.05138460).epsilon(0.001));
+        REQUIRE(result[0][PCGibbsEnergy] == Approx(-697.52005615).epsilon(0.001));
+        REQUIRE(result[0][PCHelmholzEnergy] == Approx(-704.39944547).epsilon(0.001));
+
+        REQUIRE(result[1][PCTemperature] == Approx(230.0).epsilon(0.001));
+        REQUIRE(result[1][PCPressure] == Approx(97144.839849).epsilon(0.001));
+        REQUIRE(result[1][PCCompressibility] == Approx(0.96765502).epsilon(0.001));
+        REQUIRE(result[1][PCFugacityCoefficient] == Approx(0.96858534).epsilon(0.001));
+        REQUIRE(result[1][PCMolarFlow] == Approx(0.47050745).epsilon(0.001));
+        REQUIRE(result[1][PCMolarVolume] == Approx(0.01904859).epsilon(0.001));
+        REQUIRE(result[1][PCEnthalpy] == Approx(-4703.08948151).epsilon(0.001));
+        REQUIRE(result[1][PCEntropy] == Approx(-17.41551924).epsilon(0.001));
+        REQUIRE(result[1][PCInternalEnergy] == Approx(-6553.56172927).epsilon(0.001));
+        REQUIRE(result[1][PCGibbsEnergy] == Approx(-697.52005615).epsilon(0.001));
+        REQUIRE(result[1][PCHelmholzEnergy] == Approx(-2547.99230391).epsilon(0.001));
+    }
+
+    SECTION("TV Flash of propane @ 330 K and V = 0.03 - Superheated Vapor")
+    {
+        auto result = propane.flashTV(330.0, 0.03)[0];
+
+        REQUIRE(result[PCTemperature] == Approx(330.0).epsilon(0.001));
+        REQUIRE(result[PCPressure] == Approx(90427.97953853).epsilon(0.001));
+        REQUIRE(result[PCCompressibility] == Approx(0.98872601).epsilon(0.001));
+        REQUIRE(result[PCFugacityCoefficient] == Approx(0.98882653).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarVolume] == Approx(0.03).epsilon(0.001));
+        REQUIRE(result[PCEnthalpy] == Approx(2359.86994584).epsilon(0.001));
+        REQUIRE(result[PCEntropy] == Approx(8.45798968).epsilon(0.001));
+        REQUIRE(result[PCInternalEnergy] == Approx(-352.96944026).epsilon(0.001));
+        REQUIRE(result[PCGibbsEnergy] == Approx(-431.26664896).epsilon(0.001));
+        REQUIRE(result[PCHelmholzEnergy] == Approx(-3144.10603506).epsilon(0.001));
+    }
+
+    SECTION("TV Flash of propane @ 467 K and V = 0.04 - T > Tc")
+    {
+        auto result = propane.flashTV(467.0, 0.04)[0];
+
+        REQUIRE(result[PCTemperature] == Approx(467).epsilon(0.001));
+        REQUIRE(result[PCPressure] == Approx(96665.06047836).epsilon(0.001));
+        REQUIRE(result[PCCompressibility] == Approx(0.99581452).epsilon(0.001));
+        REQUIRE(result[PCFugacityCoefficient] == Approx(0.99582319).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarVolume] == Approx(0.04).epsilon(0.001));
+        REQUIRE(result[PCEnthalpy] == Approx(15278.79277332).epsilon(0.001));
+        REQUIRE(result[PCEntropy] == Approx(40.38266591).epsilon(0.001));
+        REQUIRE(result[PCInternalEnergy] == Approx(11412.19035423).epsilon(0.001));
+        REQUIRE(result[PCGibbsEnergy] == Approx(-3579.91220814).epsilon(0.001));
+        REQUIRE(result[PCHelmholzEnergy] == Approx(-7446.51462723).epsilon(0.001));
+    }
+
+    SECTION("TV Flash of propane @ 267 K and V = 0.000075 - P > Pc")
+    {
+        auto result = propane.flashTV(267.0, 0.000075)[0];
+
+        REQUIRE(result[PCTemperature] == Approx(267.0).epsilon(0.001));
+        REQUIRE(result[PCPressure] == Approx(7735262.44919866).epsilon(0.001));
+        REQUIRE(result[PCCompressibility] == Approx(0.26133096).epsilon(0.001));
+        REQUIRE(result[PCFugacityCoefficient] == Approx(0.05940470).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarVolume] == Approx(0.000075).epsilon(0.01));
+        REQUIRE(result[PCEnthalpy] == Approx(-19545.35156660).epsilon(0.001));
+        REQUIRE(result[PCEntropy] == Approx(-85.43268276).epsilon(0.001));
+        REQUIRE(result[PCInternalEnergy] == Approx(-20125.49624968).epsilon(0.001));
+        REQUIRE(result[PCGibbsEnergy] == Approx(3265.17472997).epsilon(0.001));
+        REQUIRE(result[PCHelmholzEnergy] == Approx(2685.03004689).epsilon(0.001));
+    }
+
+    SECTION("TV Flash of propane @ 468 K and V = 0.000615 - Supercritical")
+    {
+        auto result = propane.flashTV(468.0, 0.000615)[0];
+
+        REQUIRE(result[PCTemperature] == Approx(468).epsilon(0.001));
+        REQUIRE(result[PCPressure] == Approx(5006550.33505874).epsilon(0.001));
+        REQUIRE(result[PCCompressibility] == Approx(0.79128633).epsilon(0.001));
+        REQUIRE(result[PCFugacityCoefficient] == Approx(0.80794920).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarVolume] == Approx(0.000615).epsilon(0.01));
+        REQUIRE(result[PCEnthalpy] == Approx(12369.71297586).epsilon(0.001));
+        REQUIRE(result[PCEntropy] == Approx(3.08621841).epsilon(0.001));
+        REQUIRE(result[PCInternalEnergy] == Approx(9290.68452344).epsilon(0.001));
+        REQUIRE(result[PCGibbsEnergy] == Approx(10925.36275922).epsilon(0.001));
+        REQUIRE(result[PCHelmholzEnergy] == Approx(7846.33430680).epsilon(0.001));
+    }
+
+    SECTION("PT Flash of propane @ 227 K and V = 0.00007 - Compressed Liquid")
+    {
+        auto result = propane.flashTV(227.0, 0.00007)[0];
+
+        REQUIRE(result[PCTemperature] == Approx(227.0).epsilon(0.001));
+        REQUIRE(result[PCPressure] == Approx(2555862.25163454).epsilon(0.001));
+        REQUIRE(result[PCCompressibility] == Approx(0.09479282).epsilon(0.001));
+        REQUIRE(result[PCFugacityCoefficient] == Approx(0.03538845).epsilon(0.001));
+        REQUIRE(result[PCMolarFlow] == Approx(1.0).epsilon(0.001));
+        REQUIRE(result[PCMolarVolume] == Approx(0.000070).epsilon(0.01));
+        REQUIRE(result[PCEnthalpy] == Approx(-23627.72560572).epsilon(0.001));
+        REQUIRE(result[PCEntropy] == Approx(-100.45932944).epsilon(0.001));
+        REQUIRE(result[PCInternalEnergy] == Approx(-23806.63596334).epsilon(0.001));
+        REQUIRE(result[PCGibbsEnergy] == Approx(-823.45782217).epsilon(0.001));
+        REQUIRE(result[PCHelmholzEnergy] == Approx(-1002.36817979).epsilon(0.001));
+    }
+
     SECTION("PT Flash of propane @ 273.15 K and 1 bar - Copy Constructor")
     {
         auto temp   = propane;

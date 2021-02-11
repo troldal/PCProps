@@ -13,12 +13,25 @@ namespace PCProps::UnitOps {
         const Stream* m_inletStream;
         mutable Stream m_outletStream;
         double m_dp;
+        double m_eff;
 
 
 
     public:
 
+        // Head
+        // Hydraulic Power
+        // Actual Power
+        // Viscosity Correction
+        // Temperature Rise
 
+        // Required Input:
+        // Pump Efficiency
+
+        // Optional Input:
+        // Pump Curves
+
+        impl(double eff) : m_eff(eff) {}
 
         const Stream& operator()() const {
 
@@ -45,11 +58,25 @@ namespace PCProps::UnitOps {
             m_dp = dp;
         }
 
+        double computeDensity() const {
+            auto density = 0.0;
+
+
+        }
+
+        double computeLiquidHead(double pressure) const {
+//            auto density = 0.0;
+//            auto phases = m_inletStream->properties();
+//            for (auto& phase : phases) {
+//                volFlow +=
+//            }
+        }
+
 
 
     };
 
-    CentrifugalPump::CentrifugalPump() : m_impl(std::make_unique<impl>()) {}
+    CentrifugalPump::CentrifugalPump(double eff) : m_impl(std::make_unique<impl>(eff)) {}
 
     CentrifugalPump::CentrifugalPump(const CentrifugalPump& other) : m_impl(std::make_unique<impl>(*other.m_impl)) {};
 

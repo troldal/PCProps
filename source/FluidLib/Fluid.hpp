@@ -45,6 +45,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace PCProps
 {
+
+    /**
+     * @brief The Fluid class encapsulates the concept of a fluid (liquid and/or gas). It consists of a object
+     * representing a pure component (Note: in the future it may be multiple components) and optionally an object
+     * representing an equation of state. Equation of state can be of any type (cubic, Excess-G, high-procision, custom)
+     * as long as it supports the required interface.
+     */
     class Fluid
     {
     public:
@@ -52,19 +59,42 @@ namespace PCProps
         // CONSTRUCTORS & ASSIGNMENT OPERATORS
         // =====================================================================
 
-
+        /**
+         * @brief Constructor, default
+         */
         Fluid();
 
-        Fluid(const IPureComponent& pc, const IEquationOfState& eos);
+        /**
+         * @brief Constructor, taking a pure component object (any object supporting the IPureComponent interface), and
+         * an optional equation of state object (any object supporting the IEquationOfState interface).
+         * @param pc Object representing a pure component.
+         * @param eos Object representing an equation of state.
+         */
+        explicit Fluid(const IPureComponent& pc, const IEquationOfState& eos = {});
 
+        /**
+         * @brief Copy constructor
+         */
         Fluid(const Fluid& other);
 
+        /**
+         * @brief Move constructor
+         */
         Fluid(Fluid&& other) noexcept;
 
+        /**
+         * @brief Destructor
+         */
         ~Fluid();
 
+        /**
+         * @brief Copy assignment operator
+         */
         Fluid& operator=(const Fluid& other);
 
+        /**
+         * @brief Move assignment operator
+         */
         Fluid& operator=(Fluid&& other) noexcept;
 
         // =====================================================================
@@ -72,56 +102,56 @@ namespace PCProps
         // =====================================================================
 
         /**
-         * @brief
-         * @param pressure
-         * @param temperature
-         * @return
+         * @brief Flash the fluid at the specified pressure and temperature.
+         * @param pressure The pressure [Pa]
+         * @param temperature The temperature [K]
+         * @return A PCPhases object with the phase properties.
          */
         const PCPhases& flashPT(double pressure, double temperature) const;
 
         /**
-         * @brief
-         * @param pressure
-         * @param vaporFraction
-         * @return
+         * @brief Flash the fluid at the specified pressure and vapor fraction.
+         * @param pressure The pressure [Pa]
+         * @param vaporFraction The vapor fraction [-]
+         * @return A PCPhases object with the phase properties.
          */
         const PCPhases& flashPx(double pressure, double vaporFraction) const;
 
         /**
-         * @brief
-         * @param temperature
-         * @param vaporFraction
-         * @return
+         * @brief Flash the fluid at the specified temperature and vapor fraction.
+         * @param temperature The temperature [K]
+         * @param vaporFraction The vapor fraction [-]
+         * @return A PCPhases object with the phase properties.
          */
         const PCPhases& flashTx(double temperature, double vaporFraction) const;
 
         /**
-         * @brief
-         * @param pressure
-         * @param enthalpy
-         * @return
+         * @brief Flash the fluid at the specified pressure and enthalpy.
+         * @param pressure The pressure [Pa]
+         * @param enthalpy The enthalpy [J/mol]
+         * @return A PCPhases object with the phase properties.
          */
         const PCPhases& flashPH(double pressure, double enthalpy) const;
 
         /**
-         * @brief
-         * @param pressure
-         * @param entropy
-         * @return
+         * @brief Flash the fluid at the specified pressure and entropy.
+         * @param pressure The pressure [Pa]
+         * @param entropy The entropy [J/mol-K]
+         * @return A PCPhases object with the phase properties.
          */
         const PCPhases& flashPS(double pressure, double entropy) const;
 
         /**
-         * @brief
-         * @param temperature
-         * @param volume
-         * @return
+         * @brief Flash the fluid at the specified temperature and molar volume.
+         * @param temperature The temperature [K]
+         * @param volume The molar volume [m3/mol]
+         * @return A PCPhases object with the phase properties.
          */
         const PCPhases& flashTV(double temperature, double volume) const;
 
         /**
-         * @brief
-         * @return
+         * @brief Get the current fluid properties.
+         * @return A PCPhases object with the phase properties.
          */
         const PCPhases& properties() const;
 

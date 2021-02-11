@@ -23,7 +23,7 @@ namespace PCProps::UnitOps
     {
     public:
 
-        CentrifugalPump();
+        CentrifugalPump(double eff = 1.0);
 
         CentrifugalPump(const CentrifugalPump& other);
 

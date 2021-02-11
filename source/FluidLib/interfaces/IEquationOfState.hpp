@@ -47,7 +47,7 @@ namespace PCProps
 {
     /**
      * @brief This class functions as a wrapper around any class that provides the necessary functionality for
-     * cubic equations of state.
+     * equations of state.
      * @details This class works by applying 'type erasure'. This enables the use of objects of any class, the only
      * requirement being that it provides the right interface. No inheritance from a base class is needed.
      */
@@ -63,6 +63,8 @@ namespace PCProps
          * @brief Constructor, taking the target object as an argument.
          * @tparam T The type of the target object (will be auto deducted)
          * @param x The target object
+         * @note This methed is deliberately not marked 'explicit', because as a templated constructor, it should be able
+         * to take any type as an argument. However, only objects that satisfy the required interface can be used.
          */
         template<typename T>
         IEquationOfState(const T& x) : m_equationOfState { std::make_unique<EOSModel<T>>(x) }
@@ -71,19 +73,19 @@ namespace PCProps
         }
 
         /**
-         * @brief
+         * @brief Copy constructor
          * @param other
          */
         IEquationOfState(const IEquationOfState& other) : m_equationOfState(other.m_equationOfState ? other.m_equationOfState->clone() : nullptr) {}
 
         /**
-         * @brief
+         * @brief Move constructor
          * @param other
          */
         IEquationOfState(IEquationOfState&& other) noexcept = default;
 
         /**
-         * @brief
+         * @brief Destructor
          */
         ~IEquationOfState() = default;
 
@@ -206,7 +208,7 @@ namespace PCProps
          * @param volume
          * @return
          */
-        inline PCPhases flashTV(double temperature, double volume)
+        inline PCPhases flashTV(double temperature, double volume) const
         {
             return m_equationOfState->flashTV(temperature, volume);
         }

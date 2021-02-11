@@ -17,11 +17,6 @@ using PCProps::Viscosity::Lucas;
 using PCProps::Viscosity::DIPPR102;
 using PCProps::Viscosity::KirchhoffExtended;
 
-using PCProps::Enthalpy;
-using PCProps::Entropy;
-using PCProps::Pressure;
-using PCProps::Temperature;
-
 using namespace PCProps;
 
 int main()
@@ -59,7 +54,16 @@ int main()
     auto propane = PureComponent(data);
     auto fluid = Fluid(propane, PengRobinson{});
 
-    for (const auto& phase : fluid.flash(Temperature(500), VaporFraction(0.5))) std::cout << phase << std::endl;
+//    auto phases = fluid.flashPT(101325, 200.0);
+//    for (const auto& phase : phases) std::cout << phase << std::endl;
+//
+//    double volume = 0.0;
+//    for (const auto& phase : phases) {
+//        volume += phase[PCMolarVolume] * phase[PCMolarFlow];
+//    }
+
+//    for (const auto& phase : fluid.flashPT(100000.0, 330.0)) std::cout << phase << std::endl;
+    for (const auto& phase : fluid.flashTV(468.0, 0.000615)) std::cout << phase << std::endl;
 
     return 0;
 }

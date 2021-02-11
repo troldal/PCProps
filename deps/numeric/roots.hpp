@@ -6,6 +6,9 @@
 #define PCPROPS_ROOTS_HPP
 
 #include <functional>
+#include <iostream>
+#include <stdexcept>
+#include <utility>
 
 namespace numeric {
 
@@ -73,6 +76,28 @@ namespace numeric {
 
         return values[3];
     }
+
+    /**
+     * @brief
+     * @param objective
+     * @param lower
+     * @param upper
+     * @return
+     */
+    inline std::pair<double, double> bracket_search_up(const std::function<double(double)>& objective, double lower, double upper, double max_iter = 100) {
+
+        if (upper <= lower) throw std::logic_error("Upper value must be higher than the lower value!");
+
+        auto diff = upper - lower;
+        for (int i = 0; i < max_iter; ++i) {
+            if (objective(lower) * objective(upper) < 0.0) return std::make_pair(lower, upper);
+            lower = upper;
+            upper += diff;
+        }
+
+        throw std::logic_error("Bracket not found!");
+    }
+
 
 } // namespace numeric
 

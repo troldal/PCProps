@@ -560,8 +560,6 @@ namespace PCProps::EquationOfState
     // ===== P,T Flash
     PCPhases PengRobinson::flashPT(double pressure, double temperature) const
     {
-        using std::get;
-
         // ===== Compute compressibility factors and fugacity coefficients at given T and P.
         auto phases = m_impl->computeThermodynamicProperties(temperature, pressure);
         for (auto& phase : phases) phase[PCMolarFlow] = 1.0;
@@ -571,8 +569,6 @@ namespace PCProps::EquationOfState
     // ===== T,x Flash
     PCPhases PengRobinson::flashTx(double temperature, double vaporFraction) const
     {
-        using std::get;
-
         // ===== If the temperature <= Tc
         if (temperature <= m_impl->criticalTemperature()) {
             // ===== First, calculate the saturation pressure at the specified pressure.
@@ -587,7 +583,6 @@ namespace PCProps::EquationOfState
                 phase[PCMolarFlow] = 1.0;
                 return {phase};
             }
-//                return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
 
             // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
             if (vaporFraction <= 0.0) {
@@ -597,10 +592,8 @@ namespace PCProps::EquationOfState
                 phase[PCMolarFlow] = 1.0;
                 return {phase};
             }
-//                return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
 
             // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
-
             std::min_element(phases.begin(),
                              phases.end(),
                              [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFlow) = (1 - vaporFraction);
@@ -621,8 +614,6 @@ namespace PCProps::EquationOfState
     // ===== P,x Flash
     PCPhases PengRobinson::flashPx(double pressure, double vaporFraction) const
     {
-        using std::get;
-
         // ===== If the pressure <= Pc
         if (pressure <= m_impl->criticalPressure()) {
             // ===== First, calculate the saturation temperature at the specified pressure.
@@ -638,8 +629,6 @@ namespace PCProps::EquationOfState
                 return {phase};
             }
 
-//                return { m_impl->createEOSData(vaporFraction, temperature, pressure, z_v, phi_v) };
-
             // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
             if (vaporFraction <= 0.0) {
                 auto phase = *std::min_element(phases.begin(),
@@ -648,10 +637,8 @@ namespace PCProps::EquationOfState
                 phase[PCMolarFlow] = 1.0;
                 return {phase};
             }
-//                return { m_impl->createEOSData((1 - vaporFraction), temperature, pressure, z_l, phi_l) };
 
             // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
-//            auto phases = m_impl->computeThermodynamicProperties(temperature, pressure);
             std::min_element(phases.begin(),
                              phases.end(),
                              [](const auto& a, const auto& b) { return a[PCCompressibility] < b[PCCompressibility]; })->at(PCMolarFlow) = (1 - vaporFraction);
@@ -808,7 +795,51 @@ namespace PCProps::EquationOfState
     // ===== T,V Flash
     PCPhases PengRobinson::flashTV(double temperature, double volume) const
     {
-        return PCProps::PCPhases();
+
+        // ===== Fluid is supercritical
+        if (temperature > m_impl->criticalTemperature()) {
+            auto f = [&](double p) {
+                return flashPT(p, temperature)[0][PCMolarVolume] - volume;
+            };
+
+            auto range = numeric::bracket_search_up(f, 1, m_impl->criticalPressure());
+            return { flashPT(numeric::ridders(f, range.first, range.second, 1E-12), temperature) };
+        }
+
+        PCPhases phases = flashTx(temperature, 0.5);
+
+        // ===== Fluid is a liquid
+        if (volume <= phases[0][PCMolarVolume]) {
+            auto f = [&](double p) {
+                   return flashPT(p, temperature)[0][PCMolarVolume] - volume;
+            };
+
+            auto range = numeric::bracket_search_up(f, phases[0][PCPressure] * 0.8, phases[0][PCPressure] + m_impl->criticalPressure());
+            return { flashPT(numeric::ridders(f, range.first, range.second, 1E-12), temperature) };
+        }
+
+        // ===== Fluid is vapor
+        if (volume >= phases[1][PCMolarVolume]) {
+            auto f = [&](double p) {
+                   return flashPT(p, temperature)[0][PCMolarVolume] - volume;
+            };
+
+            return { flashPT(numeric::ridders(f, 1.0, phases[1][PCPressure]), temperature) };
+        }
+
+        // ===== Fluid is multiphase
+        auto f = [&](double x) {
+            auto ph = flashTx(temperature, x);
+            auto result = 0.0;
+
+            for (auto& item : ph) {
+                result += item[PCMolarVolume] * item[PCMolarFlow];
+            }
+
+            return result - volume;
+        };
+
+        return { flashTx(temperature,  numeric::ridders(f, 0.0, 1.0)) };
     }
 
     // ===== Saturation pressure at given temperature

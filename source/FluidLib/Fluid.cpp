@@ -14,9 +14,12 @@ namespace PCProps
 {
     class Fluid::impl
     {
+
+        // ===== Objects representing the pure component and equation of state.
         IPureComponent   m_pureComponent {};
         IEquationOfState m_equationOfState {};
 
+        // ===== Function objects for calculating compressed fluid properties
         std::function<double(double, double, double, double)> m_compressedLiquidVolume;
         std::function<double(double, double, double, double)> m_compressedLiquidViscosity;
         std::function<double(double, double, double, double)> m_compressedVaporViscosity;
@@ -24,7 +27,7 @@ namespace PCProps
         mutable PCPhases m_phaseData {};
 
         enum PhaseType { Liquid, Vapor, Dense, Undefined };
-
+        
         PhaseType determinePhaseType(const PCProps::PCPhase& phase) const
         {
             PhaseType type = PhaseType::Undefined;
@@ -185,6 +188,14 @@ namespace PCProps
 
         const PCPhases& flashTV(double temperature, double volume) const {
 
+            PCPhases results;
+            for (auto& phase : m_equationOfState.flashTV(temperature, volume)) {
+                auto result = PCPhase(phase);
+                computePhaseProperties(result);
+                results.emplace_back(result);
+            }
+
+            m_phaseData = std::move(results);
             return m_phaseData;
         }
 
