@@ -5,7 +5,7 @@
 #ifndef PCPROPS_STREAM_HPP
 #define PCPROPS_STREAM_HPP
 
-#include <Interfaces/IFluid.hpp>
+#include <IFluid.hpp>
 
 #include <memory>
 

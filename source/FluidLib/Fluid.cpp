@@ -94,10 +94,9 @@ namespace PCProps
             obj["Pc"]    = m_pureComponent.criticalPressure();
             obj["Omega"] = m_pureComponent.acentricFactor();
 
-            m_equationOfState.setProperties(obj.dump());
+            m_equationOfState.setProperties(m_pureComponent);
 
             using PCProps::HeatCapacity::AlyLee;
-            m_equationOfState.setIdealGasCpFunction([pc=m_pureComponent](double t) { return pc.idealGasCp(t); } );
 
             using PCProps::LiquidVolume::Thomson;
             m_compressedLiquidVolume = Thomson(

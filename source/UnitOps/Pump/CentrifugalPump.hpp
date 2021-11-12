@@ -5,7 +5,7 @@
 #ifndef PCPROPS_CENTRIFUGALPUMP_HPP
 #define PCPROPS_CENTRIFUGALPUMP_HPP
 
-#include <Interfaces/IFluid.hpp>
+#include <IFluid.hpp>
 #include <numeric/interpolation.hpp>
 #include <Stream/Stream.hpp>
 

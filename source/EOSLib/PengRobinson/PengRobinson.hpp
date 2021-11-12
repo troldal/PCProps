@@ -42,6 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <memory>
 
 #include <common/PropertyData.hpp>
+#include <IPureComponent.hpp>
 
 namespace PCProps::EquationOfState
 {
@@ -62,11 +63,9 @@ namespace PCProps::EquationOfState
 
         /**
          * @brief
-         * @param criticalTemperature
-         * @param criticalPressure
-         * @param acentricFactor
+         * @param pureComponent
          */
-        PengRobinson(double criticalTemperature, double criticalPressure, double acentricFactor);
+        PengRobinson(IPureComponent& pureComponent);
 
         /**
          * @brief Copy constructor
@@ -101,13 +100,13 @@ namespace PCProps::EquationOfState
          * @brief
          * @param jsonString
          */
-        void setProperties(const std::string& jsonString);
+        void setProperties(IPureComponent& pureComponent);
 
         /**
          * @brief
          * @param idealGasCpFunction
          */
-        void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction);
+        //void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction);
 
         // =====================================================================
         // FLASH ALGORITHMS

@@ -38,8 +38,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef PCPROPS_FLUID_HPP
 #define PCPROPS_FLUID_HPP
 
-#include <interfaces/IEquationOfState.hpp>
-#include <interfaces/IPureComponent.hpp>
+#include <IEquationOfState.hpp>
+#include <IPureComponent.hpp>
 
 #include <memory>
 

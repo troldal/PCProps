@@ -21,7 +21,7 @@ target_include_directories(UnitOps
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(UnitOps PUBLIC dependencies common)
+target_link_libraries(UnitOps PUBLIC dependencies common interfaces)
 
 include(GenerateExportHeader)
 generate_export_header(UnitOps)

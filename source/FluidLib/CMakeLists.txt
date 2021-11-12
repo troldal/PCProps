@@ -17,7 +17,7 @@ target_include_directories(FluidLib
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(FluidLib PUBLIC dependencies common PropertyLib EOSLib)
+target_link_libraries(FluidLib PUBLIC dependencies common interfaces PropertyLib EOSLib)
 
 include(GenerateExportHeader)
 generate_export_header(FluidLib)

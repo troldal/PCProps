@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "PipeSegmentLiquid.hpp"
-#include "../Interfaces/IFluid.hpp"
+#include <IFluid.hpp>
 
 namespace PCProps::UnitOps
 {

@@ -17,7 +17,7 @@ target_include_directories(EOSLib
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(EOSLib PUBLIC dependencies common PropertyLib)
+target_link_libraries(EOSLib PUBLIC dependencies common interfaces PropertyLib)
 
 include(GenerateExportHeader)
 generate_export_header(EOSLib)

@@ -42,6 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <memory>
 
 #include <common/PropertyData.hpp>
+#include <IPureComponent.hpp>
 
 namespace PCProps
 {
@@ -57,7 +58,7 @@ namespace PCProps
         /**
          * @brief Default constructor
          */
-        IEquationOfState() : m_equationOfState() {}
+        IEquationOfState() : m_equationOfState() {} // NOLINT
 
         /**
          * @brief Constructor, taking the target object as an argument.
@@ -67,10 +68,7 @@ namespace PCProps
          * to take any type as an argument. However, only objects that satisfy the required interface can be used.
          */
         template<typename T>
-        IEquationOfState(const T& x) : m_equationOfState { std::make_unique<EOSModel<T>>(x) }
-        {
-            int i = 0;
-        }
+        IEquationOfState(const T& x) : m_equationOfState { std::make_unique<EOSModel<T>>(x) } {} // NOLINT
 
         /**
          * @brief Copy constructor
@@ -134,17 +132,8 @@ namespace PCProps
          * @brief
          * @param jsonString
          */
-        inline void setProperties(const std::string& jsonString) {
-            m_equationOfState->setProperties(jsonString);
-        }
-
-        /**
-         * @brief
-         * @param idealGasCpFunction
-         */
-        inline void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
-        {
-            m_equationOfState->setIdealGasCpFunction(idealGasCpFunction);
+        inline void setProperties(IPureComponent& properties) {
+            m_equationOfState->setProperties(properties);
         }
 
         /**
@@ -327,13 +316,8 @@ namespace PCProps
              * @brief
              * @param jsonString
              */
-            inline virtual void setProperties(const std::string& jsonString) = 0;
+            inline virtual void setProperties(IPureComponent& properties) = 0;
 
-            /**
-             * @brief
-             * @param idealGasCpFunction
-             */
-            inline virtual void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction) = 0;
         };
 
         /**
@@ -470,17 +454,8 @@ namespace PCProps
              * @brief
              * @param jsonString
              */
-            inline void setProperties(const std::string& jsonString) override {
-                EOSType.setProperties(jsonString);
-            }
-
-            /**
-             * @brief
-             * @param idealGasCpFunction
-             */
-            inline void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction) override
-            {
-                EOSType.setIdealGasCpFunction(idealGasCpFunction);
+            inline void setProperties(IPureComponent& properties) override {
+                EOSType.setProperties(properties);
             }
 
         private:

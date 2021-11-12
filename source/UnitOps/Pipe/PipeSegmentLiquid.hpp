@@ -6,7 +6,7 @@
 #define PCPROPS_PIPESEGMENTLIQUID_HPP
 
 #include <common/PropertyData.hpp>
-#include "../Interfaces/IFluid.hpp"
+#include <IFluid.hpp>
 
 #include <memory>
 

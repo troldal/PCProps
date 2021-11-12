@@ -72,8 +72,7 @@ namespace PCProps::EquationOfState
         double m_b {};
         double m_kappa {};
 
-        // ===== User-supplied correlations
-        std::function<double(double)> m_idealGasCpFunction {};
+         IPureComponent& m_pureComponent;
 
         /**
          * @brief Compute the 'a' coefficient for the Peng-robinson EOS.
@@ -208,7 +207,8 @@ namespace PCProps::EquationOfState
         {
             using PCProps::Globals::STANDARD_T;
             using numeric::integrate;
-            return integrate(m_idealGasCpFunction, PCProps::Globals::STANDARD_T, temperature);
+            //return integrate(m_idealGasCpFunction, PCProps::Globals::STANDARD_T, temperature);
+            return integrate([&](double temp){return m_pureComponent.idealGasCp(temp);} , PCProps::Globals::STANDARD_T, temperature);
         }
 
         /**
@@ -245,7 +245,8 @@ namespace PCProps::EquationOfState
             using PCProps::Globals::STANDARD_P;
             using PCProps::Globals::STANDARD_T;
             using numeric::integrate;
-            return integrate([&](double temp) { return m_idealGasCpFunction(temp) / temp; }, PCProps::Globals::STANDARD_T, t) - R_CONST * log(p / STANDARD_P);
+//            return integrate([&](double temp) { return m_idealGasCpFunction(temp) / temp; }, PCProps::Globals::STANDARD_T, t) - R_CONST * log(p / STANDARD_P);
+            return integrate([&](double temp) { return m_pureComponent.idealGasCp(temp) / temp; }, PCProps::Globals::STANDARD_T, t) - R_CONST * log(p / STANDARD_P);
         }
 
         /**
@@ -276,15 +277,27 @@ namespace PCProps::EquationOfState
          * @param criticalPressure The critical pressure [Pa]
          * @param acentricFactor The acentric factor [-]
          */
-        impl(double criticalTemperature, double criticalPressure, double acentricFactor)
-            : m_criticalTemperature(criticalTemperature),
-              m_criticalPressure(criticalPressure),
-              m_acentricFactor(acentricFactor),
-              m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(criticalTemperature, 2) / criticalPressure),
-              m_b(0.07779607 * PCProps::Globals::R_CONST * criticalTemperature / criticalPressure),
+//        impl(double criticalTemperature, double criticalPressure, double acentricFactor)
+//            : m_criticalTemperature(criticalTemperature),
+//              m_criticalPressure(criticalPressure),
+//              m_acentricFactor(acentricFactor),
+//              m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(criticalTemperature, 2) / criticalPressure),
+//              m_b(0.07779607 * PCProps::Globals::R_CONST * criticalTemperature / criticalPressure),
+//              m_kappa(
+//                  acentricFactor <= 0.49 ? 0.37464 + 1.54226 * acentricFactor - 0.26992 * pow(acentricFactor, 2)
+//                                         : 0.379642 + 1.48503 * acentricFactor - 0.164423 * pow(acentricFactor, 2) + 0.016666 * pow(acentricFactor, 3))
+//        {}
+
+        impl(IPureComponent& pureComponent)
+            : m_criticalTemperature(pureComponent.criticalTemperature()),
+              m_criticalPressure(pureComponent.criticalPressure()),
+              m_acentricFactor(pureComponent.acentricFactor()),
+              m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(m_criticalTemperature, 2) / m_criticalPressure),
+              m_b(0.07779607 * PCProps::Globals::R_CONST * m_criticalTemperature / m_criticalPressure),
               m_kappa(
-                  acentricFactor <= 0.49 ? 0.37464 + 1.54226 * acentricFactor - 0.26992 * pow(acentricFactor, 2)
-                                         : 0.379642 + 1.48503 * acentricFactor - 0.164423 * pow(acentricFactor, 2) + 0.016666 * pow(acentricFactor, 3))
+                  m_acentricFactor <= 0.49 ? 0.37464 + 1.54226 * m_acentricFactor - 0.26992 * pow(m_acentricFactor, 2)
+                                         : 0.379642 + 1.48503 * m_acentricFactor - 0.164423 * pow(m_acentricFactor, 2) + 0.016666 * pow(m_acentricFactor, 3)),
+              m_pureComponent(pureComponent)
         {}
 
         /**
@@ -293,23 +306,16 @@ namespace PCProps::EquationOfState
          * @param criticalPressure
          * @param acentricFactor
          */
-        inline void setProperties(double criticalTemperature, double criticalPressure, double acentricFactor)
+        inline void setProperties(IPureComponent& pureComponent)
         {
-            m_criticalTemperature = criticalTemperature;
-            m_criticalPressure    = criticalPressure;
-            m_ac                  = 0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(criticalTemperature, 2) / criticalPressure;
-            m_b                   = 0.07779607 * PCProps::Globals::R_CONST * criticalTemperature / criticalPressure;
-            m_kappa               = acentricFactor <= 0.49 ? 0.37464 + 1.54226 * acentricFactor - 0.26992 * pow(acentricFactor, 2)
-                                                           : 0.379642 + 1.48503 * acentricFactor - 0.164423 * pow(acentricFactor, 2) + 0.016666 * pow(acentricFactor, 3);
-        }
-
-        /**
-         * @brief
-         * @param idealGasCpFunction
-         */
-        void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
-        {
-            m_idealGasCpFunction = idealGasCpFunction;
+            m_pureComponent = pureComponent;
+            m_criticalTemperature = pureComponent.criticalTemperature();
+            m_criticalPressure    = pureComponent.criticalPressure();
+            m_acentricFactor      = pureComponent.acentricFactor();
+            m_ac                  = 0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(m_criticalTemperature, 2) / m_criticalPressure;
+            m_b                   = 0.07779607 * PCProps::Globals::R_CONST * m_criticalTemperature / m_criticalPressure;
+            m_kappa               = m_acentricFactor <= 0.49 ? 0.37464 + 1.54226 * m_acentricFactor - 0.26992 * pow(m_acentricFactor, 2)
+                                                           : 0.379642 + 1.48503 * m_acentricFactor - 0.164423 * pow(m_acentricFactor, 2) + 0.016666 * pow(m_acentricFactor, 3);
         }
 
         /**
@@ -513,15 +519,13 @@ namespace PCProps::EquationOfState
     };
 
     // ===== Constructor, default
-    PengRobinson::PengRobinson() : m_impl(std::make_unique<impl>(0.0, 0.0, 0.0)) {};
+    PengRobinson::PengRobinson() : m_impl(nullptr) {};
 
     // ===== Constructor
-    PengRobinson::PengRobinson(double criticalTemperature, double criticalPressure, double acentricFactor)
-        : m_impl(std::make_unique<impl>(criticalTemperature, criticalPressure, acentricFactor))
-    {}
+    PengRobinson::PengRobinson(IPureComponent& pureComponent) : m_impl(std::make_unique<impl>(pureComponent)) {}
 
     // ===== Copy constructor
-    PengRobinson::PengRobinson(const PengRobinson& other) : m_impl(std::make_unique<impl>(*other.m_impl)) {};
+    PengRobinson::PengRobinson(const PengRobinson& other) : m_impl(other.m_impl ? std::make_unique<impl>(*other.m_impl) : nullptr) {};
 
     // ===== Move constructor
     PengRobinson::PengRobinson(PengRobinson&& other) noexcept = default;
@@ -541,20 +545,19 @@ namespace PCProps::EquationOfState
     PengRobinson& PengRobinson::operator=(PengRobinson&& other) noexcept = default;
 
     // ===== Set critical properties for EOS
-    void PengRobinson::setProperties(const std::string& jsonString) {
-        using nlohmann::json;
-        auto obj = json::parse(jsonString);
-        double tc = obj["Tc"];
-        double pc = obj["Pc"];
-        double omega = obj["Omega"];
+//    void PengRobinson::setProperties(const std::string& jsonString) {
+//        using nlohmann::json;
+//        auto obj = json::parse(jsonString);
+//        double tc = obj["Tc"];
+//        double pc = obj["Pc"];
+//        double omega = obj["Omega"];
+//
+//        m_impl->setProperties(tc, pc, omega);
+//    }
 
-        m_impl->setProperties(tc, pc, omega);
-    }
-
-    // ===== Set the IG Cp function
-    void PengRobinson::setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction)
-    {
-        m_impl->setIdealGasCpFunction(idealGasCpFunction);
+    void PengRobinson::setProperties(IPureComponent& pureComponent) {
+        m_impl = std::make_unique<impl>(pureComponent);
+        //m_impl->setProperties(pureComponent);
     }
 
     // ===== P,T Flash

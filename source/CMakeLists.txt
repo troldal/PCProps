@@ -49,7 +49,6 @@ list(APPEND DEBUG_FLAGS_MSVC
         "/w14928"
         "/wd4251"
         "/wd4275")
-
 list(APPEND RELEASE_FLAGS_MSVC
         "/wd4251"
         "/wd4275")
@@ -61,6 +60,7 @@ list(APPEND RELEASE_FLAGS_MSVC
 #=======================================================================================================================
 
 add_subdirectory(common)
+add_subdirectory(interfaces)
 add_subdirectory(EOSLib)
 add_subdirectory(PropertyLib)
 add_subdirectory(FluidLib)
