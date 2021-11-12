@@ -89,12 +89,7 @@ namespace PCProps
     public:
         impl(const IPureComponent& pc, const IEquationOfState& eos) : m_pureComponent { pc }, m_equationOfState { eos }
         {
-            nlohmann::json obj;
-            obj["Tc"]    = m_pureComponent.criticalTemperature();
-            obj["Pc"]    = m_pureComponent.criticalPressure();
-            obj["Omega"] = m_pureComponent.acentricFactor();
-
-            m_equationOfState.setProperties(m_pureComponent);
+            m_equationOfState.init(m_pureComponent);
 
             using PCProps::HeatCapacity::AlyLee;
 

@@ -132,8 +132,8 @@ namespace PCProps
          * @brief
          * @param jsonString
          */
-        inline void setProperties(IPureComponent& properties) {
-            m_equationOfState->setProperties(properties);
+        inline void init(const IPureComponent& properties) {
+            m_equationOfState->init(properties);
         }
 
         /**
@@ -316,7 +316,7 @@ namespace PCProps
              * @brief
              * @param jsonString
              */
-            inline virtual void setProperties(IPureComponent& properties) = 0;
+            inline virtual void init(const IPureComponent& properties) = 0;
 
         };
 
@@ -454,8 +454,8 @@ namespace PCProps
              * @brief
              * @param jsonString
              */
-            inline void setProperties(IPureComponent& properties) override {
-                EOSType.setProperties(properties);
+            inline void init(const IPureComponent& properties) override {
+                EOSType.init(properties);
             }
 
         private:

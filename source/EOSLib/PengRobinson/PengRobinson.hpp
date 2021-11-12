@@ -53,7 +53,7 @@ namespace PCProps::EquationOfState
     {
     public:
         // =====================================================================
-        // CONSTRUCTORS & ASSIGNMENT OPERATORS
+        // CONSTRUCTORS, ASSIGNMENT & INITIATION
         // =====================================================================
 
         /**
@@ -65,7 +65,7 @@ namespace PCProps::EquationOfState
          * @brief
          * @param pureComponent
          */
-        PengRobinson(IPureComponent& pureComponent);
+        explicit PengRobinson(const IPureComponent& pureComponent);
 
         /**
          * @brief Copy constructor
@@ -92,21 +92,11 @@ namespace PCProps::EquationOfState
          */
         PengRobinson& operator=(PengRobinson&& other) noexcept;
 
-        // =====================================================================
-        // MANIPULATORS
-        // =====================================================================
-
         /**
-         * @brief
-         * @param jsonString
+         * @brief Initiates an existing object with a new pure component.
+         * @param pureComponent An object with an interface compatible with IPureComponent
          */
-        void setProperties(IPureComponent& pureComponent);
-
-        /**
-         * @brief
-         * @param idealGasCpFunction
-         */
-        //void setIdealGasCpFunction(const std::function<double(double)>& idealGasCpFunction);
+        void init(const IPureComponent& pureComponent);
 
         // =====================================================================
         // FLASH ALGORITHMS
