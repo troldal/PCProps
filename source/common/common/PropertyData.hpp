@@ -71,15 +71,6 @@ namespace PCProps
         PCGibbsEnergy,
         PCHelmholzEnergy
     };
-//
-//    using PCFlowData = std::array<double, 4>;
-//
-//    enum FlowPropertyElement {
-//        PCMolarFlow,
-//        PCVelocity,
-//        PCReynoldsNumber,
-//        PCLiquidHoldup
-//    };
 
     inline std::ostream& operator<<(std::ostream& stream, const PCProps::PCPhase& properties)
     {
@@ -107,9 +98,6 @@ namespace PCProps
                       << "Gibbs Energy                  : " << std::right << std::setw(20) << properties[PCGibbsEnergy] << " J/mol" << std::endl
                       << "Helmholz Energy               : " << std::right << std::setw(20) << properties[PCHelmholzEnergy] << " J/mol" << std::endl;
 
-
-
-//        return stream << PCPhase(properties);
     }
 
 }    // namespace PCProps

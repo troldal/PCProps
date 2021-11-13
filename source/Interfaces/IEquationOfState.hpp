@@ -132,7 +132,7 @@ namespace PCProps
          * @brief
          * @param jsonString
          */
-        inline void init(const IPureComponent& properties) {
+        inline void init(const std::tuple<double, double, double, std::function<double(double)> >& properties) {
             m_equationOfState->init(properties);
         }
 
@@ -316,7 +316,7 @@ namespace PCProps
              * @brief
              * @param jsonString
              */
-            inline virtual void init(const IPureComponent& properties) = 0;
+            inline virtual void init(const std::tuple<double, double, double, std::function<double(double)> >& properties) = 0;
 
         };
 
@@ -454,7 +454,7 @@ namespace PCProps
              * @brief
              * @param jsonString
              */
-            inline void init(const IPureComponent& properties) override {
+            inline void init(const std::tuple<double, double, double, std::function<double(double)> >& properties) override {
                 EOSType.init(properties);
             }
 

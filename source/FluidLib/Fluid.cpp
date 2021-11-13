@@ -9,6 +9,7 @@
 #include <json/json.hpp>
 
 #include <stdexcept>
+#include <tuple>
 
 namespace PCProps
 {
@@ -89,7 +90,10 @@ namespace PCProps
     public:
         impl(const IPureComponent& pc, const IEquationOfState& eos) : m_pureComponent { pc }, m_equationOfState { eos }
         {
-            m_equationOfState.init(m_pureComponent);
+            auto pc_data = std::make_tuple(m_pureComponent.criticalTemperature(), m_pureComponent.criticalPressure(), m_pureComponent.acentricFactor(), [&](double temp){return m_pureComponent.idealGasCp(temp);});
+
+
+            m_equationOfState.init(pc_data);
 
             using PCProps::HeatCapacity::AlyLee;
 

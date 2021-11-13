@@ -40,9 +40,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <functional>
 #include <memory>
+#include <tuple>
 
 #include <common/PropertyData.hpp>
-#include <IPureComponent.hpp>
 
 namespace PCProps::EquationOfState
 {
@@ -51,13 +51,25 @@ namespace PCProps::EquationOfState
      */
     class PengRobinson
     {
+
+        /**
+         * @brief Type alias for tuple containing basic component property data, and a correlation for ideal gas Cp.
+         */
+        using TPureComponent =
+            std::tuple<
+                /* Critical Temperature [K] */ double,
+                /* Critical Pressure [Pa]   */ double,
+                /* Acentric Factor [-]      */ double,
+                /* Ideal Gas Cp [J/mol-K]   */ std::function<double(double)> >;
+
     public:
         // =====================================================================
         // CONSTRUCTORS, ASSIGNMENT & INITIATION
         // =====================================================================
 
         /**
-         * @brief Default constructor. All member variables set to default values.
+         * @brief Default constructor. The object only supports copying and moving. The init
+         * function must be called before using the other member functions.
          */
         PengRobinson();
 
@@ -65,7 +77,7 @@ namespace PCProps::EquationOfState
          * @brief
          * @param pureComponent
          */
-        explicit PengRobinson(const IPureComponent& pureComponent);
+        explicit PengRobinson(const TPureComponent& pureComponent);
 
         /**
          * @brief Copy constructor
@@ -96,7 +108,7 @@ namespace PCProps::EquationOfState
          * @brief Initiates an existing object with a new pure component.
          * @param pureComponent An object with an interface compatible with IPureComponent
          */
-        void init(const IPureComponent& pureComponent);
+        void init(const TPureComponent& pureComponent);
 
         // =====================================================================
         // FLASH ALGORITHMS
