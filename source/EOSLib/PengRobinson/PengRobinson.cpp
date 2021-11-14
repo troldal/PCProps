@@ -43,7 +43,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "PengRobinson.hpp"
 #include <VaporPressure/AmbroseWalton.hpp>
 #include <common/Globals.hpp>
-#include <common/PCPropsException.hpp>
 
 #include <json/json.hpp>
 #include <numeric/differentiation.hpp>
@@ -308,8 +307,8 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief
-         * @return
+         * @brief Accessor for the acentric factor (omega).
+         * @return The acentric factor [-]
          */
         inline double acentricFactor() const
         {
@@ -331,6 +330,7 @@ namespace PCProps::EquationOfState
 
             // ===== Compute the fugacity coefficient for each Z and add the pair(s) to the results vector.
             std::vector<std::pair<double, double>> result;
+            result.reserve(zs.size());
             for (const auto& z : zs) result.emplace_back(std::make_pair(z, computeFugacityCoefficient(temperature, pressure, z)));
 
             return result;
@@ -431,17 +431,17 @@ namespace PCProps::EquationOfState
             auto z_phi = computeCompressibilityAndFugacity(temperature, pressure);
             for (const auto& item: z_phi) {
                 PCPhase data;
-                data[PCPressure] = pressure;
-                data[PCTemperature] = temperature;
+                data[PCPressure]            = pressure;
+                data[PCTemperature]         = temperature;
                 data[PCCompressibility]     = get<0>(item);
                 data[PCFugacityCoefficient] = get<1>(item);
                 data[PCEnthalpy]            = computeEnthalpy(temperature, pressure, get<0>(item));
                 data[PCEntropy]             = computeEntropy(temperature, pressure, get<0>(item));
-                data[PCMolarVolume] = get<0>(item) * R_CONST * temperature / pressure;
-                data[PCGibbsEnergy] = data[PCEnthalpy] - temperature * data[PCEntropy];
-                data[PCInternalEnergy] = data[PCEnthalpy] - pressure * data[PCMolarVolume];
-                data[PCHelmholzEnergy] = data[PCInternalEnergy] - temperature * data[PCEntropy];
-                data[PCVaporPressure] = computeSaturationPressure(temperature);
+                data[PCMolarVolume]         = get<0>(item) * R_CONST * temperature / pressure;
+                data[PCGibbsEnergy]         = data[PCEnthalpy] - temperature * data[PCEntropy];
+                data[PCInternalEnergy]      = data[PCEnthalpy] - pressure * data[PCMolarVolume];
+                data[PCHelmholzEnergy]      = data[PCInternalEnergy] - temperature * data[PCEntropy];
+                data[PCVaporPressure]       = computeSaturationPressure(temperature);
 
                 result.emplace_back(data);
             }
