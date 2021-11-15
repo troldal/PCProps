@@ -43,6 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "PengRobinson.hpp"
 #include <VaporPressure/AmbroseWalton.hpp>
 #include <common/Globals.hpp>
+#include <common/PhaseProperties.hpp>
 
 #include <json/json.hpp>
 #include <numeric/differentiation.hpp>
@@ -74,6 +75,7 @@ namespace PCProps::EquationOfState
         double m_ac {};
         double m_b {};
         double m_kappa {};
+
 
         /**
          * @brief Compute the 'a' coefficient for the Peng-robinson EOS.
