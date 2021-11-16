@@ -41,8 +41,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <functional>
 #include <memory>
 #include <tuple>
-
-#include <common/PropertyData.hpp>
+#include <string>
 
 namespace PCProps::EquationOfState
 {
@@ -61,6 +60,8 @@ namespace PCProps::EquationOfState
                 /* Critical Pressure [Pa]   */ double,
                 /* Acentric Factor [-]      */ double,
                 /* Ideal Gas Cp [J/mol-K]   */ std::function<double(double)> >;
+
+        using JSONString = std::string;
 
     public:
         // =====================================================================
@@ -120,7 +121,7 @@ namespace PCProps::EquationOfState
          * @param pressure The pressure [Pa]
          * @return The phase data for the phase resulting from the flash.
          */
-        PCPhases flashPT(double pressure, double temperature) const;
+        JSONString flashPT(double pressure, double temperature) const;
 
         /**
          * @brief Compute flash at specified pressure and computeEnthalpy.
@@ -128,7 +129,7 @@ namespace PCProps::EquationOfState
          * @param enthalpy The computeEnthalpy [J/mol]
          * @return The phase data for the phase(s) resulting from the flash.
          */
-        PCPhases flashPH(double pressure, double enthalpy) const;
+        JSONString flashPH(double pressure, double enthalpy) const;
 
         /**
          * @brief Compute flash at specified pressure and computeEntropy.
@@ -136,7 +137,7 @@ namespace PCProps::EquationOfState
          * @param entropy The computeEntropy [J/mol-K]
          * @return The phase data for the phase(s) resulting from the flash.
          */
-        PCPhases flashPS(double pressure, double entropy) const;
+        JSONString flashPS(double pressure, double entropy) const;
 
         /**
          * @brief Compute flash at specified pressure and vapor fraction.
@@ -149,7 +150,7 @@ namespace PCProps::EquationOfState
          * @return The phase data for the phase(s) resulting from the flash.
          * @note If the vaporFraction = 0.0 or 1.0, or if the temperature is higher than the critical temperature, only one phase is returned.
          */
-        PCPhases flashPx(double pressure, double vaporFraction) const;
+        JSONString flashPx(double pressure, double vaporFraction) const;
 
         /**
          * @brief Compute flash at specified temperature and vapor fraction.
@@ -162,7 +163,7 @@ namespace PCProps::EquationOfState
          * @return The phase data for the phase(s) resulting from the flash.
          * @note If the vaporFraction = 0.0 or 1.0, or if the pressure is higher than the critical pressure, only one phase is returned.
          */
-        PCPhases flashTx(double temperature, double vaporFraction) const;
+        JSONString flashTx(double temperature, double vaporFraction) const;
 
         /**
          * @brief
@@ -170,7 +171,7 @@ namespace PCProps::EquationOfState
          * @param volume
          * @return
          */
-        PCPhases flashTV(double temperature, double volume) const;
+        JSONString flashTV(double temperature, double volume) const;
 
         /**
          * @brief Calculate the saturation pressure at the given temperature.

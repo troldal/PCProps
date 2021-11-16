@@ -54,6 +54,7 @@ namespace PCProps
      */
     class IEquationOfState
     {
+        using JSONString = std::string;
     public:
         /**
          * @brief Default constructor
@@ -142,7 +143,7 @@ namespace PCProps
          * @param temperature
          * @return
          */
-        inline PCPhases flashPT(double pressure, double temperature) const
+        inline JSONString flashPT(double pressure, double temperature) const
         {
             return m_equationOfState->flashPT(pressure, temperature);
         }
@@ -153,7 +154,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        inline PCPhases flashPx(double pressure, double vaporFraction) const
+        inline JSONString flashPx(double pressure, double vaporFraction) const
         {
             return m_equationOfState->flashPx(pressure, vaporFraction);
         }
@@ -164,7 +165,7 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        inline PCPhases flashTx(double temperature, double vaporFraction) const
+        inline JSONString flashTx(double temperature, double vaporFraction) const
         {
             return m_equationOfState->flashTx(temperature, vaporFraction);
         }
@@ -175,7 +176,7 @@ namespace PCProps
          * @param enthalpy
          * @return
          */
-        inline PCPhases flashPH(double pressure, double enthalpy) const
+        inline JSONString flashPH(double pressure, double enthalpy) const
         {
             return m_equationOfState->flashPH(pressure, enthalpy);
         }
@@ -186,7 +187,7 @@ namespace PCProps
          * @param entropy
          * @return
          */
-        inline PCPhases flashPS(double pressure, double entropy) const
+        inline JSONString flashPS(double pressure, double entropy) const
         {
             return m_equationOfState->flashPS(pressure, entropy);
         }
@@ -197,7 +198,7 @@ namespace PCProps
          * @param volume
          * @return
          */
-        inline PCPhases flashTV(double temperature, double volume) const
+        inline JSONString flashTV(double temperature, double volume) const
         {
             return m_equationOfState->flashTV(temperature, volume);
         }
@@ -263,7 +264,7 @@ namespace PCProps
              * @param temperature
              * @return
              */
-            inline virtual PCPhases flashPT(double pressure, double temperature) const = 0;
+            inline virtual JSONString flashPT(double pressure, double temperature) const = 0;
 
             /**
              * @brief
@@ -271,7 +272,7 @@ namespace PCProps
              * @param vaporFraction
              * @return
              */
-            inline virtual PCPhases flashPx(double pressure, double vaporFraction) const = 0;
+            inline virtual JSONString flashPx(double pressure, double vaporFraction) const = 0;
 
             /**
              * @brief
@@ -279,7 +280,7 @@ namespace PCProps
              * @param vaporFraction
              * @return
              */
-            inline virtual PCPhases flashTx(double temperature, double vaporFraction) const = 0;
+            inline virtual JSONString flashTx(double temperature, double vaporFraction) const = 0;
 
             /**
              * @brief
@@ -287,7 +288,7 @@ namespace PCProps
              * @param enthalpy
              * @return
              */
-            inline virtual PCPhases flashPH(double pressure, double enthalpy) const = 0;
+            inline virtual JSONString flashPH(double pressure, double enthalpy) const = 0;
 
             /**
              * @brief
@@ -295,7 +296,7 @@ namespace PCProps
              * @param entropy
              * @return
              */
-            inline virtual PCPhases flashPS(double pressure, double entropy) const = 0;
+            inline virtual JSONString flashPS(double pressure, double entropy) const = 0;
 
             /**
              * @brief
@@ -303,7 +304,7 @@ namespace PCProps
              * @param volume
              * @return
              */
-            inline virtual PCPhases flashTV(double temperature, double volume) const = 0;
+            inline virtual JSONString flashTV(double temperature, double volume) const = 0;
 
             /**
              * @brief
@@ -380,7 +381,7 @@ namespace PCProps
              * @param temperature
              * @return
              */
-            inline PCPhases flashPT(double pressure, double temperature) const override
+            inline JSONString flashPT(double pressure, double temperature) const override
             {
                 return EOSType.flashPT(pressure, temperature);
             }
@@ -391,7 +392,7 @@ namespace PCProps
              * @param vaporFraction
              * @return
              */
-            inline PCPhases flashPx(double pressure, double vaporFraction) const override
+            inline JSONString flashPx(double pressure, double vaporFraction) const override
             {
                 return EOSType.flashPx(pressure, vaporFraction);
             }
@@ -402,7 +403,7 @@ namespace PCProps
              * @param vaporFraction
              * @return
              */
-            inline PCPhases flashTx(double temperature, double vaporFraction) const override
+            inline JSONString flashTx(double temperature, double vaporFraction) const override
             {
                 return EOSType.flashTx(temperature, vaporFraction);
             }
@@ -413,7 +414,7 @@ namespace PCProps
              * @param enthalpy
              * @return
              */
-            inline PCPhases flashPH(double pressure, double enthalpy) const override
+            inline JSONString flashPH(double pressure, double enthalpy) const override
             {
                 return EOSType.flashPH(pressure, enthalpy);
             }
@@ -424,7 +425,7 @@ namespace PCProps
              * @param entropy
              * @return
              */
-            inline PCPhases flashPS(double pressure, double entropy) const override
+            inline JSONString flashPS(double pressure, double entropy) const override
             {
                 return EOSType.flashPS(pressure, entropy);
             }
@@ -435,7 +436,7 @@ namespace PCProps
              * @param volume
              * @return
              */
-            inline PCPhases flashTV(double temperature, double volume) const override
+            inline JSONString flashTV(double temperature, double volume) const override
             {
                 return EOSType.flashTV(temperature, volume);
             }

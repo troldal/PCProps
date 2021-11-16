@@ -54,6 +54,34 @@ namespace PCProps
          */
         explicit PhaseProperties(const PCPhaseProperties& data) : m_data(data) {}
 
+        explicit PhaseProperties(const nlohmann::json& data) {
+
+            m_data.Pressure = data["Pressure"].get<double>();
+            m_data.Temperature = data["Temperature"].get<double>();
+            m_data.MolarVolume = data["MolarVolume"].get<double>();
+            m_data.MolarWeight = data["MolarWeight"].get<double>();
+            m_data.MolarFlow = data["MolarFlow"].get<double>();
+            m_data.Compressibility = data["Compressibility"].get<double>();
+            m_data.FugacityCoefficient = data["FugacityCoefficient"].get<double>();
+            m_data.Viscosity = data["Viscosity"].get<double>();
+            m_data.SurfaceTension = data["SurfaceTension"].get<double>();
+            m_data.ThermalConductivity = data["ThermalConductivity"].get<double>();
+            m_data.Cp = data["Cp"].get<double>();
+            m_data.Cv = data["Cv"].get<double>();
+            m_data.IsothermalCompressibility = data["IsothermalCompressibility"].get<double>();
+            m_data.ThermalExpansionCoefficient = data["ThermalExpansionCoefficient"].get<double>();
+            m_data.JouleThomsonCoefficient = data["JouleThomsonCoefficient"].get<double>();
+            m_data.VaporPressure = data["VaporPressure"].get<double>();
+            m_data.Enthalpy = data["Enthalpy"].get<double>();
+            m_data.Entropy = data["Entropy"].get<double>();
+            m_data.InternalEnergy = data["InternalEnergy"].get<double>();
+            m_data.GibbsEnergy = data["GibbsEnergy"].get<double>();
+            m_data.HelmholzEnergy = data["HelmholzEnergy"].get<double>();
+
+        }
+
+        explicit PhaseProperties(const std::string& data) : PhaseProperties(nlohmann::json::parse(data)) {}
+
         /**
          * @brief Copy constructor.
          */
@@ -296,7 +324,7 @@ namespace PCProps
             return data;
         }
 
-        std::string getJSONData() const
+        nlohmann::json getJSONData() const
         {
             nlohmann::json data;
 
@@ -322,7 +350,7 @@ namespace PCProps
             data["GibbsEnergy"]                 = getGibbsEnergy();
             data["HelmholzEnergy"]              = getHelmholzEnergy();
 
-            return data.dump();
+            return data;
         }
     };
 

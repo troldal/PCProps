@@ -7,6 +7,7 @@
 #include <PropertyLib.hpp>
 
 #include <json/json.hpp>
+#include <common/PhaseProperties.hpp>
 
 #include <stdexcept>
 #include <tuple>
@@ -121,9 +122,9 @@ namespace PCProps
         const PCPhases& flashPT(double pressure, double temperature) const
         {
             PCPhases results;
-            auto temp = m_equationOfState.flashPT(pressure, temperature);
+            auto temp = nlohmann::json::parse(m_equationOfState.flashPT(pressure, temperature));
             for (auto& phase : temp) {
-                auto result = PCPhase(phase);
+                auto result = PhaseProperties(phase).getPhaseData();
                 computePhaseProperties(result);
                 results.emplace_back(result);
             }
@@ -135,8 +136,8 @@ namespace PCProps
         const PCPhases& flashPx(double pressure, double vaporFraction) const
         {
             PCPhases results;
-            for (auto& phase : m_equationOfState.flashPx(pressure, vaporFraction)) {
-                auto result = PCPhase(phase);
+            for (auto& phase : nlohmann::json::parse(m_equationOfState.flashPx(pressure, vaporFraction))) {
+                auto result = PhaseProperties(phase).getPhaseData();
                 computePhaseProperties(result);
                 results.emplace_back(result);
             }
@@ -148,8 +149,8 @@ namespace PCProps
         const PCPhases& flashTx(double temperature, double vaporFraction) const
         {
             PCPhases results;
-            for (auto& phase : m_equationOfState.flashTx(temperature, vaporFraction)) {
-                auto result = PCPhase(phase);
+            for (auto& phase : nlohmann::json::parse(m_equationOfState.flashTx(temperature, vaporFraction))) {
+                auto result = PhaseProperties(phase).getPhaseData();
                 computePhaseProperties(result);
                 results.emplace_back(result);
             }
@@ -161,8 +162,8 @@ namespace PCProps
         const PCPhases& flashPH(double pressure, double enthalpy) const
         {
             PCPhases results;
-            for (auto& phase : m_equationOfState.flashPH(pressure, enthalpy)) {
-                auto result = PCPhase(phase);
+            for (auto& phase : nlohmann::json::parse(m_equationOfState.flashPH(pressure, enthalpy))) {
+                auto result = PhaseProperties(phase).getPhaseData();
                 computePhaseProperties(result);
                 results.emplace_back(result);
             }
@@ -174,8 +175,8 @@ namespace PCProps
         const PCPhases& flashPS(double pressure, double entropy) const
         {
             PCPhases results;
-            for (auto& phase : m_equationOfState.flashPS(pressure, entropy)) {
-                auto result = PCPhase(phase);
+            for (auto& phase : nlohmann::json::parse(m_equationOfState.flashPS(pressure, entropy))) {
+                auto result = PhaseProperties(phase).getPhaseData();
                 computePhaseProperties(result);
                 results.emplace_back(result);
             }
@@ -187,8 +188,8 @@ namespace PCProps
         const PCPhases& flashTV(double temperature, double volume) const {
 
             PCPhases results;
-            for (auto& phase : m_equationOfState.flashTV(temperature, volume)) {
-                auto result = PCPhase(phase);
+            for (auto& phase : nlohmann::json::parse(m_equationOfState.flashTV(temperature, volume))) {
+                auto result = PhaseProperties(phase).getPhaseData();
                 computePhaseProperties(result);
                 results.emplace_back(result);
             }

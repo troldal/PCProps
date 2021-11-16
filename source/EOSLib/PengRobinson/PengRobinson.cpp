@@ -51,6 +51,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <numeric/roots.hpp>
 
 using PCProps::VaporPressure::AmbroseWalton;
+using JSONString = std::string;
 
 namespace PCProps::EquationOfState
 {
@@ -840,51 +841,51 @@ namespace PCProps::EquationOfState
     }
 
     // ===== P,T Flash
-    PCPhases PengRobinson::flashPT(double pressure, double temperature) const
+    JSONString PengRobinson::flashPT(double pressure, double temperature) const
     {
-        PCPhases result;
-        for (const auto& phase : m_impl->flashPT(pressure, temperature)) result.emplace_back(PhaseProperties(phase).getPhaseData());
-        return result;
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->flashPT(pressure, temperature)) result.emplace_back(PhaseProperties(phase).getJSONData());
+        return nlohmann::json(result).dump();
     }
 
     // ===== T,x Flash
-    PCPhases PengRobinson::flashTx(double temperature, double vaporFraction) const
+    JSONString PengRobinson::flashTx(double temperature, double vaporFraction) const
     {
-        PCPhases result;
-        for (const auto& phase : m_impl->flashTx(temperature, vaporFraction)) result.emplace_back(PhaseProperties(phase).getPhaseData());
-        return result;
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->flashTx(temperature, vaporFraction)) result.emplace_back(PhaseProperties(phase).getJSONData());
+        return nlohmann::json(result).dump();
     }
 
     // ===== P,x Flash
-    PCPhases PengRobinson::flashPx(double pressure, double vaporFraction) const
+    JSONString PengRobinson::flashPx(double pressure, double vaporFraction) const
     {
-        PCPhases result;
-        for (const auto& phase : m_impl->flashPx(pressure, vaporFraction)) result.emplace_back(PhaseProperties(phase).getPhaseData());
-        return result;
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->flashPx(pressure, vaporFraction)) result.emplace_back(PhaseProperties(phase).getJSONData());
+        return nlohmann::json(result).dump();
     }
 
     // ===== P,H Flash
-    PCPhases PengRobinson::flashPH(double pressure, double enthalpy) const
+    JSONString PengRobinson::flashPH(double pressure, double enthalpy) const
     {
-        PCPhases result;
-        for (const auto& phase : m_impl->flashPH(pressure, enthalpy)) result.emplace_back(PhaseProperties(phase).getPhaseData());
-        return result;
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->flashPH(pressure, enthalpy)) result.emplace_back(PhaseProperties(phase).getJSONData());
+        return nlohmann::json(result).dump();
     }
 
     // ===== P,S Flash
-    PCPhases PengRobinson::flashPS(double pressure, double entropy) const
+    JSONString PengRobinson::flashPS(double pressure, double entropy) const
     {
-        PCPhases result;
-        for (const auto& phase : m_impl->flashPS(pressure, entropy)) result.emplace_back(PhaseProperties(phase).getPhaseData());
-        return result;
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->flashPS(pressure, entropy)) result.emplace_back(PhaseProperties(phase).getJSONData());
+        return nlohmann::json(result).dump();
     }
 
     // ===== T,V Flash
-    PCPhases PengRobinson::flashTV(double temperature, double volume) const
+    JSONString PengRobinson::flashTV(double temperature, double volume) const
     {
-        PCPhases result;
-        for (const auto& phase : m_impl->flashTV(temperature, volume)) result.emplace_back(PhaseProperties(phase).getPhaseData());
-        return result;
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->flashTV(temperature, volume)) result.emplace_back(PhaseProperties(phase).getJSONData());
+        return nlohmann::json(result).dump();
     }
 
     // ===== Saturation pressure at given temperature
