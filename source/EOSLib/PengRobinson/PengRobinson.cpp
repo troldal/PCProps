@@ -441,9 +441,9 @@ namespace PCProps::EquationOfState
                 data.Enthalpy            = computeEnthalpy(temperature, pressure, get<0>(item));
                 data.Entropy             = computeEntropy(temperature, pressure, get<0>(item));
                 data.MolarVolume         = get<0>(item) * R_CONST * temperature / pressure;
-                data.GibbsEnergy         = data.Enthalpy.value() - temperature * data.Entropy.value();
-                data.InternalEnergy      = data.Enthalpy.value() - pressure * data.MolarVolume.value();
-                data.HelmholzEnergy      = data.InternalEnergy.value() - temperature * data.Entropy.value();
+                data.GibbsEnergy         = data.Enthalpy - temperature * data.Entropy;
+                data.InternalEnergy      = data.Enthalpy - pressure * data.MolarVolume;
+                data.HelmholzEnergy      = data.InternalEnergy - temperature * data.Entropy;
                 data.VaporPressure       = computeSaturationPressure(temperature);
 
                 m_phaseProps.emplace_back(data);
@@ -460,8 +460,8 @@ namespace PCProps::EquationOfState
 
                 auto v1 = get<0>(z1[index]) * R_CONST * (temperature - diff) / pressure;
                 auto v2 = get<0>(z2[index]) * R_CONST * (temperature + diff) / pressure;
-                item.ThermalExpansionCoefficient = (1.0 / item.MolarVolume.value()) * (v2 - v1) / (2 * diff);
-                item.JouleThomsonCoefficient = -(item.MolarVolume.value() - temperature * ((v2 - v1) / (2 * diff))) / item.Cp.value();
+                item.ThermalExpansionCoefficient = (1.0 / item.MolarVolume) * (v2 - v1) / (2 * diff);
+                item.JouleThomsonCoefficient = -(item.MolarVolume - temperature * ((v2 - v1) / (2 * diff))) / item.Cp;
 
                 ++index;
             }
@@ -473,7 +473,7 @@ namespace PCProps::EquationOfState
             for (auto& item : m_phaseProps) {
                 auto v1 = get<0>(z1[index]) * R_CONST * temperature / (pressure - diff);
                 auto v2 = get<0>(z2[index]) * R_CONST * temperature / (pressure + diff);
-                item.IsothermalCompressibility = - (1.0 / item.MolarVolume.value()) * (v2 - v1) / (2 * diff);
+                item.IsothermalCompressibility = - (1.0 / item.MolarVolume) * (v2 - v1) / (2 * diff);
 
                 ++index;
             }
@@ -481,7 +481,7 @@ namespace PCProps::EquationOfState
             index = 0;
             for (auto& item : m_phaseProps) {
                 item.Cv =
-                    item.Cp.value() - temperature * item.MolarVolume.value() * pow(item.ThermalExpansionCoefficient.value(), 2) / item.IsothermalCompressibility.value();
+                    item.Cp - temperature * item.MolarVolume * pow(item.ThermalExpansionCoefficient, 2) / item.IsothermalCompressibility;
 
                 ++index;
             }
@@ -498,7 +498,7 @@ namespace PCProps::EquationOfState
             computeThermodynamicProperties(temperature, pressure);
             for (auto& phase : m_phaseProps) phase.MolarFlow = 1.0;
             return { PhaseProperties(*std::min_element(m_phaseProps.begin(), m_phaseProps.end(), [](const auto& a, const auto& b) {
-                         return a.FugacityCoefficient.value() < b.FugacityCoefficient.value(); })).getPhaseData() };
+                         return a.FugacityCoefficient < b.FugacityCoefficient; })).getPhaseData() };
         }
 
         /**
@@ -518,7 +518,7 @@ namespace PCProps::EquationOfState
                 if (vaporFraction >= 1.0) {
                     auto phase = *std::max_element(m_phaseProps.begin(),
                                                         m_phaseProps.end(),
-                                                        [](const auto& a, const auto& b) { return a.Compressibility.value() < b.Compressibility.value(); });
+                                                        [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; });
                     phase.MolarFlow = 1.0;
                     return {PhaseProperties(phase).getPhaseData()};
                 }
@@ -527,7 +527,7 @@ namespace PCProps::EquationOfState
                 if (vaporFraction <= 0.0) {
                     auto phase = *std::min_element(m_phaseProps.begin(),
                                                         m_phaseProps.end(),
-                                                        [](const auto& a, const auto& b) { return a.Compressibility.value() < b.Compressibility.value(); });
+                                                        [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; });
                     phase.MolarFlow = 1.0;
                     return {PhaseProperties(phase).getPhaseData()};
                 }
@@ -535,10 +535,10 @@ namespace PCProps::EquationOfState
                 // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
                 std::min_element(m_phaseProps.begin(),
                                  m_phaseProps.end(),
-                                 [](const auto& a, const auto& b) { return a.Compressibility.value() < b.Compressibility.value(); })->MolarFlow = (1 - vaporFraction);
+                                 [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; })->MolarFlow = (1 - vaporFraction);
                 std::max_element(m_phaseProps.begin(),
                                  m_phaseProps.end(),
-                                 [](const auto& a, const auto& b) { return a.Compressibility.value() < b.Compressibility.value(); })->MolarFlow = vaporFraction;
+                                 [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; })->MolarFlow = vaporFraction;
 
                 return {PhaseProperties(m_phaseProps[0]).getPhaseData(), PhaseProperties(m_phaseProps[1]).getPhaseData()};
 
@@ -568,7 +568,7 @@ namespace PCProps::EquationOfState
                 if (vaporFraction >= 1.0) {
                     auto phase = *std::max_element(m_phaseProps.begin(),
                                                         m_phaseProps.end(),
-                                                        [](const auto& a, const auto& b) { return a.Compressibility.value() < b.Compressibility.value(); });
+                                                        [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; });
                     phase.MolarFlow = 1.0;
                     return {PhaseProperties(phase).getPhaseData()};
                 }
@@ -577,7 +577,7 @@ namespace PCProps::EquationOfState
                 if (vaporFraction <= 0.0) {
                     auto phase = *std::min_element(m_phaseProps.begin(),
                                                         m_phaseProps.end(),
-                                                        [](const auto& a, const auto& b) { return a.Compressibility.value() < b.Compressibility.value(); });
+                                                        [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; });
                     phase.MolarFlow = 1.0;
                     return {PhaseProperties(phase).getPhaseData()};
                 }
@@ -585,10 +585,10 @@ namespace PCProps::EquationOfState
                 // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
                 std::min_element(m_phaseProps.begin(),
                                  m_phaseProps.end(),
-                                 [](const auto& a, const auto& b) { return a.Compressibility.value() < b.Compressibility.value(); })->MolarFlow = (1 - vaporFraction);
+                                 [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; })->MolarFlow = (1 - vaporFraction);
                 std::max_element(m_phaseProps.begin(),
                                  m_phaseProps.end(),
-                                 [](const auto& a, const auto& b) { return a.Compressibility.value() < b.Compressibility.value(); })->MolarFlow = vaporFraction;
+                                 [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; })->MolarFlow = vaporFraction;
 
                 return {PhaseProperties(m_phaseProps[0]).getPhaseData(), PhaseProperties(m_phaseProps[1]).getPhaseData()};
 
@@ -664,10 +664,10 @@ namespace PCProps::EquationOfState
             computeThermodynamicProperties(temperature, pressure);
             std::min_element(m_phaseProps.begin(),
                              m_phaseProps.end(),
-                             [](const auto& a, const auto& b) { return a.Compressibility.value() < b.Compressibility.value(); })->MolarFlow = (1 - vaporFraction);
+                             [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; })->MolarFlow = (1 - vaporFraction);
             std::max_element(m_phaseProps.begin(),
                              m_phaseProps.end(),
-                             [](const auto& a, const auto& b) { return a.Compressibility.value() < b.Compressibility.value(); })->MolarFlow = vaporFraction;
+                             [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; })->MolarFlow = vaporFraction;
 
             return {PhaseProperties(m_phaseProps[0]).getPhaseData(), PhaseProperties(m_phaseProps[1]).getPhaseData()};
         }
@@ -736,10 +736,10 @@ namespace PCProps::EquationOfState
             computeThermodynamicProperties(temperature, pressure);
             std::min_element(m_phaseProps.begin(),
                              m_phaseProps.end(),
-                             [](const auto& a, const auto& b) { return a.Compressibility.value() < b.Compressibility.value(); })->MolarFlow = (1 - vaporFraction);
+                             [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; })->MolarFlow = (1 - vaporFraction);
             std::max_element(m_phaseProps.begin(),
                              m_phaseProps.end(),
-                             [](const auto& a, const auto& b) { return a.Compressibility.value() < b.Compressibility.value(); })->MolarFlow = vaporFraction;
+                             [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; })->MolarFlow = vaporFraction;
 
             return {PhaseProperties(m_phaseProps[0]).getPhaseData(), PhaseProperties(m_phaseProps[1]).getPhaseData()};
         }
@@ -756,7 +756,7 @@ namespace PCProps::EquationOfState
             if (temperature > criticalTemperature()) {
                 auto f = [&](double p) {
                     flashPT(p, temperature);
-                    return m_phaseProps[0].MolarVolume.value() - volume;
+                    return m_phaseProps[0].MolarVolume - volume;
                 };
 
                 auto range = numeric::bracket_search_up(f, 1, criticalPressure());
@@ -766,24 +766,24 @@ namespace PCProps::EquationOfState
             flashTx(temperature, 0.5);
 
             // ===== Fluid is a liquid
-            if (volume <= m_phaseProps[0].MolarVolume.value()) {
+            if (volume <= m_phaseProps[0].MolarVolume) {
                 auto f = [&](double p) {
                     flashPT(p, temperature);
-                    return m_phaseProps[0].MolarVolume.value() - volume;
+                    return m_phaseProps[0].MolarVolume - volume;
                 };
 
-                auto range = numeric::bracket_search_up(f, m_phaseProps[0].Pressure.value() * 0.8, m_phaseProps[0].Pressure.value() + criticalPressure());
+                auto range = numeric::bracket_search_up(f, m_phaseProps[0].Pressure * 0.8, m_phaseProps[0].Pressure + criticalPressure());
                 return { flashPT(numeric::ridders(f, range.first, range.second, 1E-12), temperature) };
             }
 
             // ===== Fluid is vapor
-            if (volume >= m_phaseProps[1].MolarVolume.value()) {
+            if (volume >= m_phaseProps[1].MolarVolume) {
                 auto f = [&](double p) {
                     flashPT(p, temperature);
-                    return m_phaseProps[0].MolarVolume.value() - volume;
+                    return m_phaseProps[0].MolarVolume - volume;
                 };
 
-                return { flashPT(numeric::ridders(f, 1.0, m_phaseProps[1].Pressure.value()), temperature) };
+                return { flashPT(numeric::ridders(f, 1.0, m_phaseProps[1].Pressure), temperature) };
             }
 
             // ===== Fluid is multiphase
@@ -792,7 +792,7 @@ namespace PCProps::EquationOfState
                 auto result = 0.0;
 
                 for (auto& item : m_phaseProps) {
-                    result += item.MolarVolume.value() * item.MolarFlow.value();
+                    result += item.MolarVolume * item.MolarFlow;
                 }
 
                 return result - volume;

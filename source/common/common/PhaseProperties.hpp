@@ -12,27 +12,27 @@ namespace PCProps
 {
     struct PCPhaseProperties
     {
-        std::optional<double> Pressure;
-        std::optional<double> Temperature;
-        std::optional<double> MolarVolume;
-        std::optional<double> MolarWeight;
-        std::optional<double> MolarFlow;
-        std::optional<double> Compressibility;
-        std::optional<double> FugacityCoefficient;
-        std::optional<double> Viscosity;
-        std::optional<double> SurfaceTension;
-        std::optional<double> ThermalConductivity;
-        std::optional<double> Cp;
-        std::optional<double> Cv;
-        std::optional<double> IsothermalCompressibility;
-        std::optional<double> ThermalExpansionCoefficient;
-        std::optional<double> JouleThomsonCoefficient;
-        std::optional<double> VaporPressure;
-        std::optional<double> Enthalpy;
-        std::optional<double> Entropy;
-        std::optional<double> InternalEnergy;
-        std::optional<double> GibbsEnergy;
-        std::optional<double> HelmholzEnergy;
+        double Pressure {0.0};
+        double Temperature {0.0};
+        double MolarVolume {0.0};
+        double MolarWeight {0.0};
+        double MolarFlow {0.0};
+        double Compressibility {0.0};
+        double FugacityCoefficient {0.0};
+        double Viscosity {0.0};
+        double SurfaceTension {0.0};
+        double ThermalConductivity {0.0};
+        double Cp {0.0};
+        double Cv {0.0};
+        double IsothermalCompressibility {0.0};
+        double ThermalExpansionCoefficient {0.0};
+        double JouleThomsonCoefficient {0.0};
+        double VaporPressure {0.0};
+        double Enthalpy {0.0};
+        double Entropy {0.0};
+        double InternalEnergy {0.0};
+        double GibbsEnergy {0.0};
+        double HelmholzEnergy {0.0};
     };
 
     class PhaseProperties {
@@ -84,7 +84,7 @@ namespace PCProps
          * @return
          */
         double getPressure() const {
-            return m_data.Pressure.value();
+            return m_data.Pressure;
         }
 
         /**
@@ -92,7 +92,7 @@ namespace PCProps
          * @return
          */
         double getTemperature() const {
-            return m_data.Temperature.value();
+            return m_data.Temperature;
         }
 
         /**
@@ -100,7 +100,7 @@ namespace PCProps
          * @return
          */
         double getMolarVolume() const {
-            return m_data.MolarVolume.value();
+            return m_data.MolarVolume;
         }
 
         /**
@@ -108,7 +108,7 @@ namespace PCProps
          * @return
          */
         double getMolarWeight() const {
-            return m_data.MolarWeight.value();
+            return m_data.MolarWeight;
         }
 
         /**
@@ -116,7 +116,7 @@ namespace PCProps
          * @return
          */
         double getMolarFlow() const {
-            return m_data.MolarFlow.value();
+            return m_data.MolarFlow;
         }
 
         /**
@@ -124,7 +124,7 @@ namespace PCProps
          * @return
          */
         double getCompressibility() const {
-            return m_data.Compressibility.value();
+            return m_data.Compressibility;
         }
 
         /**
@@ -132,7 +132,7 @@ namespace PCProps
          * @return
          */
         double getFugacityCoefficient() const {
-            return m_data.FugacityCoefficient.value();
+            return m_data.FugacityCoefficient;
         }
 
         /**
@@ -140,7 +140,7 @@ namespace PCProps
          * @return
          */
         double getViscosity() const {
-            return m_data.Viscosity.value();
+            return m_data.Viscosity;
         }
 
         /**
@@ -148,7 +148,7 @@ namespace PCProps
          * @return
          */
         double getSurfaceTension() const {
-            return m_data.SurfaceTension.value();
+            return m_data.SurfaceTension;
         }
 
         /**
@@ -156,7 +156,7 @@ namespace PCProps
          * @return
          */
         double getThermalConductivity() const {
-            return m_data.ThermalConductivity.value();
+            return m_data.ThermalConductivity;
         }
 
         /**
@@ -164,7 +164,7 @@ namespace PCProps
          * @return
          */
         double getCp() const {
-            return m_data.Cp.value();
+            return m_data.Cp;
         }
 
         /**
@@ -172,7 +172,7 @@ namespace PCProps
          * @return
          */
         double getCv() const {
-            return m_data.Cv.value();
+            return m_data.Cv;
         }
 
         /**
@@ -180,7 +180,7 @@ namespace PCProps
          * @return
          */
         double getIsothermalCompressibility() const {
-            return m_data.IsothermalCompressibility.value();
+            return m_data.IsothermalCompressibility;
         }
 
         /**
@@ -188,7 +188,7 @@ namespace PCProps
          * @return
          */
         double getThermalExpansionCoefficient() const {
-            return m_data.ThermalExpansionCoefficient.value();
+            return m_data.ThermalExpansionCoefficient;
         }
 
         /**
@@ -196,7 +196,7 @@ namespace PCProps
          * @return
          */
         double getJouleThomsonCoefficient() const {
-            return m_data.JouleThomsonCoefficient.value();
+            return m_data.JouleThomsonCoefficient;
         }
 
         /**
@@ -204,7 +204,7 @@ namespace PCProps
          * @return
          */
         double getVaporPressure() const {
-            return m_data.VaporPressure.value();
+            return m_data.VaporPressure;
         }
 
         /**
@@ -212,7 +212,7 @@ namespace PCProps
          * @return
          */
         double getEnthalpy() const {
-            return m_data.Enthalpy.value();
+            return m_data.Enthalpy;
         }
 
         /**
@@ -220,7 +220,7 @@ namespace PCProps
          * @return
          */
         double getEntropy() const {
-            return m_data.Entropy.value();
+            return m_data.Entropy;
         }
 
         /**
@@ -228,7 +228,7 @@ namespace PCProps
          * @return
          */
         double getInternalEnergy() const {
-            return m_data.InternalEnergy.value();
+            return m_data.InternalEnergy;
         }
 
         /**
@@ -236,7 +236,7 @@ namespace PCProps
          * @return
          */
         double getGibbsEnergy() const {
-            return m_data.GibbsEnergy.value();
+            return m_data.GibbsEnergy;
         }
 
         /**
@@ -244,7 +244,7 @@ namespace PCProps
          * @return
          */
         double getHelmholzEnergy() const {
-            return m_data.HelmholzEnergy.value();
+            return m_data.HelmholzEnergy;
         }
 
         PCPhase getPhaseData() const {
@@ -253,13 +253,13 @@ namespace PCProps
             data[PCPressure] = getPressure();
             data[PCTemperature] = getTemperature();
             data[PCMolarVolume] = getMolarVolume();
-            //data[PCMolarWeight] = getMolarWeight();
+            data[PCMolarWeight] = getMolarWeight();
             data[PCMolarFlow] = getMolarFlow();
             data[PCCompressibility] = getCompressibility();
             data[PCFugacityCoefficient] = getFugacityCoefficient();
-            //data[PCViscosity] = getViscosity();
-            //data[PCSurfaceTension] = getSurfaceTension();
-            //data[PCThermalConductivity] = getThermalConductivity();
+            data[PCViscosity] = getViscosity();
+            data[PCSurfaceTension] = getSurfaceTension();
+            data[PCThermalConductivity] = getThermalConductivity();
             data[PCHeatCapacityCp] = getCp();
             data[PCHeatCapacityCv] = getCv();
             data[PCIsothermalCompressibility] = getIsothermalCompressibility();
