@@ -424,13 +424,15 @@ namespace PCProps::EquationOfState
          */
         inline void computeThermodynamicProperties(double temperature, double pressure) const {
 
+            // First, some housekeeping
             using std::sqrt;
             using std::get;
             using PCProps::Globals::R_CONST;
-
+            auto eps = sqrt(std::numeric_limits<double>::epsilon());
             m_phaseProps.clear();
-            auto diff = sqrt(std::numeric_limits<double>::epsilon());
 
+            // Calculate compressibility and fugacity coefficient for all phases at the given T and P.
+            // For all phases, calculate basic thermodynamic properties.
             auto z_phi = computeCompressibilityAndFugacity(temperature, pressure);
             for (const auto& item: z_phi) {
                 PCPhaseProperties data;
@@ -449,35 +451,38 @@ namespace PCProps::EquationOfState
                 m_phaseProps.emplace_back(data);
             }
 
-            auto z1 = computeCompressibilityAndFugacity(temperature - diff, pressure);
-            auto z2 = computeCompressibilityAndFugacity(temperature + diff, pressure);
-
+            // Calculate the Cp, JT coefficient, and the thermal expansion coefficient for all phases.
+            // TODO: Ensure the derivatives are correct and calculated most effeciently.
+            auto z1 = computeCompressibilityAndFugacity(temperature - eps, pressure);
+            auto z2 = computeCompressibilityAndFugacity(temperature + eps, pressure);
             uint64_t index = 0;
             for (auto& item : m_phaseProps) {
-                auto h1 = computeEnthalpy(temperature - diff, pressure, get<0>(z1[index]));
-                auto h2 = computeEnthalpy(temperature + diff, pressure, get<0>(z2[index]));
-                item.Cp = (h2 - h1) / (2 * diff);
+                auto h1 = computeEnthalpy(temperature - eps, pressure, get<0>(z1[index]));
+                auto h2 = computeEnthalpy(temperature + eps, pressure, get<0>(z2[index]));
+                item.Cp = (h2 - h1) / (2 * eps);
 
-                auto v1 = get<0>(z1[index]) * R_CONST * (temperature - diff) / pressure;
-                auto v2 = get<0>(z2[index]) * R_CONST * (temperature + diff) / pressure;
-                item.ThermalExpansionCoefficient = (1.0 / item.MolarVolume) * (v2 - v1) / (2 * diff);
-                item.JouleThomsonCoefficient = -(item.MolarVolume - temperature * ((v2 - v1) / (2 * diff))) / item.Cp;
+                auto v1 = get<0>(z1[index]) * R_CONST * (temperature - eps) / pressure;
+                auto v2 = get<0>(z2[index]) * R_CONST * (temperature + eps) / pressure;
+                item.ThermalExpansionCoefficient = (1.0 / item.MolarVolume) * (v2 - v1) / (2 * eps);
+                item.JouleThomsonCoefficient = -(item.MolarVolume - temperature * ((v2 - v1) / (2 * eps))) / item.Cp;
 
                 ++index;
             }
 
-            z1 = computeCompressibilityAndFugacity(temperature, pressure - diff);
-            z2 = computeCompressibilityAndFugacity(temperature, pressure + diff);
-
+            // Calculate the isothermal compressibility for all phases.
+            // TODO: Ensure the derivatives are correct and calculated most effeciently.
+            z1 = computeCompressibilityAndFugacity(temperature, pressure - eps);
+            z2 = computeCompressibilityAndFugacity(temperature, pressure + eps);
             index = 0;
             for (auto& item : m_phaseProps) {
-                auto v1 = get<0>(z1[index]) * R_CONST * temperature / (pressure - diff);
-                auto v2 = get<0>(z2[index]) * R_CONST * temperature / (pressure + diff);
-                item.IsothermalCompressibility = - (1.0 / item.MolarVolume) * (v2 - v1) / (2 * diff);
+                auto v1 = get<0>(z1[index]) * R_CONST * temperature / (pressure - eps);
+                auto v2 = get<0>(z2[index]) * R_CONST * temperature / (pressure + eps);
+                item.IsothermalCompressibility = - (1.0 / item.MolarVolume) * (v2 - v1) / (2 * eps);
 
                 ++index;
             }
 
+            // Calculate Cv for all phases
             index = 0;
             for (auto& item : m_phaseProps) {
                 item.Cv =
