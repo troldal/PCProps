@@ -755,41 +755,44 @@ namespace PCProps::EquationOfState
             // ===== Fluid is supercritical
             if (temperature > criticalTemperature()) {
                 auto f = [&](double p) {
-                    return flashPT(p, temperature)[0][PCMolarVolume] - volume;
+                    flashPT(p, temperature);
+                    return m_phaseProps[0].MolarVolume.value() - volume;
                 };
 
                 auto range = numeric::bracket_search_up(f, 1, criticalPressure());
                 return { flashPT(numeric::ridders(f, range.first, range.second, 1E-12), temperature) };
             }
 
-            PCPhases phases = flashTx(temperature, 0.5);
+            flashTx(temperature, 0.5);
 
             // ===== Fluid is a liquid
-            if (volume <= phases[0][PCMolarVolume]) {
+            if (volume <= m_phaseProps[0].MolarVolume.value()) {
                 auto f = [&](double p) {
-                    return flashPT(p, temperature)[0][PCMolarVolume] - volume;
+                    flashPT(p, temperature);
+                    return m_phaseProps[0].MolarVolume.value() - volume;
                 };
 
-                auto range = numeric::bracket_search_up(f, phases[0][PCPressure] * 0.8, phases[0][PCPressure] + criticalPressure());
+                auto range = numeric::bracket_search_up(f, m_phaseProps[0].Pressure.value() * 0.8, m_phaseProps[0].Pressure.value() + criticalPressure());
                 return { flashPT(numeric::ridders(f, range.first, range.second, 1E-12), temperature) };
             }
 
             // ===== Fluid is vapor
-            if (volume >= phases[1][PCMolarVolume]) {
+            if (volume >= m_phaseProps[1].MolarVolume.value()) {
                 auto f = [&](double p) {
-                    return flashPT(p, temperature)[0][PCMolarVolume] - volume;
+                    flashPT(p, temperature);
+                    return m_phaseProps[0].MolarVolume.value() - volume;
                 };
 
-                return { flashPT(numeric::ridders(f, 1.0, phases[1][PCPressure]), temperature) };
+                return { flashPT(numeric::ridders(f, 1.0, m_phaseProps[1].Pressure.value()), temperature) };
             }
 
             // ===== Fluid is multiphase
             auto f = [&](double x) {
-                auto ph = flashTx(temperature, x);
+                flashTx(temperature, x);
                 auto result = 0.0;
 
-                for (auto& item : ph) {
-                    result += item[PCMolarVolume] * item[PCMolarFlow];
+                for (auto& item : m_phaseProps) {
+                    result += item.MolarVolume.value() * item.MolarFlow.value();
                 }
 
                 return result - volume;
