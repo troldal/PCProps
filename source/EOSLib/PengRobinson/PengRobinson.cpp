@@ -438,9 +438,9 @@ namespace PCProps::EquationOfState
                 data.Temperature         = temperature;
                 data.Compressibility     = get<0>(item);
                 data.FugacityCoefficient = get<1>(item);
-                data.Enthalpy            = computeEnthalpy(temperature, pressure, get<0>(item));
-                data.Entropy             = computeEntropy(temperature, pressure, get<0>(item));
-                data.MolarVolume         = get<0>(item) * R_CONST * temperature / pressure;
+                data.Enthalpy            = computeEnthalpy(temperature, pressure, data.Compressibility);
+                data.Entropy             = computeEntropy(temperature, pressure, data.Compressibility);
+                data.MolarVolume         = data.Compressibility * R_CONST * temperature / pressure;
                 data.GibbsEnergy         = data.Enthalpy - temperature * data.Entropy;
                 data.InternalEnergy      = data.Enthalpy - pressure * data.MolarVolume;
                 data.HelmholzEnergy      = data.InternalEnergy - temperature * data.Entropy;
@@ -493,12 +493,12 @@ namespace PCProps::EquationOfState
          * @param temperature
          * @return
          */
-        inline PCPhases flashPT(double pressure, double temperature) const {
+        inline std::vector<PCPhaseProperties> flashPT(double pressure, double temperature) const {
             // ===== Compute compressibility factors and fugacity coefficients at given T and P.
             computeThermodynamicProperties(temperature, pressure);
             for (auto& phase : m_phaseProps) phase.MolarFlow = 1.0;
-            return { PhaseProperties(*std::min_element(m_phaseProps.begin(), m_phaseProps.end(), [](const auto& a, const auto& b) {
-                         return a.FugacityCoefficient < b.FugacityCoefficient; })).getPhaseData() };
+            return { *std::min_element(m_phaseProps.begin(), m_phaseProps.end(), [](const auto& a, const auto& b) {
+                         return a.FugacityCoefficient < b.FugacityCoefficient; }) };
         }
 
         /**
@@ -507,7 +507,7 @@ namespace PCProps::EquationOfState
          * @param vaporFraction
          * @return
          */
-        inline PCPhases flashTx(double temperature, double vaporFraction) const {
+        inline std::vector<PCPhaseProperties> flashTx(double temperature, double vaporFraction) const {
             // ===== If the temperature <= Tc
             if (temperature <= criticalTemperature()) {
                 // ===== First, calculate the saturation pressure at the specified pressure.
@@ -520,7 +520,7 @@ namespace PCProps::EquationOfState
                                                         m_phaseProps.end(),
                                                         [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; });
                     phase.MolarFlow = 1.0;
-                    return {PhaseProperties(phase).getPhaseData()};
+                    return {phase};
                 }
 
                 // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
@@ -529,7 +529,7 @@ namespace PCProps::EquationOfState
                                                         m_phaseProps.end(),
                                                         [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; });
                     phase.MolarFlow = 1.0;
-                    return {PhaseProperties(phase).getPhaseData()};
+                    return {phase};
                 }
 
                 // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
@@ -540,7 +540,7 @@ namespace PCProps::EquationOfState
                                  m_phaseProps.end(),
                                  [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; })->MolarFlow = vaporFraction;
 
-                return {PhaseProperties(m_phaseProps[0]).getPhaseData(), PhaseProperties(m_phaseProps[1]).getPhaseData()};
+                return {m_phaseProps[0], m_phaseProps[1]};
 
             }
 
@@ -557,7 +557,7 @@ namespace PCProps::EquationOfState
          * @param vaporFraction
          * @return
          */
-        inline PCPhases flashPx(double pressure, double vaporFraction) const {
+        inline std::vector<PCPhaseProperties> flashPx(double pressure, double vaporFraction) const {
             // ===== If the pressure <= Pc
             if (pressure <= criticalPressure()) {
                 // ===== First, calculate the saturation temperature at the specified pressure.
@@ -570,7 +570,7 @@ namespace PCProps::EquationOfState
                                                         m_phaseProps.end(),
                                                         [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; });
                     phase.MolarFlow = 1.0;
-                    return {PhaseProperties(phase).getPhaseData()};
+                    return {phase};
                 }
 
                 // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
@@ -579,7 +579,7 @@ namespace PCProps::EquationOfState
                                                         m_phaseProps.end(),
                                                         [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; });
                     phase.MolarFlow = 1.0;
-                    return {PhaseProperties(phase).getPhaseData()};
+                    return {phase};
                 }
 
                 // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
@@ -590,7 +590,7 @@ namespace PCProps::EquationOfState
                                  m_phaseProps.end(),
                                  [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; })->MolarFlow = vaporFraction;
 
-                return {PhaseProperties(m_phaseProps[0]).getPhaseData(), PhaseProperties(m_phaseProps[1]).getPhaseData()};
+                return {m_phaseProps[0], m_phaseProps[1]};
 
             }
 
@@ -606,7 +606,7 @@ namespace PCProps::EquationOfState
          * @param enthalpy
          * @return
          */
-        inline PCPhases flashPH(double pressure, double enthalpy) const {
+        inline std::vector<PCPhaseProperties> flashPH(double pressure, double enthalpy) const {
             using std::get;
 
             if (pressure > criticalPressure()) {
@@ -669,7 +669,7 @@ namespace PCProps::EquationOfState
                              m_phaseProps.end(),
                              [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; })->MolarFlow = vaporFraction;
 
-            return {PhaseProperties(m_phaseProps[0]).getPhaseData(), PhaseProperties(m_phaseProps[1]).getPhaseData()};
+            return {m_phaseProps[0], m_phaseProps[1]};
         }
 
         /**
@@ -678,7 +678,7 @@ namespace PCProps::EquationOfState
          * @param entropy
          * @return
          */
-        inline PCPhases flashPS(double pressure, double entropy) const {
+        inline std::vector<PCPhaseProperties> flashPS(double pressure, double entropy) const {
             using std::get;
 
             if (pressure > criticalPressure()) {
@@ -741,7 +741,7 @@ namespace PCProps::EquationOfState
                              m_phaseProps.end(),
                              [](const auto& a, const auto& b) { return a.Compressibility < b.Compressibility; })->MolarFlow = vaporFraction;
 
-            return {PhaseProperties(m_phaseProps[0]).getPhaseData(), PhaseProperties(m_phaseProps[1]).getPhaseData()};
+            return {m_phaseProps[0], m_phaseProps[1]};
         }
 
         /**
@@ -750,7 +750,7 @@ namespace PCProps::EquationOfState
          * @param volume
          * @return
          */
-        inline PCPhases flashTV(double temperature, double volume) const {
+        inline std::vector<PCPhaseProperties> flashTV(double temperature, double volume) const {
 
             // ===== Fluid is supercritical
             if (temperature > criticalTemperature()) {
@@ -837,37 +837,49 @@ namespace PCProps::EquationOfState
     // ===== P,T Flash
     PCPhases PengRobinson::flashPT(double pressure, double temperature) const
     {
-        return m_impl->flashPT(pressure, temperature);
+        PCPhases result;
+        for (const auto& phase : m_impl->flashPT(pressure, temperature)) result.emplace_back(PhaseProperties(phase).getPhaseData());
+        return result;
     }
 
     // ===== T,x Flash
     PCPhases PengRobinson::flashTx(double temperature, double vaporFraction) const
     {
-        return m_impl->flashTx(temperature, vaporFraction);
+        PCPhases result;
+        for (const auto& phase : m_impl->flashTx(temperature, vaporFraction)) result.emplace_back(PhaseProperties(phase).getPhaseData());
+        return result;
     }
 
     // ===== P,x Flash
     PCPhases PengRobinson::flashPx(double pressure, double vaporFraction) const
     {
-        return m_impl->flashPx(pressure, vaporFraction);
+        PCPhases result;
+        for (const auto& phase : m_impl->flashPx(pressure, vaporFraction)) result.emplace_back(PhaseProperties(phase).getPhaseData());
+        return result;
     }
 
     // ===== P,H Flash
     PCPhases PengRobinson::flashPH(double pressure, double enthalpy) const
     {
-        return m_impl->flashPH(pressure, enthalpy);
+        PCPhases result;
+        for (const auto& phase : m_impl->flashPH(pressure, enthalpy)) result.emplace_back(PhaseProperties(phase).getPhaseData());
+        return result;
     }
 
     // ===== P,S Flash
     PCPhases PengRobinson::flashPS(double pressure, double entropy) const
     {
-        return m_impl->flashPS(pressure, entropy);
+        PCPhases result;
+        for (const auto& phase : m_impl->flashPS(pressure, entropy)) result.emplace_back(PhaseProperties(phase).getPhaseData());
+        return result;
     }
 
     // ===== T,V Flash
     PCPhases PengRobinson::flashTV(double temperature, double volume) const
     {
-        return m_impl->flashTV(temperature, volume);
+        PCPhases result;
+        for (const auto& phase : m_impl->flashTV(temperature, volume)) result.emplace_back(PhaseProperties(phase).getPhaseData());
+        return result;
     }
 
     // ===== Saturation pressure at given temperature
