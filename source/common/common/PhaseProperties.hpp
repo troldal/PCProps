@@ -253,13 +253,13 @@ namespace PCProps
             data[PCPressure] = getPressure();
             data[PCTemperature] = getTemperature();
             data[PCMolarVolume] = getMolarVolume();
-            data[PCMolarWeight] = getMolarWeight();
+            //data[PCMolarWeight] = getMolarWeight();
             data[PCMolarFlow] = getMolarFlow();
             data[PCCompressibility] = getCompressibility();
             data[PCFugacityCoefficient] = getFugacityCoefficient();
-            data[PCViscosity] = getViscosity();
-            data[PCSurfaceTension] = getSurfaceTension();
-            data[PCThermalConductivity] = getThermalConductivity();
+            //data[PCViscosity] = getViscosity();
+            //data[PCSurfaceTension] = getSurfaceTension();
+            //data[PCThermalConductivity] = getThermalConductivity();
             data[PCHeatCapacityCp] = getCp();
             data[PCHeatCapacityCv] = getCv();
             data[PCIsothermalCompressibility] = getIsothermalCompressibility();
