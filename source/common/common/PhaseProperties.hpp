@@ -5,14 +5,18 @@
 #ifndef PCPROPS_PHASEPROPERTIES_HPP
 #define PCPROPS_PHASEPROPERTIES_HPP
 
-#include "PropertyData.hpp"
+#include <iomanip>
+#include <iostream>
+
 #include <json/json.hpp>
-#include <optional>
 
 namespace PCProps
 {
-    struct PCPhaseProperties
+    class PCPhaseProperties
     {
+        using json = nlohmann::json;
+    public:
+
         double Pressure { 0.0 };
         double Temperature { 0.0 };
         double MolarVolume { 0.0 };
@@ -34,325 +38,114 @@ namespace PCProps
         double InternalEnergy { 0.0 };
         double GibbsEnergy { 0.0 };
         double HelmholzEnergy { 0.0 };
-    };
 
-    class PhaseProperties
-    {
-        PCPhaseProperties m_data = {};
+        PCPhaseProperties() = default;
 
-    public:
-        // ===== Constructors & Assignment Operators ===== //
-
-        /**
-         * @brief Default constructor.
-         */
-        PhaseProperties() = default;
-
-        /**
-         * @brief Constructor, taking a PCComponentData object as an argument.
-         * @param data A PCComponentData object with the component data.
-         */
-        explicit PhaseProperties(const PCPhaseProperties& data) : m_data(data) {}
-
-        explicit PhaseProperties(const nlohmann::json& data) {
-
-            m_data.Pressure = data["Pressure"].get<double>();
-            m_data.Temperature = data["Temperature"].get<double>();
-            m_data.MolarVolume = data["MolarVolume"].get<double>();
-            m_data.MolarWeight = data["MolarWeight"].get<double>();
-            m_data.MolarFlow = data["MolarFlow"].get<double>();
-            m_data.Compressibility = data["Compressibility"].get<double>();
-            m_data.FugacityCoefficient = data["FugacityCoefficient"].get<double>();
-            m_data.Viscosity = data["Viscosity"].get<double>();
-            m_data.SurfaceTension = data["SurfaceTension"].get<double>();
-            m_data.ThermalConductivity = data["ThermalConductivity"].get<double>();
-            m_data.Cp = data["Cp"].get<double>();
-            m_data.Cv = data["Cv"].get<double>();
-            m_data.IsothermalCompressibility = data["IsothermalCompressibility"].get<double>();
-            m_data.ThermalExpansionCoefficient = data["ThermalExpansionCoefficient"].get<double>();
-            m_data.JouleThomsonCoefficient = data["JouleThomsonCoefficient"].get<double>();
-            m_data.VaporPressure = data["VaporPressure"].get<double>();
-            m_data.Enthalpy = data["Enthalpy"].get<double>();
-            m_data.Entropy = data["Entropy"].get<double>();
-            m_data.InternalEnergy = data["InternalEnergy"].get<double>();
-            m_data.GibbsEnergy = data["GibbsEnergy"].get<double>();
-            m_data.HelmholzEnergy = data["HelmholzEnergy"].get<double>();
-
+        explicit PCPhaseProperties(const nlohmann::json& data) {
+            Pressure                    = data["Pressure"].is_null() ? std::nan("") : data["Pressure"].get<double>();
+            Temperature                 = data["Temperature"].is_null() ? std::nan("") : data["Temperature"].get<double>();
+            MolarVolume                 = data["MolarVolume"].is_null() ? std::nan("") : data["MolarVolume"].get<double>();
+            MolarWeight                 = data["MolarWeight"].is_null() ? std::nan("") : data["MolarWeight"].get<double>();
+            MolarFlow                   = data["MolarFlow"].is_null() ? std::nan("") : data["MolarFlow"].get<double>();
+            Compressibility             = data["Compressibility"].is_null() ? std::nan("") : data["Compressibility"].get<double>();
+            FugacityCoefficient         = data["FugacityCoefficient"].is_null() ? std::nan("") : data["FugacityCoefficient"].get<double>();
+            Viscosity                   = data["Viscosity"].is_null() ? std::nan("") : data["Viscosity"].get<double>();
+            SurfaceTension              = data["SurfaceTension"].is_null() ? std::nan("") : data["SurfaceTension"].get<double>();
+            ThermalConductivity         = data["ThermalConductivity"].is_null() ? std::nan("") : data["ThermalConductivity"].get<double>();
+            Cp                          = data["Cp"].is_null() ? std::nan("") : data["Cp"].get<double>();
+            Cv                          = data["Cv"].is_null() ? std::nan("") : data["Cv"].get<double>();
+            IsothermalCompressibility   = data["IsothermalCompressibility"].is_null() ? std::nan("") : data["IsothermalCompressibility"].get<double>();
+            ThermalExpansionCoefficient = data["ThermalExpansionCoefficient"].is_null() ? std::nan("") : data["ThermalExpansionCoefficient"].get<double>();
+            JouleThomsonCoefficient     = data["JouleThomsonCoefficient"].is_null() ? std::nan("") : data["JouleThomsonCoefficient"].get<double>();
+            VaporPressure               = data["VaporPressure"].is_null() ? std::nan("") : data["VaporPressure"].get<double>();
+            Enthalpy                    = data["Enthalpy"].is_null() ? std::nan("") : data["Enthalpy"].get<double>();
+            Entropy                     = data["Entropy"].is_null() ? std::nan("") : data["Entropy"].get<double>();
+            InternalEnergy              = data["InternalEnergy"].is_null() ? std::nan("") : data["InternalEnergy"].get<double>();
+            GibbsEnergy                 = data["GibbsEnergy"].is_null() ? std::nan("") : data["GibbsEnergy"].get<double>();
+            HelmholzEnergy              = data["HelmholzEnergy"].is_null() ? std::nan("") : data["HelmholzEnergy"].get<double>();
         }
 
-        explicit PhaseProperties(const std::string& data) : PhaseProperties(nlohmann::json::parse(data)) {}
+        explicit PCPhaseProperties(const std::string& data) : PCPhaseProperties(nlohmann::json::parse(data)) {}
 
         /**
          * @brief Copy constructor.
          */
-        PhaseProperties(const PhaseProperties& other) = default;
+        PCPhaseProperties(const PCPhaseProperties& other) = default;
 
         /**
          * @brief Move constructor.
          */
-        PhaseProperties(PhaseProperties&& other) noexcept = default;
+        PCPhaseProperties(PCPhaseProperties&& other) noexcept = default;
 
         /**
          * @brief Destructor.
          */
-        ~PhaseProperties() = default;
+        ~PCPhaseProperties() = default;
 
         /**
          * @brief Copy assignment operator.
          */
-        PhaseProperties& operator=(const PhaseProperties& other) = default;
+        PCPhaseProperties& operator=(const PCPhaseProperties& other) = default;
 
         /**
          * @brief Move assignment operator.
          */
-        PhaseProperties& operator=(PhaseProperties&& other) noexcept = default;
+        PCPhaseProperties& operator=(PCPhaseProperties&& other) noexcept = default;
 
-        /**
-         * @brief
-         * @return
-         */
-        double getPressure() const
+        json asJSON() const
         {
-            return m_data.Pressure;
-        }
+            json data;
 
-        /**
-         * @brief
-         * @return
-         */
-        double getTemperature() const
-        {
-            return m_data.Temperature;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getMolarVolume() const
-        {
-            return m_data.MolarVolume;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getMolarWeight() const
-        {
-            return m_data.MolarWeight;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getMolarFlow() const
-        {
-            return m_data.MolarFlow;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getCompressibility() const
-        {
-            return m_data.Compressibility;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getFugacityCoefficient() const
-        {
-            return m_data.FugacityCoefficient;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getViscosity() const
-        {
-            return m_data.Viscosity;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getSurfaceTension() const
-        {
-            return m_data.SurfaceTension;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getThermalConductivity() const
-        {
-            return m_data.ThermalConductivity;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getCp() const
-        {
-            return m_data.Cp;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getCv() const
-        {
-            return m_data.Cv;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getIsothermalCompressibility() const
-        {
-            return m_data.IsothermalCompressibility;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getThermalExpansionCoefficient() const
-        {
-            return m_data.ThermalExpansionCoefficient;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getJouleThomsonCoefficient() const
-        {
-            return m_data.JouleThomsonCoefficient;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getVaporPressure() const
-        {
-            return m_data.VaporPressure;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getEnthalpy() const
-        {
-            return m_data.Enthalpy;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getEntropy() const
-        {
-            return m_data.Entropy;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getInternalEnergy() const
-        {
-            return m_data.InternalEnergy;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getGibbsEnergy() const
-        {
-            return m_data.GibbsEnergy;
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        double getHelmholzEnergy() const
-        {
-            return m_data.HelmholzEnergy;
-        }
-
-        PCPhase getPhaseData() const
-        {
-            PCPhase data;
-            data[PCPressure]                    = getPressure();
-            data[PCTemperature]                 = getTemperature();
-            data[PCMolarVolume]                 = getMolarVolume();
-            data[PCMolarWeight]                 = getMolarWeight();
-            data[PCMolarFlow]                   = getMolarFlow();
-            data[PCCompressibility]             = getCompressibility();
-            data[PCFugacityCoefficient]         = getFugacityCoefficient();
-            data[PCViscosity]                   = getViscosity();
-            data[PCSurfaceTension]              = getSurfaceTension();
-            data[PCThermalConductivity]         = getThermalConductivity();
-            data[PCHeatCapacityCp]              = getCp();
-            data[PCHeatCapacityCv]              = getCv();
-            data[PCIsothermalCompressibility]   = getIsothermalCompressibility();
-            data[PCThermalExpansionCoefficient] = getThermalExpansionCoefficient();
-            data[PCJouleThomsonCoefficient]     = getJouleThomsonCoefficient();
-            data[PCVaporPressure]               = getVaporPressure();
-            data[PCEnthalpy]                    = getEnthalpy();
-            data[PCEntropy]                     = getEntropy();
-            data[PCInternalEnergy]              = getInternalEnergy();
-            data[PCGibbsEnergy]                 = getGibbsEnergy();
-            data[PCHelmholzEnergy]              = getHelmholzEnergy();
-
-            return data;
-        }
-
-        nlohmann::json getJSONData() const
-        {
-            nlohmann::json data;
-
-            data["Pressure"]                    = getPressure();
-            data["Temperature"]                 = getTemperature();
-            data["MolarVolume"]                 = getMolarVolume();
-            data["MolarWeight"]                 = getMolarWeight();
-            data["MolarFlow"]                   = getMolarFlow();
-            data["Compressibility"]             = getCompressibility();
-            data["FugacityCoefficient"]         = getFugacityCoefficient();
-            data["Viscosity"]                   = getViscosity();
-            data["SurfaceTension"]              = getSurfaceTension();
-            data["ThermalConductivity"]         = getThermalConductivity();
-            data["Cp"]                          = getCp();
-            data["Cv"]                          = getCv();
-            data["IsothermalCompressibility"]   = getIsothermalCompressibility();
-            data["ThermalExpansionCoefficient"] = getThermalExpansionCoefficient();
-            data["JouleThomsonCoefficient"]     = getJouleThomsonCoefficient();
-            data["VaporPressure"]               = getVaporPressure();
-            data["Enthalpy"]                    = getEnthalpy();
-            data["Entropy"]                     = getEntropy();
-            data["InternalEnergy"]              = getInternalEnergy();
-            data["GibbsEnergy"]                 = getGibbsEnergy();
-            data["HelmholzEnergy"]              = getHelmholzEnergy();
+            data["Pressure"]                    = Pressure;
+            data["Temperature"]                 = Temperature;
+            data["MolarVolume"]                 = MolarVolume;
+            data["MolarWeight"]                 = MolarWeight;
+            data["MolarFlow"]                   = MolarFlow;
+            data["Compressibility"]             = Compressibility;
+            data["FugacityCoefficient"]         = FugacityCoefficient;
+            data["Viscosity"]                   = Viscosity;
+            data["SurfaceTension"]              = SurfaceTension;
+            data["ThermalConductivity"]         = ThermalConductivity;
+            data["Cp"]                          = Cp;
+            data["Cv"]                          = Cv;
+            data["IsothermalCompressibility"]   = IsothermalCompressibility;
+            data["ThermalExpansionCoefficient"] = ThermalExpansionCoefficient;
+            data["JouleThomsonCoefficient"]     = JouleThomsonCoefficient;
+            data["VaporPressure"]               = VaporPressure;
+            data["Enthalpy"]                    = Enthalpy;
+            data["Entropy"]                     = Entropy;
+            data["InternalEnergy"]              = InternalEnergy;
+            data["GibbsEnergy"]                 = GibbsEnergy;
+            data["HelmholzEnergy"]              = HelmholzEnergy;
 
             return data;
         }
     };
+
+        inline std::ostream& operator<<(std::ostream& stream, const PCProps::PCPhaseProperties& properties)
+        {
+            return stream << std::setprecision(8) << std::fixed << "Molar Flow                    : " << std::right << std::setw(20) << properties.MolarFlow << std::endl
+                          << "Molar Volume                  : " << std::right << std::setw(20) << properties.MolarVolume << " m3/mol" << std::endl
+                          << "Surface Tension               : " << std::right << std::setw(20) << properties.SurfaceTension << " N/m" << std::endl
+                          << "Thermal Conductivity          : " << std::right << std::setw(20) << properties.ThermalConductivity << " W/m-K" << std::endl
+                          << "Viscosity                     : " << std::right << std::setw(20) << properties.Viscosity << " Pa-s" << std::endl
+                          << "Cp                            : " << std::right << std::setw(20) << properties.Cp << " J/mol-K" << std::endl
+                          << "Cv                            : " << std::right << std::setw(20) << properties.Cv << " J/mol-K" << std::endl
+                          << "Isothermal Compressibility    : " << std::right << std::setw(20) << properties.IsothermalCompressibility << " 1/Pa" << std::endl
+                          << "Thermal Expansion Coefficient : " << std::right << std::setw(20) << properties.ThermalExpansionCoefficient << " 1/K" << std::endl
+                          << "Joule-Thomson Coefficient     : " << std::right << std::setw(20) << properties.JouleThomsonCoefficient << " K/Pa" << std::endl
+                          << "Molecular Weight              : " << std::right << std::setw(20) << properties.MolarWeight << " g/mol" << std::endl
+                          << "Temperature                   : " << std::right << std::setw(20) << properties.Temperature << " K" << std::endl
+                          << "Pressure                      : " << std::right << std::setw(20) << properties.Pressure << " Pa" << std::endl
+                          << "Compressibility               : " << std::right << std::setw(20) << properties.Compressibility << " -" << std::endl
+                          << "Fugacity Coefficient          : " << std::right << std::setw(20) << properties.FugacityCoefficient << " -" << std::endl
+                          << "Vapor Pressure                : " << std::right << std::setw(20) << properties.VaporPressure << " Pa" << std::endl
+                          << "Enthalpy                      : " << std::right << std::setw(20) << properties.Enthalpy << " J/mol" << std::endl
+                          << "Entropy                       : " << std::right << std::setw(20) << properties.Entropy << " J/mol-K" << std::endl
+                          << "Internal Energy               : " << std::right << std::setw(20) << properties.InternalEnergy << " J/mol" << std::endl
+                          << "Gibbs Energy                  : " << std::right << std::setw(20) << properties.GibbsEnergy << " J/mol" << std::endl
+                          << "Helmholz Energy               : " << std::right << std::setw(20) << properties.HelmholzEnergy << " J/mol" << std::endl;
+        }
 
 }    // namespace PCProps
 #endif    // PCPROPS_PHASEPROPERTIES_HPP

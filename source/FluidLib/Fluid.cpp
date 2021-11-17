@@ -12,6 +12,8 @@
 #include <stdexcept>
 #include <tuple>
 
+using JSONString = std::string;
+
 namespace PCProps
 {
     class Fluid::impl
@@ -26,21 +28,19 @@ namespace PCProps
         std::function<double(double, double, double, double)> m_compressedLiquidViscosity;
         std::function<double(double, double, double, double)> m_compressedVaporViscosity;
 
-        mutable PCPhases m_phaseData {};
+        mutable std::vector<PCPhaseProperties> m_phaseProps {};
 
         enum PhaseType { Liquid, Vapor, Dense, Undefined };
         
-        PhaseType determinePhaseType(const PCProps::PCPhase& phase) const
+        PhaseType determinePhaseType(const PCPhaseProperties& phase) const
         {
-            PhaseType type = PhaseType::Undefined;
-
             auto tc = m_pureComponent.criticalTemperature();
             auto pc = m_pureComponent.criticalPressure();
-            auto t = phase[PCTemperature];
-            auto p = phase[PCPressure];
-            auto x = phase[PCMolarFlow];
-            auto z = phase[PCCompressibility];
-            auto psat = phase[PCVaporPressure]; //   m_equationOfState.saturationPressure(t);
+            auto t = phase.Temperature;
+            auto p = phase.Pressure;
+            auto x = phase.MolarFlow;
+            auto z = phase.Compressibility;
+            auto psat = phase.VaporPressure; //   m_equationOfState.saturationPressure(t);
 
             if (t > tc && p > pc)
                 return PhaseType::Dense;
@@ -56,35 +56,36 @@ namespace PCProps
             return PhaseType::Undefined;
         }
 
-        void computePhaseProperties(PCProps::PCPhase& phase) const
+        void computePhaseProperties() const
         {
-            auto type = determinePhaseType(phase);
-            auto t = phase[PCTemperature];
-            auto p = phase[PCPressure];
+            for (auto& phase : m_phaseProps) {
+                auto type = determinePhaseType(phase);
+                auto t    = phase.Temperature;
+                auto p    = phase.Pressure;
 
-            phase[PCMolarWeight] = m_pureComponent.molarWeight();
+                phase.MolarWeight = m_pureComponent.molarWeight();
 
-            switch (type)
-            {
-                case PhaseType::Liquid:
-                    phase[PCMolarWeight] = m_compressedLiquidVolume(t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satLiquidVolume(t));
-                    phase[PCSurfaceTension] = 0.0;
-                    phase[PCThermalConductivity] = 0.0;
-                    phase[PCViscosity] = m_compressedLiquidViscosity(t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satLiquidViscosity(t));;
+                switch (type) {
+                    case PhaseType::Liquid:
+                        phase.MolarWeight         = m_compressedLiquidVolume(t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satLiquidVolume(t));
+                        phase.SurfaceTension      = 0.0;
+                        phase.ThermalConductivity = 0.0;
+                        phase.Viscosity           = m_compressedLiquidViscosity(t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satLiquidViscosity(t));
 
-                    break;
+                        break;
 
-                case PhaseType::Vapor:
-                    phase[PCSurfaceTension] = 0.0;
-                    phase[PCThermalConductivity] = 0.0;
-                    phase[PCViscosity] = m_compressedVaporViscosity(t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satVaporViscosity(t));
-                    break;
+                    case PhaseType::Vapor:
+                        phase.SurfaceTension      = 0.0;
+                        phase.ThermalConductivity = 0.0;
+                        phase.Viscosity           = m_compressedVaporViscosity(t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satVaporViscosity(t));
+                        break;
 
-                case PhaseType::Dense:
-                    break;
+                    case PhaseType::Dense:
+                        break;
 
-                default:
-                    throw std::runtime_error("Something went wrong. Invalid phase properties");
+                    default:
+                        throw std::runtime_error("Something went wrong. Invalid phase properties");
+                }
             }
         }
 
@@ -119,87 +120,68 @@ namespace PCProps
                 m_pureComponent.dipoleMoment());
         }
 
-        const PCPhases& flashPT(double pressure, double temperature) const
+        const std::vector<PCPhaseProperties>& flashPT(double pressure, double temperature) const
         {
-            PCPhases results;
+            m_phaseProps.clear();
             auto temp = nlohmann::json::parse(m_equationOfState.flashPT(pressure, temperature));
-            for (auto& phase : temp) {
-                auto result = PhaseProperties(phase).getPhaseData();
-                computePhaseProperties(result);
-                results.emplace_back(result);
-            }
+            for (auto& phase : temp) m_phaseProps.emplace_back(phase);
 
-            m_phaseData = std::move(results);
-            return m_phaseData;
+            computePhaseProperties();
+            return m_phaseProps;
         }
 
-        const PCPhases& flashPx(double pressure, double vaporFraction) const
+        const std::vector<PCPhaseProperties>& flashPx(double pressure, double vaporFraction) const
         {
-            PCPhases results;
-            for (auto& phase : nlohmann::json::parse(m_equationOfState.flashPx(pressure, vaporFraction))) {
-                auto result = PhaseProperties(phase).getPhaseData();
-                computePhaseProperties(result);
-                results.emplace_back(result);
-            }
+            m_phaseProps.clear();
+            auto temp = nlohmann::json::parse(m_equationOfState.flashPx(pressure, vaporFraction));
+            for (auto& phase : temp) m_phaseProps.emplace_back(phase);
 
-            m_phaseData = std::move(results);
-            return m_phaseData;
+            computePhaseProperties();
+            return m_phaseProps;
         }
 
-        const PCPhases& flashTx(double temperature, double vaporFraction) const
+        const std::vector<PCPhaseProperties>& flashTx(double temperature, double vaporFraction) const
         {
-            PCPhases results;
-            for (auto& phase : nlohmann::json::parse(m_equationOfState.flashTx(temperature, vaporFraction))) {
-                auto result = PhaseProperties(phase).getPhaseData();
-                computePhaseProperties(result);
-                results.emplace_back(result);
-            }
+            m_phaseProps.clear();
+            auto temp = nlohmann::json::parse(m_equationOfState.flashTx(temperature, vaporFraction));
+            for (auto& phase : temp) m_phaseProps.emplace_back(phase);
 
-            m_phaseData = std::move(results);
-            return m_phaseData;
+            computePhaseProperties();
+            return m_phaseProps;
         }
 
-        const PCPhases& flashPH(double pressure, double enthalpy) const
+        const std::vector<PCPhaseProperties>& flashPH(double pressure, double enthalpy) const
         {
-            PCPhases results;
-            for (auto& phase : nlohmann::json::parse(m_equationOfState.flashPH(pressure, enthalpy))) {
-                auto result = PhaseProperties(phase).getPhaseData();
-                computePhaseProperties(result);
-                results.emplace_back(result);
-            }
+            m_phaseProps.clear();
+            auto temp = nlohmann::json::parse(m_equationOfState.flashPH(pressure, enthalpy));
+            for (auto& phase : temp) m_phaseProps.emplace_back(phase);
 
-            m_phaseData = std::move(results);
-            return m_phaseData;
+            computePhaseProperties();
+            return m_phaseProps;
         }
 
-        const PCPhases& flashPS(double pressure, double entropy) const
+        const std::vector<PCPhaseProperties>& flashPS(double pressure, double entropy) const
         {
-            PCPhases results;
-            for (auto& phase : nlohmann::json::parse(m_equationOfState.flashPS(pressure, entropy))) {
-                auto result = PhaseProperties(phase).getPhaseData();
-                computePhaseProperties(result);
-                results.emplace_back(result);
-            }
+            m_phaseProps.clear();
+            auto temp = nlohmann::json::parse(m_equationOfState.flashPS(pressure, entropy));
+            for (auto& phase : temp) m_phaseProps.emplace_back(phase);
 
-            m_phaseData = std::move(results);
-            return m_phaseData;
+            computePhaseProperties();
+            return m_phaseProps;
         }
 
-        const PCPhases& flashTV(double temperature, double volume) const {
+        const std::vector<PCPhaseProperties>& flashTV(double temperature, double volume) const {
 
-            PCPhases results;
-            for (auto& phase : nlohmann::json::parse(m_equationOfState.flashTV(temperature, volume))) {
-                auto result = PhaseProperties(phase).getPhaseData();
-                computePhaseProperties(result);
-                results.emplace_back(result);
-            }
+            m_phaseProps.clear();
+            auto temp = nlohmann::json::parse(m_equationOfState.flashTV(temperature, volume));
+            for (auto& phase : temp) m_phaseProps.emplace_back(phase);
 
-            m_phaseData = std::move(results);
-            return m_phaseData;
+            computePhaseProperties();
+            return m_phaseProps;
         }
 
-        const PCPhases& getProperties() const {
-            return m_phaseData;
+        const std::vector<PCPhaseProperties>& getProperties() const {
+            return m_phaseProps;
         }
     };
 
@@ -230,39 +212,53 @@ namespace PCProps
 
     Fluid& Fluid::operator=(Fluid&& other) noexcept = default;
 
-    const PCPhases& Fluid::flashPT(double pressure, double temperature) const
+    JSONString Fluid::flashPT(double pressure, double temperature) const
     {
-        return m_impl->flashPT(pressure, temperature);
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->flashPT(pressure, temperature)) result.emplace_back(phase.asJSON());
+        return nlohmann::json(result).dump();
     }
 
-    const PCPhases& Fluid::flashPx(double pressure, double vaporFraction) const
+    JSONString Fluid::flashPx(double pressure, double vaporFraction) const
     {
-        return m_impl->flashPx(pressure, vaporFraction);
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->flashPx(pressure, vaporFraction)) result.emplace_back(phase.asJSON());
+        return nlohmann::json(result).dump();
     }
 
-    const PCPhases& Fluid::flashTx(double temperature, double vaporFraction) const
+    JSONString Fluid::flashTx(double temperature, double vaporFraction) const
     {
-        return m_impl->flashTx(temperature, vaporFraction);
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->flashTx(temperature, vaporFraction)) result.emplace_back(phase.asJSON());
+        return nlohmann::json(result).dump();
     }
 
-    const PCPhases& Fluid::flashPH(double pressure, double enthalpy) const
+    JSONString Fluid::flashPH(double pressure, double enthalpy) const
     {
-        return m_impl->flashPH(pressure, enthalpy);
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->flashPH(pressure, enthalpy)) result.emplace_back(phase.asJSON());
+        return nlohmann::json(result).dump();
     }
 
-    const PCPhases& Fluid::flashPS(double pressure, double entropy) const
+    JSONString Fluid::flashPS(double pressure, double entropy) const
     {
-        return m_impl->flashPS(pressure, entropy);
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->flashPS(pressure, entropy)) result.emplace_back(phase.asJSON());
+        return nlohmann::json(result).dump();
     }
 
-    const PCPhases& Fluid::flashTV(double temperature, double volume) const
+    JSONString Fluid::flashTV(double temperature, double volume) const
     {
-        return m_impl->flashTV(temperature, volume);
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->flashTV(temperature, volume)) result.emplace_back(phase.asJSON());
+        return nlohmann::json(result).dump();
     }
 
-    const PCPhases& Fluid::properties() const
+    JSONString Fluid::properties() const
     {
-        return m_impl->getProperties();
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->getProperties()) result.emplace_back(phase.asJSON());
+        return nlohmann::json(result).dump();
     }
 
 }    // namespace PCProps

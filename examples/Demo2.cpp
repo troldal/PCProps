@@ -4,6 +4,8 @@
 #include <EOSLib.hpp>
 #include <Fluid.hpp>
 #include <PropertyLib.hpp>
+#include <json/json.hpp>
+#include <common/PhaseProperties.hpp>
 
 using PCProps::EquationOfState::PengRobinson;
 using PCProps::HeatCapacity::AlyLee;
@@ -12,7 +14,6 @@ using PCProps::LiquidVolume::Rackett;
 using PCProps::VaporPressure::AntoineExtended;
 
 using PCProps::PCComponentData;
-using PCProps::PCPhase;
 using PCProps::Viscosity::Lucas;
 using PCProps::Viscosity::DIPPR102;
 using PCProps::Viscosity::KirchhoffExtended;
@@ -63,7 +64,7 @@ int main()
 //    }
 
 //    for (const auto& phase : fluid.flashPT(100000.0, 330.0)) std::cout << phase << std::endl;
-    for (const auto& phase : fluid.flashTV(468.0, 0.000615)) std::cout << phase << std::endl;
+    for (const auto& phase : nlohmann::json::parse(fluid.flashTV(468.0, 0.000615))) std::cout << PCPhaseProperties(phase) << std::endl;
 
     return 0;
 }

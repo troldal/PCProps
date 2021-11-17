@@ -5,7 +5,7 @@
 #include <Fluid.hpp>
 #include <PropertyLib.hpp>
 
-#include <common/PropertyData.hpp>
+#include <common/PhaseProperties.hpp>
 
 using PCProps::VaporPressure::AmbroseWalton;
 
@@ -16,7 +16,6 @@ using PCProps::LiquidVolume::Rackett;
 using PCProps::VaporPressure::AntoineExtended;
 
 using PCProps::PCComponentData;
-using PCProps::PCPhase;
 using PCProps::Viscosity::Lucas;
 using PCProps::Viscosity::DIPPR102;
 using PCProps::Viscosity::KirchhoffExtended;

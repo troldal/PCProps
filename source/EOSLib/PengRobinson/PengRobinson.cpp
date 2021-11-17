@@ -844,7 +844,7 @@ namespace PCProps::EquationOfState
     JSONString PengRobinson::flashPT(double pressure, double temperature) const
     {
         std::vector<nlohmann::json> result;
-        for (const auto& phase : m_impl->flashPT(pressure, temperature)) result.emplace_back(PhaseProperties(phase).getJSONData());
+        for (const auto& phase : m_impl->flashPT(pressure, temperature)) result.emplace_back(phase.asJSON());
         return nlohmann::json(result).dump();
     }
 
@@ -852,7 +852,7 @@ namespace PCProps::EquationOfState
     JSONString PengRobinson::flashTx(double temperature, double vaporFraction) const
     {
         std::vector<nlohmann::json> result;
-        for (const auto& phase : m_impl->flashTx(temperature, vaporFraction)) result.emplace_back(PhaseProperties(phase).getJSONData());
+        for (const auto& phase : m_impl->flashTx(temperature, vaporFraction)) result.emplace_back(phase.asJSON());
         return nlohmann::json(result).dump();
     }
 
@@ -860,7 +860,7 @@ namespace PCProps::EquationOfState
     JSONString PengRobinson::flashPx(double pressure, double vaporFraction) const
     {
         std::vector<nlohmann::json> result;
-        for (const auto& phase : m_impl->flashPx(pressure, vaporFraction)) result.emplace_back(PhaseProperties(phase).getJSONData());
+        for (const auto& phase : m_impl->flashPx(pressure, vaporFraction)) result.emplace_back(phase.asJSON());
         return nlohmann::json(result).dump();
     }
 
@@ -868,7 +868,7 @@ namespace PCProps::EquationOfState
     JSONString PengRobinson::flashPH(double pressure, double enthalpy) const
     {
         std::vector<nlohmann::json> result;
-        for (const auto& phase : m_impl->flashPH(pressure, enthalpy)) result.emplace_back(PhaseProperties(phase).getJSONData());
+        for (const auto& phase : m_impl->flashPH(pressure, enthalpy)) result.emplace_back(phase.asJSON());
         return nlohmann::json(result).dump();
     }
 
@@ -876,7 +876,7 @@ namespace PCProps::EquationOfState
     JSONString PengRobinson::flashPS(double pressure, double entropy) const
     {
         std::vector<nlohmann::json> result;
-        for (const auto& phase : m_impl->flashPS(pressure, entropy)) result.emplace_back(PhaseProperties(phase).getJSONData());
+        for (const auto& phase : m_impl->flashPS(pressure, entropy)) result.emplace_back(phase.asJSON());
         return nlohmann::json(result).dump();
     }
 
@@ -884,7 +884,7 @@ namespace PCProps::EquationOfState
     JSONString PengRobinson::flashTV(double temperature, double volume) const
     {
         std::vector<nlohmann::json> result;
-        for (const auto& phase : m_impl->flashTV(temperature, volume)) result.emplace_back(PhaseProperties(phase).getJSONData());
+        for (const auto& phase : m_impl->flashTV(temperature, volume)) result.emplace_back(phase.asJSON());
         return nlohmann::json(result).dump();
     }
 

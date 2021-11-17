@@ -54,6 +54,7 @@ namespace PCProps
      */
     class Fluid
     {
+        using JSONString = std::string;
     public:
         // =====================================================================
         // CONSTRUCTORS & ASSIGNMENT OPERATORS
@@ -107,7 +108,7 @@ namespace PCProps
          * @param temperature The temperature [K]
          * @return A PCPhases object with the phase properties.
          */
-        const PCPhases& flashPT(double pressure, double temperature) const;
+        JSONString flashPT(double pressure, double temperature) const;
 
         /**
          * @brief Flash the fluid at the specified pressure and vapor fraction.
@@ -115,7 +116,7 @@ namespace PCProps
          * @param vaporFraction The vapor fraction [-]
          * @return A PCPhases object with the phase properties.
          */
-        const PCPhases& flashPx(double pressure, double vaporFraction) const;
+        JSONString flashPx(double pressure, double vaporFraction) const;
 
         /**
          * @brief Flash the fluid at the specified temperature and vapor fraction.
@@ -123,7 +124,7 @@ namespace PCProps
          * @param vaporFraction The vapor fraction [-]
          * @return A PCPhases object with the phase properties.
          */
-        const PCPhases& flashTx(double temperature, double vaporFraction) const;
+        JSONString flashTx(double temperature, double vaporFraction) const;
 
         /**
          * @brief Flash the fluid at the specified pressure and enthalpy.
@@ -131,7 +132,7 @@ namespace PCProps
          * @param enthalpy The enthalpy [J/mol]
          * @return A PCPhases object with the phase properties.
          */
-        const PCPhases& flashPH(double pressure, double enthalpy) const;
+        JSONString flashPH(double pressure, double enthalpy) const;
 
         /**
          * @brief Flash the fluid at the specified pressure and entropy.
@@ -139,7 +140,7 @@ namespace PCProps
          * @param entropy The entropy [J/mol-K]
          * @return A PCPhases object with the phase properties.
          */
-        const PCPhases& flashPS(double pressure, double entropy) const;
+        JSONString flashPS(double pressure, double entropy) const;
 
         /**
          * @brief Flash the fluid at the specified temperature and molar volume.
@@ -147,13 +148,13 @@ namespace PCProps
          * @param volume The molar volume [m3/mol]
          * @return A PCPhases object with the phase properties.
          */
-        const PCPhases& flashTV(double temperature, double volume) const;
+        JSONString flashTV(double temperature, double volume) const;
 
         /**
          * @brief Get the current fluid properties.
          * @return A PCPhases object with the phase properties.
          */
-        const PCPhases& properties() const;
+        JSONString properties() const;
 
     private:
         class impl;
