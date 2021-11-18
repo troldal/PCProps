@@ -148,6 +148,18 @@ namespace PCProps {
             return m_pureComponent->satLiquidViscosity(temperature);
         }
 
+        double compressedLiquidVolume(const std::vector<double>& params) const {
+            return m_pureComponent->compressedLiquidVolume(params);
+        }
+
+        double compressedLiquidViscosity(const std::vector<double>& params) const {
+            return m_pureComponent->compressedLiquidViscosity(params);
+        }
+
+        double compressedVaporViscosity(const std::vector<double>& params) const {
+            return m_pureComponent->compressedLiquidViscosity(params);
+        }
+
     private:
         /**
          * @brief
@@ -214,6 +226,12 @@ namespace PCProps {
             virtual double satVaporViscosity(double temperature) const = 0;
 
             virtual double satLiquidViscosity(double temperature) const = 0;
+
+            virtual double compressedLiquidVolume(const std::vector<double>& params) const = 0;
+
+            virtual double compressedLiquidViscosity(const std::vector<double>& params) const = 0;
+
+            virtual double compressedVaporViscosity(const std::vector<double>& params) const = 0;
 
         };
 
@@ -324,6 +342,18 @@ namespace PCProps {
             double satLiquidViscosity(double temperature) const override
             {
                 return PCType.satLiquidViscosity(temperature);
+            }
+
+            double compressedLiquidVolume(const std::vector<double>& params) const override {
+                return PCType.compressedLiquidVolume(params);
+            }
+
+            double compressedLiquidViscosity(const std::vector<double>& params) const override {
+                return PCType.compressedLiquidViscosity(params);
+            }
+
+            double compressedVaporViscosity(const std::vector<double>& params) const override {
+                return PCType.compressedVaporViscosity(params);
             }
 
         private:

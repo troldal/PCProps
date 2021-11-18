@@ -55,28 +55,45 @@ int main()
     data.satLiquidViscosityCorrelation           = KirchhoffExtended(-17.156, 646.25, 1.1101, -7.3439E-11, 4);
     data.satLiquidVolumeCorrelation              = Rackett(Rackett::CreateFromDIPPR { 1.3757, 0.27453, 369.83, 0.29359 });
 
+    using PCProps::LiquidVolume::Thomson;
+    data.compressedLiquidVolume = Thomson(data.criticalTemperature.value(),
+                                          data.criticalPressure.value(),
+                                          data.acentricFactor.value());
+
+    using namespace PCProps::CompressedLiquidViscosity;
+    data.compressedLiquidViscosity = CompressedLiquidViscosity::Lucas(data.criticalTemperature.value(),
+                                                                      data.criticalPressure.value(),
+                                                                      data.acentricFactor.value());
+
+    using namespace PCProps::CompressedVaporViscosity;
+    data.compressedVaporViscosity = CompressedVaporViscosity::Lucas(data.criticalTemperature.value(),
+                                                                    data.criticalPressure.value(),
+                                                                    data.criticalCompressibility.value(),
+                                                                    data.molarWeight.value(),
+                                                                    data.dipoleMoment.value());
+
     auto fluid = Fluid(PureComponent{data}, PengRobinson{});
 
     std::cout << "Propane at 25 C and 2 bar: " << std::endl;
     auto a = nlohmann::json::parse(fluid.flashPT((2E5), (298.15)));
-    for (const auto& phase : a) std::cout << PCPhaseProperties{phase} << std::endl;
+    for (const auto& phase : a) std::cout << PhaseProperties {phase} << std::endl;
     std::cout << "==================================================" << std::endl;
 
     std::cout << "Compression to 10 bar: " << std::endl;
     auto b = nlohmann::json::parse(fluid.flashPS((10E5), (a[0]["Entropy"])));
-    for (const auto& phase : b) std::cout << PCPhaseProperties{phase} << std::endl;
+    for (const auto& phase : b) std::cout << PhaseProperties {phase} << std::endl;
     std::cout << "==================================================" << std::endl;
 
     std::cout << "Cooling to 25 C: " << std::endl;
     auto c = nlohmann::json::parse(fluid.flashPT((10E5), (298.15)));
     std::cout << "dT: " << c[0]["Temperature"].get<double>() - b[0]["Temperature"].get<double>() << std::endl;
     std::cout << "dH: " << c[0]["Enthalpy"].get<double>() - b[0]["Enthalpy"].get<double>() << std::endl;
-    for (const auto& phase : c) std::cout << PCPhaseProperties{phase} << std::endl;
+    for (const auto& phase : c) std::cout << PhaseProperties {phase} << std::endl;
     std::cout << "==================================================" << std::endl;
 
     std::cout << "Throttling to 2 bar: " << std::endl;
     auto d = nlohmann::json::parse(fluid.flashPH((2E5), (c[0]["Enthalpy"])));
-    for (const auto& phase : d) std::cout << PCPhaseProperties{phase} << std::endl;
+    for (const auto& phase : d) std::cout << PhaseProperties {phase} << std::endl;
     std::cout << "==================================================" << std::endl;
 
     return 0;

@@ -6,14 +6,13 @@
 #define PCPROPS_IFLUID_HPP
 
 #include <iostream>
-
-#include <common/PropertyData.hpp>
+#include <string>
 
 namespace PCProps::UnitOps
 {
     class IFluid
     {
-
+        using JSONString = std::string;
     public:
         /**
          * @brief Default constructor
@@ -53,7 +52,7 @@ namespace PCProps::UnitOps
          * @return
          */
         template<typename T>
-        IFluid& operator=(const T& x)
+        inline IFluid& operator=(const T& x)
         {
             std::cout << "IFluid (template) copy assignment operator called" << std::endl;
             m_fluid = std::make_unique<FluidModel<T>>(x);
@@ -65,7 +64,7 @@ namespace PCProps::UnitOps
          * @param other
          * @return
          */
-        IFluid& operator=(const IFluid& other)
+        inline IFluid& operator=(const IFluid& other)
         {
             std::cout << "IFluid copy assignment operator called" << std::endl;
             IFluid copy(other);
@@ -78,7 +77,7 @@ namespace PCProps::UnitOps
          * @param other
          * @return
          */
-        IFluid& operator=(IFluid&& other) noexcept {
+        inline IFluid& operator=(IFluid&& other) noexcept {
             std::cout << "IFluid move assignment operator called" << std::endl;
             m_fluid = std::move(other.m_fluid);
             return *this;
@@ -93,31 +92,31 @@ namespace PCProps::UnitOps
             return m_fluid != nullptr;
         }
 
-        const PCPhases& flashPT(double pressure, double temperature) const {
+        inline JSONString flashPT(double pressure, double temperature) const {
             return m_fluid->flashPT(pressure, temperature);
         }
 
-        const PCPhases& flashPx(double pressure, double vaporFraction) const {
+        inline JSONString flashPx(double pressure, double vaporFraction) const {
             return m_fluid->flashPx(pressure, vaporFraction);
         }
 
-        const PCPhases& flashTx(double temperature, double vaporFraction) const {
+        inline JSONString flashTx(double temperature, double vaporFraction) const {
             return m_fluid->flashTx(temperature, vaporFraction);
         }
 
-        const PCPhases& flashPH(double pressure, double enthalpy) const {
+        inline JSONString flashPH(double pressure, double enthalpy) const {
             return m_fluid->flashPH(pressure, enthalpy);
         }
 
-        const PCPhases& flashPS(double pressure, double entropy) const {
+        inline JSONString flashPS(double pressure, double entropy) const {
             return m_fluid->flashPS(pressure, entropy);
         }
 
-        const PCPhases& flashTV(double temperature, double volume) const {
+        inline JSONString flashTV(double temperature, double volume) const {
             return m_fluid->flashPS(temperature, volume);
         }
 
-        const PCPhases& properties() const {
+        inline JSONString properties() const {
             return m_fluid->properties();
         }
 
@@ -152,19 +151,19 @@ namespace PCProps::UnitOps
              * @brief
              * @return
              */
-            FluidConcept& operator=(const FluidConcept&) = default;
+            inline FluidConcept& operator=(const FluidConcept&) = default;
 
             /**
              * @brief
              * @return
              */
-            FluidConcept& operator=(FluidConcept&&) noexcept = default;
+            inline FluidConcept& operator=(FluidConcept&&) noexcept = default;
 
             /**
              * @brief
              * @return
              */
-            virtual std::unique_ptr<FluidConcept> clone() const = 0;
+            inline virtual std::unique_ptr<FluidConcept> clone() const = 0;
 
             /**
              * @brief
@@ -172,7 +171,7 @@ namespace PCProps::UnitOps
              * @param temperature
              * @return
              */
-            virtual const PCPhases& flashPT(double pressure, double temperature) const = 0;
+            inline virtual JSONString flashPT(double pressure, double temperature) const = 0;
 
             /**
              * @brief
@@ -180,7 +179,7 @@ namespace PCProps::UnitOps
              * @param vaporFraction
              * @return
              */
-            virtual const PCPhases& flashPx(double pressure, double vaporFraction) const = 0;
+            inline virtual JSONString flashPx(double pressure, double vaporFraction) const = 0;
 
             /**
              * @brief
@@ -188,7 +187,7 @@ namespace PCProps::UnitOps
              * @param vaporFraction
              * @return
              */
-            virtual const PCPhases& flashTx(double temperature, double vaporFraction) const = 0;
+            inline virtual JSONString flashTx(double temperature, double vaporFraction) const = 0;
 
             /**
              * @brief
@@ -196,7 +195,7 @@ namespace PCProps::UnitOps
              * @param enthalpy
              * @return
              */
-            virtual const PCPhases& flashPH(double pressure, double enthalpy) const = 0;
+            inline virtual JSONString flashPH(double pressure, double enthalpy) const = 0;
 
             /**
              * @brief
@@ -204,7 +203,7 @@ namespace PCProps::UnitOps
              * @param entropy
              * @return
              */
-            virtual const PCPhases& flashPS(double pressure, double entropy) const = 0;
+            inline virtual JSONString flashPS(double pressure, double entropy) const = 0;
 
             /**
              * @brief
@@ -212,9 +211,9 @@ namespace PCProps::UnitOps
              * @param volume
              * @return
              */
-            virtual const PCPhases& flashTV(double temperature, double volume) const = 0;
+            inline virtual JSONString flashTV(double temperature, double volume) const = 0;
 
-            virtual const PCPhases& properties() const = 0;
+            inline virtual JSONString properties() const = 0;
 
         };
 
@@ -254,55 +253,55 @@ namespace PCProps::UnitOps
              * @param other
              * @return
              */
-            FluidModel& operator=(const FluidModel& other) = default;
+            inline FluidModel& operator=(const FluidModel& other) = default;
 
             /**
              * @brief
              * @param other
              * @return
              */
-            FluidModel& operator=(FluidModel&& other) noexcept = default;
+            inline FluidModel& operator=(FluidModel&& other) noexcept = default;
 
             /**
              * @brief
              * @return
              */
-            std::unique_ptr<FluidConcept> clone() const override
+            inline std::unique_ptr<FluidConcept> clone() const override
             {
                 return std::make_unique<FluidModel<T>>(FluidType);
             }
 
-            const PCPhases& flashPT(double pressure, double temperature) const override
+            inline JSONString flashPT(double pressure, double temperature) const override
             {
                 return FluidType.flashPT(pressure, temperature);
             }
 
-            const PCPhases& flashPx(double pressure, double vaporFraction) const override
+            inline JSONString flashPx(double pressure, double vaporFraction) const override
             {
                 return FluidType.flashPx(pressure, vaporFraction);
             }
 
-            const PCPhases& flashTx(double temperature, double vaporFraction) const override
+            inline JSONString flashTx(double temperature, double vaporFraction) const override
             {
                 return FluidType.flashTx(temperature, vaporFraction);
             }
 
-            const PCPhases& flashPH(double pressure, double enthalpy) const override
+            inline JSONString flashPH(double pressure, double enthalpy) const override
             {
                 return FluidType.flashPH(pressure, enthalpy);
             }
 
-            const PCPhases& flashPS(double pressure, double entropy) const override
+            inline JSONString flashPS(double pressure, double entropy) const override
             {
                 return FluidType.flashPS(pressure, entropy);
             }
 
-            const PCPhases& flashTV(double temperature, double volume) const override
+            inline JSONString flashTV(double temperature, double volume) const override
             {
                 return FluidType.flashTV(temperature, volume);
             }
 
-            const PCPhases& properties() const override
+            inline JSONString properties() const override
             {
                 return FluidType.properties();
             }

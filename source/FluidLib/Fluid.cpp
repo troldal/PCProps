@@ -24,15 +24,13 @@ namespace PCProps
         IEquationOfState m_equationOfState {};
 
         // ===== Function objects for calculating compressed fluid properties
-        std::function<double(double, double, double, double)> m_compressedLiquidVolume;
-        std::function<double(double, double, double, double)> m_compressedLiquidViscosity;
         std::function<double(double, double, double, double)> m_compressedVaporViscosity;
 
-        mutable std::vector<PCPhaseProperties> m_phaseProps {};
+        mutable std::vector<PhaseProperties> m_phaseProps {};
 
         enum PhaseType { Liquid, Vapor, Dense, Undefined };
         
-        PhaseType determinePhaseType(const PCPhaseProperties& phase) const
+        PhaseType determinePhaseType(const PhaseProperties& phase) const
         {
             auto tc = m_pureComponent.criticalTemperature();
             auto pc = m_pureComponent.criticalPressure();
@@ -67,17 +65,17 @@ namespace PCProps
 
                 switch (type) {
                     case PhaseType::Liquid:
-                        phase.MolarWeight         = m_compressedLiquidVolume(t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satLiquidVolume(t));
+                        phase.MolarVolume = m_pureComponent.compressedLiquidVolume({t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satLiquidVolume(t)});
                         phase.SurfaceTension      = 0.0;
                         phase.ThermalConductivity = 0.0;
-                        phase.Viscosity           = m_compressedLiquidViscosity(t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satLiquidViscosity(t));
+                        phase.Viscosity = m_pureComponent.compressedLiquidViscosity({t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satLiquidViscosity(t)});
 
                         break;
 
                     case PhaseType::Vapor:
                         phase.SurfaceTension      = 0.0;
                         phase.ThermalConductivity = 0.0;
-                        phase.Viscosity           = m_compressedVaporViscosity(t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satVaporViscosity(t));
+                        phase.Viscosity = m_pureComponent.compressedVaporViscosity({t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satVaporViscosity(t)});
                         break;
 
                     case PhaseType::Dense:
@@ -92,35 +90,14 @@ namespace PCProps
     public:
         impl(const IPureComponent& pc, const IEquationOfState& eos) : m_pureComponent { pc }, m_equationOfState { eos }
         {
-            auto pc_data = std::make_tuple(m_pureComponent.criticalTemperature(), m_pureComponent.criticalPressure(), m_pureComponent.acentricFactor(), [&](double temp){return m_pureComponent.idealGasCp(temp);});
-
-
-            m_equationOfState.init(pc_data);
-
-            using PCProps::HeatCapacity::AlyLee;
-
-            using PCProps::LiquidVolume::Thomson;
-            m_compressedLiquidVolume = Thomson(
+            m_equationOfState.init(std::make_tuple(
                 m_pureComponent.criticalTemperature(),
                 m_pureComponent.criticalPressure(),
-                m_pureComponent.acentricFactor());
-
-            using namespace PCProps::CompressedLiquidViscosity;
-            m_compressedLiquidViscosity = CompressedLiquidViscosity::Lucas(
-                m_pureComponent.criticalTemperature(),
-                m_pureComponent.criticalPressure(),
-                m_pureComponent.acentricFactor());
-
-            using namespace PCProps::CompressedVaporViscosity;
-            m_compressedVaporViscosity = CompressedVaporViscosity::Lucas(
-                m_pureComponent.criticalTemperature(),
-                m_pureComponent.criticalPressure(),
-                m_pureComponent.criticalCompressibility(),
-                m_pureComponent.molarWeight(),
-                m_pureComponent.dipoleMoment());
+                m_pureComponent.acentricFactor(),
+                [&](double temp){return m_pureComponent.idealGasCp(temp);}));
         }
 
-        const std::vector<PCPhaseProperties>& flashPT(double pressure, double temperature) const
+        const std::vector<PhaseProperties>& flashPT(double pressure, double temperature) const
         {
             m_phaseProps.clear();
             auto temp = nlohmann::json::parse(m_equationOfState.flashPT(pressure, temperature));
@@ -130,7 +107,7 @@ namespace PCProps
             return m_phaseProps;
         }
 
-        const std::vector<PCPhaseProperties>& flashPx(double pressure, double vaporFraction) const
+        const std::vector<PhaseProperties>& flashPx(double pressure, double vaporFraction) const
         {
             m_phaseProps.clear();
             auto temp = nlohmann::json::parse(m_equationOfState.flashPx(pressure, vaporFraction));
@@ -140,7 +117,7 @@ namespace PCProps
             return m_phaseProps;
         }
 
-        const std::vector<PCPhaseProperties>& flashTx(double temperature, double vaporFraction) const
+        const std::vector<PhaseProperties>& flashTx(double temperature, double vaporFraction) const
         {
             m_phaseProps.clear();
             auto temp = nlohmann::json::parse(m_equationOfState.flashTx(temperature, vaporFraction));
@@ -150,7 +127,7 @@ namespace PCProps
             return m_phaseProps;
         }
 
-        const std::vector<PCPhaseProperties>& flashPH(double pressure, double enthalpy) const
+        const std::vector<PhaseProperties>& flashPH(double pressure, double enthalpy) const
         {
             m_phaseProps.clear();
             auto temp = nlohmann::json::parse(m_equationOfState.flashPH(pressure, enthalpy));
@@ -160,7 +137,7 @@ namespace PCProps
             return m_phaseProps;
         }
 
-        const std::vector<PCPhaseProperties>& flashPS(double pressure, double entropy) const
+        const std::vector<PhaseProperties>& flashPS(double pressure, double entropy) const
         {
             m_phaseProps.clear();
             auto temp = nlohmann::json::parse(m_equationOfState.flashPS(pressure, entropy));
@@ -170,7 +147,7 @@ namespace PCProps
             return m_phaseProps;
         }
 
-        const std::vector<PCPhaseProperties>& flashTV(double temperature, double volume) const {
+        const std::vector<PhaseProperties>& flashTV(double temperature, double volume) const {
 
             m_phaseProps.clear();
             auto temp = nlohmann::json::parse(m_equationOfState.flashTV(temperature, volume));
@@ -180,7 +157,7 @@ namespace PCProps
             return m_phaseProps;
         }
 
-        const std::vector<PCPhaseProperties>& getProperties() const {
+        const std::vector<PhaseProperties>& getProperties() const {
             return m_phaseProps;
         }
     };
@@ -192,11 +169,9 @@ namespace PCProps
     Fluid::Fluid() = default;
 
     Fluid::Fluid(const IPureComponent& pc, const IEquationOfState& eos) : m_impl(std::make_unique<impl>(pc, eos)) {
-        int i = 0;
     }
 
     Fluid::Fluid(const Fluid& other) : m_impl(std::make_unique<impl>(*other.m_impl)) {
-        int i = 0;
     }
 
     Fluid::Fluid(Fluid&& other) noexcept = default;

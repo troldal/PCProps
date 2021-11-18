@@ -44,6 +44,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <optional>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 namespace PCProps
 {
@@ -83,6 +84,10 @@ namespace PCProps
         std::function<double(double)> satLiquidThermalConductivityCorrelation {}; /**< The liquid thermal conductivity [HOLD] as a function of temperature [K] */
         std::function<double(double)> satVaporViscosityCorrelation {};            /**< The vapor viscosity [HOLD] as a function of temperature [K] */
         std::function<double(double)> satLiquidViscosityCorrelation {};           /**< The liquid viscosity [HOLD] as a function of temperature [K] */
+
+        std::function<double(std::vector<double>)> compressedLiquidVolume {};
+        std::function<double(std::vector<double>)> compressedLiquidViscosity {};
+        std::function<double(std::vector<double>)> compressedVaporViscosity {};
 
     };
 
@@ -312,9 +317,17 @@ namespace PCProps
             return m_data.satLiquidViscosityCorrelation(temperature);
         }
 
+        double compressedLiquidVolume(const std::vector<double>& params) const {
+            return m_data.compressedLiquidVolume(params);
+        }
 
+        double compressedLiquidViscosity(const std::vector<double>& params) const {
+            return m_data.compressedLiquidViscosity(params);
+        }
 
-//        void computeViscosity(PCPhases& phases) const;
+        double compressedVaporViscosity(const std::vector<double>& params) const {
+            return m_data.compressedVaporViscosity(params);
+        }
 
     };
 }    // namespace PCProps

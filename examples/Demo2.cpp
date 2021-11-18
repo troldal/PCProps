@@ -64,7 +64,7 @@ int main()
 //    }
 
 //    for (const auto& phase : fluid.flashPT(100000.0, 330.0)) std::cout << phase << std::endl;
-    for (const auto& phase : nlohmann::json::parse(fluid.flashTV(468.0, 0.000615))) std::cout << PCPhaseProperties(phase) << std::endl;
+    for (const auto& phase : nlohmann::json::parse(fluid.flashTV(468.0, 0.000615))) std::cout << PhaseProperties(phase) << std::endl;
 
     return 0;
 }

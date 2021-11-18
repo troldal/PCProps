@@ -46,6 +46,19 @@ namespace PCProps::CompressedLiquidViscosity
 
         Lucas& operator=(Lucas&& other) noexcept = default;
 
+        double operator()(std::vector<double> params) const {
+            switch (params.size()) {
+                case 2:
+                    return operator()(params[0], params[1]);
+
+                case 4:
+                    return operator()(params[0], params[1], params[2], params[3]);
+
+                default:
+                    return 0.0;
+            }
+        }
+
         double operator()(double temperature, double pressure, double satPressure, double satViscosity) const {
 
             using std::max;

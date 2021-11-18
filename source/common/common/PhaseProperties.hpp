@@ -12,11 +12,11 @@
 
 namespace PCProps
 {
-    class PCPhaseProperties
+    class PhaseProperties
     {
         using json = nlohmann::json;
-    public:
 
+    public:
         double Pressure { 0.0 };
         double Temperature { 0.0 };
         double MolarVolume { 0.0 };
@@ -39,9 +39,10 @@ namespace PCProps
         double GibbsEnergy { 0.0 };
         double HelmholzEnergy { 0.0 };
 
-        PCPhaseProperties() = default;
+        PhaseProperties() = default;
 
-        explicit PCPhaseProperties(const nlohmann::json& data) {
+        explicit PhaseProperties(const json& data)
+        {
             Pressure                    = data["Pressure"].is_null() ? std::nan("") : data["Pressure"].get<double>();
             Temperature                 = data["Temperature"].is_null() ? std::nan("") : data["Temperature"].get<double>();
             MolarVolume                 = data["MolarVolume"].is_null() ? std::nan("") : data["MolarVolume"].get<double>();
@@ -65,32 +66,32 @@ namespace PCProps
             HelmholzEnergy              = data["HelmholzEnergy"].is_null() ? std::nan("") : data["HelmholzEnergy"].get<double>();
         }
 
-        explicit PCPhaseProperties(const std::string& data) : PCPhaseProperties(nlohmann::json::parse(data)) {}
+        explicit PhaseProperties(const std::string& data) : PhaseProperties(nlohmann::json::parse(data)) {}
 
         /**
          * @brief Copy constructor.
          */
-        PCPhaseProperties(const PCPhaseProperties& other) = default;
+        PhaseProperties(const PhaseProperties& other) = default;
 
         /**
          * @brief Move constructor.
          */
-        PCPhaseProperties(PCPhaseProperties&& other) noexcept = default;
+        PhaseProperties(PhaseProperties&& other) noexcept = default;
 
         /**
          * @brief Destructor.
          */
-        ~PCPhaseProperties() = default;
+        ~PhaseProperties() = default;
 
         /**
          * @brief Copy assignment operator.
          */
-        PCPhaseProperties& operator=(const PCPhaseProperties& other) = default;
+        PhaseProperties& operator=(const PhaseProperties& other) = default;
 
         /**
          * @brief Move assignment operator.
          */
-        PCPhaseProperties& operator=(PCPhaseProperties&& other) noexcept = default;
+        PhaseProperties& operator=(PhaseProperties&& other) noexcept = default;
 
         json asJSON() const
         {
@@ -122,30 +123,30 @@ namespace PCProps
         }
     };
 
-        inline std::ostream& operator<<(std::ostream& stream, const PCProps::PCPhaseProperties& properties)
-        {
-            return stream << std::setprecision(8) << std::fixed << "Molar Flow                    : " << std::right << std::setw(20) << properties.MolarFlow << std::endl
-                          << "Molar Volume                  : " << std::right << std::setw(20) << properties.MolarVolume << " m3/mol" << std::endl
-                          << "Surface Tension               : " << std::right << std::setw(20) << properties.SurfaceTension << " N/m" << std::endl
-                          << "Thermal Conductivity          : " << std::right << std::setw(20) << properties.ThermalConductivity << " W/m-K" << std::endl
-                          << "Viscosity                     : " << std::right << std::setw(20) << properties.Viscosity << " Pa-s" << std::endl
-                          << "Cp                            : " << std::right << std::setw(20) << properties.Cp << " J/mol-K" << std::endl
-                          << "Cv                            : " << std::right << std::setw(20) << properties.Cv << " J/mol-K" << std::endl
-                          << "Isothermal Compressibility    : " << std::right << std::setw(20) << properties.IsothermalCompressibility << " 1/Pa" << std::endl
-                          << "Thermal Expansion Coefficient : " << std::right << std::setw(20) << properties.ThermalExpansionCoefficient << " 1/K" << std::endl
-                          << "Joule-Thomson Coefficient     : " << std::right << std::setw(20) << properties.JouleThomsonCoefficient << " K/Pa" << std::endl
-                          << "Molecular Weight              : " << std::right << std::setw(20) << properties.MolarWeight << " g/mol" << std::endl
-                          << "Temperature                   : " << std::right << std::setw(20) << properties.Temperature << " K" << std::endl
-                          << "Pressure                      : " << std::right << std::setw(20) << properties.Pressure << " Pa" << std::endl
-                          << "Compressibility               : " << std::right << std::setw(20) << properties.Compressibility << " -" << std::endl
-                          << "Fugacity Coefficient          : " << std::right << std::setw(20) << properties.FugacityCoefficient << " -" << std::endl
-                          << "Vapor Pressure                : " << std::right << std::setw(20) << properties.VaporPressure << " Pa" << std::endl
-                          << "Enthalpy                      : " << std::right << std::setw(20) << properties.Enthalpy << " J/mol" << std::endl
-                          << "Entropy                       : " << std::right << std::setw(20) << properties.Entropy << " J/mol-K" << std::endl
-                          << "Internal Energy               : " << std::right << std::setw(20) << properties.InternalEnergy << " J/mol" << std::endl
-                          << "Gibbs Energy                  : " << std::right << std::setw(20) << properties.GibbsEnergy << " J/mol" << std::endl
-                          << "Helmholz Energy               : " << std::right << std::setw(20) << properties.HelmholzEnergy << " J/mol" << std::endl;
-        }
+    inline std::ostream& operator<<(std::ostream& stream, const PCProps::PhaseProperties& properties)
+    {
+        return stream << std::setprecision(8) << std::fixed << "Molar Flow                    : " << std::right << std::setw(20) << properties.MolarFlow << std::endl
+                      << "Molar Volume                  : " << std::right << std::setw(20) << properties.MolarVolume << " m3/mol" << std::endl
+                      << "Surface Tension               : " << std::right << std::setw(20) << properties.SurfaceTension << " N/m" << std::endl
+                      << "Thermal Conductivity          : " << std::right << std::setw(20) << properties.ThermalConductivity << " W/m-K" << std::endl
+                      << "Viscosity                     : " << std::right << std::setw(20) << properties.Viscosity << " Pa-s" << std::endl
+                      << "Cp                            : " << std::right << std::setw(20) << properties.Cp << " J/mol-K" << std::endl
+                      << "Cv                            : " << std::right << std::setw(20) << properties.Cv << " J/mol-K" << std::endl
+                      << "Isothermal Compressibility    : " << std::right << std::setw(20) << properties.IsothermalCompressibility << " 1/Pa" << std::endl
+                      << "Thermal Expansion Coefficient : " << std::right << std::setw(20) << properties.ThermalExpansionCoefficient << " 1/K" << std::endl
+                      << "Joule-Thomson Coefficient     : " << std::right << std::setw(20) << properties.JouleThomsonCoefficient << " K/Pa" << std::endl
+                      << "Molecular Weight              : " << std::right << std::setw(20) << properties.MolarWeight << " g/mol" << std::endl
+                      << "Temperature                   : " << std::right << std::setw(20) << properties.Temperature << " K" << std::endl
+                      << "Pressure                      : " << std::right << std::setw(20) << properties.Pressure << " Pa" << std::endl
+                      << "Compressibility               : " << std::right << std::setw(20) << properties.Compressibility << " -" << std::endl
+                      << "Fugacity Coefficient          : " << std::right << std::setw(20) << properties.FugacityCoefficient << " -" << std::endl
+                      << "Vapor Pressure                : " << std::right << std::setw(20) << properties.VaporPressure << " Pa" << std::endl
+                      << "Enthalpy                      : " << std::right << std::setw(20) << properties.Enthalpy << " J/mol" << std::endl
+                      << "Entropy                       : " << std::right << std::setw(20) << properties.Entropy << " J/mol-K" << std::endl
+                      << "Internal Energy               : " << std::right << std::setw(20) << properties.InternalEnergy << " J/mol" << std::endl
+                      << "Gibbs Energy                  : " << std::right << std::setw(20) << properties.GibbsEnergy << " J/mol" << std::endl
+                      << "Helmholz Energy               : " << std::right << std::setw(20) << properties.HelmholzEnergy << " J/mol" << std::endl;
+    }
 
 }    // namespace PCProps
 #endif    // PCPROPS_PHASEPROPERTIES_HPP

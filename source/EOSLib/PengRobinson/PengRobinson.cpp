@@ -77,7 +77,7 @@ namespace PCProps::EquationOfState
         double m_b {};
         double m_kappa {};
 
-        mutable std::vector<PCPhaseProperties> m_phaseProps;
+        mutable std::vector<PhaseProperties> m_phaseProps;
 
         /**
          * @brief Compute the 'a' coefficient for the Peng-robinson EOS.
@@ -436,7 +436,7 @@ namespace PCProps::EquationOfState
             // For all phases, calculate basic thermodynamic properties.
             auto z_phi = computeCompressibilityAndFugacity(temperature, pressure);
             for (const auto& item: z_phi) {
-                PCPhaseProperties data;
+                PhaseProperties data;
                 data.Pressure            = pressure;
                 data.Temperature         = temperature;
                 data.Compressibility     = get<0>(item);
@@ -499,7 +499,7 @@ namespace PCProps::EquationOfState
          * @param temperature
          * @return
          */
-        inline std::vector<PCPhaseProperties> flashPT(double pressure, double temperature) const {
+        inline std::vector<PhaseProperties> flashPT(double pressure, double temperature) const {
             // ===== Compute compressibility factors and fugacity coefficients at given T and P.
             computeThermodynamicProperties(temperature, pressure);
             for (auto& phase : m_phaseProps) phase.MolarFlow = 1.0;
@@ -513,7 +513,7 @@ namespace PCProps::EquationOfState
          * @param vaporFraction
          * @return
          */
-        inline std::vector<PCPhaseProperties> flashTx(double temperature, double vaporFraction) const {
+        inline std::vector<PhaseProperties> flashTx(double temperature, double vaporFraction) const {
             // ===== If the temperature <= Tc
             if (temperature <= criticalTemperature()) {
                 // ===== First, calculate the saturation pressure at the specified pressure.
@@ -563,7 +563,7 @@ namespace PCProps::EquationOfState
          * @param vaporFraction
          * @return
          */
-        inline std::vector<PCPhaseProperties> flashPx(double pressure, double vaporFraction) const {
+        inline std::vector<PhaseProperties> flashPx(double pressure, double vaporFraction) const {
             // ===== If the pressure <= Pc
             if (pressure <= criticalPressure()) {
                 // ===== First, calculate the saturation temperature at the specified pressure.
@@ -612,7 +612,7 @@ namespace PCProps::EquationOfState
          * @param enthalpy
          * @return
          */
-        inline std::vector<PCPhaseProperties> flashPH(double pressure, double enthalpy) const {
+        inline std::vector<PhaseProperties> flashPH(double pressure, double enthalpy) const {
             using std::get;
 
             if (pressure > criticalPressure()) {
@@ -684,7 +684,7 @@ namespace PCProps::EquationOfState
          * @param entropy
          * @return
          */
-        inline std::vector<PCPhaseProperties> flashPS(double pressure, double entropy) const {
+        inline std::vector<PhaseProperties> flashPS(double pressure, double entropy) const {
             using std::get;
 
             if (pressure > criticalPressure()) {
@@ -756,7 +756,7 @@ namespace PCProps::EquationOfState
          * @param volume
          * @return
          */
-        inline std::vector<PCPhaseProperties> flashTV(double temperature, double volume) const {
+        inline std::vector<PhaseProperties> flashTV(double temperature, double volume) const {
 
             // ===== Fluid is supercritical
             if (temperature > criticalTemperature()) {
