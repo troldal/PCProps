@@ -6,8 +6,8 @@
 
 #include <PropertyLib.hpp>
 
-#include <json/json.hpp>
 #include <common/PhaseProperties.hpp>
+#include <json/json.hpp>
 
 #include <stdexcept>
 #include <tuple>
@@ -18,64 +18,85 @@ namespace PCProps
 {
     class Fluid::impl
     {
-
         // ===== Objects representing the pure component and equation of state.
-        IPureComponent   m_pureComponent {};
-        IEquationOfState m_equationOfState {};
-
-        // ===== Function objects for calculating compressed fluid properties
-        std::function<double(double, double, double, double)> m_compressedVaporViscosity;
-
+        IPureComponent                       m_pureComponent {};
+        IEquationOfState                     m_equationOfState {};
         mutable std::vector<PhaseProperties> m_phaseProps {};
 
+        // ===== Enum class used in the determinePhaseType function.
         enum PhaseType { Liquid, Vapor, Dense, Undefined };
-        
+
+        /**
+         * @brief Determine the phase type (liquid, vapor, etc), based on the phase properties.
+         * @param phase The phase for which to determine the type.
+         * @return A PhaseType enum representing the phase type.
+         */
         PhaseType determinePhaseType(const PhaseProperties& phase) const
         {
-            auto tc = m_pureComponent.criticalTemperature();
-            auto pc = m_pureComponent.criticalPressure();
-            auto t = phase.Temperature;
-            auto p = phase.Pressure;
-            auto x = phase.MolarFlow;
-            auto z = phase.Compressibility;
-            auto psat = phase.VaporPressure; //   m_equationOfState.saturationPressure(t);
+            auto tc   = m_pureComponent.criticalTemperature();
+            auto pc   = m_pureComponent.criticalPressure();
+            auto t    = phase.Temperature;
+            auto p    = phase.Pressure;
+            auto x    = phase.MolarFlow;
+            auto z    = phase.Compressibility;
+            auto psat = phase.VaporPressure;    //   m_equationOfState.saturationPressure(t);
 
-            if (t > tc && p > pc)
-                return PhaseType::Dense;
-            if (x < 1.0 && z > 0.5)
-                return PhaseType::Vapor;
-            if (x < 1.0 && z < 0.5)
-                return PhaseType::Liquid;
-            if ((t > tc && p <= pc) || (t <= tc && p <= psat))
-                return PhaseType::Vapor;
-            if ((x < 1.0 && z < 0.5) || (t <= tc && p > psat))
-                return PhaseType::Liquid;
+            if (t > tc && p > pc) return PhaseType::Dense;
+            if (x < 1.0 && z > 0.5) return PhaseType::Vapor;
+            if (x < 1.0 && z < 0.5) return PhaseType::Liquid;
+            if ((t > tc && p <= pc) || (t <= tc && p <= psat)) return PhaseType::Vapor;
+            if ((x < 1.0 && z < 0.5) || (t <= tc && p > psat)) return PhaseType::Liquid;
 
             return PhaseType::Undefined;
         }
 
+        /**
+         * @brief Compute the liquid properties for a phase.
+         * @param liquid The (liquid) phase for which to compute properties.
+         * @return The input phase updated with liquid properties.
+         */
+        PhaseProperties computeLiquidProperties(PhaseProperties liquid) const
+        {
+            liquid.MolarVolume = m_pureComponent.compressedLiquidVolume(
+                { liquid.Temperature, liquid.Pressure, m_equationOfState.saturationPressure(liquid.Temperature), m_pureComponent.satLiquidVolume(liquid.Temperature) });
+            liquid.SurfaceTension      = 0.0;
+            liquid.ThermalConductivity = 0.0;
+            liquid.Viscosity           = m_pureComponent.compressedLiquidViscosity(
+                          { liquid.Temperature, liquid.Pressure, m_equationOfState.saturationPressure(liquid.Temperature), m_pureComponent.satLiquidViscosity(liquid.Temperature) });
+
+            return liquid;
+        }
+
+        /**
+         * @brief Compute the vapor properties for a phase.
+         * @param vapor The (vapor) phase for which to compute properties.
+         * @return The input phase updated with vapor properties.
+         */
+        PhaseProperties computeVaporProperties(PhaseProperties vapor) const
+        {
+            vapor.SurfaceTension      = 0.0;
+            vapor.ThermalConductivity = 0.0;
+            vapor.Viscosity           = m_pureComponent.compressedVaporViscosity(
+                          { vapor.Temperature, vapor.Pressure, m_equationOfState.saturationPressure(vapor.Temperature), m_pureComponent.satVaporViscosity(vapor.Temperature) });
+
+            return vapor;
+        }
+
+        /**
+         * @brief Compute properties for all phases in the fluid.
+         */
         void computePhaseProperties() const
         {
             for (auto& phase : m_phaseProps) {
-                auto type = determinePhaseType(phase);
-                auto t    = phase.Temperature;
-                auto p    = phase.Pressure;
-
                 phase.MolarWeight = m_pureComponent.molarWeight();
 
-                switch (type) {
+                switch (determinePhaseType(phase)) {
                     case PhaseType::Liquid:
-                        phase.MolarVolume = m_pureComponent.compressedLiquidVolume({t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satLiquidVolume(t)});
-                        phase.SurfaceTension      = 0.0;
-                        phase.ThermalConductivity = 0.0;
-                        phase.Viscosity = m_pureComponent.compressedLiquidViscosity({t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satLiquidViscosity(t)});
-
+                        phase = computeLiquidProperties(phase);
                         break;
 
                     case PhaseType::Vapor:
-                        phase.SurfaceTension      = 0.0;
-                        phase.ThermalConductivity = 0.0;
-                        phase.Viscosity = m_pureComponent.compressedVaporViscosity({t, p, m_equationOfState.saturationPressure(t), m_pureComponent.satVaporViscosity(t)});
+                        phase = computeVaporProperties(phase);
                         break;
 
                     case PhaseType::Dense:
@@ -88,15 +109,24 @@ namespace PCProps
         }
 
     public:
+        /**
+         *
+         * @param pc
+         * @param eos
+         */
         impl(const IPureComponent& pc, const IEquationOfState& eos) : m_pureComponent { pc }, m_equationOfState { eos }
         {
-            m_equationOfState.init(std::make_tuple(
-                m_pureComponent.criticalTemperature(),
-                m_pureComponent.criticalPressure(),
-                m_pureComponent.acentricFactor(),
-                [&](double temp){return m_pureComponent.idealGasCp(temp);}));
+            m_equationOfState.init(std::make_tuple(m_pureComponent.criticalTemperature(), m_pureComponent.criticalPressure(), m_pureComponent.acentricFactor(), [&](double temp) {
+                return m_pureComponent.idealGasCp(temp);
+            }));
         }
 
+        /**
+         *
+         * @param pressure
+         * @param temperature
+         * @return
+         */
         const std::vector<PhaseProperties>& flashPT(double pressure, double temperature) const
         {
             m_phaseProps.clear();
@@ -107,6 +137,12 @@ namespace PCProps
             return m_phaseProps;
         }
 
+        /**
+         *
+         * @param pressure
+         * @param vaporFraction
+         * @return
+         */
         const std::vector<PhaseProperties>& flashPx(double pressure, double vaporFraction) const
         {
             m_phaseProps.clear();
@@ -117,6 +153,12 @@ namespace PCProps
             return m_phaseProps;
         }
 
+        /**
+         *
+         * @param temperature
+         * @param vaporFraction
+         * @return
+         */
         const std::vector<PhaseProperties>& flashTx(double temperature, double vaporFraction) const
         {
             m_phaseProps.clear();
@@ -127,6 +169,12 @@ namespace PCProps
             return m_phaseProps;
         }
 
+        /**
+         *
+         * @param pressure
+         * @param enthalpy
+         * @return
+         */
         const std::vector<PhaseProperties>& flashPH(double pressure, double enthalpy) const
         {
             m_phaseProps.clear();
@@ -137,6 +185,12 @@ namespace PCProps
             return m_phaseProps;
         }
 
+        /**
+         *
+         * @param pressure
+         * @param entropy
+         * @return
+         */
         const std::vector<PhaseProperties>& flashPS(double pressure, double entropy) const
         {
             m_phaseProps.clear();
@@ -147,8 +201,14 @@ namespace PCProps
             return m_phaseProps;
         }
 
-        const std::vector<PhaseProperties>& flashTV(double temperature, double volume) const {
-
+        /**
+         *
+         * @param temperature
+         * @param volume
+         * @return
+         */
+        const std::vector<PhaseProperties>& flashTV(double temperature, double volume) const
+        {
             m_phaseProps.clear();
             auto temp = nlohmann::json::parse(m_equationOfState.flashTV(temperature, volume));
             for (auto& phase : temp) m_phaseProps.emplace_back(phase);
@@ -157,7 +217,12 @@ namespace PCProps
             return m_phaseProps;
         }
 
-        const std::vector<PhaseProperties>& getProperties() const {
+        /**
+         *
+         * @return
+         */
+        const std::vector<PhaseProperties>& getProperties() const
+        {
             return m_phaseProps;
         }
     };
@@ -168,11 +233,9 @@ namespace PCProps
 
     Fluid::Fluid() = default;
 
-    Fluid::Fluid(const IPureComponent& pc, const IEquationOfState& eos) : m_impl(std::make_unique<impl>(pc, eos)) {
-    }
+    Fluid::Fluid(const IPureComponent& pc, const IEquationOfState& eos) : m_impl(std::make_unique<impl>(pc, eos)) {}
 
-    Fluid::Fluid(const Fluid& other) : m_impl(std::make_unique<impl>(*other.m_impl)) {
-    }
+    Fluid::Fluid(const Fluid& other) : m_impl(std::make_unique<impl>(*other.m_impl)) {}
 
     Fluid::Fluid(Fluid&& other) noexcept = default;
 
