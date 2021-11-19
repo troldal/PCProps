@@ -129,13 +129,10 @@ namespace PCProps
             return m_equationOfState != nullptr;
         }
 
-        /**
-         * @brief
-         * @param jsonString
-         */
-        inline void init(const std::tuple<double, double, double, std::function<double(double)> >& properties) {
-            m_equationOfState->init(properties);
+        inline void init(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations) {
+            m_equationOfState->init(constants, correlations);
         }
+
 
         /**
          * @brief
@@ -313,11 +310,7 @@ namespace PCProps
              */
             inline virtual double saturationPressure(double temperature) const = 0;
 
-            /**
-             * @brief
-             * @param jsonString
-             */
-            inline virtual void init(const std::tuple<double, double, double, std::function<double(double)> >& properties) = 0;
+            inline virtual void init(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations) = 0;
 
         };
 
@@ -451,13 +444,11 @@ namespace PCProps
                 return EOSType.saturationPressure(temperature);
             }
 
-            /**
-             * @brief
-             * @param jsonString
-             */
-            inline void init(const std::tuple<double, double, double, std::function<double(double)> >& properties) override {
-                EOSType.init(properties);
+
+            inline void init(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations) override {
+                EOSType.init(constants, correlations);
             }
+
 
         private:
             T EOSType;

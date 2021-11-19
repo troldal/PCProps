@@ -64,8 +64,8 @@ namespace PCProps::EquationOfState
     {
     private:
 
-        // ===== Temperature dependent correlations
-        std::function<double(double)> m_idealGasCp {};
+        std::function<double(std::string)> m_constants {};
+        std::function<double(std::string, double)> m_correlations {};
 
         // ===== Basic fluid properties
         double m_criticalTemperature {};
@@ -212,7 +212,7 @@ namespace PCProps::EquationOfState
         {
             using PCProps::Globals::STANDARD_T;
             using numeric::integrate;
-            return integrate(m_idealGasCp, PCProps::Globals::STANDARD_T, temperature);
+            return integrate([&](double t) { return m_correlations("IdealGasCp", t);} , PCProps::Globals::STANDARD_T, temperature);
         }
 
         /**
@@ -249,7 +249,8 @@ namespace PCProps::EquationOfState
             using PCProps::Globals::STANDARD_P;
             using PCProps::Globals::STANDARD_T;
             using numeric::integrate;
-            return integrate([&](double temp) { return m_idealGasCp(temp) / temp; }, PCProps::Globals::STANDARD_T, t) - R_CONST * log(p / STANDARD_P);
+            return integrate([&](double temp) { return m_correlations("IdealGasCp", temp) / temp; }, PCProps::Globals::STANDARD_T, t) - R_CONST * log(p / STANDARD_P);
+
         }
 
         /**
@@ -280,11 +281,12 @@ namespace PCProps::EquationOfState
          * @param criticalPressure The critical pressure [Pa]
          * @param acentricFactor The acentric factor [-]
          */
-        explicit impl(const TPureComponent& pureComponent)
-            : m_idealGasCp(std::get<3>(pureComponent)),
-              m_criticalTemperature(std::get<0>(pureComponent)),
-              m_criticalPressure(std::get<1>(pureComponent)),
-              m_acentricFactor(std::get<2>(pureComponent)),
+        explicit impl(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations)
+            : m_constants(constants),
+              m_correlations(correlations),
+              m_criticalTemperature(m_constants("CriticalTemperature")),
+              m_criticalPressure(m_constants("CriticalPressure")),
+              m_acentricFactor(m_constants("AcentricFactor")),
               m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(m_criticalTemperature, 2) / m_criticalPressure),
               m_b(0.07779607 * PCProps::Globals::R_CONST * m_criticalTemperature / m_criticalPressure),
               m_kappa(
@@ -813,7 +815,11 @@ namespace PCProps::EquationOfState
     PengRobinson::PengRobinson() : m_impl(nullptr) {};
 
     // ===== Constructor
-    PengRobinson::PengRobinson(const TPureComponent& pureComponent) : m_impl(std::make_unique<impl>(pureComponent)) {}
+    //PengRobinson::PengRobinson(const TPureComponent& pureComponent) : m_impl(std::make_unique<impl>(pureComponent)) {}
+
+    PengRobinson::PengRobinson(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations)
+        : m_impl(std::make_unique<impl>(constants, correlations))
+    {}
 
     // ===== Copy constructor
     PengRobinson::PengRobinson(const PengRobinson& other) : m_impl(other.m_impl ? std::make_unique<impl>(*other.m_impl) : nullptr) {};
@@ -835,9 +841,13 @@ namespace PCProps::EquationOfState
     // ===== Move assignment operator
     PengRobinson& PengRobinson::operator=(PengRobinson&& other) noexcept = default;
 
-    // ===== Initiates object with new pure component data
-    void PengRobinson::init(const TPureComponent& pureComponent) {
-        m_impl = std::make_unique<impl>(pureComponent);
+//    // ===== Initiates object with new pure component data
+//    void PengRobinson::init(const TPureComponent& pureComponent) {
+//        m_impl = std::make_unique<impl>(pureComponent);
+//    }
+
+    void PengRobinson::init(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations) {
+        m_impl = std::make_unique<impl>(constants, correlations);
     }
 
     // ===== P,T Flash

@@ -50,17 +50,6 @@ namespace PCProps::EquationOfState
      */
     class PengRobinson
     {
-
-        /**
-         * @brief Type alias for tuple containing basic component property data, and a correlation for ideal gas Cp.
-         */
-        using TPureComponent =
-            std::tuple<
-                /* Critical Temperature [K] */ double,
-                /* Critical Pressure [Pa]   */ double,
-                /* Acentric Factor [-]      */ double,
-                /* Ideal Gas Cp [J/mol-K]   */ std::function<double(double)> >;
-
         using JSONString = std::string;
 
     public:
@@ -78,7 +67,7 @@ namespace PCProps::EquationOfState
          * @brief
          * @param pureComponent
          */
-        explicit PengRobinson(const TPureComponent& pureComponent);
+        PengRobinson(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations);
 
         /**
          * @brief Copy constructor
@@ -109,7 +98,7 @@ namespace PCProps::EquationOfState
          * @brief Initiates an existing object with a new pure component.
          * @param pureComponent An object with an interface compatible with IPureComponent
          */
-        void init(const TPureComponent& pureComponent);
+        void init(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations);
 
         // =====================================================================
         // FLASH ALGORITHMS

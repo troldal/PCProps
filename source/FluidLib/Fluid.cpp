@@ -11,6 +11,7 @@
 
 #include <stdexcept>
 #include <tuple>
+#include <cmath>
 
 using JSONString = std::string;
 
@@ -59,12 +60,18 @@ namespace PCProps
         {
             liquid.MolarVolume = m_pureComponent.property(
                 "CompressedLiquidVolume",
-                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.property("SaturatedLiquidVolume", liquid.Temperature) });
+                { liquid.Temperature,
+                  liquid.Pressure,
+                  std::abs(liquid.VaporPressure - liquid.Pressure) < 1E-6 ? liquid.Pressure : liquid.VaporPressure,
+                  m_pureComponent.property("SaturatedLiquidVolume", liquid.Temperature) });
             liquid.SurfaceTension      = 0.0;
             liquid.ThermalConductivity = 0.0;
             liquid.Viscosity = m_pureComponent.property(
                 "CompressedLiquidViscosity",
-                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.property("SaturatedLiquidViscosity", liquid.Temperature) });
+                { liquid.Temperature,
+                  liquid.Pressure,
+                  std::abs(liquid.VaporPressure - liquid.Pressure) < 1E-6 ? liquid.Pressure : liquid.VaporPressure,
+                  m_pureComponent.property("SaturatedLiquidViscosity", liquid.Temperature) });
 
             return liquid;
         }
@@ -80,7 +87,10 @@ namespace PCProps
             vapor.ThermalConductivity = 0.0;
             vapor.Viscosity = m_pureComponent.property(
                          "CompressedVaporViscosity",
-                         { vapor.Temperature, vapor.Pressure, vapor.VaporPressure, m_pureComponent.property("SaturatedVaporViscosity", vapor.Temperature) });
+                         { vapor.Temperature,
+                  vapor.Pressure,
+                  std::abs(vapor.VaporPressure - vapor.Pressure) < 1E-6 ? vapor.Pressure : vapor.VaporPressure,
+                  m_pureComponent.property("SaturatedVaporViscosity", vapor.Temperature) });
 
             return vapor;
         }
@@ -119,11 +129,8 @@ namespace PCProps
          */
         impl(const IPureComponent& pc, const IEquationOfState& eos) : m_pureComponent { pc }, m_equationOfState { eos }
         {
-            m_equationOfState.init(std::make_tuple(
-                m_pureComponent.property("CriticalTemperature"),
-                m_pureComponent.property("CriticalPressure"),
-                m_pureComponent.property("AcentricFactor"),
-                [&](double temp) { return m_pureComponent.property("IdealGasCp", temp); }));
+            m_equationOfState.init([&](const std::string& ID) {return m_pureComponent.property(ID);},
+                                   [&](const std::string& ID, double t) {return m_pureComponent.property(ID, t);});
         }
 
         /**
