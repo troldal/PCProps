@@ -16,7 +16,6 @@ using PCProps::HeatCapacity::PPDSLiquid;
 using PCProps::LiquidVolume::Rackett;
 using PCProps::VaporPressure::AntoineExtended;
 
-using PCProps::PCComponentData;
 using PCProps::Viscosity::Lucas;
 using PCProps::Viscosity::DIPPR102;
 using PCProps::Viscosity::KirchhoffExtended;
@@ -25,54 +24,40 @@ using namespace PCProps;
 
 int main()
 {
-    using std::get;
 
-    PCComponentData data;
+//    data.name  = "PROPANE";
+//    data.name  = "C3H8";
+//    data.casrn = "74-98-6";
 
-    data.name  = "PROPANE";
-    data.name  = "C3H8";
-    data.casrn = "74-98-6";
-
-    data.molarWeight             = 44.096;
-    data.boilingTemperature      = 231.05;
-    data.freezingTemperature     = 85.15;
-    data.criticalTemperature     = 369.83;
-    data.criticalPressure        = 4.248E6;
-    data.criticalVolume          = 0.0002;
-    data.criticalDensity         = 220.48;
-    data.criticalCompressibility = 0.2763;
-    data.acentricFactor          = 0.1523;
-    data.dipoleMoment            = 0.083;
-
-    data.idealGasCpCorrelation                   = AlyLee(AlyLee::CreateFromDIPPR { 0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6 });
-    data.liquidCpCorrelation                     = PPDSLiquid(PPDSLiquid::CreateFromDIPPR { 62.983, 113630, 633.21, -873.46, 369.83 });
-    data.vaporPressureCorrelation                = AntoineExtended(AntoineExtended::CreateFromDIPPR { 59.078, -3492.6, -6.0669, 1.0919E-05, 2 });
-    data.surfaceTensionCorrelation               = {};
-    data.heatOfVaporizationCorrelation           = {};
-    data.satVaporThermalConductivityCorrelation  = {};
-    data.satLiquidThermalConductivityCorrelation = {};
-    data.satVaporViscosityCorrelation            = Lucas(369.83, 4.248E6, 0.2763, 44.096, 0.083);    // DIPPR102(4.9054E-08, 0.90125);
-    data.satLiquidViscosityCorrelation           = KirchhoffExtended(-17.156, 646.25, 1.1101, -7.3439E-11, 4);
-    data.satLiquidVolumeCorrelation              = Rackett(Rackett::CreateFromDIPPR { 1.3757, 0.27453, 369.83, 0.29359 });
+    auto pc = PureComponent{};
 
     using PCProps::LiquidVolume::Thomson;
-    data.compressedLiquidVolume = Thomson(data.criticalTemperature.value(),
-                                          data.criticalPressure.value(),
-                                          data.acentricFactor.value());
-
     using namespace PCProps::CompressedLiquidViscosity;
-    data.compressedLiquidViscosity = CompressedLiquidViscosity::Lucas(data.criticalTemperature.value(),
-                                                                      data.criticalPressure.value(),
-                                                                      data.acentricFactor.value());
-
     using namespace PCProps::CompressedVaporViscosity;
-    data.compressedVaporViscosity = CompressedVaporViscosity::Lucas(data.criticalTemperature.value(),
-                                                                    data.criticalPressure.value(),
-                                                                    data.criticalCompressibility.value(),
-                                                                    data.molarWeight.value(),
-                                                                    data.dipoleMoment.value());
 
-    auto fluid = Fluid(PureComponent{data}, PengRobinson{});
+    pc.addDataItem("MolarWeight", 44.096);
+    pc.addDataItem("BoilingTemperature", 231.05);
+    pc.addDataItem("FreezingTemperature", 85.15);
+    pc.addDataItem("CriticalTemperature", 369.83);
+    pc.addDataItem("CriticalPressure", 4.248E6);
+    pc.addDataItem("CriticalVolume", 0.0002);
+    pc.addDataItem("CriticalDensity", 220.48);
+    pc.addDataItem("CriticalCompressibility", 0.2763);
+    pc.addDataItem("AcentricFactor", 0.1523);
+    pc.addDataItem("DipoleMoment", 0.083);
+
+    pc.addDataItem("IdealGasCp", AlyLee(AlyLee::CreateFromDIPPR { 0.5192E5, 1.9245E5, 1.6265E3, 1.168E5, 723.6 }));
+    pc.addDataItem("LiquidCp", PPDSLiquid(PPDSLiquid::CreateFromDIPPR { 62.983, 113630, 633.21, -873.46, 369.83 }));
+    pc.addDataItem("VaporPressure", AntoineExtended(AntoineExtended::CreateFromDIPPR { 59.078, -3492.6, -6.0669, 1.0919E-05, 2 }));
+    pc.addDataItem("SaturatedVaporViscosity", Viscosity::Lucas(369.83, 4.248E6, 0.2763, 44.096, 0.083));
+    pc.addDataItem("SaturatedLiquidViscosity", KirchhoffExtended(-17.156, 646.25, 1.1101, -7.3439E-11, 4));
+    pc.addDataItem("SaturatedLiquidVolume", Rackett(Rackett::CreateFromDIPPR { 1.3757, 0.27453, 369.83, 0.29359 }));
+
+    pc.addDataItem("CompressedLiquidVolume", Thomson(369.83,4.248E6,0.1523));
+    pc.addDataItem("CompressedLiquidViscosity", CompressedLiquidViscosity::Lucas(369.83,4.248E6,0.1523));
+    pc.addDataItem("CompressedVaporViscosity", CompressedVaporViscosity::Lucas(369.83,4.248E6,0.2763,44.096,0.083));
+
+    auto fluid = Fluid(pc, PengRobinson{});
 
     std::cout << "Propane at 25 C and 2 bar: " << std::endl;
     auto a = nlohmann::json::parse(fluid.flashPT((2E5), (298.15)));

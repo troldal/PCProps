@@ -11,18 +11,18 @@
 namespace PCProps {
 
     /**
- * @brief This class functions as a wrapper around any class that provides the necessary functionality for
- * cubic equations of state.
- * @details This class works by applying 'type erasure'. This enables the use of objects of any class, the only
- * requirement being that it provides the right interface. No inheritance from a base class is needed.
- */
+     * @brief This class functions as a wrapper around any class that provides the necessary functionality for
+     * cubic equations of state.
+     * @details This class works by applying 'type erasure'. This enables the use of objects of any class, the only
+     * requirement being that it provides the right interface. No inheritance from a base class is needed.
+     */
     class IPureComponent
     {
     public:
         /**
          * @brief Default constructor
          */
-        IPureComponent() : m_pureComponent() {}
+        IPureComponent() : m_pureComponent() {} // NOLINT
 
         /**
          * @brief Constructor, taking the target object as an argument.
@@ -30,10 +30,8 @@ namespace PCProps {
          * @param x The target object
          */
         template<typename T>
-        IPureComponent(const T& x) : m_pureComponent { std::make_unique<PCModel<T>>(x) }
-        {
-            int i = 0;
-        }
+        IPureComponent(const T& x) : m_pureComponent { std::make_unique<PCModel<T>>(x) } // NOLINT
+        {}
 
         /**
          * @brief
@@ -93,72 +91,35 @@ namespace PCProps {
             return m_pureComponent != nullptr;
         }
 
-        double molarWeight() const
-        {
-            return m_pureComponent->molarWeight();
+        /**
+         *
+         * @param ID
+         * @return
+         */
+        double property(const std::string& ID) const {
+            return m_pureComponent->property(ID);
         }
 
-        double criticalTemperature() const
-        {
-            return m_pureComponent->criticalTemperature();
+        /**
+         *
+         * @param ID
+         * @param temperature
+         * @return
+         */
+        double property(const std::string& ID, double temperature) const {
+            return m_pureComponent->property(ID, temperature);
         }
 
-        double criticalPressure() const
-        {
-            return m_pureComponent->criticalPressure();
+        /**
+         *
+         * @param ID
+         * @param parameters
+         * @return
+         */
+        double property(const std::string& ID, const std::vector<double>& parameters) const {
+            return m_pureComponent->property(ID, parameters);
         }
 
-        double criticalVolume() const
-        {
-            return m_pureComponent->criticalVolume();
-        }
-
-        double criticalCompressibility() const
-        {
-            return m_pureComponent->criticalCompressibility();
-        }
-
-        double acentricFactor() const
-        {
-            return m_pureComponent->acentricFactor();
-        }
-
-        double dipoleMoment() const
-        {
-            return m_pureComponent->dipoleMoment();
-        }
-
-        double idealGasCp(double temperature) const
-        {
-            return m_pureComponent->idealGasCp(temperature);
-        }
-
-        double satLiquidVolume(double temperature) const
-        {
-            return m_pureComponent->satLiquidVolume(temperature);
-        }
-
-        double satVaporViscosity(double temperature) const
-        {
-            return m_pureComponent->satVaporViscosity(temperature);
-        }
-
-        double satLiquidViscosity(double temperature) const
-        {
-            return m_pureComponent->satLiquidViscosity(temperature);
-        }
-
-        double compressedLiquidVolume(const std::vector<double>& params) const {
-            return m_pureComponent->compressedLiquidVolume(params);
-        }
-
-        double compressedLiquidViscosity(const std::vector<double>& params) const {
-            return m_pureComponent->compressedLiquidViscosity(params);
-        }
-
-        double compressedVaporViscosity(const std::vector<double>& params) const {
-            return m_pureComponent->compressedLiquidViscosity(params);
-        }
 
     private:
         /**
@@ -205,33 +166,28 @@ namespace PCProps {
              */
             virtual std::unique_ptr<PCConcept> clone() const = 0;
 
-            virtual double molarWeight() const = 0;
+            /**
+             *
+             * @param ID
+             * @return
+             */
+            virtual double property(const std::string& ID) const = 0;
 
-            virtual double criticalTemperature() const = 0;
+            /**
+             *
+             * @param ID
+             * @param temperature
+             * @return
+             */
+            virtual double property(const std::string& ID, double temperature) const = 0;
 
-            virtual double criticalPressure() const = 0;
-
-            virtual double criticalVolume() const = 0;
-
-            virtual double criticalCompressibility() const = 0;
-
-            virtual double acentricFactor() const = 0;
-
-            virtual double dipoleMoment() const = 0;
-
-            virtual double idealGasCp(double temperature) const = 0;
-
-            virtual double satLiquidVolume(double temperature) const = 0;
-
-            virtual double satVaporViscosity(double temperature) const = 0;
-
-            virtual double satLiquidViscosity(double temperature) const = 0;
-
-            virtual double compressedLiquidVolume(const std::vector<double>& params) const = 0;
-
-            virtual double compressedLiquidViscosity(const std::vector<double>& params) const = 0;
-
-            virtual double compressedVaporViscosity(const std::vector<double>& params) const = 0;
+            /**
+             *
+             * @param ID
+             * @param parameters
+             * @return
+             */
+            virtual double property(const std::string& ID, const std::vector<double>& parameters) const = 0;
 
         };
 
@@ -289,78 +245,40 @@ namespace PCProps {
                 return std::make_unique<PCModel<T>>(PCType);
             }
 
-            double molarWeight() const override
-            {
-                return PCType.molarWeight();
+            /**
+             *
+             * @param ID
+             * @return
+             */
+            double property(const std::string& ID) const override {
+                return PCType.property(ID);
             }
 
-            double criticalTemperature() const override
-            {
-                return PCType.criticalTemperature();
+            /**
+             *
+             * @param ID
+             * @param temperature
+             * @return
+             */
+            double property(const std::string& ID, double temperature) const override {
+                return PCType.property(ID, temperature);
             }
 
-            double criticalPressure() const override
-            {
-                return PCType.criticalPressure();
-            }
-
-            double criticalVolume() const override
-            {
-                return PCType.criticalVolume();
-            }
-
-            double criticalCompressibility() const override
-            {
-                return PCType.criticalCompressibility();
-            }
-
-            double acentricFactor() const override
-            {
-                return PCType.acentricFactor();
-            }
-
-            double dipoleMoment() const override
-            {
-                return PCType.dipoleMoment();
-            }
-
-            double idealGasCp(double temperature) const override
-            {
-                return PCType.idealGasCp(temperature);
-            }
-
-            double satLiquidVolume(double temperature) const override
-            {
-                return PCType.satLiquidVolume(temperature);
-            }
-
-            double satVaporViscosity(double temperature) const override
-            {
-                return PCType.satVaporViscosity(temperature);
-            }
-
-            double satLiquidViscosity(double temperature) const override
-            {
-                return PCType.satLiquidViscosity(temperature);
-            }
-
-            double compressedLiquidVolume(const std::vector<double>& params) const override {
-                return PCType.compressedLiquidVolume(params);
-            }
-
-            double compressedLiquidViscosity(const std::vector<double>& params) const override {
-                return PCType.compressedLiquidViscosity(params);
-            }
-
-            double compressedVaporViscosity(const std::vector<double>& params) const override {
-                return PCType.compressedVaporViscosity(params);
+            /**
+             *
+             * @param ID
+             * @param parameters
+             * @return
+             */
+            double property(const std::string& ID, const std::vector<double>& parameters) const override {
+                return PCType.property(ID, parameters);
             }
 
         private:
-            T PCType;
+            T PCType; /**< */
         };
 
-        std::unique_ptr<PCConcept> m_pureComponent;
+        std::unique_ptr<PCConcept> m_pureComponent; /**< */
     };
 
 } // namespace PCProps
