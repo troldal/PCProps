@@ -60,10 +60,11 @@ list(APPEND RELEASE_FLAGS_MSVC
 #=======================================================================================================================
 
 add_subdirectory(common)
-add_subdirectory(interfaces)
-add_subdirectory(EOSLib)
-add_subdirectory(PropertyLib)
-add_subdirectory(FluidLib)
+add_subdirectory(Interfaces)
+add_subdirectory(Properties)
+add_subdirectory(EquationOfState)
+add_subdirectory(Correlations)
+add_subdirectory(Fluid)
 add_subdirectory(UnitOps)
 
 

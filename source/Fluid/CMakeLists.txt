@@ -10,14 +10,14 @@ set(EOSLIB_SOURCES
 # SHARED LIBRARY
 #   Define the shared library
 #=======================================================================================================================
-add_library(FluidLib SHARED "")
+add_library(FluidLib STATIC "")
 target_sources(FluidLib PRIVATE ${EOSLIB_SOURCES})
 target_include_directories(FluidLib
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(FluidLib PUBLIC dependencies common interfaces PropertyLib EOSLib)
+target_link_libraries(FluidLib PUBLIC dependencies common interfaces PropertyLib EOSLib PropertiesLib)
 
 include(GenerateExportHeader)
 generate_export_header(FluidLib)
