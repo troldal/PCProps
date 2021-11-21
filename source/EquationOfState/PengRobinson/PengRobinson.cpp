@@ -216,7 +216,7 @@ namespace PCProps::EquationOfState
         {
             using PCProps::Globals::STANDARD_T;
             using numeric::integrate;
-            return integrate([&](double t) { return m_idealGasCp(t);} , PCProps::Globals::STANDARD_T, temperature);
+            return integrate([&](double t) { return m_idealGasCp(t);} , STANDARD_T, temperature);
         }
 
         /**
