@@ -64,7 +64,7 @@ namespace PCProps::EquationOfState
     {
     private:
 
-        std::function<double(std::string, double)> m_correlations {};
+        std::function<double(double)> m_idealGasCp {};
 
         // ===== Basic fluid properties
         double m_criticalTemperature {};
@@ -211,7 +211,7 @@ namespace PCProps::EquationOfState
         {
             using PCProps::Globals::STANDARD_T;
             using numeric::integrate;
-            return integrate([&](double t) { return m_correlations("IdealGasCp", t);} , PCProps::Globals::STANDARD_T, temperature);
+            return integrate([&](double t) { return m_idealGasCp(t);} , PCProps::Globals::STANDARD_T, temperature);
         }
 
         /**
@@ -248,7 +248,7 @@ namespace PCProps::EquationOfState
             using PCProps::Globals::STANDARD_P;
             using PCProps::Globals::STANDARD_T;
             using numeric::integrate;
-            return integrate([&](double temp) { return m_correlations("IdealGasCp", temp) / temp; }, PCProps::Globals::STANDARD_T, t) - R_CONST * log(p / STANDARD_P);
+            return integrate([&](double temp) { return m_idealGasCp(temp) / temp; }, PCProps::Globals::STANDARD_T, t) - R_CONST * log(p / STANDARD_P);
 
         }
 
@@ -281,7 +281,7 @@ namespace PCProps::EquationOfState
          * @param acentricFactor The acentric factor [-]
          */
         explicit impl(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations)
-            : m_correlations(correlations),
+            : m_idealGasCp([=](double t)->double {return correlations("IdealGasCp", t);}),
               m_criticalTemperature(constants("CriticalTemperature")),
               m_criticalPressure(constants("CriticalPressure")),
               m_acentricFactor(constants("AcentricFactor")),
