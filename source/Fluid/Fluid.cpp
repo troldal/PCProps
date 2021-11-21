@@ -4,8 +4,8 @@
 
 #include "Fluid.hpp"
 
-#include <PhaseProperties.hpp>
 #include <FluidProperties.hpp>
+#include <PhaseProperties.hpp>
 
 #include <stdexcept>
 #include <tuple>
@@ -17,8 +17,8 @@ namespace PCProps
     class Fluid::impl
     {
         // ===== Objects representing the pure component and equation of state.
-        IPureComponent                       m_pureComponent {};
-        IEquationOfState                     m_equationOfState {};
+        IPureComponent          m_pureComponent {};
+        IEquationOfState        m_equationOfState {};
         mutable FluidProperties m_phaseProps {};
 
         // ===== Enum class used in the determinePhaseType function.
@@ -32,19 +32,19 @@ namespace PCProps
          */
         PhaseType determinePhaseType(const PhaseProperties& phase) const
         {
-            auto tc   = m_pureComponent.property("CriticalTemperature");
-            auto pc   = m_pureComponent.property("CriticalPressure");
-            auto t    = phase.Temperature;
-            auto p    = phase.Pressure;
-            auto x    = phase.MolarFlow;
-            auto z    = phase.Compressibility;
-            auto psat = phase.VaporPressure;
+            auto tcrit           = m_pureComponent.property("CriticalTemperature");
+            auto pcrit           = m_pureComponent.property("CriticalPressure");
+            auto temperature     = phase.Temperature;
+            auto pressure        = phase.Pressure;
+            auto molefraction    = phase.MolarFlow;
+            auto compressibility = phase.Compressibility;
+            auto psat            = phase.VaporPressure;
 
-            if (t > tc && p > pc) return PhaseType::Dense;
-            if (x < 1.0 && z > 0.5) return PhaseType::Vapor;
-            if (x < 1.0 && z < 0.5) return PhaseType::Liquid;
-            if ((t > tc && p <= pc) || (t <= tc && p <= psat)) return PhaseType::Vapor;
-            if ((x < 1.0 && z < 0.5) || (t <= tc && p > psat)) return PhaseType::Liquid;
+            if (temperature > tcrit && pressure > pcrit) return PhaseType::Dense;
+            if (molefraction < 1.0 && compressibility > 0.5) return PhaseType::Vapor;
+            if (molefraction < 1.0 && compressibility < 0.5) return PhaseType::Liquid;
+            if ((temperature > tcrit && pressure <= pcrit) || (temperature <= tcrit && pressure <= psat)) return PhaseType::Vapor;
+            if ((molefraction < 1.0 && compressibility < 0.5) || (temperature <= tcrit && pressure > psat)) return PhaseType::Liquid;
 
             return PhaseType::Undefined;
         }
@@ -61,7 +61,7 @@ namespace PCProps
                 { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.property("SaturatedLiquidVolume", liquid.Temperature) });
             liquid.SurfaceTension      = 0.0;
             liquid.ThermalConductivity = 0.0;
-            liquid.Viscosity = m_pureComponent.property(
+            liquid.Viscosity           = m_pureComponent.property(
                 "CompressedLiquidViscosity",
                 { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.property("SaturatedLiquidViscosity", liquid.Temperature) });
 
@@ -77,9 +77,9 @@ namespace PCProps
         {
             vapor.SurfaceTension      = 0.0;
             vapor.ThermalConductivity = 0.0;
-            vapor.Viscosity = m_pureComponent.property(
-                         "CompressedVaporViscosity",
-                         { vapor.Temperature, vapor.Pressure, vapor.VaporPressure, m_pureComponent.property("SaturatedVaporViscosity", vapor.Temperature) });
+            vapor.Viscosity           = m_pureComponent.property(
+                "CompressedVaporViscosity",
+                { vapor.Temperature, vapor.Pressure, vapor.VaporPressure, m_pureComponent.property("SaturatedVaporViscosity", vapor.Temperature) });
 
             return vapor;
         }
