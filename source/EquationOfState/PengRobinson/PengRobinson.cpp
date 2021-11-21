@@ -145,21 +145,21 @@ namespace PCProps::EquationOfState
             auto coeffB = B(temperature, pressure);
 
             // ===== Compute the coefficients for solving Peng Robinson with respect to Z.
-            auto a_0 = -(coeffA * coeffB - pow(coeffB, 2) - pow(coeffB, 3));
-            auto a_1 = (coeffA - 3 * pow(coeffB, 2) - 2 * coeffB);
-            auto a_2 = -(1 - coeffB);
+            auto a_0 = -(coeffA * coeffB - pow(coeffB, 2.0) - pow(coeffB, 3.0));
+            auto a_1 = (coeffA - 3.0 * pow(coeffB, 2.0) - 2.0 * coeffB);
+            auto a_2 = -(1.0 - coeffB);
 
             // ===== Compute the constants required for an analytic solution.
-            auto p = (1.0 / 3.0) * (3 * a_1 - pow(a_2, 2));
-            auto q = (1.0 / 27.0) * (2 * pow(a_2, 3) - 9 * a_2 * a_1 + 27 * a_0);
-            auto R = (pow(q, 2) / 4.0) + (pow(p, 3) / 27.0);
+            auto p = (1.0 / 3.0) * (3.0 * a_1 - pow(a_2, 2.0));
+            auto q = (1.0 / 27.0) * (2.0 * pow(a_2, 3.0) - 9.0 * a_2 * a_1 + 27.0 * a_0);
+            auto R = (pow(q, 2.0) / 4.0) + (pow(p, 3.0) / 27.0);
 
             // ===== If R <= 0, there are three real roots
             if (R <= 0.0) {
-                auto m     = 2 * sqrt(-p / 3);
+                auto m     = 2.0 * sqrt(-p / 3.0);
                 auto theta = acos(3 * q / (p * m)) / 3.0;
 
-                std::vector<double> roots { m * cos(theta) - a_2 / 3, m * cos(theta + 2 * PI / 3) - a_2 / 3, m * cos(theta + 4 * PI / 3) - a_2 / 3 };
+                std::vector<double> roots { m * cos(theta) - a_2 / 3.0, m * cos(theta + 2.0 * PI / 3.0) - a_2 / 3.0, m * cos(theta + 4.0 * PI / 3.0) - a_2 / 3.0 };
 
                 std::sort(roots.begin(), roots.end());
                 roots.erase(roots.begin() + 1);
