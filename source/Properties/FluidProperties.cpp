@@ -26,6 +26,12 @@ namespace PCProps {
 
     FluidProperties& FluidProperties::operator=(FluidProperties&& other) noexcept = default;
 
+    FluidProperties& FluidProperties::operator=(const std::vector<PhaseProperties>& fluidProps)
+    {
+        m_phases = fluidProps;
+        return *this;
+    }
+
     const PhaseProperties& FluidProperties::operator[](int index) const
     {
         return m_phases[index];

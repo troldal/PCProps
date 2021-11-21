@@ -54,6 +54,8 @@ namespace PCProps
          */
         FluidProperties& operator=(FluidProperties&& other) noexcept;
 
+        FluidProperties& operator=(const std::vector<PhaseProperties>& fluidProps);
+
         /**
          *
          * @param index

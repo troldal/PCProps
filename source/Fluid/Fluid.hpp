@@ -68,10 +68,10 @@ namespace PCProps
         /**
          * @brief Constructor, taking a pure component object (any object supporting the IPureComponent interface), and
          * an optional equation of state object (any object supporting the IEquationOfState interface).
-         * @param pc Object representing a pure component.
+         * @param pureComponent Object representing a pure component.
          * @param eos Object representing an equation of state.
          */
-        explicit Fluid(const IPureComponent& pc, const IEquationOfState& eos = {});
+        explicit Fluid(const IPureComponent& pureComponent, const IEquationOfState& eos = {});
 
         /**
          * @brief Copy constructor
@@ -106,7 +106,7 @@ namespace PCProps
          * @brief Flash the fluid at the specified pressure and temperature.
          * @param pressure The pressure [Pa]
          * @param temperature The temperature [K]
-         * @return A PCPhases object with the phase properties.
+         * @return A JSONString object with the phase properties.
          */
         JSONString flashPT(double pressure, double temperature) const;
 
@@ -114,7 +114,7 @@ namespace PCProps
          * @brief Flash the fluid at the specified pressure and vapor fraction.
          * @param pressure The pressure [Pa]
          * @param vaporFraction The vapor fraction [-]
-         * @return A PCPhases object with the phase properties.
+         * @return A JSONString object with the phase properties.
          */
         JSONString flashPx(double pressure, double vaporFraction) const;
 
@@ -122,7 +122,7 @@ namespace PCProps
          * @brief Flash the fluid at the specified temperature and vapor fraction.
          * @param temperature The temperature [K]
          * @param vaporFraction The vapor fraction [-]
-         * @return A PCPhases object with the phase properties.
+         * @return A JSONString object with the phase properties.
          */
         JSONString flashTx(double temperature, double vaporFraction) const;
 
@@ -130,7 +130,7 @@ namespace PCProps
          * @brief Flash the fluid at the specified pressure and enthalpy.
          * @param pressure The pressure [Pa]
          * @param enthalpy The enthalpy [J/mol]
-         * @return A PCPhases object with the phase properties.
+         * @return A JSONString object with the phase properties.
          */
         JSONString flashPH(double pressure, double enthalpy) const;
 
@@ -138,7 +138,7 @@ namespace PCProps
          * @brief Flash the fluid at the specified pressure and entropy.
          * @param pressure The pressure [Pa]
          * @param entropy The entropy [J/mol-K]
-         * @return A PCPhases object with the phase properties.
+         * @return A JSONString object with the phase properties.
          */
         JSONString flashPS(double pressure, double entropy) const;
 
@@ -146,13 +146,13 @@ namespace PCProps
          * @brief Flash the fluid at the specified temperature and molar volume.
          * @param temperature The temperature [K]
          * @param volume The molar volume [m3/mol]
-         * @return A PCPhases object with the phase properties.
+         * @return A JSONString object with the phase properties.
          */
         JSONString flashTV(double temperature, double volume) const;
 
         /**
-         * @brief Get the current fluid properties.
-         * @return A PCPhases object with the phase properties.
+         * @brief Get the fluid properties in its current state.
+         * @return A JSONString object with the phase properties.
          */
         JSONString properties() const;
 
