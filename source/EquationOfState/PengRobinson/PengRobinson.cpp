@@ -64,7 +64,6 @@ namespace PCProps::EquationOfState
     {
     private:
 
-        std::function<double(std::string)> m_constants {};
         std::function<double(std::string, double)> m_correlations {};
 
         // ===== Basic fluid properties
@@ -282,11 +281,10 @@ namespace PCProps::EquationOfState
          * @param acentricFactor The acentric factor [-]
          */
         explicit impl(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations)
-            : m_constants(constants),
-              m_correlations(correlations),
-              m_criticalTemperature(m_constants("CriticalTemperature")),
-              m_criticalPressure(m_constants("CriticalPressure")),
-              m_acentricFactor(m_constants("AcentricFactor")),
+            : m_correlations(correlations),
+              m_criticalTemperature(constants("CriticalTemperature")),
+              m_criticalPressure(constants("CriticalPressure")),
+              m_acentricFactor(constants("AcentricFactor")),
               m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(m_criticalTemperature, 2) / m_criticalPressure),
               m_b(0.07779607 * PCProps::Globals::R_CONST * m_criticalTemperature / m_criticalPressure),
               m_kappa(
