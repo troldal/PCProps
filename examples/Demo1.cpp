@@ -62,7 +62,8 @@ int main()
 
     std::cout << "Propane at 25 C and 2 bar: " << std::endl;
     auto a = FluidProperties(fluid.flashPT((2E5), (298.15)));
-    std::cout << a << std::endl;
+    //std::cout << a << std::endl;
+    a.print(std::cout);
     std::cout << "==============================================================================" << std::endl;
 
     std::cout << "Compression to 10 bar: " << std::endl;

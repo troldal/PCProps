@@ -54,6 +54,11 @@ namespace PCProps
          */
         FluidProperties& operator=(FluidProperties&& other) noexcept;
 
+        /**
+         *
+         * @param index
+         * @return
+         */
         const PhaseProperties& operator[](int index) const;
 
         /**
@@ -67,6 +72,94 @@ namespace PCProps
          * @return
          */
         JSONString asJSON() const;
+
+        inline void print(std::ostream& stream) {
+            stream << std::setprecision(8) << std::fixed;
+
+            stream << "Molar Flow                      [-] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.MolarFlow;
+            stream << std::endl;
+
+            stream << "Molar Volume                [kg/m3] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << 1/(phase.MolarVolume/phase.MolarWeight*1000);
+            stream << std::endl;
+
+            stream << "Surface Tension               [N/m] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.SurfaceTension;
+            stream << std::endl;
+
+            stream << "Thermal Conductivity        [W/m-K] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.ThermalConductivity;
+            stream << std::endl;
+
+            stream << "Viscosity                    [Pa-s] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.Viscosity;
+            stream << std::endl;
+
+            stream << "Cp                         [J/kg-K] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.Cp/phase.MolarWeight*1000;
+            stream << std::endl;
+
+            stream << "Cv                         [J/kg-K] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.Cv/phase.MolarWeight*1000;
+            stream << std::endl;
+
+            stream << "Isothermal Compressibility   [1/Pa] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.IsothermalCompressibility;
+            stream << std::endl;
+
+            stream << "Thermal Expansion Coefficient [1/K] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.ThermalExpansionCoefficient;
+            stream << std::endl;
+
+            stream << "Joule-Thomson Coefficient    [K/Pa] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.JouleThomsonCoefficient;
+            stream << std::endl;
+
+            stream << "Molecular Weight            [g/mol] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.MolarWeight;
+            stream << std::endl;
+
+            stream << "Temperature                     [K] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.Temperature;
+            stream << std::endl;
+
+            stream << "Pressure                       [Pa] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.Pressure;
+            stream << std::endl;
+
+            stream << "Compressibility                 [-] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.Compressibility;
+            stream << std::endl;
+
+            stream << "Fugacity Coefficient            [-] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.FugacityCoefficient;
+            stream << std::endl;
+
+            stream << "Vapor Pressure                 [Pa] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.VaporPressure;
+            stream << std::endl;
+
+            stream << "Enthalpy                     [J/kg] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.Enthalpy/phase.MolarWeight*1000;
+            stream << std::endl;
+
+            stream << "Entropy                    [J/kg-K] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.Entropy/phase.MolarWeight*1000;
+            stream << std::endl;
+
+            stream << "Internal Energy              [J/kg] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.InternalEnergy/phase.MolarWeight*1000;
+            stream << std::endl;
+
+            stream << "Gibbs Energy                 [J/kg] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.GibbsEnergy/phase.MolarWeight*1000;
+            stream << std::endl;
+
+            stream << "Helmholz Energy              [J/kg] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.HelmholzEnergy/phase.MolarWeight*1000;
+            stream << std::endl;
+        }
     };
 
     inline std::ostream& operator<<(std::ostream& stream, const FluidProperties& properties) {
