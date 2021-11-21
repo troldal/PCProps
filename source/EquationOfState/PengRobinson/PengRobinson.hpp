@@ -95,10 +95,16 @@ namespace PCProps::EquationOfState
         PengRobinson& operator=(PengRobinson&& other) noexcept;
 
         /**
-         * @brief Initiates an existing object with a new pure component.
-         * @param pureComponent An object with an interface compatible with IPureComponent
+         *
+         * @tparam PC
+         * @param pureComponent
          */
-        void init(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations);
+        template<typename PC>
+        void init(const PC& pureComponent) {
+            init([&](const std::string& ID)->double {return pureComponent.property(ID);},
+                 [&](const std::string& ID, double t)->double {return pureComponent.property(ID, t);});
+        }
+
 
         // =====================================================================
         // FLASH ALGORITHMS
@@ -179,6 +185,13 @@ namespace PCProps::EquationOfState
         double saturationTemperature(double pressure) const;
 
     private:
+
+        /**
+         * @brief Initiates an existing object with a new pure component.
+         * @param pureComponent An object with an interface compatible with IPureComponent
+         */
+        void init(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations);
+
         class impl;
         std::unique_ptr<impl> m_impl;
     };

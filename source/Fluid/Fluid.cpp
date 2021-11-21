@@ -117,8 +117,7 @@ namespace PCProps
          */
         impl(const IPureComponent& pc, const IEquationOfState& eos) : m_pureComponent { pc }, m_equationOfState { eos }
         {
-            m_equationOfState.init([&](const std::string& ID) {return m_pureComponent.property(ID);},
-                                   [&](const std::string& ID, double t) {return m_pureComponent.property(ID, t);});
+            m_equationOfState.init(m_pureComponent);
         }
 
         /**

@@ -129,10 +129,9 @@ namespace PCProps
             return m_equationOfState != nullptr;
         }
 
-        inline void init(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations) {
-            m_equationOfState->init(constants, correlations);
+        inline void init(const IPureComponent& pureComponent) {
+            m_equationOfState->init(pureComponent);
         }
-
 
         /**
          * @brief
@@ -310,7 +309,7 @@ namespace PCProps
              */
             inline virtual double saturationPressure(double temperature) const = 0;
 
-            inline virtual void init(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations) = 0;
+            inline virtual void init(const IPureComponent& pureComponent) = 0;
 
         };
 
@@ -444,9 +443,12 @@ namespace PCProps
                 return EOSType.saturationPressure(temperature);
             }
 
-
-            inline void init(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations) override {
-                EOSType.init(constants, correlations);
+            /**
+             *
+             * @param pureComponent
+             */
+            inline void init(const IPureComponent& pureComponent) override {
+                EOSType.init(pureComponent);
             }
 
 
