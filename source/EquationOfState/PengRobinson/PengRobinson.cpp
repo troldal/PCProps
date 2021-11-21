@@ -145,40 +145,45 @@ namespace PCProps::EquationOfState
             auto coeffB = B(temperature, pressure);
 
             // ===== Compute the coefficients for solving Peng Robinson with respect to Z.
-            auto a_0 = -(coeffA * coeffB - pow(coeffB, 2.0) - pow(coeffB, 3.0));
+
+            auto a_0 = -(1.0 - coeffB);
             auto a_1 = (coeffA - 3.0 * pow(coeffB, 2.0) - 2.0 * coeffB);
-            auto a_2 = -(1.0 - coeffB);
+            auto a_2 = -(coeffA * coeffB - pow(coeffB, 2.0) - pow(coeffB, 3.0));
 
-            // ===== Compute the constants required for an analytic solution.
-            auto p = (1.0 / 3.0) * (3.0 * a_1 - pow(a_2, 2.0));
-            auto q = (1.0 / 27.0) * (2.0 * pow(a_2, 3.0) - 9.0 * a_2 * a_1 + 27.0 * a_0);
-            auto R = (pow(q, 2.0) / 4.0) + (pow(p, 3.0) / 27.0);
-
-            // ===== If R <= 0, there are three real roots
-            if (R <= 0.0) {
-                auto m     = 2.0 * sqrt(-p / 3.0);
-                auto theta = acos(3 * q / (p * m)) / 3.0;
-
-                std::vector<double> roots { m * cos(theta) - a_2 / 3.0, m * cos(theta + 2.0 * PI / 3.0) - a_2 / 3.0, m * cos(theta + 4.0 * PI / 3.0) - a_2 / 3.0 };
-
-                std::sort(roots.begin(), roots.end());
-                roots.erase(roots.begin() + 1);
-
-                // ===== If any of the roots are negative, delete them.
-                if (roots[1] <= 0.0) roots.pop_back();
-                if (roots[0] <= 0.0) roots.erase(roots.begin());
-
-                // ===== If the two roots are equal, delete the last one.
-                if (roots.size() == 2 && roots[0] == roots[1]) roots.pop_back();
-
-                return roots;
-            }
-
-            // ===== If R > 0, there is one real root
-            auto P = cbrt(-q / 2.0 + sqrt(R));
-            auto Q = cbrt(-q / 2.0 - sqrt(R));
-
-            return { P + Q - a_2 / 3.0 };
+            auto result = numeric::solve_cubic(a_0, a_1, a_2);
+            result.erase(std::remove_if(result.begin(), result.end(),[](double root){return root < 0.0;}),result.end());
+            if (result.size() == 3) result.erase(result.begin() + 1);
+            return result;
+//            // ===== Compute the constants required for an analytic solution.
+//            auto p = (1.0 / 3.0) * (3.0 * a_1 - pow(a_2, 2.0));
+//            auto q = (1.0 / 27.0) * (2.0 * pow(a_2, 3.0) - 9.0 * a_2 * a_1 + 27.0 * a_0);
+//            auto R = (pow(q, 2.0) / 4.0) + (pow(p, 3.0) / 27.0);
+//
+//            // ===== If R <= 0, there are three real roots
+//            if (R <= 0.0) {
+//                auto m     = 2.0 * sqrt(-p / 3.0);
+//                auto theta = acos(3 * q / (p * m)) / 3.0;
+//
+//                std::vector<double> roots { m * cos(theta) - a_2 / 3.0, m * cos(theta + 2.0 * PI / 3.0) - a_2 / 3.0, m * cos(theta + 4.0 * PI / 3.0) - a_2 / 3.0 };
+//
+//                std::sort(roots.begin(), roots.end());
+//                roots.erase(roots.begin() + 1);
+//
+//                // ===== If any of the roots are negative, delete them.
+//                if (roots[1] <= 0.0) roots.pop_back();
+//                if (roots[0] <= 0.0) roots.erase(roots.begin());
+//
+//                // ===== If the two roots are equal, delete the last one.
+//                if (roots.size() == 2 && roots[0] == roots[1]) roots.pop_back();
+//
+//                return roots;
+//            }
+//
+//            // ===== If R > 0, there is one real root
+//            auto P = cbrt(-q / 2.0 + sqrt(R));
+//            auto Q = cbrt(-q / 2.0 - sqrt(R));
+//
+//            return { P + Q - a_2 / 3.0 };
         }
 
         /**
