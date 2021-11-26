@@ -65,9 +65,6 @@ namespace PCProps::LiquidVolume
      */
     class Thomson final
     {
-        std::function<double(double)> m_saturatedVolumeFunction {}; /**< Function object for calculation of saturated liquid volume. */
-        std::function<double(double)> m_vaporPressureFunction {};   /**< Function object for calculation of vapor pressure. */
-
         double m_criticalTemperature {}; /**< The critical temperature [K]. */
         double m_criticalPressure {};    /**< The critical pressure [Pa]. */
         double m_acentricFactor {};      /**< The acentric factor [-]. */
@@ -80,18 +77,12 @@ namespace PCProps::LiquidVolume
          * @param criticalTemperature The critical temperature [K]
          * @param criticalPressure The critical pressure [Pa]
          * @param acentricFactor The acentric factor [-]
-         * @param satVolumeFunction Function object for calculating saturated liquid volume [m3/mol] as function of temperature [K]
-         * @param vaporPressureFunction Function object for calculating vapor pressure [Pa] as function of temperature [K]
          */
         Thomson(
             double                               criticalTemperature,
             double                               criticalPressure,
-            double                               acentricFactor,
-            const std::function<double(double)>& satVolumeFunction = {},
-            const std::function<double(double)>& vaporPressureFunction = {})
-            : m_saturatedVolumeFunction(satVolumeFunction),
-              m_vaporPressureFunction(vaporPressureFunction),
-              m_criticalTemperature(criticalTemperature),
+            double                               acentricFactor)
+            : m_criticalTemperature(criticalTemperature),
               m_criticalPressure(criticalPressure),
               m_acentricFactor(acentricFactor)
         {}
@@ -105,9 +96,7 @@ namespace PCProps::LiquidVolume
         explicit Thomson(const PC& pureComponent)
             : Thomson(pureComponent.property("CriticalTemperature"),
                       pureComponent.property("CriticalPressure"),
-                      pureComponent.property("AcentricFactor"),
-                      {},
-                      {})
+                      pureComponent.property("AcentricFactor"))
         {}
 
         /**
@@ -142,9 +131,6 @@ namespace PCProps::LiquidVolume
          */
         double operator()(std::vector<double> params) const {
             switch (params.size()) {
-                case 2:
-                    return operator()(params[0], params[1]);
-
                 case 4:
                     return operator()(params[0], params[1], params[2], params[3]);
 
@@ -173,20 +159,6 @@ namespace PCProps::LiquidVolume
                 exp(4.79594 + 0.250047 * m_acentricFactor + 1.14188 * pow(m_acentricFactor, 2)) * pow(1 - tr, 4.0 / 3.0));
 
             return satVolume * (1 - C * log((B + pressure) / (B + satPressure)));
-
-        }
-
-        /**
-         * @brief Function call operator, taking temperature [K] and pressure [Pa] as arguments
-         * and returns compressed liquid volume [m3/mol]
-         * @param temperature The temperature [K]
-         * @param pressure The pressure [Pa]
-         * @return The compressed liquid volume [m3/mol]
-         * @warning This may yield NaN as the result when T is close to Tc.
-         */
-        double operator()(double temperature, double pressure) const
-        {
-            return operator()(temperature, pressure, m_vaporPressureFunction(temperature), m_saturatedVolumeFunction(temperature));
         }
     };
 

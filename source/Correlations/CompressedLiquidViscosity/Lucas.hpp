@@ -10,55 +10,85 @@
 
 namespace PCProps::CompressedLiquidViscosity
 {
+    /**
+     *
+     */
     class Lucas
     {
-
         double m_criticalPressure{};
         double m_criticalTemperature{};
         double m_acentricFactor{};
 
-        std::function<double(double)> m_satLiquidViscosity {};
-        std::function<double(double)> m_vaporPressure {};
-
     public:
 
+        /**
+         *
+         */
         Lucas() = default;
 
+        /**
+         *
+         * @param criticalTemperature
+         * @param criticalPressure
+         * @param acentricFactor
+         */
         Lucas(double criticalTemperature,
               double criticalPressure,
-              double acentricFactor,
-              const std::function<double(double)>& satLiquidViscosity = {},
-              const std::function<double(double)>& vaporPressureFunction = {})
+              double acentricFactor)
             : m_criticalTemperature(criticalTemperature),
               m_criticalPressure(criticalPressure),
-              m_acentricFactor(acentricFactor),
-              m_satLiquidViscosity{satLiquidViscosity},
-              m_vaporPressure{vaporPressureFunction}
+              m_acentricFactor(acentricFactor)
         {}
 
+        /**
+         *
+         * @tparam PC
+         * @param pureComponent
+         */
         template<typename PC>
         explicit Lucas(const PC& pureComponent) : Lucas(pureComponent.property("CriticalTemperature"),
                                                pureComponent.property("CriticalPressure"),
-                                               pureComponent.property("AcentricFactor"),
-                                               {},
-                                               {})
+                                               pureComponent.property("AcentricFactor"))
         {}
 
+        /**
+         *
+         * @param other
+         */
         Lucas(const Lucas& other) = default;
 
+        /**
+         *
+         * @param other
+         */
         Lucas(Lucas&& other) noexcept = default;
 
+        /**
+         *
+         */
         ~Lucas() = default;
 
+        /**
+         *
+         * @param other
+         * @return
+         */
         Lucas& operator=(const Lucas& other) = default;
 
+        /**
+         *
+         * @param other
+         * @return
+         */
         Lucas& operator=(Lucas&& other) noexcept = default;
 
+        /**
+         *
+         * @param params
+         * @return
+         */
         double operator()(std::vector<double> params) const {
             switch (params.size()) {
-                case 2:
-                    return operator()(params[0], params[1]);
-
                 case 4:
                     return operator()(params[0], params[1], params[2], params[3]);
 
@@ -67,6 +97,14 @@ namespace PCProps::CompressedLiquidViscosity
             }
         }
 
+        /**
+         *
+         * @param temperature
+         * @param pressure
+         * @param satPressure
+         * @param satViscosity
+         * @return
+         */
         double operator()(double temperature, double pressure, double satPressure, double satViscosity) const {
 
             using std::max;
@@ -91,11 +129,6 @@ namespace PCProps::CompressedLiquidViscosity
                            15.6719 * pow(tr, 7);
 
             return (1.0 + D * pow(dpr / 2.118, A)) / (1.0 + C * m_acentricFactor * dpr) * satViscosity;
-        }
-
-        double operator()(double temperature, double pressure) const
-        {
-            return operator()(temperature, pressure, m_vaporPressure(temperature), m_satLiquidViscosity(temperature));
         }
     };
 }    // namespace PCProps::CompressedLiquidViscosity
