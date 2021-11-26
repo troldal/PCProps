@@ -44,7 +44,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace PCProps::LiquidVolume
 {
     /**
-     * @brief The CLVAalto class encapsulates the Aalto method for estimating compressed liquid volume.
+     * @brief The LiquidVoluem::Aalto class encapsulates the Aalto method for estimating compressed liquid volume.
      * @details The Aalto method looks as follows:
      * \f[ V = V_{s} \cdot
      * \frac{A \cdot P_{c} + C^{(D-T_{r})^B} \cdot (P - P_{s})}
@@ -64,14 +64,14 @@ namespace PCProps::LiquidVolume
      */
     class Aalto final
     {
-        std::function<double(double)> m_saturatedVolumeFunction {}; /** Function object for calculation of saturated liquid volume. */
-        std::function<double(double)> m_vaporPressureFunction {};   /** Function object for calculation of vapor pressure. */
+        std::function<double(double)> m_saturatedVolumeFunction {}; /**< Function object for calculation of saturated liquid volume. */
+        std::function<double(double)> m_vaporPressureFunction {};   /**< Function object for calculation of vapor pressure. */
 
-        double m_criticalTemperature {}; /** The critical temperature [K]. */
-        double m_criticalPressure {};    /** The critical pressure [Pa]. */
+        double m_criticalTemperature {}; /**< The critical temperature [K]. */
+        double m_criticalPressure {};    /**< The critical pressure [Pa]. */
 
-        double D { 1.00588 };
-        double C { 2.718281828 };
+        double D { 1.00588 }; /**< */
+        double C { 2.718281828 }; /**< */
         double B {};
 
     public:
@@ -104,6 +104,19 @@ namespace PCProps::LiquidVolume
         {}
 
         /**
+         *
+         * @tparam PC
+         * @param pureComponent
+         */
+        template<typename PC>
+        explicit Aalto(const PC& pureComponent) : Aalto(pureComponent.property("CriticalTemperature"),
+                                               pureComponent.property("CriticalPressure"),
+                                               pureComponent.property("AcentricFactor"),
+                                               {},
+                                               {})
+        {}
+
+        /**
          * @brief Copy constructor
          */
         Aalto(const Aalto& other) = default;
@@ -128,6 +141,32 @@ namespace PCProps::LiquidVolume
          */
         Aalto& operator=(Aalto&& other) noexcept = default;
 
+        /**
+         *
+         * @param params
+         * @return
+         */
+        double operator()(std::vector<double> params) const {
+            switch (params.size()) {
+                case 2:
+                    return operator()(params[0], params[1]);
+
+                case 4:
+                    return operator()(params[0], params[1], params[2], params[3]);
+
+                default:
+                    return 0.0;
+            }
+        }
+
+        /**
+         *
+         * @param temperature
+         * @param pressure
+         * @param satPressure
+         * @param satVolume
+         * @return
+         */
         double operator()(double temperature, double pressure, double satPressure, double satVolume) const {
 
             using std::pow;
@@ -137,9 +176,7 @@ namespace PCProps::LiquidVolume
 
             return satVolume * ((A * m_criticalPressure + pow(C, pow(D - tr, B)) * (pressure - satPressure)) /
                 (A * m_criticalPressure + C * (pressure - satPressure)));
-
         }
-
 
         /**
          * @brief Function call operator, taking temperature [K] and pressure [Pa] as arguments
@@ -150,16 +187,7 @@ namespace PCProps::LiquidVolume
          */
         double operator()(double temperature, double pressure) const
         {
-
             return operator()(temperature, pressure, m_vaporPressureFunction(temperature), m_saturatedVolumeFunction(temperature));
-
-//            using std::pow;
-//            double tr = temperature / m_criticalTemperature;
-//
-//            double A = -170.335 - 28.578 * tr + 124.809 * pow(tr, 3) - 55.5393 * pow(tr, 6) + 130.01 / tr;
-//
-//            return m_saturatedVolumeFunction(temperature) * ((A * m_criticalPressure + pow(C, pow(D - tr, B)) * (pressure - m_vaporPressureFunction(temperature))) /
-//                (A * m_criticalPressure + C * (pressure - m_vaporPressureFunction(temperature))));
         }
     };
 }    // namespace PCProps::LiquidVolume

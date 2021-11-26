@@ -65,12 +65,12 @@ namespace PCProps::LiquidVolume
      */
     class Thomson final
     {
-        std::function<double(double)> m_saturatedVolumeFunction {}; /** Function object for calculation of saturated liquid volume. */
-        std::function<double(double)> m_vaporPressureFunction {};   /** Function object for calculation of vapor pressure. */
+        std::function<double(double)> m_saturatedVolumeFunction {}; /**< Function object for calculation of saturated liquid volume. */
+        std::function<double(double)> m_vaporPressureFunction {};   /**< Function object for calculation of vapor pressure. */
 
-        double m_criticalTemperature {}; /** The critical temperature [K]. */
-        double m_criticalPressure {};    /** The critical pressure [Pa]. */
-        double m_acentricFactor {};      /** The acentric factor [-]. */
+        double m_criticalTemperature {}; /**< The critical temperature [K]. */
+        double m_criticalPressure {};    /**< The critical pressure [Pa]. */
+        double m_acentricFactor {};      /**< The acentric factor [-]. */
 
     public:
 
@@ -94,6 +94,20 @@ namespace PCProps::LiquidVolume
               m_criticalTemperature(criticalTemperature),
               m_criticalPressure(criticalPressure),
               m_acentricFactor(acentricFactor)
+        {}
+
+        /**
+         *
+         * @tparam PC
+         * @param pureComponent
+         */
+        template<typename PC>
+        explicit Thomson(const PC& pureComponent)
+            : Thomson(pureComponent.property("CriticalTemperature"),
+                      pureComponent.property("CriticalPressure"),
+                      pureComponent.property("AcentricFactor"),
+                      {},
+                      {})
         {}
 
         /**
@@ -121,6 +135,11 @@ namespace PCProps::LiquidVolume
          */
         Thomson& operator=(Thomson&& other) noexcept = default;
 
+        /**
+         *
+         * @param params
+         * @return
+         */
         double operator()(std::vector<double> params) const {
             switch (params.size()) {
                 case 2:
@@ -134,6 +153,14 @@ namespace PCProps::LiquidVolume
             }
         }
 
+        /**
+         *
+         * @param temperature
+         * @param pressure
+         * @param satPressure
+         * @param satVolume
+         * @return
+         */
         double operator()(double temperature, double pressure, double satPressure, double satVolume) const {
 
             using std::exp;
@@ -159,22 +186,7 @@ namespace PCProps::LiquidVolume
          */
         double operator()(double temperature, double pressure) const
         {
-
             return operator()(temperature, pressure, m_vaporPressureFunction(temperature), m_saturatedVolumeFunction(temperature));
-
-//            using std::exp;
-//            using std::log;
-//            using std::pow;
-//
-//            double tr = temperature / m_criticalTemperature;
-//            double C  = 0.0861488 + 0.0344483 * m_acentricFactor;
-//            double B  = m_criticalPressure * (-1 - 9.070217 * pow(1 - tr, 1.0 / 3.0) + 62.45326 * pow(1 - tr, 2.0 / 3.0) - 135.1102 * (1 - tr) +
-//                exp(4.79594 + 0.250047 * m_acentricFactor + 1.14188 * pow(m_acentricFactor, 2)) * pow(1 - tr, 4.0 / 3.0));
-//
-//            double psat = m_vaporPressureFunction(temperature);
-//            double vsat = m_saturatedVolumeFunction(temperature);
-//
-//            return vsat * (1 - C * log((B + pressure) / (B + psat)));
         }
     };
 

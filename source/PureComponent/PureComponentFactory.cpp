@@ -5,6 +5,7 @@
 #include "PureComponentFactory.hpp"
 
 #include <json/json.hpp>
+#include <PropertyLib.hpp>
 
 using namespace nlohmann;
 
@@ -33,16 +34,22 @@ namespace PCProps {
             PureComponent result;
             auto component = *find_if(m_pcdata.begin(), m_pcdata.end(), [&](const json& rec){ return rec["CAS"].get<std::string>() == CAS;});
 
+            result.addDataItem("Name", component["Name"].get<std::string>());
+            result.addDataItem("CAS", component["CAS"].get<std::string>());
             result.addDataItem("MolarWeight", component["MolarWeight"].get<double>());
-//            result.addDataItem("BoilingTemperature", component["BoilingTemperature"].get<double>());
-//            result.addDataItem("MeltingTemperature", component["MeltingTemperature"].get<double>());
-//            result.addDataItem("CriticalTemperature", component["CriticalTemperature"].get<double>());
-//            result.addDataItem("CriticalPressure", component["CriticalPressure"].get<double>());
-//            result.addDataItem("CriticalVolume", component["CriticalVolume"].get<double>());
-//            result.addDataItem("CriticalDensity", component["CriticalDensity"].get<double>());
-//            result.addDataItem("CriticalCompressibility", component["CriticalCompressibility"].get<double>());
-//            result.addDataItem("AcentricFactor", component["AcentricFactor"].get<double>());
-//            result.addDataItem("DipoleMoment", component["DipoleMoment"].get<double>());
+            result.addDataItem("MeltingTemperature", component["MeltingTemperature"].get<double>());
+            result.addDataItem("BoilingTemperature", component["BoilingTemperature"].get<double>());
+            result.addDataItem("CriticalTemperature", component["CriticalTemperature"].get<double>());
+            result.addDataItem("CriticalPressure", component["CriticalPressure"].get<double>());
+            result.addDataItem("CriticalVolume", component["CriticalVolume"].get<double>());
+            result.addDataItem("CriticalDensity", component["CriticalDensity"].get<double>());
+            result.addDataItem("CriticalCompressibility", component["CriticalCompressibility"].get<double>());
+            result.addDataItem("AcentricFactor", component["AcentricFactor"].get<double>());
+            result.addDataItem("DipoleMoment", component["DipoleMoment"].get<double>());
+
+            result.addDataItem("CompressedLiquidVolume",  LiquidVolume::Thomson(result));
+            result.addDataItem("CompressedLiquidViscosity", CompressedLiquidViscosity::Lucas(result));
+            result.addDataItem("CompressedVaporViscosity", CompressedVaporViscosity::Lucas(result));
 
             return result;
         }
@@ -69,6 +76,7 @@ namespace PCProps {
         *this             = std::move(copy);
         return *this;
     }
+
     PureComponentFactory& PureComponentFactory::operator=(PureComponentFactory&& other) noexcept = default;
 
     void PureComponentFactory::init(const PureComponentFactory::JSONString& pcdata) {

@@ -41,6 +41,16 @@ namespace PCProps::CompressedVaporViscosity
               m_vaporPressure{vaporPressureFunction}
         {}
 
+        template<typename PC>
+        explicit Lucas(const PC& pureComponent) : Lucas(pureComponent.property("CriticalTemperature"),
+                                               pureComponent.property("CriticalPressure"),
+                                               pureComponent.property("CriticalCompressibility"),
+                                               pureComponent.property("MolarWeight"),
+                                               pureComponent.property("DipoleMoment"),
+                                               {},
+                                               {})
+        {}
+
         Lucas(const Lucas& other) = default;
 
         Lucas(Lucas&& other) noexcept = default;

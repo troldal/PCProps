@@ -67,6 +67,13 @@ namespace PCProps
         // ===== Private Data Members
         std::vector<ComponentDataRecord> m_dataItems {};
 
+        ComponentDataItem find(const std::string& ID) const {
+            return std::get<1>(*std::find_if(m_dataItems.begin(),
+                                             m_dataItems.end(),
+                                             [&](const auto& item) {return std::get<0>(item) == ID;}));
+        }
+
+
     public:
 
         // ===== Constructors & Assignment Operators ===== //
@@ -101,7 +108,6 @@ namespace PCProps
          */
         PureComponent& operator=(PureComponent&& other) noexcept = default;
 
-
         // ===== Accessors (Constants) ===== //
 
         void addDataItem(const std::string& ID, const ComponentDataItem& dataItem, const std::string& description = "", const std::string& unit = "") {
@@ -109,34 +115,26 @@ namespace PCProps
         }
 
         std::string metaData(const std::string& ID) {
-            const auto& item = std::get<1>(*std::find_if(m_dataItems.begin(), m_dataItems.end(), [&](const auto& item) {
-                return std::get<0>(item) == ID;
-            }));
-            if (std::holds_alternative<double>(item)) return std::get<std::string>(item);
+            auto item = find(ID);
+            if (std::holds_alternative<std::string>(item)) return std::get<std::string>(item);
             // TODO: else, throw exception
         }
 
         double property(const std::string& ID) const {
-            const auto& item = std::get<1>(*std::find_if(m_dataItems.begin(), m_dataItems.end(), [&](const auto& item) {
-                return std::get<0>(item) == ID;
-            }));
+            auto item = find(ID);
             if (std::holds_alternative<double>(item)) return std::get<double>(item);
             // TODO: else, throw exception
         }
 
         double correlation(const std::string& ID, double temperature) const {
-            const auto& item = std::get<1>(*std::find_if(m_dataItems.begin(), m_dataItems.end(), [&](const auto& item) {
-                return std::get<0>(item) == ID;
-            }));
+            auto item = find(ID);
             if (std::holds_alternative<std::function<double(double)>>(item))
                 return std::get<std::function<double(double)>>(item)(temperature);
             // TODO: else, throw exception
         }
 
         double correlation(const std::string& ID, const std::vector<double>& parameters) const {
-            const auto& item = std::get<1>(*std::find_if(m_dataItems.begin(), m_dataItems.end(), [&](const auto& item) {
-                return std::get<0>(item) == ID;
-            }));
+            auto item = find(ID);
             if (std::holds_alternative<std::function<double(std::vector<double>)>>(item))
                 return std::get<std::function<double(std::vector<double>)>>(item)(parameters);
             // TODO: else, throw exception

@@ -4,12 +4,14 @@
 #=======================================================================================================================
 set(PURECOMPONENTLIB_SOURCES
         PureComponentFactory.cpp
+        DataSource.cpp
         )
 
 #=======================================================================================================================
 # SHARED LIBRARY
 #   Define the shared library
 #=======================================================================================================================
+add_subdirectory(OpenXLSX)
 add_library(PureComponentLib STATIC "")
 target_sources(PureComponentLib PRIVATE ${PURECOMPONENTLIB_SOURCES})
 target_include_directories(PureComponentLib
@@ -17,7 +19,7 @@ target_include_directories(PureComponentLib
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(PureComponentLib PUBLIC dependencies)
+target_link_libraries(PureComponentLib PUBLIC dependencies OpenXLSX::OpenXLSX PropertyLib)
 
 #include(GenerateExportHeader)
 #generate_export_header(FluidLib)
