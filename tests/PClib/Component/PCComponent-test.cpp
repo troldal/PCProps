@@ -35,7 +35,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <Component/PureComponent.hpp>
+#include "../../../source/PureComponent/PureComponent.hpp"
 #include <HeatCapacity/AlyLee.hpp>
 #include <catch/catch.hpp>
 

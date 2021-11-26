@@ -30,6 +30,12 @@ namespace PCProps
         explicit FluidProperties(const std::string& JSONData);
 
         /**
+         *
+         * @param fluidProps
+         */
+        explicit FluidProperties(const std::vector<PhaseProperties>& fluidProps);
+
+        /**
          * @brief Copy constructor.
          */
         FluidProperties(const FluidProperties& other);
@@ -54,6 +60,11 @@ namespace PCProps
          */
         FluidProperties& operator=(FluidProperties&& other) noexcept;
 
+        /**
+         *
+         * @param fluidProps
+         * @return
+         */
         FluidProperties& operator=(const std::vector<PhaseProperties>& fluidProps);
 
         /**

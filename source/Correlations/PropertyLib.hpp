@@ -5,7 +5,7 @@
 #ifndef PCPROPS_PROPERTYLIB_HPP
 #define PCPROPS_PROPERTYLIB_HPP
 
-#include "Component/PureComponent.hpp"
+#include "../PureComponent/PureComponent.hpp"
 #include "ConstantData/Joback.hpp"
 
 #include "CompressedLiquidVolume/Aalto.hpp"

@@ -64,6 +64,7 @@ add_subdirectory(Interfaces)
 add_subdirectory(Properties)
 add_subdirectory(EquationOfState)
 add_subdirectory(Correlations)
+add_subdirectory(PureComponent)
 add_subdirectory(Fluid)
 add_subdirectory(UnitOps)
 

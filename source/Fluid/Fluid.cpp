@@ -56,14 +56,14 @@ namespace PCProps
          */
         PhaseProperties computeLiquidProperties(PhaseProperties liquid) const
         {
-            liquid.MolarVolume = m_pureComponent.property(
+            liquid.MolarVolume = m_pureComponent.correlation(
                 "CompressedLiquidVolume",
-                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.property("SaturatedLiquidVolume", liquid.Temperature) });
+                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.correlation("SaturatedLiquidVolume", liquid.Temperature) });
             liquid.SurfaceTension      = 0.0;
             liquid.ThermalConductivity = 0.0;
-            liquid.Viscosity           = m_pureComponent.property(
+            liquid.Viscosity           = m_pureComponent.correlation(
                 "CompressedLiquidViscosity",
-                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.property("SaturatedLiquidViscosity", liquid.Temperature) });
+                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.correlation("SaturatedLiquidViscosity", liquid.Temperature) });
 
             return liquid;
         }
@@ -77,9 +77,9 @@ namespace PCProps
         {
             vapor.SurfaceTension      = 0.0;
             vapor.ThermalConductivity = 0.0;
-            vapor.Viscosity           = m_pureComponent.property(
+            vapor.Viscosity           = m_pureComponent.correlation(
                 "CompressedVaporViscosity",
-                { vapor.Temperature, vapor.Pressure, vapor.VaporPressure, m_pureComponent.property("SaturatedVaporViscosity", vapor.Temperature) });
+                { vapor.Temperature, vapor.Pressure, vapor.VaporPressure, m_pureComponent.correlation("SaturatedVaporViscosity", vapor.Temperature) });
 
             return vapor;
         }

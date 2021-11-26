@@ -36,5 +36,5 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #define CATCH_CONFIG_MAIN
-#include <Component/PureComponent.hpp>
+#include "../../source/PureComponent/PureComponent.hpp"
 #include <catch/catch.hpp>

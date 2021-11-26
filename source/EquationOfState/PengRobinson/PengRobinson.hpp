@@ -102,7 +102,7 @@ namespace PCProps::EquationOfState
         template<typename PC>
         void init(const PC& pureComponent) {
             init([&](const std::string& ID)->double {return pureComponent.property(ID);},
-                 [&](const std::string& ID, double t)->double {return pureComponent.property(ID, t);});
+                 [&](const std::string& ID, double t)->double {return pureComponent.correlation(ID, t);});
         }
 
 

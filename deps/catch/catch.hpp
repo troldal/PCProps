@@ -16847,12 +16847,12 @@ namespace Catch {
         if (m_config->hasTestFilters() || m_config->rngSeed() != 0) {
             auto properties = xml.scopedElement("properties");
             if (m_config->hasTestFilters()) {
-                xml.scopedElement("property")
+                xml.scopedElement("correlation")
                     .writeAttribute("name", "filters")
                     .writeAttribute("value", serializeFilters(m_config->getTestsOrTags()));
             }
             if (m_config->rngSeed() != 0) {
-                xml.scopedElement("property")
+                xml.scopedElement("correlation")
                     .writeAttribute("name", "random-seed")
                     .writeAttribute("value", m_config->rngSeed());
             }

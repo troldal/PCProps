@@ -4,10 +4,13 @@
 #include <EOSLib.hpp>
 #include <Fluid.hpp>
 #include <PropertyLib.hpp>
+#include <PureComponent.hpp>
+#include <PureComponentFactory.hpp>
 
 #include <PhaseProperties.hpp>
 #include <FluidProperties.hpp>
 #include <json/json.hpp>
+#include <OpenXLSX.hpp>
 
 using PCProps::VaporPressure::AmbroseWalton;
 
@@ -22,9 +25,40 @@ using PCProps::Viscosity::DIPPR102;
 using PCProps::Viscosity::KirchhoffExtended;
 
 using namespace PCProps;
+using namespace OpenXLSX;
+using namespace nlohmann;
 
 int main()
 {
+
+    XLDocument doc;
+    doc.open("./Mini PCD.xlsx");
+    auto wbk = doc.workbook();
+    auto wks = wbk.worksheet("Constants");
+
+    std::vector<json> objects;
+    for (const auto &row: wks.rows(2, wks.rowCount())) {
+        std::vector<XLCellValue> values = row.values();
+        json object;
+        object["Name"] = values[1].type() == XLValueType::Empty ? "" : values[1];
+        object["Formula"] = values[3].type() == XLValueType::Empty ? "" : values[3];
+        object["CAS"] = values[5].type() == XLValueType::Empty ? "" : values[5];
+        object["MolarWeight"] = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
+        object["MeltingTemperature"] = values[16].type() == XLValueType::Empty ? 0.0 : values[16].get<double>();
+        object["BoilingTemperature"] = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
+        object["CriticalTemperature"] = values[9].type() == XLValueType::Empty ? 0.0 : values[9].get<double>();
+        object["CriticalPressure"] = values[10].type() == XLValueType::Empty ? 0.0 : values[10].get<double>();
+        object["CriticalDensity"] = values[12].type() == XLValueType::Empty ? 0.0 : values[12].get<double>();
+        object["AcentricFactor"] = values[14].type() == XLValueType::Empty ? 0.0 : values[14].get<double>();
+
+        objects.emplace_back(object);
+    }
+
+    auto js = json(objects);
+    auto pcfactory = PureComponentFactory(js.dump());
+    auto obj = pcfactory.makeComponent("132259-10-0");
+
+    std::cout << obj.property("MolarWeight") << std::endl;
 
 //    data.name  = "PROPANE";
 //    data.name  = "C3H8";
@@ -36,7 +70,7 @@ int main()
     using namespace PCProps::CompressedLiquidViscosity;
     using namespace PCProps::CompressedVaporViscosity;
 
-    pc.addDataItem("MolarWeight", 44.096);
+    pc.addDataItem("MolarWeight", 44.0956);
     pc.addDataItem("BoilingTemperature", 231.05);
     pc.addDataItem("FreezingTemperature", 85.15);
     pc.addDataItem("CriticalTemperature", 369.83);

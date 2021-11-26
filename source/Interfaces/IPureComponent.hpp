@@ -106,8 +106,8 @@ namespace PCProps {
          * @param temperature
          * @return
          */
-        double property(const std::string& ID, double temperature) const {
-            return m_pureComponent->property(ID, temperature);
+        double correlation(const std::string& ID, double temperature) const {
+            return m_pureComponent->correlation(ID, temperature);
         }
 
         /**
@@ -116,8 +116,8 @@ namespace PCProps {
          * @param parameters
          * @return
          */
-        double property(const std::string& ID, const std::vector<double>& parameters) const {
-            return m_pureComponent->property(ID, parameters);
+        double correlation(const std::string& ID, const std::vector<double>& parameters) const {
+            return m_pureComponent->correlation(ID, parameters);
         }
 
 
@@ -179,7 +179,7 @@ namespace PCProps {
              * @param temperature
              * @return
              */
-            virtual double property(const std::string& ID, double temperature) const = 0;
+            virtual double correlation(const std::string& ID, double temperature) const = 0;
 
             /**
              *
@@ -187,7 +187,7 @@ namespace PCProps {
              * @param parameters
              * @return
              */
-            virtual double property(const std::string& ID, const std::vector<double>& parameters) const = 0;
+            virtual double correlation(const std::string& ID, const std::vector<double>& parameters) const = 0;
 
         };
 
@@ -260,8 +260,8 @@ namespace PCProps {
              * @param temperature
              * @return
              */
-            double property(const std::string& ID, double temperature) const override {
-                return PCType.property(ID, temperature);
+            double correlation(const std::string& ID, double temperature) const override {
+                return PCType.correlation(ID, temperature);
             }
 
             /**
@@ -270,8 +270,8 @@ namespace PCProps {
              * @param parameters
              * @return
              */
-            double property(const std::string& ID, const std::vector<double>& parameters) const override {
-                return PCType.property(ID, parameters);
+            double correlation(const std::string& ID, const std::vector<double>& parameters) const override {
+                return PCType.correlation(ID, parameters);
             }
 
         private:

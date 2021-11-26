@@ -16,6 +16,8 @@ namespace PCProps {
         for (const auto& phase : fluid) m_phases.emplace_back(phase.dump());
     }
 
+    FluidProperties::FluidProperties(const std::vector<PhaseProperties>& fluidProps) : m_phases(fluidProps) {}
+
     FluidProperties::FluidProperties(const FluidProperties& other) = default;
 
     FluidProperties::FluidProperties(FluidProperties&& other) noexcept = default;

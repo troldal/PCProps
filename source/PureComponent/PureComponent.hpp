@@ -50,7 +50,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace PCProps
 {
-    using ComponentDataItem = std::variant<double, std::function<double(double)>, std::function<double(std::vector<double>)> >;
+    using ComponentDataItem = std::variant<std::string, double, std::function<double(double)>, std::function<double(std::vector<double>)> >;
     using ComponentDataRecord = std::tuple<std::string, ComponentDataItem, std::string, std::string>;
 
     /**
@@ -108,6 +108,14 @@ namespace PCProps
             m_dataItems.emplace_back(std::make_tuple(ID, dataItem, description, unit));
         }
 
+        std::string metaData(const std::string& ID) {
+            const auto& item = std::get<1>(*std::find_if(m_dataItems.begin(), m_dataItems.end(), [&](const auto& item) {
+                return std::get<0>(item) == ID;
+            }));
+            if (std::holds_alternative<double>(item)) return std::get<std::string>(item);
+            // TODO: else, throw exception
+        }
+
         double property(const std::string& ID) const {
             const auto& item = std::get<1>(*std::find_if(m_dataItems.begin(), m_dataItems.end(), [&](const auto& item) {
                 return std::get<0>(item) == ID;
@@ -116,7 +124,7 @@ namespace PCProps
             // TODO: else, throw exception
         }
 
-        double property(const std::string& ID, double temperature) const {
+        double correlation(const std::string& ID, double temperature) const {
             const auto& item = std::get<1>(*std::find_if(m_dataItems.begin(), m_dataItems.end(), [&](const auto& item) {
                 return std::get<0>(item) == ID;
             }));
@@ -125,7 +133,7 @@ namespace PCProps
             // TODO: else, throw exception
         }
 
-        double property(const std::string& ID, const std::vector<double>& parameters) const {
+        double correlation(const std::string& ID, const std::vector<double>& parameters) const {
             const auto& item = std::get<1>(*std::find_if(m_dataItems.begin(), m_dataItems.end(), [&](const auto& item) {
                 return std::get<0>(item) == ID;
             }));

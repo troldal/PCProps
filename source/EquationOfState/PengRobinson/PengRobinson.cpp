@@ -44,6 +44,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <VaporPressure/AmbroseWalton.hpp>
 #include <common/Globals.hpp>
 #include <PhaseProperties.hpp>
+#include <FluidProperties.hpp>
 
 #include <json/json.hpp>
 #include <numeric/differentiation.hpp>
@@ -508,7 +509,7 @@ namespace PCProps::EquationOfState
             // ===== Compute compressibility factors and fugacity coefficients at given T and P.
             computeThermodynamicProperties(temperature, pressure);
             for (auto& phase : m_phaseProps) phase.MolarFlow = 1.0;
-            return { *std::min_element(m_phaseProps.begin(), m_phaseProps.end(), [](const auto& a, const auto& b) {
+            return  { *std::min_element(m_phaseProps.begin(), m_phaseProps.end(), [](const auto& a, const auto& b) {
                          return a.FugacityCoefficient < b.FugacityCoefficient; }) };
         }
 
@@ -844,11 +845,7 @@ namespace PCProps::EquationOfState
     // ===== Move assignment operator
     PengRobinson& PengRobinson::operator=(PengRobinson&& other) noexcept = default;
 
-//    // ===== Initiates object with new pure component data
-//    void PengRobinson::init(const TPureComponent& pureComponent) {
-//        m_impl = std::make_unique<impl>(pureComponent);
-//    }
-
+    // ===== Initiates object with new pure component data
     void PengRobinson::init(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations) {
         m_impl = std::make_unique<impl>(constants, correlations);
     }
