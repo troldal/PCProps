@@ -61,13 +61,13 @@ namespace PCProps::VaporPressure
     {
         // ===== Private Data Members
 
-        double m_coeffA;
-        double m_coeffB;
-        double m_coeffC;
-        double m_coeffD;
-        double m_coeffE;
-        double m_coeffF;
-        double m_coeffG;
+        double m_coeffA {};
+        double m_coeffB {};
+        double m_coeffC {};
+        double m_coeffD {};
+        double m_coeffE {};
+        double m_coeffF {};
+        double m_coeffG {};
 
     public:
         struct CreateFromDIPPR

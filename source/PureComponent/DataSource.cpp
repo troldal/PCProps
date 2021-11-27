@@ -6,6 +6,7 @@
 
 #include <json/json.hpp>
 #include <OpenXLSX.hpp>
+#include <algorithm>
 
 
 using namespace nlohmann;
@@ -93,8 +94,95 @@ namespace PCProps {
                 objects.emplace_back(object);
             }
 
-            doc.close();
+            wks = wbk.worksheet("Ideal Gas Cp");
+            for (const auto &row: wks.rows(2, wks.rowCount())) {
+                std::vector<XLCellValue> values = row.values();
+                auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
+                json igcp;
+                igcp["Equation"] = values[4].type() == XLValueType::Empty ? "" : values[4];
+                igcp["C1"] = values[5].type() == XLValueType::Empty ? 0.0 : values[5].get<double>();
+                igcp["C2"] = values[6].type() == XLValueType::Empty ? 0.0 : values[6].get<double>();
+                igcp["C3"] = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
+                igcp["C4"] = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
+                igcp["C5"] = values[9].type() == XLValueType::Empty ? 0.0 : values[9].get<double>();
 
+                object["IdealGasCp"] = igcp;
+            }
+
+            wks = wbk.worksheet("Liquid Cp");
+            for (const auto &row: wks.rows(2, wks.rowCount())) {
+                std::vector<XLCellValue> values = row.values();
+                auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
+                json liqcp;
+                liqcp["Equation"] = values[4].type() == XLValueType::Empty ? "" : values[4];
+                liqcp["C1"] = values[5].type() == XLValueType::Empty ? 0.0 : values[5].get<double>();
+                liqcp["C2"] = values[6].type() == XLValueType::Empty ? 0.0 : values[6].get<double>();
+                liqcp["C3"] = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
+                liqcp["C4"] = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
+                liqcp["C5"] = values[9].type() == XLValueType::Empty ? 0.0 : values[9].get<double>();
+
+                object["LiquidCp"] = liqcp;
+            }
+
+            wks = wbk.worksheet("Vapor Pressure");
+            for (const auto &row: wks.rows(2, wks.rowCount())) {
+                std::vector<XLCellValue> values = row.values();
+                auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
+                json vp;
+                vp["Equation"] = values[5].type() == XLValueType::Empty ? "" : values[5];
+                vp["C1"] = values[6].type() == XLValueType::Empty ? 0.0 : values[6].get<double>();
+                vp["C2"] = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
+                vp["C3"] = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
+                vp["C4"] = values[9].type() == XLValueType::Empty ? 0.0 : values[9].get<double>();
+                vp["C5"] = values[10].type() == XLValueType::Empty ? 0.0 : values[10].get<double>();
+
+                object["VaporPressure"] = vp;
+            }
+
+            wks = wbk.worksheet("Sat Vap Visc");
+            for (const auto &row: wks.rows(2, wks.rowCount())) {
+                std::vector<XLCellValue> values = row.values();
+                auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
+                json svv;
+                svv["Equation"] = values[4].type() == XLValueType::Empty ? "" : values[4];
+                svv["C1"] = values[5].type() == XLValueType::Empty ? 0.0 : values[5].get<double>();
+                svv["C2"] = values[6].type() == XLValueType::Empty ? 0.0 : values[6].get<double>();
+                svv["C3"] = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
+                svv["C4"] = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
+
+                object["SaturatedVaporViscosity"] = svv;
+            }
+
+            wks = wbk.worksheet("Sat Liq Visc");
+            for (const auto &row: wks.rows(2, wks.rowCount())) {
+                std::vector<XLCellValue> values = row.values();
+                auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
+                json slv;
+                slv["Equation"] = values[4].type() == XLValueType::Empty ? "" : values[4];
+                slv["C1"] = values[5].type() == XLValueType::Empty ? 0.0 : values[5].get<double>();
+                slv["C2"] = values[6].type() == XLValueType::Empty ? 0.0 : values[6].get<double>();
+                slv["C3"] = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
+                slv["C4"] = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
+                slv["C5"] = values[9].type() == XLValueType::Empty ? 0.0 : values[9].get<double>();
+
+                object["SaturatedLiquidViscosity"] = slv;
+            }
+
+            wks = wbk.worksheet("Sat Liq Dens");
+            for (const auto &row: wks.rows(2, wks.rowCount())) {
+                std::vector<XLCellValue> values = row.values();
+                auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
+                json sld;
+                sld["Equation"] = values[4].type() == XLValueType::Empty ? "" : values[4];
+                sld["C1"] = values[5].type() == XLValueType::Empty ? 0.0 : values[5].get<double>();
+                sld["C2"] = values[6].type() == XLValueType::Empty ? 0.0 : values[6].get<double>();
+                sld["C3"] = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
+                sld["C4"] = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
+
+                object["SaturatedLiquidVolume"] = sld;
+            }
+
+            doc.close();
             return json(objects); // NOLINT
         }
 
