@@ -51,7 +51,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <numeric/integration.hpp>
 #include <numeric/roots.hpp>
 
-using PCProps::VaporPressure::AmbroseWalton;
+//using PCProps::VaporPressure::AmbroseWalton;
 using JSONString = std::string;
 
 namespace PCProps::EquationOfState
@@ -65,12 +65,13 @@ namespace PCProps::EquationOfState
     {
     private:
 
-        std::function<double(double)> m_idealGasCp {};
-
         // ===== Basic fluid properties
         double m_criticalTemperature {};
         double m_criticalPressure {};
         double m_acentricFactor {};
+
+        std::function<double(double)> m_idealGasCp {};
+        std::function<double(double)> m_vaporPressure {};
 
         // ===== Calculated constants
         double m_ac {};
@@ -287,10 +288,12 @@ namespace PCProps::EquationOfState
          * @param acentricFactor The acentric factor [-]
          */
         explicit impl(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations)
-            : m_idealGasCp([=](double t)->double {return correlations("IdealGasCp", t);}),
-              m_criticalTemperature(constants("CriticalTemperature")),
+            : m_criticalTemperature(constants("CriticalTemperature")),
               m_criticalPressure(constants("CriticalPressure")),
               m_acentricFactor(constants("AcentricFactor")),
+              m_idealGasCp([=](double t)->double {return correlations("IdealGasCp", t);}),
+              //m_vaporPressure(VaporPressure::AmbroseWalton(m_criticalTemperature, m_criticalPressure, m_acentricFactor)),
+              m_vaporPressure([=](double t)->double {return correlations("VaporPressure", t);}),
               m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(m_criticalTemperature, 2) / m_criticalPressure),
               m_b(0.07779607 * PCProps::Globals::R_CONST * m_criticalTemperature / m_criticalPressure),
               m_kappa(
@@ -366,7 +369,8 @@ namespace PCProps::EquationOfState
                 return (phi_l - phi_v) * p;
             };
 
-            auto guess  = AmbroseWalton(criticalTemperature(), criticalPressure(), acentricFactor())(temperature);
+            //auto guess  = AmbroseWalton(criticalTemperature(), criticalPressure(), acentricFactor())(temperature);
+            auto guess = m_vaporPressure(temperature);
             auto result = numeric::newton(f, min(guess, criticalPressure() * 0.99), 1E-6, 100);
 
             return (std::isnan(result) || result <= 0.0 ? guess : result);
@@ -393,8 +397,9 @@ namespace PCProps::EquationOfState
                 return (phi_l - phi_v) * pressure;
             };
 
-            auto aw     = AmbroseWalton(criticalTemperature(), criticalPressure(), acentricFactor());
-            auto guess  = numeric::newton([&](double t) { return aw(t) - pressure; }, criticalTemperature() - sqrt(std::numeric_limits<double>::epsilon()));
+            //auto aw     = AmbroseWalton(criticalTemperature(), criticalPressure(), acentricFactor());
+
+            auto guess  = numeric::newton([&](double t) { return m_vaporPressure(t) - pressure; }, criticalTemperature() - sqrt(std::numeric_limits<double>::epsilon()));
             auto result = numeric::newton(f, guess, 1E-6, 100);
             return (std::isnan(result) || result <= 0.0 ? guess : result);
         }
