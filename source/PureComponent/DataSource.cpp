@@ -8,9 +8,53 @@
 #include <OpenXLSX.hpp>
 #include <algorithm>
 
-
 using namespace nlohmann;
 using namespace OpenXLSX;
+
+namespace {
+
+    /**
+     * @brief
+     * @param record
+     * @return
+     */
+    json extractConstants(const std::vector<XLCellValue>& record) {
+
+        json result;
+        result["Name"]                    = record[1].type() == XLValueType::Empty ? "" : record[1];
+        result["CAS"]                     = record[2].type() == XLValueType::Empty ? "" : record[2];
+        result["MolarWeight"]             = record[3].type() == XLValueType::Empty ? 0.0 : record[3].get<double>();
+        result["MeltingTemperature"]      = record[4].type() == XLValueType::Empty ? 0.0 : record[4].get<double>();
+        result["BoilingTemperature"]      = record[5].type() == XLValueType::Empty ? 0.0 : record[5].get<double>();
+        result["CriticalTemperature"]     = record[6].type() == XLValueType::Empty ? 0.0 : record[6].get<double>();
+        result["CriticalPressure"]        = record[7].type() == XLValueType::Empty ? 0.0 : record[7].get<double>();
+        result["CriticalVolume"]          = record[8].type() == XLValueType::Empty ? 0.0 : record[8].get<double>();
+        result["CriticalDensity"]         = record[9].type() == XLValueType::Empty ? 0.0 : record[9].get<double>();
+        result["CriticalCompressibility"] = record[10].type() == XLValueType::Empty ? 0.0 : record[10].get<double>();
+        result["AcentricFactor"]          = record[11].type() == XLValueType::Empty ? 0.0 : record[11].get<double>();
+        result["DipoleMoment"]            = record[12].type() == XLValueType::Empty ? 0.0 : record[12].get<double>();
+
+        return result;
+    }
+
+    /**
+     * @brief
+     * @param record
+     * @return
+     */
+    json extractCorrelationData(const std::vector<XLCellValue>& record) {
+
+        json result;
+        result["Equation"] = record[3].type() == XLValueType::Empty ? "" : record[3];
+        result["C1"] = record[4].type() == XLValueType::Empty ? 0.0 : record[4].get<double>();
+        result["C2"] = record[5].type() == XLValueType::Empty ? 0.0 : record[5].get<double>();
+        result["C3"] = record[6].type() == XLValueType::Empty ? 0.0 : record[6].get<double>();
+        result["C4"] = record[7].type() == XLValueType::Empty ? 0.0 : record[7].get<double>();
+        result["C5"] = record[8].type() == XLValueType::Empty ? 0.0 : record[8].get<double>();
+
+        return result;
+    }
+}
 
 namespace PCProps {
 
@@ -22,18 +66,18 @@ namespace PCProps {
     public:
 
         /**
-         *
+         * @brief Default constructor.
          */
         impl() = default;
 
         /**
-         *
-         * @param filename
+         * @brief Constructor taking path to Excel spreadsheet as argument.
+         * @param filename Path to Excel spreadsheet.
          */
         explicit impl(const std::string& filename) : m_filename(filename) {}
 
         /**
-         *
+         * @brief Destructor;
          */
         ~impl() = default;
 
@@ -72,114 +116,65 @@ namespace PCProps {
             XLDocument doc;
             doc.open(m_filename);
             auto wbk = doc.workbook();
+
+            // ===== Load pure component constants (e.g. critical properties)
             auto wks = wbk.worksheet("Constants");
-
             std::vector<json> objects;
-            for (const auto &row: wks.rows(2, wks.rowCount())) {
-                std::vector<XLCellValue> values = row.values();
-                json object;
-                object["Name"]                    = values[1].type() == XLValueType::Empty ? "" : values[1];
-                object["CAS"]                     = values[2].type() == XLValueType::Empty ? "" : values[2];
-                object["MolarWeight"]             = values[4].type() == XLValueType::Empty ? 0.0 : values[4].get<double>();
-                object["MeltingTemperature"]      = values[13].type() == XLValueType::Empty ? 0.0 : values[13].get<double>();
-                object["BoilingTemperature"]      = values[5].type() == XLValueType::Empty ? 0.0 : values[5].get<double>();
-                object["CriticalTemperature"]     = values[6].type() == XLValueType::Empty ? 0.0 : values[6].get<double>();
-                object["CriticalPressure"]        = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
-                object["CriticalVolume"]          = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
-                object["CriticalDensity"]         = values[9].type() == XLValueType::Empty ? 0.0 : values[9].get<double>();
-                object["CriticalCompressibility"] = values[10].type() == XLValueType::Empty ? 0.0 : values[10].get<double>();
-                object["AcentricFactor"]          = values[11].type() == XLValueType::Empty ? 0.0 : values[11].get<double>();
-                object["DipoleMoment"]            = values[12].type() == XLValueType::Empty ? 0.0 : values[12].get<double>();
+            for (const auto &row: wks.rows(2, wks.rowCount()))
+                objects.emplace_back(extractConstants(row.values()));
 
-                objects.emplace_back(object);
-            }
-
-            wks = wbk.worksheet("Ideal Gas Cp");
+            // ===== Load ideal gas heat capacity correlation coefficients
+            wks = wbk.worksheet("IdealGasCp");
             for (const auto &row: wks.rows(2, wks.rowCount())) {
                 std::vector<XLCellValue> values = row.values();
                 auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
-                json igcp;
-                igcp["Equation"] = values[4].type() == XLValueType::Empty ? "" : values[4];
-                igcp["C1"] = values[5].type() == XLValueType::Empty ? 0.0 : values[5].get<double>();
-                igcp["C2"] = values[6].type() == XLValueType::Empty ? 0.0 : values[6].get<double>();
-                igcp["C3"] = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
-                igcp["C4"] = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
-                igcp["C5"] = values[9].type() == XLValueType::Empty ? 0.0 : values[9].get<double>();
-
-                object["IdealGasCp"] = igcp;
+                if (object == *objects.end()) continue;
+                object["IdealGasCp"] = extractCorrelationData(values);
             }
 
-            wks = wbk.worksheet("Liquid Cp");
+            // ===== Load liquid heat capacity correlation coefficients
+            wks = wbk.worksheet("LiquidCp");
             for (const auto &row: wks.rows(2, wks.rowCount())) {
                 std::vector<XLCellValue> values = row.values();
                 auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
-                json liqcp;
-                liqcp["Equation"] = values[4].type() == XLValueType::Empty ? "" : values[4];
-                liqcp["C1"] = values[5].type() == XLValueType::Empty ? 0.0 : values[5].get<double>();
-                liqcp["C2"] = values[6].type() == XLValueType::Empty ? 0.0 : values[6].get<double>();
-                liqcp["C3"] = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
-                liqcp["C4"] = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
-                liqcp["C5"] = values[9].type() == XLValueType::Empty ? 0.0 : values[9].get<double>();
-
-                object["LiquidCp"] = liqcp;
+                if (object == *objects.end()) continue;
+                object["LiquidCp"] = extractCorrelationData(values);
             }
 
-            wks = wbk.worksheet("Vapor Pressure");
+            // ===== Load vapor pressure correlation coefficients
+            wks = wbk.worksheet("VaporPressure");
             for (const auto &row: wks.rows(2, wks.rowCount())) {
                 std::vector<XLCellValue> values = row.values();
                 auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
-                json vp;
-                vp["Equation"] = values[5].type() == XLValueType::Empty ? "" : values[5];
-                vp["C1"] = values[6].type() == XLValueType::Empty ? 0.0 : values[6].get<double>();
-                vp["C2"] = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
-                vp["C3"] = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
-                vp["C4"] = values[9].type() == XLValueType::Empty ? 0.0 : values[9].get<double>();
-                vp["C5"] = values[10].type() == XLValueType::Empty ? 0.0 : values[10].get<double>();
-
-                object["VaporPressure"] = vp;
+                if (object == *objects.end()) continue;
+                object["VaporPressure"] = extractCorrelationData(values);
             }
 
-            wks = wbk.worksheet("Sat Vap Visc");
+            // ===== Load saturated vapor viscosity correlation coefficients
+            wks = wbk.worksheet("SaturatedVaporViscosity");
             for (const auto &row: wks.rows(2, wks.rowCount())) {
                 std::vector<XLCellValue> values = row.values();
                 auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
-                json svv;
-                svv["Equation"] = values[4].type() == XLValueType::Empty ? "" : values[4];
-                svv["C1"] = values[5].type() == XLValueType::Empty ? 0.0 : values[5].get<double>();
-                svv["C2"] = values[6].type() == XLValueType::Empty ? 0.0 : values[6].get<double>();
-                svv["C3"] = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
-                svv["C4"] = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
-
-                object["SaturatedVaporViscosity"] = svv;
+                if (object == *objects.end()) continue;
+                object["SaturatedVaporViscosity"] = extractCorrelationData(values);
             }
 
-            wks = wbk.worksheet("Sat Liq Visc");
+            // ===== Load saturated liquid viscosity correlation coefficients
+            wks = wbk.worksheet("SaturatedLiquidViscosity");
             for (const auto &row: wks.rows(2, wks.rowCount())) {
                 std::vector<XLCellValue> values = row.values();
                 auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
-                json slv;
-                slv["Equation"] = values[4].type() == XLValueType::Empty ? "" : values[4];
-                slv["C1"] = values[5].type() == XLValueType::Empty ? 0.0 : values[5].get<double>();
-                slv["C2"] = values[6].type() == XLValueType::Empty ? 0.0 : values[6].get<double>();
-                slv["C3"] = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
-                slv["C4"] = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
-                slv["C5"] = values[9].type() == XLValueType::Empty ? 0.0 : values[9].get<double>();
-
-                object["SaturatedLiquidViscosity"] = slv;
+                if (object == *objects.end()) continue;
+                object["SaturatedLiquidViscosity"] = extractCorrelationData(values);
             }
 
-            wks = wbk.worksheet("Sat Liq Dens");
+            // ===== Load saturated liquid volume (density) correlation coefficients
+            wks = wbk.worksheet("SaturatedLiquidVolume");
             for (const auto &row: wks.rows(2, wks.rowCount())) {
                 std::vector<XLCellValue> values = row.values();
                 auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
-                json sld;
-                sld["Equation"] = values[4].type() == XLValueType::Empty ? "" : values[4];
-                sld["C1"] = values[5].type() == XLValueType::Empty ? 0.0 : values[5].get<double>();
-                sld["C2"] = values[6].type() == XLValueType::Empty ? 0.0 : values[6].get<double>();
-                sld["C3"] = values[7].type() == XLValueType::Empty ? 0.0 : values[7].get<double>();
-                sld["C4"] = values[8].type() == XLValueType::Empty ? 0.0 : values[8].get<double>();
-
-                object["SaturatedLiquidVolume"] = sld;
+                if (object == *objects.end()) continue;
+                object["SaturatedLiquidVolume"] = extractCorrelationData(values);
             }
 
             doc.close();
