@@ -10,7 +10,8 @@ set(EOSLIB_SOURCES
 # SHARED LIBRARY
 #   Define the shared library
 #=======================================================================================================================
-find_package(GSL REQUIRED)
+set(PCPROPS_USE_GSL ON)
+
 add_library(numerics STATIC "")
 target_sources(numerics PRIVATE ${EOSLIB_SOURCES})
 target_include_directories(numerics
@@ -18,7 +19,12 @@ target_include_directories(numerics
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(numerics PUBLIC GSL::gsl)
+
+if (${PCPROPS_USE_GSL})
+    find_package(GSL REQUIRED)
+    target_link_libraries(numerics PUBLIC GSL::gsl)
+    add_compile_definitions(PCPROPS_USE_GSL)
+endif()
 
 #include(GenerateExportHeader)
 #generate_export_header(EOSLib)
