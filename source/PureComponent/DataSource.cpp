@@ -177,6 +177,24 @@ namespace PCProps {
                 object["SaturatedLiquidVolume"] = extractCorrelationData(values);
             }
 
+            // ===== Load vapor thermal conductivity correlation coefficients
+            wks = wbk.worksheet("VaporThermalConductivity");
+            for (const auto &row: wks.rows(2, wks.rowCount())) {
+                std::vector<XLCellValue> values = row.values();
+                auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
+                if (object == *objects.end()) continue;
+                object["VaporThermalConductivity"] = extractCorrelationData(values);
+            }
+
+            // ===== Load liquid thermal conductivity correlation coefficients
+            wks = wbk.worksheet("LiquidThermalConductivity");
+            for (const auto &row: wks.rows(2, wks.rowCount())) {
+                std::vector<XLCellValue> values = row.values();
+                auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
+                if (object == *objects.end()) continue;
+                object["LiquidThermalConductivity"] = extractCorrelationData(values);
+            }
+
             doc.close();
             return json(objects); // NOLINT
         }

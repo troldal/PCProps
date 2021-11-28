@@ -4,20 +4,21 @@
 
 #include "PureComponentFactory.hpp"
 
-#include <json/json.hpp>
 #include <PropertyLib.hpp>
+#include <json/json.hpp>
 
 using namespace nlohmann;
 
-namespace {
+namespace
+{
 
     /**
-     *
+     * @brief
      * @param obj
      * @return
      */
-    std::function<double(double)> createIdealGasCpFunction(const json& obj) {
-
+    std::function<double(double)> createIdealGasCpFunction(const json& obj)
+    {
         if (obj["IdealGasCp"]["Equation"] == "DIPPR-100")
             return PCProps::HeatCapacity::Polynomial(PCProps::HeatCapacity::Polynomial::CreateFromDIPPR { obj["IdealGasCp"]["C1"].get<double>(),
                                                                                                           obj["IdealGasCp"]["C2"].get<double>(),
@@ -27,98 +28,165 @@ namespace {
 
         if (obj["IdealGasCp"]["Equation"] == "DIPPR-107")
             return PCProps::HeatCapacity::AlyLee(PCProps::HeatCapacity::AlyLee::CreateFromDIPPR { obj["IdealGasCp"]["C1"].get<double>(),
-                                                                             obj["IdealGasCp"]["C2"].get<double>(),
-                                                                             obj["IdealGasCp"]["C3"].get<double>(),
-                                                                             obj["IdealGasCp"]["C4"].get<double>(),
-                                                                             obj["IdealGasCp"]["C5"].get<double>() });
+                                                                                                  obj["IdealGasCp"]["C2"].get<double>(),
+                                                                                                  obj["IdealGasCp"]["C3"].get<double>(),
+                                                                                                  obj["IdealGasCp"]["C4"].get<double>(),
+                                                                                                  obj["IdealGasCp"]["C5"].get<double>() });
     }
 
-    std::function<double(double)> createLiquidCpFunction(const json& obj) {
-
+    /**
+     * @brief
+     * @param obj
+     * @return
+     */
+    std::function<double(double)> createLiquidCpFunction(const json& obj)
+    {
         if (obj["LiquidCp"]["Equation"] == "DIPPR-100")
             return PCProps::HeatCapacity::Polynomial(PCProps::HeatCapacity::Polynomial::CreateFromDIPPR { obj["IdealGasCp"]["C1"].get<double>(),
-                                                                                     obj["IdealGasCp"]["C2"].get<double>(),
-                                                                                     obj["IdealGasCp"]["C3"].get<double>(),
-                                                                                     obj["IdealGasCp"]["C4"].get<double>(),
-                                                                                     obj["IdealGasCp"]["C5"].get<double>() });
+                                                                                                          obj["IdealGasCp"]["C2"].get<double>(),
+                                                                                                          obj["IdealGasCp"]["C3"].get<double>(),
+                                                                                                          obj["IdealGasCp"]["C4"].get<double>(),
+                                                                                                          obj["IdealGasCp"]["C5"].get<double>() });
 
         if (obj["LiquidCp"]["Equation"] == "DIPPR-114")
             return PCProps::HeatCapacity::PPDSLiquid(PCProps::HeatCapacity::PPDSLiquid::CreateFromDIPPR { obj["IdealGasCp"]["C1"].get<double>(),
-                                                                                     obj["IdealGasCp"]["C2"].get<double>(),
-                                                                                     obj["IdealGasCp"]["C3"].get<double>(),
-                                                                                     obj["IdealGasCp"]["C4"].get<double>(),
-                                                                                     obj["CriticalTemperature"].get<double>() });
+                                                                                                          obj["IdealGasCp"]["C2"].get<double>(),
+                                                                                                          obj["IdealGasCp"]["C3"].get<double>(),
+                                                                                                          obj["IdealGasCp"]["C4"].get<double>(),
+                                                                                                          obj["CriticalTemperature"].get<double>() });
 
         if (obj["LiquidCp"]["Equation"] == "VDI")
             return PCProps::HeatCapacity::PPDSLiquid(PCProps::HeatCapacity::PPDSLiquid::CreateFromPPDS { obj["IdealGasCp"]["C1"].get<double>(),
-                                                                                    obj["IdealGasCp"]["C2"].get<double>(),
-                                                                                    obj["IdealGasCp"]["C3"].get<double>(),
-                                                                                    obj["IdealGasCp"]["C4"].get<double>(),
-                                                                                    obj["IdealGasCp"]["C5"].get<double>(),
-                                                                                    0.0, obj["CriticalTemperature"].get<double>(), 0.0});
-
+                                                                                                         obj["IdealGasCp"]["C2"].get<double>(),
+                                                                                                         obj["IdealGasCp"]["C3"].get<double>(),
+                                                                                                         obj["IdealGasCp"]["C4"].get<double>(),
+                                                                                                         obj["IdealGasCp"]["C5"].get<double>(),
+                                                                                                         0.0,
+                                                                                                         obj["CriticalTemperature"].get<double>(),
+                                                                                                         0.0 });
     }
 
-    std::function<double(double)> createVaporPressureFunction(const json& obj) {
+    /**
+     * @brief
+     * @param obj
+     * @return
+     */
+    std::function<double(double)> createVaporPressureFunction(const json& obj)
+    {
         if (obj["VaporPressure"]["Equation"] == "DIPPR-101")
             return PCProps::VaporPressure::AntoineExtended(PCProps::VaporPressure::AntoineExtended::CreateFromDIPPR { obj["VaporPressure"]["C1"].get<double>(),
-                                                                                                          obj["VaporPressure"]["C2"].get<double>(),
-                                                                                                          obj["VaporPressure"]["C3"].get<double>(),
-                                                                                                          obj["VaporPressure"]["C4"].get<double>(),
-                                                                                                          obj["VaporPressure"]["C5"].get<double>() });
+                                                                                                                      obj["VaporPressure"]["C2"].get<double>(),
+                                                                                                                      obj["VaporPressure"]["C3"].get<double>(),
+                                                                                                                      obj["VaporPressure"]["C4"].get<double>(),
+                                                                                                                      obj["VaporPressure"]["C5"].get<double>() });
     }
 
-    std::function<double(double)> createVaporViscosityFunction(const json& obj) {
+    /**
+     * @brief
+     * @param obj
+     * @return
+     */
+    std::function<double(double)> createVaporViscosityFunction(const json& obj)
+    {
         if (obj["SaturatedVaporViscosity"]["Equation"] == "DIPPR-102")
-            return PCProps::Viscosity::DIPPR102( { obj["SaturatedVaporViscosity"]["C1"].get<double>(),
-                                                                                                                      obj["SaturatedVaporViscosity"]["C2"].get<double>(),
-                                                                                                                      obj["SaturatedVaporViscosity"]["C3"].get<double>(),
-                                                                                                                      obj["SaturatedVaporViscosity"]["C4"].get<double>() });
+            return PCProps::Viscosity::DIPPR102({ obj["SaturatedVaporViscosity"]["C1"].get<double>(),
+                                                  obj["SaturatedVaporViscosity"]["C2"].get<double>(),
+                                                  obj["SaturatedVaporViscosity"]["C3"].get<double>(),
+                                                  obj["SaturatedVaporViscosity"]["C4"].get<double>() });
     }
 
-    std::function<double(double)> createLiquidViscosityFunction(const json& obj) {
+    /**
+     * @brief
+     * @param obj
+     * @return
+     */
+    std::function<double(double)> createLiquidViscosityFunction(const json& obj)
+    {
         if (obj["SaturatedLiquidViscosity"]["Equation"] == "DIPPR-101")
-            return PCProps::Viscosity::KirchhoffExtended( PCProps::Viscosity::KirchhoffExtended::CreateFromDIPPR{ obj["SaturatedLiquidViscosity"]["C1"].get<double>(),
-                                                  obj["SaturatedLiquidViscosity"]["C2"].get<double>(),
-                                                  obj["SaturatedLiquidViscosity"]["C3"].get<double>(),
-                                                  obj["SaturatedLiquidViscosity"]["C4"].get<double>(),
-                                                      obj["SaturatedLiquidViscosity"]["C5"].get<double>() });
+            return PCProps::Viscosity::KirchhoffExtended(PCProps::Viscosity::KirchhoffExtended::CreateFromDIPPR { obj["SaturatedLiquidViscosity"]["C1"].get<double>(),
+                                                                                                                  obj["SaturatedLiquidViscosity"]["C2"].get<double>(),
+                                                                                                                  obj["SaturatedLiquidViscosity"]["C3"].get<double>(),
+                                                                                                                  obj["SaturatedLiquidViscosity"]["C4"].get<double>(),
+                                                                                                                  obj["SaturatedLiquidViscosity"]["C5"].get<double>() });
     }
 
-    std::function<double(double)> createLiquidVolumeFunction(const json& obj) {
+    /**
+     * @brief
+     * @param obj
+     * @return
+     */
+    std::function<double(double)> createLiquidVolumeFunction(const json& obj)
+    {
         if (obj["SaturatedLiquidVolume"]["Equation"] == "DIPPR-105")
-            return PCProps::LiquidVolume::Rackett ( PCProps::LiquidVolume::Rackett::CreateFromDIPPR{ obj["SaturatedLiquidVolume"]["C1"].get<double>(),
-                                                                                                                  obj["SaturatedLiquidVolume"]["C2"].get<double>(),
-                                                                                                                  obj["SaturatedLiquidVolume"]["C3"].get<double>(),
-                                                                                                                  obj["SaturatedLiquidVolume"]["C4"].get<double>() });
+            return PCProps::LiquidVolume::Rackett(PCProps::LiquidVolume::Rackett::CreateFromDIPPR { obj["SaturatedLiquidVolume"]["C1"].get<double>(),
+                                                                                                    obj["SaturatedLiquidVolume"]["C2"].get<double>(),
+                                                                                                    obj["SaturatedLiquidVolume"]["C3"].get<double>(),
+                                                                                                    obj["SaturatedLiquidVolume"]["C4"].get<double>() });
     }
 
-}
+}    // namespace
 
-namespace PCProps {
+namespace PCProps
+{
 
+    /**
+     * @brief
+     */
     class PureComponentFactory::impl
     {
     public:
 
+        /**
+         * @brief
+         */
         impl() = default;
 
+        /**
+         * @brief
+         * @param pcdata
+         */
         explicit impl(const JSONString& pcdata) : m_pcdata(json::parse(pcdata)) {}
 
+        /**
+         * @brief
+         */
         ~impl() = default;
 
+        /**
+         * @brief
+         * @param other
+         */
         impl(const impl& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         */
         impl(impl&& other) noexcept = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         impl& operator=(const impl& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         impl& operator=(impl&& other) noexcept = default;
 
-        PureComponent makeComponent(const std::string& CAS) {
-
+        /**
+         * @brief
+         * @param CAS
+         * @return
+         */
+        PureComponent makeComponent(const std::string& CAS)
+        {
             PureComponent result;
-            auto component = *find_if(m_pcdata.begin(), m_pcdata.end(), [&](const json& rec){ return rec["CAS"].get<std::string>() == CAS;});
+            auto          component = *find_if(m_pcdata.begin(), m_pcdata.end(), [&](const json& rec) { return rec["CAS"].get<std::string>() == CAS; });
 
             result.addDataItem("Name", component["Name"].get<std::string>());
             result.addDataItem("CAS", component["CAS"].get<std::string>());
@@ -140,9 +208,7 @@ namespace PCProps {
             result.addDataItem("SaturatedLiquidViscosity", createLiquidViscosityFunction(component));
             result.addDataItem("SaturatedLiquidVolume", createLiquidVolumeFunction(component));
 
-
-
-            result.addDataItem("CompressedLiquidVolume",  LiquidVolume::Thomson(result));
+            result.addDataItem("CompressedLiquidVolume", LiquidVolume::Thomson(result));
             result.addDataItem("CompressedLiquidViscosity", CompressedLiquidViscosity::Lucas(result));
             result.addDataItem("CompressedVaporViscosity", CompressedVaporViscosity::Lucas(result));
 
@@ -151,36 +217,44 @@ namespace PCProps {
 
     private:
         json m_pcdata;
-
-
     };
 
+    // =====
     PureComponentFactory::PureComponentFactory() : m_impl(nullptr) {}
 
+    // =====
     PureComponentFactory::PureComponentFactory(const JSONString& pcdata) : m_impl(std::make_unique<impl>(pcdata)) {}
 
+    // =====
     PureComponentFactory::~PureComponentFactory() = default;
 
+    // =====
     PureComponentFactory::PureComponentFactory(const PureComponentFactory& other) : m_impl(other.m_impl ? std::make_unique<impl>(*other.m_impl) : nullptr) {}
 
+    // =====
     PureComponentFactory::PureComponentFactory(PureComponentFactory&& other) noexcept = default;
 
+    // =====
     PureComponentFactory& PureComponentFactory::operator=(const PureComponentFactory& other)
     {
         PureComponentFactory copy = other;
-        *this             = std::move(copy);
+        *this                     = std::move(copy);
         return *this;
     }
 
+    // =====
     PureComponentFactory& PureComponentFactory::operator=(PureComponentFactory&& other) noexcept = default;
 
-    void PureComponentFactory::init(const PureComponentFactory::JSONString& pcdata) {
+    // =====
+    void PureComponentFactory::init(const PureComponentFactory::JSONString& pcdata)
+    {
         m_impl = std::make_unique<impl>(pcdata);
     }
 
+    // =====
     PureComponent PureComponentFactory::makeComponent(const std::string& CAS) const
     {
         return m_impl->makeComponent(CAS);
     }
 
-} // namespace PCProps
+}    // namespace PCProps

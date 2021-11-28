@@ -5,10 +5,11 @@
 #ifndef PCPROPS_INTEGRATION_HPP
 #define PCPROPS_INTEGRATION_HPP
 
+#include <algorithm>
 #include <cmath>
 #include <functional>
 
-namespace numeric {
+namespace numeric::impl {
 
     /**
      * @brief

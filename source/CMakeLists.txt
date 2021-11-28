@@ -67,6 +67,7 @@ add_subdirectory(Correlations)
 add_subdirectory(PureComponent)
 add_subdirectory(Fluid)
 add_subdirectory(UnitOps)
+add_subdirectory(Numerics)
 
 
 #=======================================================================================================================

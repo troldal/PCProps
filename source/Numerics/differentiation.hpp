@@ -8,7 +8,7 @@
 #include <functional>
 #include <cmath>
 
-namespace numeric {
+namespace numeric::impl {
 
     /**
      * @brief

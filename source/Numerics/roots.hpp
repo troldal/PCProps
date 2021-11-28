@@ -6,6 +6,7 @@
 #define PCPROPS_ROOTS_HPP
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <functional>
 #include <iostream>
@@ -13,7 +14,9 @@
 #include <utility>
 #include <vector>
 
-namespace numeric
+#include "differentiation.hpp"
+
+namespace numeric::impl
 {
 
     /**

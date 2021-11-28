@@ -47,9 +47,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <FluidProperties.hpp>
 
 #include <json/json.hpp>
-#include <numeric/differentiation.hpp>
-#include <numeric/integration.hpp>
-#include <numeric/roots.hpp>
+#include <numerics.hpp>
+
 
 //using PCProps::VaporPressure::AmbroseWalton;
 using JSONString = std::string;
@@ -369,7 +368,6 @@ namespace PCProps::EquationOfState
                 return (phi_l - phi_v) * p;
             };
 
-            //auto guess  = AmbroseWalton(criticalTemperature(), criticalPressure(), acentricFactor())(temperature);
             auto guess = m_vaporPressure(temperature);
             auto result = numeric::newton(f, min(guess, criticalPressure() * 0.99), 1E-6, 100);
 
@@ -381,7 +379,7 @@ namespace PCProps::EquationOfState
          * @param pressure The pressure [Pa].
          * @return The saturation temperature [K].
          * @warning If pressure is above Pc, NaN will be returned.
-         * @note The Peng Robinson EOS may predict a critical proin slightly different from the input values.
+         * @note The Peng Robinson EOS may predict a critical point slightly different from the input values.
          */
         inline double computeSaturationTemperature(double pressure) const
         {
@@ -396,8 +394,6 @@ namespace PCProps::EquationOfState
                 auto phi_v = get<1>(*std::max_element(phi.begin(), phi.end(), [](const auto& a, const auto& b) { return get<0>(a) < get<0>(b); }));
                 return (phi_l - phi_v) * pressure;
             };
-
-            //auto aw     = AmbroseWalton(criticalTemperature(), criticalPressure(), acentricFactor());
 
             auto guess  = numeric::newton([&](double t) { return m_vaporPressure(t) - pressure; }, criticalTemperature() - sqrt(std::numeric_limits<double>::epsilon()));
             auto result = numeric::newton(f, guess, 1E-6, 100);

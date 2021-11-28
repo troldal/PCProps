@@ -14,10 +14,10 @@ int main()
 {
     auto ds = DataSource("Mini PCD.xlsx");
     auto pcf = PureComponentFactory(ds.load());
-    auto pc = pcf.makeComponent("7664-41-7");
+    auto pc = pcf.makeComponent("74-98-6");
     auto fluid = Fluid(pc, PengRobinson{});
 
-    std::cout << "Ammonia at 25 C and 2 bar: " << std::endl;
+    std::cout << "Propane at 25 C and 2 bar: " << std::endl;
     auto a = FluidProperties(fluid.flashPT((2E5), (298.15)));
     //std::cout << a << std::endl;
     a.print(std::cout);
@@ -35,7 +35,7 @@ int main()
     c.print(std::cout);
     std::cout << "==============================================================================" << std::endl;
 
-    std::cout << "Throttling to 12 bar: " << std::endl;
+    std::cout << "Throttling to 2 bar: " << std::endl;
     auto d = FluidProperties(fluid.flashPH((2E5), (c[0].Enthalpy)));
     //std::cout << d << std::endl;
     d.print(std::cout);
