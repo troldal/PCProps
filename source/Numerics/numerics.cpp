@@ -136,25 +136,17 @@ namespace numeric {
     double integrate(const std::function<double(double)>& func, double x1, double x2, double precision)
     {
 #ifdef PCPROPS_USE_GSL
-        auto temp = func;
-        gsl_integration_workspace * w
-            = gsl_integration_workspace_alloc (1000);
+        auto function = func;
 
         double result, error;
         size_t neval;
 
         gsl_function F;
         F.function = &function_wrapper_f;
-        F.params = &temp;
+        F.params = &function;
 
-//        gsl_integration_qags (&F, x1, x2, 0, 1e-7, 1000,
-//                             w, &result, &error);
+        gsl_integration_qng(&F, x1, x2, 0.01, precision, &result, &error, &neval);
 
-        gsl_integration_qag (&F, x1, x2, 0, 1e-7, 1000,1,
-                                     w, &result, &error);
-
-
-        gsl_integration_workspace_free (w);
         return result;
 #else
         return impl::integrate(func, x1, x2, precision);
