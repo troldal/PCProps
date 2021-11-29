@@ -141,13 +141,18 @@ namespace numeric {
             = gsl_integration_workspace_alloc (1000);
 
         double result, error;
+        size_t neval;
 
         gsl_function F;
         F.function = &function_wrapper_f;
         F.params = &temp;
 
-        gsl_integration_qags (&F, x1, x2, 0, 1e-7, 1000,
-                             w, &result, &error);
+//        gsl_integration_qags (&F, x1, x2, 0, 1e-7, 1000,
+//                             w, &result, &error);
+
+        gsl_integration_qag (&F, x1, x2, 0, 1e-7, 1000,1,
+                                     w, &result, &error);
+
 
         gsl_integration_workspace_free (w);
         return result;
