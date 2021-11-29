@@ -465,16 +465,34 @@ namespace PCProps::EquationOfState
             auto z2 = computeCompressibilityAndFugacity(temperature + eps, pressure);
             uint64_t index = 0;
             for (auto& item : m_phaseProps) {
-                auto h1 = computeEnthalpy(temperature - eps, pressure, get<0>(z1[index]));
-                auto h2 = computeEnthalpy(temperature + eps, pressure, get<0>(z2[index]));
-                item.Cp = (h2 - h1) / (2 * eps);
 
-                auto v1 = get<0>(z1[index]) * R_CONST * (temperature - eps) / pressure;
-                auto v2 = get<0>(z2[index]) * R_CONST * (temperature + eps) / pressure;
-                item.ThermalExpansionCoefficient = (1.0 / item.MolarVolume) * (v2 - v1) / (2 * eps);
-                item.JouleThomsonCoefficient = -(item.MolarVolume - temperature * ((v2 - v1) / (2 * eps))) / item.Cp;
+                item.Cp = numeric::diff_central([&](double t){
+                    auto z = get<0>(computeCompressibilityAndFugacity(t, pressure)[index]);
+                    return computeEnthalpy(t, pressure, z);
+                }, temperature);
+                //auto h1 = computeEnthalpy(temperature - eps, pressure, get<0>(z1[index]));
+                //auto h2 = computeEnthalpy(temperature + eps, pressure, get<0>(z2[index]));
+                //item.Cp = (h2 - h1) / (2 * eps);
 
-                ++index;
+                //auto v1 = get<0>(z1[index]) * R_CONST * (temperature - eps) / pressure;
+                //auto v2 = get<0>(z2[index]) * R_CONST * (temperature + eps) / pressure;
+                //item.ThermalExpansionCoefficient = (1.0 / item.MolarVolume) * (v2 - v1) / (2 * eps);
+                //item.JouleThomsonCoefficient = -(item.MolarVolume - temperature * ((v2 - v1) / (2 * eps))) / item.Cp;
+
+                item.ThermalExpansionCoefficient =
+                    (1.0 / item.MolarVolume) * numeric::diff_central([&](double t) {
+                        auto z = get<0>(computeCompressibilityAndFugacity(t, pressure)[index]);
+                        return z * R_CONST * (t / pressure);
+                }, temperature);
+
+                item.JouleThomsonCoefficient =
+                    -(item.MolarVolume - temperature * (numeric::diff_central([&](double t) {
+                                             auto z = get<0>(computeCompressibilityAndFugacity(t, pressure)[index]);
+                                             return z * R_CONST * (t / pressure);
+                                         }, temperature))) / item.Cp;
+
+
+                    ++index;
             }
 
             // Calculate the isothermal compressibility for all phases.
