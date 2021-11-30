@@ -424,6 +424,16 @@ namespace PCProps::EquationOfState
             return idealGasEntropy(temperature, pressure) + entropyDeparture(temperature, pressure, compressibility);
         }
 
+        inline void computeCv(double temperature, double pressure) const {
+
+            auto index = 0;
+            for (auto& item : m_phaseProps) {
+                item.Cv = item.Cp - temperature * item.MolarVolume * pow(item.ThermalExpansionCoefficient, 2) / item.IsothermalCompressibility;
+
+                ++index;
+            }
+        }
+
         /**
          * @brief
          * @param temperature
@@ -461,49 +471,44 @@ namespace PCProps::EquationOfState
 
             // Calculate the Cp, JT coefficient, and the thermal expansion coefficient for all phases.
             // TODO: Ensure the derivatives are correct and calculated most effeciently.
-            auto z1 = computeCompressibilityAndFugacity(temperature - eps, pressure);
-            auto z2 = computeCompressibilityAndFugacity(temperature + eps, pressure);
             uint64_t index = 0;
             for (auto& item : m_phaseProps) {
 
-                item.Cp = numeric::diff_central([&](double t){
+                // ===== Compute Cp = (dH/dT) at const P.
+                item.Cp =
+                    numeric::diff_central([&](double t){
                     auto z = get<0>(computeCompressibilityAndFugacity(t, pressure)[index]);
                     return computeEnthalpy(t, pressure, z);
                 }, temperature);
-                //auto h1 = computeEnthalpy(temperature - eps, pressure, get<0>(z1[index]));
-                //auto h2 = computeEnthalpy(temperature + eps, pressure, get<0>(z2[index]));
-                //item.Cp = (h2 - h1) / (2 * eps);
 
-                //auto v1 = get<0>(z1[index]) * R_CONST * (temperature - eps) / pressure;
-                //auto v2 = get<0>(z2[index]) * R_CONST * (temperature + eps) / pressure;
-                //item.ThermalExpansionCoefficient = (1.0 / item.MolarVolume) * (v2 - v1) / (2 * eps);
-                //item.JouleThomsonCoefficient = -(item.MolarVolume - temperature * ((v2 - v1) / (2 * eps))) / item.Cp;
-
+                // ===== Compute thermal expansion coefficient (alpha) = (1/V) * (dV/dT) at const P.
                 item.ThermalExpansionCoefficient =
                     (1.0 / item.MolarVolume) * numeric::diff_central([&](double t) {
                         auto z = get<0>(computeCompressibilityAndFugacity(t, pressure)[index]);
                         return z * R_CONST * (t / pressure);
                 }, temperature);
 
+                // ===== Compute JT coefficient (mu) = V/Cp * (alpha * T - 1)
                 item.JouleThomsonCoefficient =
-                    -(item.MolarVolume - temperature * (numeric::diff_central([&](double t) {
-                                             auto z = get<0>(computeCompressibilityAndFugacity(t, pressure)[index]);
-                                             return z * R_CONST * (t / pressure);
-                                         }, temperature))) / item.Cp;
-
+                    (item.Compressibility * R_CONST * temperature / pressure) / item.Cp * (item.ThermalExpansionCoefficient * temperature - 1);
 
                     ++index;
             }
 
             // Calculate the isothermal compressibility for all phases.
             // TODO: Ensure the derivatives are correct and calculated most effeciently.
-            z1 = computeCompressibilityAndFugacity(temperature, pressure - eps);
-            z2 = computeCompressibilityAndFugacity(temperature, pressure + eps);
+            auto z1 = computeCompressibilityAndFugacity(temperature, pressure - eps);
+            auto z2 = computeCompressibilityAndFugacity(temperature, pressure + eps);
             index = 0;
             for (auto& item : m_phaseProps) {
                 auto v1 = get<0>(z1[index]) * R_CONST * temperature / (pressure - eps);
                 auto v2 = get<0>(z2[index]) * R_CONST * temperature / (pressure + eps);
-                item.IsothermalCompressibility = - (1.0 / item.MolarVolume) * (v2 - v1) / (2 * eps);
+                item.IsothermalCompressibility =
+                    //- (1.0 / item.MolarVolume) * (v2 - v1) / (2 * eps);
+                    - (1.0 / item.MolarVolume) * numeric::diff_central([&](double p) {
+                        auto z = get<0>(computeCompressibilityAndFugacity(temperature, p)[index]);
+                        return (z * R_CONST * temperature) / p;
+                    }, pressure);
 
                 ++index;
             }
@@ -511,8 +516,7 @@ namespace PCProps::EquationOfState
             // Calculate Cv for all phases
             index = 0;
             for (auto& item : m_phaseProps) {
-                item.Cv =
-                    item.Cp - temperature * item.MolarVolume * pow(item.ThermalExpansionCoefficient, 2) / item.IsothermalCompressibility;
+                item.Cv = item.Cp - temperature * item.MolarVolume * pow(item.ThermalExpansionCoefficient, 2) / item.IsothermalCompressibility;
 
                 ++index;
             }
