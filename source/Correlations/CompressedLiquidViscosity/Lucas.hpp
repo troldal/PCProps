@@ -109,12 +109,13 @@ namespace PCProps::CompressedLiquidViscosity
 
             using std::max;
             using std::pow;
+            using std::min;
 
             // ===== Calculate Tr and delta Pr. If the pressure is lower than the vapor pressure, the pressure is assumed
             // ===== equal to the vapor pressure. If the pressure is lower than the vapor pressure, the fluid would be in
             // ===== the gas phase rather than the liquid phase. However, at saturation conditions, calculations may show
             // ===== that the liquid pressure is less than the vapor pressure, for numeric reasons.
-            double tr  = temperature / m_criticalTemperature;
+            double tr  = min(temperature / m_criticalTemperature, 1.0);
             double dpr = (max(0.0, pressure - satPressure)) / m_criticalPressure;
 
             double A = 0.9991 - (4.674E-4 / (1.0523 * pow(tr, -0.03877) - 1.0513));

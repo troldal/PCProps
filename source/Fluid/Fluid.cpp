@@ -21,34 +21,6 @@ namespace PCProps
         IEquationOfState        m_equationOfState {};
         mutable FluidProperties m_phaseProps {};
 
-        // ===== Enum class used in the determinePhaseType function.
-        enum PhaseType { Liquid, Vapor, Dense, Undefined };
-
-        /**
-         * @brief Determine the phase type (liquid, vapor, etc), based on the phase properties.
-         * @param phase The phase for which to determine the type.
-         * @return A PhaseType enum representing the phase type.
-         * @todo How will this work for multi component mixtures?
-         */
-        PhaseType determinePhaseType(const PhaseProperties& phase) const
-        {
-            auto tcrit           = m_pureComponent.property("CriticalTemperature");
-            auto pcrit           = m_pureComponent.property("CriticalPressure");
-            auto temperature     = phase.Temperature;
-            auto pressure        = phase.Pressure;
-            auto molefraction    = phase.MolarFlow;
-            auto compressibility = phase.Compressibility;
-            auto psat            = phase.VaporPressure;
-
-            if (temperature > tcrit && pressure > pcrit) return PhaseType::Dense;
-            if (molefraction < 1.0 && compressibility > 0.5) return PhaseType::Vapor;
-            if (molefraction < 1.0 && compressibility < 0.5) return PhaseType::Liquid;
-            if ((temperature > tcrit && pressure <= pcrit) || (temperature <= tcrit && pressure <= psat)) return PhaseType::Vapor;
-            if ((molefraction < 1.0 && compressibility < 0.5) || (temperature <= tcrit && pressure > psat)) return PhaseType::Liquid;
-
-            return PhaseType::Undefined;
-        }
-
         /**
          * @brief Compute the liquid properties for a phase.
          * @param liquid The (liquid) phase for which to compute properties.
@@ -58,12 +30,13 @@ namespace PCProps
         {
             liquid.MolarVolume = m_pureComponent.correlation(
                 "CompressedLiquidVolume",
-                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.correlation("SaturatedLiquidVolume", liquid.Temperature) });
+                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, liquid.MolarVolume });
             liquid.SurfaceTension      = 0.0;
             liquid.ThermalConductivity = 0.0;
             liquid.Viscosity           = m_pureComponent.correlation(
                 "CompressedLiquidViscosity",
                 { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.correlation("SaturatedLiquidViscosity", liquid.Temperature) });
+            //liquid.Cp = m_pureComponent.correlation("LiquidCp", liquid.Temperature);
 
             return liquid;
         }
@@ -93,16 +66,13 @@ namespace PCProps
             for (auto& phase : phases) {
                 phase.MolarWeight = m_pureComponent.property("MolarWeight");
 
-                switch (determinePhaseType(phase)) {
+                switch (phase.Type) {
                     case PhaseType::Liquid:
                         phase = computeLiquidProperties(phase);
                         break;
 
                     case PhaseType::Vapor:
                         phase = computeVaporProperties(phase);
-                        break;
-
-                    case PhaseType::Dense:
                         break;
 
                     default:

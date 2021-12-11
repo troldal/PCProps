@@ -12,11 +12,14 @@
 
 namespace PCProps
 {
+    enum class PhaseType {Vapor, Liquid, Undefined};
+
     class PhaseProperties
     {
         using JSONString = std::string;
 
     public:
+        PhaseType Type { PhaseType::Undefined };
         double Pressure { 0.0 };
         double Temperature { 0.0 };
         double MolarVolume { 0.0 };
@@ -32,6 +35,7 @@ namespace PCProps
         double IsothermalCompressibility { 0.0 };
         double ThermalExpansionCoefficient { 0.0 };
         double JouleThomsonCoefficient { 0.0 };
+        double SpeedOfSound { 0.0 };
         double VaporPressure { 0.0 };
         double Enthalpy { 0.0 };
         double Entropy { 0.0 };
@@ -78,7 +82,14 @@ namespace PCProps
 
     inline std::ostream& operator<<(std::ostream& stream, const PCProps::PhaseProperties& properties)
     {
+        auto TypeAsString = [&](const PhaseType type) {
+            if (type == PhaseType::Vapor) return "VAPOR";
+            if (type == PhaseType::Liquid) return "LIQUID";
+            return "UNDEFINED";
+        };
+
         return stream << std::setprecision(8) << std::fixed
+                      << "Type                          : " << std::right << std::setw(20) << TypeAsString(properties.Type) << std::endl
                       << "Molar Flow                    : " << std::right << std::setw(20) << properties.MolarFlow << std::endl
                       << "Molar Volume                  : " << std::right << std::setw(20) << properties.MolarVolume << " m3/mol" << std::endl
                       << "Surface Tension               : " << std::right << std::setw(20) << properties.SurfaceTension << " N/m" << std::endl

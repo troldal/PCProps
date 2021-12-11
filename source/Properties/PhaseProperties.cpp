@@ -20,6 +20,13 @@ namespace PCProps {
 
         auto data = nlohmann::json::parse(JSONData);
 
+        auto AsType = [&](const std::string& type) {
+            if (type == "VAPOR") return PhaseType::Vapor;
+            if (type == "LIQUID") return PhaseType::Liquid;
+            return PhaseType::Undefined;
+        };
+
+        Type                        = data["Type"].is_null() ? PhaseType::Undefined : AsType(data["Type"].get<std::string>());
         Pressure                    = data["Pressure"].is_null() ? std::nan("") : data["Pressure"].get<double>();
         Temperature                 = data["Temperature"].is_null() ? std::nan("") : data["Temperature"].get<double>();
         MolarVolume                 = data["MolarVolume"].is_null() ? std::nan("") : data["MolarVolume"].get<double>();
@@ -35,6 +42,7 @@ namespace PCProps {
         IsothermalCompressibility   = data["IsothermalCompressibility"].is_null() ? std::nan("") : data["IsothermalCompressibility"].get<double>();
         ThermalExpansionCoefficient = data["ThermalExpansionCoefficient"].is_null() ? std::nan("") : data["ThermalExpansionCoefficient"].get<double>();
         JouleThomsonCoefficient     = data["JouleThomsonCoefficient"].is_null() ? std::nan("") : data["JouleThomsonCoefficient"].get<double>();
+        SpeedOfSound                = data["SpeedOfSound"].is_null() ? std::nan("") : data["SpeedOfSound"].get<double>();
         VaporPressure               = data["VaporPressure"].is_null() ? std::nan("") : data["VaporPressure"].get<double>();
         Enthalpy                    = data["Enthalpy"].is_null() ? std::nan("") : data["Enthalpy"].get<double>();
         Entropy                     = data["Entropy"].is_null() ? std::nan("") : data["Entropy"].get<double>();
@@ -76,6 +84,13 @@ namespace PCProps {
         {
             nlohmann::json data;
 
+            auto TypeAsString = [&](const PhaseType type) {
+                if (type == PhaseType::Vapor) return "VAPOR";
+                if (type == PhaseType::Liquid) return "LIQUID";
+                return "UNDEFINED";
+            };
+
+            data["Type"]                        = TypeAsString(Type);
             data["Pressure"]                    = Pressure;
             data["Temperature"]                 = Temperature;
             data["MolarVolume"]                 = MolarVolume;
@@ -91,6 +106,7 @@ namespace PCProps {
             data["IsothermalCompressibility"]   = IsothermalCompressibility;
             data["ThermalExpansionCoefficient"] = ThermalExpansionCoefficient;
             data["JouleThomsonCoefficient"]     = JouleThomsonCoefficient;
+            data["SpeedOfSound"]                = SpeedOfSound;
             data["VaporPressure"]               = VaporPressure;
             data["Enthalpy"]                    = Enthalpy;
             data["Entropy"]                     = Entropy;

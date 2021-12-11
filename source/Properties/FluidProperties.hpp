@@ -89,6 +89,16 @@ namespace PCProps
         inline void print(std::ostream& stream) {
             stream << std::setprecision(8) << std::fixed;
 
+            auto TypeAsString = [&](const PhaseType type) {
+                if (type == PhaseType::Vapor) return "VAPOR";
+                if (type == PhaseType::Liquid) return "LIQUID";
+                return "UNDEFINED";
+            };
+
+            stream << "Type                                : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << TypeAsString(phase.Type);
+            stream << std::endl;
+
             stream << "Molar Flow                      [-] : ";
             for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.MolarFlow;
             stream << std::endl;
@@ -127,6 +137,10 @@ namespace PCProps
 
             stream << "Joule-Thomson Coefficient    [K/Pa] : ";
             for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.JouleThomsonCoefficient;
+            stream << std::endl;
+
+            stream << "Speed of Sound                [m/s] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.SpeedOfSound;
             stream << std::endl;
 
             stream << "Molecular Weight            [g/mol] : ";
@@ -178,6 +192,16 @@ namespace PCProps
     inline std::ostream& operator<<(std::ostream& stream, const FluidProperties& properties) {
         stream << std::setprecision(8) << std::fixed;
 
+        auto TypeAsString = [&](const PhaseType type) {
+            if (type == PhaseType::Vapor) return "VAPOR";
+            if (type == PhaseType::Liquid) return "LIQUID";
+            return "UNDEFINED";
+        };
+
+        stream << "Type                                : ";
+        for (const PhaseProperties& phase : properties.phases()) stream << std::right << std::setw(20) << TypeAsString(phase.Type);
+        stream << std::endl;
+
         stream << "Molar Flow                      [-] : ";
         for (const PhaseProperties& phase : properties.phases()) stream << std::right << std::setw(20) << phase.MolarFlow;
         stream << std::endl;
@@ -216,6 +240,10 @@ namespace PCProps
 
         stream << "Joule-Thomson Coefficient    [K/Pa] : ";
         for (const PhaseProperties& phase : properties.phases()) stream << std::right << std::setw(20) << phase.JouleThomsonCoefficient;
+        stream << std::endl;
+
+        stream << "Speed of Sound                [m/s] : ";
+        for (const PhaseProperties& phase : properties.phases()) stream << std::right << std::setw(20) << phase.SpeedOfSound;
         stream << std::endl;
 
         stream << "Molecular Weight            [g/mol] : ";

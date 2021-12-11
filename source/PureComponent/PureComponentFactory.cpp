@@ -42,25 +42,25 @@ namespace
     std::function<double(double)> createLiquidCpFunction(const json& obj)
     {
         if (obj["LiquidCp"]["Equation"] == "DIPPR-100")
-            return PCProps::HeatCapacity::Polynomial(PCProps::HeatCapacity::Polynomial::CreateFromDIPPR { obj["IdealGasCp"]["C1"].get<double>(),
-                                                                                                          obj["IdealGasCp"]["C2"].get<double>(),
-                                                                                                          obj["IdealGasCp"]["C3"].get<double>(),
-                                                                                                          obj["IdealGasCp"]["C4"].get<double>(),
-                                                                                                          obj["IdealGasCp"]["C5"].get<double>() });
+            return PCProps::HeatCapacity::Polynomial(PCProps::HeatCapacity::Polynomial::CreateFromDIPPR { obj["LiquidCp"]["C1"].get<double>(),
+                                                                                                          obj["LiquidCp"]["C2"].get<double>(),
+                                                                                                          obj["LiquidCp"]["C3"].get<double>(),
+                                                                                                          obj["LiquidCp"]["C4"].get<double>(),
+                                                                                                          obj["LiquidCp"]["C5"].get<double>() });
 
         if (obj["LiquidCp"]["Equation"] == "DIPPR-114")
-            return PCProps::HeatCapacity::PPDSLiquid(PCProps::HeatCapacity::PPDSLiquid::CreateFromDIPPR { obj["IdealGasCp"]["C1"].get<double>(),
-                                                                                                          obj["IdealGasCp"]["C2"].get<double>(),
-                                                                                                          obj["IdealGasCp"]["C3"].get<double>(),
-                                                                                                          obj["IdealGasCp"]["C4"].get<double>(),
+            return PCProps::HeatCapacity::PPDSLiquid(PCProps::HeatCapacity::PPDSLiquid::CreateFromDIPPR { obj["LiquidCp"]["C1"].get<double>(),
+                                                                                                          obj["LiquidCp"]["C2"].get<double>(),
+                                                                                                          obj["LiquidCp"]["C3"].get<double>(),
+                                                                                                          obj["LiquidCp"]["C4"].get<double>(),
                                                                                                           obj["CriticalTemperature"].get<double>() });
 
         if (obj["LiquidCp"]["Equation"] == "VDI")
-            return PCProps::HeatCapacity::PPDSLiquid(PCProps::HeatCapacity::PPDSLiquid::CreateFromPPDS { obj["IdealGasCp"]["C1"].get<double>(),
-                                                                                                         obj["IdealGasCp"]["C2"].get<double>(),
-                                                                                                         obj["IdealGasCp"]["C3"].get<double>(),
-                                                                                                         obj["IdealGasCp"]["C4"].get<double>(),
-                                                                                                         obj["IdealGasCp"]["C5"].get<double>(),
+            return PCProps::HeatCapacity::PPDSLiquid(PCProps::HeatCapacity::PPDSLiquid::CreateFromPPDS { obj["LiquidCp"]["C1"].get<double>(),
+                                                                                                         obj["LiquidCp"]["C2"].get<double>(),
+                                                                                                         obj["LiquidCp"]["C3"].get<double>(),
+                                                                                                         obj["LiquidCp"]["C4"].get<double>(),
+                                                                                                         obj["LiquidCp"]["C5"].get<double>(),
                                                                                                          0.0,
                                                                                                          obj["CriticalTemperature"].get<double>(),
                                                                                                          0.0 });

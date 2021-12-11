@@ -152,11 +152,12 @@ namespace PCProps::LiquidVolume
             using std::exp;
             using std::log;
             using std::pow;
+            using std::min;
 
-            double tr = temperature / m_criticalTemperature;
+            double tr = min(temperature / m_criticalTemperature, 1.0);
             double C  = 0.0861488 + 0.0344483 * m_acentricFactor;
             double B  = m_criticalPressure * (-1 - 9.070217 * pow(1 - tr, 1.0 / 3.0) + 62.45326 * pow(1 - tr, 2.0 / 3.0) - 135.1102 * (1 - tr) +
-                exp(4.79594 + 0.250047 * m_acentricFactor + 1.14188 * pow(m_acentricFactor, 2)) * pow(1 - tr, 4.0 / 3.0));
+                exp(4.79594 + 0.250047 * m_acentricFactor + 1.14188 * m_acentricFactor * m_acentricFactor) * pow(1 - tr, 4.0 / 3.0));
 
             return satVolume * (1 - C * log((B + pressure) / (B + satPressure)));
         }

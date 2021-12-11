@@ -65,7 +65,7 @@ namespace numeric {
             status = gsl_root_fdfsolver_iterate (s);
             x0 = x;
             x = gsl_root_fdfsolver_root (s);
-            status = gsl_root_test_delta (x, x0, 0, 1e-3);
+            status = gsl_root_test_delta (x, x0, 0.000001, 1e-6);
         }
         while (status == GSL_CONTINUE && iter < max_iter);
 
@@ -105,7 +105,7 @@ namespace numeric {
             r = gsl_root_fsolver_root (s);
             x_lo = gsl_root_fsolver_x_lower (s);
             x_hi = gsl_root_fsolver_x_upper (s);
-            status = gsl_root_test_interval (x_lo, x_hi,0, eps);
+            status = gsl_root_test_interval (x_lo, x_hi,0.0001, eps);
         }
         while (status == GSL_CONTINUE && cur_iter < max_iter);
 

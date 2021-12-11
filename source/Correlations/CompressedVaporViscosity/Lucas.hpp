@@ -119,12 +119,13 @@ namespace PCProps::CompressedVaporViscosity
 
             using std::abs;
             using std::pow;
+            using std::min;
 
             if (abs(satPressure - pressure) < 1E-8) satPressure = pressure;
 
             double mu_r = 52.46 * pow(m_dipoleMoment, 2) * (m_criticalPressure / 1E5) * pow(m_criticalTemperature, -2);
-            double tr   = temperature / m_criticalTemperature;
-            double pr   = pressure / m_criticalPressure;
+            double tr   = min(temperature / m_criticalTemperature, 1.0);
+            double pr   = min(pressure / m_criticalPressure, 1.0);
 
 
             double Fp_ig = [&]() {
