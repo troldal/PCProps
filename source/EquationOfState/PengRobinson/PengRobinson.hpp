@@ -111,62 +111,13 @@ namespace PCProps::EquationOfState
         // =====================================================================
 
         /**
-         * @brief Compute flash at specified temperature and pressure.
-         * @param temperature The temperature [K]
-         * @param pressure The pressure [Pa]
-         * @return The phase data for the phase resulting from the flash.
-         */
-        JSONString flashPT(double pressure, double temperature) const;
-
-        /**
-         * @brief Compute flash at specified pressure and computeEnthalpy.
-         * @param pressure The pressure [Pa]
-         * @param enthalpy The computeEnthalpy [J/mol]
-         * @return The phase data for the phase(s) resulting from the flash.
-         */
-        JSONString flashPH(double pressure, double enthalpy) const;
-
-        /**
-         * @brief Compute flash at specified pressure and computeEntropy.
-         * @param pressure The pressure [Pa]
-         * @param entropy The computeEntropy [J/mol-K]
-         * @return The phase data for the phase(s) resulting from the flash.
-         */
-        JSONString flashPS(double pressure, double entropy) const;
-
-        /**
-         * @brief Compute flash at specified pressure and vapor fraction.
-         * @details If the given pressure is higher than the saturation pressure, a hypothetical saturation temperature
-         * is estimated by extrapolation of the vapor pressure curve.
-         * This point will be located in the supercritical region, where there are no saturation conditions.
-         * However, in order to ensure numerical stability, calculating the (unphysical) saturation conditions are preferred.
-         * @param pressure The pressure [Pa]
-         * @param vaporFraction The vapor fraction [-]. Must be between 0.0 and 1.0.
-         * @return The phase data for the phase(s) resulting from the flash.
-         * @note If the vaporFraction = 0.0 or 1.0, or if the temperature is higher than the critical temperature, only one phase is returned.
-         */
-        JSONString flashPx(double pressure, double vaporFraction) const;
-
-        /**
-         * @brief Compute flash at specified temperature and vapor fraction.
-         * @details If the given temperature is higher than the saturation temperature, a hypothetical saturation pressure
-         * is estimated by extrapolation of the vapor pressure curve.
-         * This point will be located in the supercritical region, where there are no saturation conditions.
-         * However, in order to ensure numerical stability, calculating the (unphysical) saturation conditions are preferred.
-         * @param temperature The temperature [K]
-         * @param vaporFraction The vapor fraction [-]. Must be between 0.0 and 1.0.
-         * @return The phase data for the phase(s) resulting from the flash.
-         * @note If the vaporFraction = 0.0 or 1.0, or if the pressure is higher than the critical pressure, only one phase is returned.
-         */
-        JSONString flashTx(double temperature, double vaporFraction) const;
-
-        /**
          * @brief
-         * @param temperature
-         * @param volume
+         * @param specification
+         * @param var1
+         * @param var2
          * @return
          */
-        JSONString flashTV(double temperature, double volume) const;
+        JSONString flash(const std::string& specification, double var1, double var2) const;
 
         /**
          * @brief Calculate the saturation pressure at the given temperature.

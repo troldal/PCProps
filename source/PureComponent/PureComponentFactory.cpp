@@ -122,6 +122,13 @@ namespace
                                                                                                     obj["SaturatedLiquidVolume"]["C2"].get<double>(),
                                                                                                     obj["SaturatedLiquidVolume"]["C3"].get<double>(),
                                                                                                     obj["SaturatedLiquidVolume"]["C4"].get<double>() });
+
+        if (obj["SaturatedLiquidVolume"]["Equation"] == "DIPPR-116")
+            return PCProps::LiquidVolume::YenWoods(PCProps::LiquidVolume::YenWoods::CreateFromDIPPR116Coefficients { 647.10,0.0000559472,
+                                                                                                                     obj["SaturatedLiquidVolume"]["C1"].get<double>(),
+                                                                                                    obj["SaturatedLiquidVolume"]["C2"].get<double>(),
+                                                                                                    obj["SaturatedLiquidVolume"]["C3"].get<double>(),
+                                                                                                    obj["SaturatedLiquidVolume"]["C4"].get<double>(), });
     }
 
 }    // namespace

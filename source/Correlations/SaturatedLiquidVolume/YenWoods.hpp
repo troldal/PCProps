@@ -370,7 +370,8 @@ namespace PCProps::LiquidVolume
             using std::pow;
             auto tau = 1 - (temperature / m_criticalTemperature);
 
-            if (m_type == Form::Original) return m_criticalVolume / (1 + m_A * pow(tau, 1.0 / 3.0) + m_B * pow(tau, 2.0 / 3.0) + m_C * tau + m_D * pow(tau, 4.0 / 3.0));
+            if (m_type == Form::Original)
+                return m_criticalVolume / (1 + m_A * pow(tau, 1.0 / 3.0) + m_B * pow(tau, 2.0 / 3.0) + m_C * tau + m_D * pow(tau, 4.0 / 3.0));
 
             return m_criticalVolume / (1 + m_A * pow(tau, 0.35) + m_B * pow(tau, 2.0 / 3.0) + m_C * tau + m_D * pow(tau, 4.0 / 3.0));
         }

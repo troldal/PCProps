@@ -28,9 +28,9 @@ namespace PCProps
          */
         PhaseProperties computeLiquidProperties(PhaseProperties liquid) const
         {
-            liquid.MolarVolume = m_pureComponent.correlation(
-                "CompressedLiquidVolume",
-                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, liquid.MolarVolume });
+//            liquid.MolarVolume = m_pureComponent.correlation(
+//                "CompressedLiquidVolume",
+//                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.correlation("SaturatedLiquidVolume", liquid.Temperature) });
             liquid.SurfaceTension      = 0.0;
             liquid.ThermalConductivity = 0.0;
             liquid.Viscosity           = m_pureComponent.correlation(
@@ -102,7 +102,7 @@ namespace PCProps
          */
         const FluidProperties& flashPT(double pressure, double temperature) const
         {
-            m_phaseProps = FluidProperties(m_equationOfState.flashPT(pressure, temperature));
+            m_phaseProps = FluidProperties(m_equationOfState.flash("PT", pressure, temperature));
             computePhaseProperties();
             return m_phaseProps;
         }
@@ -115,7 +115,7 @@ namespace PCProps
          */
         const FluidProperties& flashPx(double pressure, double vaporFraction) const
         {
-            m_phaseProps = FluidProperties(m_equationOfState.flashPx(pressure, vaporFraction));
+            m_phaseProps = FluidProperties(m_equationOfState.flash("Px",pressure, vaporFraction));
             computePhaseProperties();
             return m_phaseProps;
         }
@@ -128,7 +128,7 @@ namespace PCProps
          */
         const FluidProperties& flashTx(double temperature, double vaporFraction) const
         {
-            m_phaseProps = FluidProperties(m_equationOfState.flashTx(temperature, vaporFraction));
+            m_phaseProps = FluidProperties(m_equationOfState.flash("Tx", temperature, vaporFraction));
             computePhaseProperties();
             return m_phaseProps;
         }
@@ -141,7 +141,7 @@ namespace PCProps
          */
         const FluidProperties& flashPH(double pressure, double enthalpy) const
         {
-            m_phaseProps = FluidProperties(m_equationOfState.flashPH(pressure, enthalpy));
+            m_phaseProps = FluidProperties(m_equationOfState.flash("PH", pressure, enthalpy));
             computePhaseProperties();
             return m_phaseProps;
         }
@@ -154,7 +154,7 @@ namespace PCProps
          */
         const FluidProperties& flashPS(double pressure, double entropy) const
         {
-            m_phaseProps = FluidProperties(m_equationOfState.flashPS(pressure, entropy));
+            m_phaseProps = FluidProperties(m_equationOfState.flash("PS", pressure, entropy));
             computePhaseProperties();
             return m_phaseProps;
         }
@@ -167,7 +167,7 @@ namespace PCProps
          */
         const FluidProperties& flashTV(double temperature, double volume) const
         {
-            m_phaseProps = FluidProperties(m_equationOfState.flashTV(temperature, volume));
+            m_phaseProps = FluidProperties(m_equationOfState.flash("TV", temperature, volume));
             computePhaseProperties();
             return m_phaseProps;
         }
@@ -226,52 +226,25 @@ namespace PCProps
      */
     Fluid& Fluid::operator=(Fluid&& other) noexcept = default;
 
-    /**
-     *
-     */
-    JSONString Fluid::flashPT(double pressure, double temperature) const
+    JSONString Fluid::flash(const std::string& specification, double var1, double var2) const
     {
-        return m_impl->flashPT(pressure, temperature).asJSON();
-    }
+        if (specification == "PT")
+            return m_impl->flashPT(var1, var2).asJSON();
 
-    /**
-     *
-     */
-    JSONString Fluid::flashPx(double pressure, double vaporFraction) const
-    {
-        return m_impl->flashPx(pressure, vaporFraction).asJSON();
-    }
+        if (specification == "Px")
+            return m_impl->flashPx(var1, var2).asJSON();
 
-    /**
-     *
-     */
-    JSONString Fluid::flashTx(double temperature, double vaporFraction) const
-    {
-        return m_impl->flashTx(temperature, vaporFraction).asJSON();
-    }
+        if (specification == "Tx")
+            return m_impl->flashTx(var1, var2).asJSON();
 
-    /**
-     *
-     */
-    JSONString Fluid::flashPH(double pressure, double enthalpy) const
-    {
-        return m_impl->flashPH(pressure, enthalpy).asJSON();
-    }
+        if (specification == "PH")
+            return m_impl->flashPH(var1, var2).asJSON();
 
-    /**
-     *
-     */
-    JSONString Fluid::flashPS(double pressure, double entropy) const
-    {
-        return m_impl->flashPS(pressure, entropy).asJSON();
-    }
+        if (specification == "PS")
+            return m_impl->flashPS(var1, var2).asJSON();
 
-    /**
-     *
-     */
-    JSONString Fluid::flashTV(double temperature, double volume) const
-    {
-        return m_impl->flashTV(temperature, volume).asJSON();
+        if (specification == "TV")
+            return m_impl->flashTV(var1, var2).asJSON();
     }
 
     /**

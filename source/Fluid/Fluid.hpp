@@ -103,52 +103,13 @@ namespace PCProps
         // =====================================================================
 
         /**
-         * @brief Flash the fluid at the specified pressure and temperature.
-         * @param pressure The pressure [Pa]
-         * @param temperature The temperature [K]
-         * @return A JSONString object with the phase properties.
+         * @brief
+         * @param specification
+         * @param var1
+         * @param var2
+         * @return
          */
-        JSONString flashPT(double pressure, double temperature) const;
-
-        /**
-         * @brief Flash the fluid at the specified pressure and vapor fraction.
-         * @param pressure The pressure [Pa]
-         * @param vaporFraction The vapor fraction [-]
-         * @return A JSONString object with the phase properties.
-         */
-        JSONString flashPx(double pressure, double vaporFraction) const;
-
-        /**
-         * @brief Flash the fluid at the specified temperature and vapor fraction.
-         * @param temperature The temperature [K]
-         * @param vaporFraction The vapor fraction [-]
-         * @return A JSONString object with the phase properties.
-         */
-        JSONString flashTx(double temperature, double vaporFraction) const;
-
-        /**
-         * @brief Flash the fluid at the specified pressure and enthalpy.
-         * @param pressure The pressure [Pa]
-         * @param enthalpy The enthalpy [J/mol]
-         * @return A JSONString object with the phase properties.
-         */
-        JSONString flashPH(double pressure, double enthalpy) const;
-
-        /**
-         * @brief Flash the fluid at the specified pressure and entropy.
-         * @param pressure The pressure [Pa]
-         * @param entropy The entropy [J/mol-K]
-         * @return A JSONString object with the phase properties.
-         */
-        JSONString flashPS(double pressure, double entropy) const;
-
-        /**
-         * @brief Flash the fluid at the specified temperature and molar volume.
-         * @param temperature The temperature [K]
-         * @param volume The molar volume [m3/mol]
-         * @return A JSONString object with the phase properties.
-         */
-        JSONString flashTV(double temperature, double volume) const;
+        JSONString flash(const std::string& specification, double var1, double var2) const;
 
         /**
          * @brief Get the fluid properties in its current state.

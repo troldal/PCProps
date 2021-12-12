@@ -362,20 +362,20 @@ namespace PCProps::EquationOfState
 
             // ===== If the temperature is less than the critical temperature, compute using the PR-EOS.
             if (temperature < criticalTemperature()) {
+                using Globals::TOLERANCE;
                 auto guess = guessSaturationPressure();
-
                 while (true) {
                     auto phi = computeCompressibilityAndFugacity(temperature, guess);
                     auto phi_l = get<1>(phi.front());
                     auto phi_v = get<1>(phi.back());
 
-                    if (abs(phi_l/phi_v - 1) < 1E-15) return guess;
+                    if (abs(phi_l/phi_v - 1) < TOLERANCE) return guess;
                     guess = guess * (phi_l/phi_v);
                 }
             }
 
             // ===== Otherwise, compute the slope at the critical point, and extrapolate.
-            auto slope = numeric::diff_backward([&](double t){return computeSaturationPressure(t);}, criticalTemperature() - 1E-3);
+            auto slope = numeric::diff_backward([&](double t){return m_vaporPressure(t);}, criticalTemperature() - 1.0);
             return criticalPressure() + (temperature - criticalTemperature()) * slope;
         }
 
@@ -388,9 +388,18 @@ namespace PCProps::EquationOfState
         {
             if (pressure == criticalPressure()) return criticalTemperature();
 
-            // ===== First, use a correlation to make an initial guess.
-            auto guess  = numeric::newton([&](double t) {
-                return m_vaporPressure(t) - pressure; },  (pressure <= criticalPressure() ? criticalTemperature() * 0.8 : criticalTemperature() * 1.2));
+            double guess;
+
+            // ===== If supercritical, guess by extrapolate linearly (as not all correlations work beyond the critical point)
+            if (pressure > criticalPressure()) {
+                auto slope = numeric::diff_backward([&](double t){return m_vaporPressure(t);}, criticalTemperature());
+                guess = (pressure - criticalPressure()) / slope + criticalTemperature();
+            }
+            else {
+                // ===== Otherwise, find using the vapor pressure correlation
+                guess = numeric::newton(
+                    [&](double t) { return abs(m_vaporPressure(t) - pressure); },(criticalTemperature() * 0.5));
+            }
 
             // ===== Then, use the guess as a starting point for calculating the actual saturation temperature.
             auto result  = numeric::ridders([&](double t) {
@@ -736,51 +745,29 @@ namespace PCProps::EquationOfState
         m_impl = std::make_unique<impl>(constants, correlations);
     }
 
-    // ===== P,T Flash
-    JSONString PengRobinson::flashPT(double pressure, double temperature) const
+    // ===== Flash calculations at different specifications
+    JSONString PengRobinson::flash(const std::string& specification, double var1, double var2) const
     {
         std::vector<nlohmann::json> result;
-        for (const auto& phase : m_impl->flashPT(pressure, temperature)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-        return nlohmann::json(result).dump();
-    }
 
-    // ===== T,x Flash
-    JSONString PengRobinson::flashTx(double temperature, double vaporFraction) const
-    {
-        std::vector<nlohmann::json> result;
-        for (const auto& phase : m_impl->flashTx(temperature, vaporFraction)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-        return nlohmann::json(result).dump();
-    }
+        if (specification == "PT")
+            for (const auto& phase : m_impl->flashPT(var1, var2)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
 
-    // ===== P,x Flash
-    JSONString PengRobinson::flashPx(double pressure, double vaporFraction) const
-    {
-        std::vector<nlohmann::json> result;
-        for (const auto& phase : m_impl->flashPx(pressure, vaporFraction)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-        return nlohmann::json(result).dump();
-    }
+        if (specification == "Tx")
+            for (const auto& phase : m_impl->flashTx(var1, var2)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
 
-    // ===== P,H Flash
-    JSONString PengRobinson::flashPH(double pressure, double enthalpy) const
-    {
-        std::vector<nlohmann::json> result;
-        for (const auto& phase : m_impl->flashPH(pressure, enthalpy)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-        return nlohmann::json(result).dump();
-    }
+        if (specification == "Px")
+            for (const auto& phase : m_impl->flashPx(var1, var2)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
 
-    // ===== P,S Flash
-    JSONString PengRobinson::flashPS(double pressure, double entropy) const
-    {
-        std::vector<nlohmann::json> result;
-        for (const auto& phase : m_impl->flashPS(pressure, entropy)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-        return nlohmann::json(result).dump();
-    }
+        if (specification == "PH")
+            for (const auto& phase : m_impl->flashPH(var1, var2)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
 
-    // ===== T,V Flash
-    JSONString PengRobinson::flashTV(double temperature, double volume) const
-    {
-        std::vector<nlohmann::json> result;
-        for (const auto& phase : m_impl->flashTV(temperature, volume)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
+        if (specification == "PS")
+            for (const auto& phase : m_impl->flashPS(var1, var2)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
+
+        if (specification == "TV")
+            for (const auto& phase : m_impl->flashTV(var1, var2)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
+
         return nlohmann::json(result).dump();
     }
 

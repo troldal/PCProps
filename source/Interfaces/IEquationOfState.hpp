@@ -129,74 +129,24 @@ namespace PCProps
             return m_equationOfState != nullptr;
         }
 
+        /**
+         * @brief
+         * @param pureComponent
+         */
         inline void init(const IPureComponent& pureComponent) {
             m_equationOfState->init(pureComponent);
         }
 
         /**
          * @brief
-         * @param pressure
-         * @param temperature
+         * @param specification
+         * @param var1
+         * @param var2
          * @return
          */
-        inline JSONString flashPT(double pressure, double temperature) const
+        inline JSONString flash(const std::string& specification, double var1, double var2) const
         {
-            return m_equationOfState->flashPT(pressure, temperature);
-        }
-
-        /**
-         * @brief
-         * @param pressure
-         * @param vaporFraction
-         * @return
-         */
-        inline JSONString flashPx(double pressure, double vaporFraction) const
-        {
-            return m_equationOfState->flashPx(pressure, vaporFraction);
-        }
-
-        /**
-         * @brief
-         * @param temperature
-         * @param vaporFraction
-         * @return
-         */
-        inline JSONString flashTx(double temperature, double vaporFraction) const
-        {
-            return m_equationOfState->flashTx(temperature, vaporFraction);
-        }
-
-        /**
-         * @brief
-         * @param pressure
-         * @param enthalpy
-         * @return
-         */
-        inline JSONString flashPH(double pressure, double enthalpy) const
-        {
-            return m_equationOfState->flashPH(pressure, enthalpy);
-        }
-
-        /**
-         * @brief
-         * @param pressure
-         * @param entropy
-         * @return
-         */
-        inline JSONString flashPS(double pressure, double entropy) const
-        {
-            return m_equationOfState->flashPS(pressure, entropy);
-        }
-
-        /**
-         * @brief
-         * @param temperature
-         * @param volume
-         * @return
-         */
-        inline JSONString flashTV(double temperature, double volume) const
-        {
-            return m_equationOfState->flashTV(temperature, volume);
+            return m_equationOfState->flash(specification, var1, var2);
         }
 
         /**
@@ -207,6 +157,16 @@ namespace PCProps
         inline double saturationPressure(double temperature) const
         {
             return m_equationOfState->saturationPressure(temperature);
+        }
+
+        /**
+         * @brief
+         * @param pressure
+         * @return
+         */
+        inline double saturationTemperature(double pressure) const
+        {
+            return m_equationOfState->saturationTemperature(pressure);
         }
 
     private:
@@ -256,51 +216,12 @@ namespace PCProps
 
             /**
              * @brief
-             * @param pressure
-             * @param temperature
+             * @param specification
+             * @param var1
+             * @param var2
              * @return
              */
-            inline virtual JSONString flashPT(double pressure, double temperature) const = 0;
-
-            /**
-             * @brief
-             * @param pressure
-             * @param vaporFraction
-             * @return
-             */
-            inline virtual JSONString flashPx(double pressure, double vaporFraction) const = 0;
-
-            /**
-             * @brief
-             * @param temperature
-             * @param vaporFraction
-             * @return
-             */
-            inline virtual JSONString flashTx(double temperature, double vaporFraction) const = 0;
-
-            /**
-             * @brief
-             * @param pressure
-             * @param enthalpy
-             * @return
-             */
-            inline virtual JSONString flashPH(double pressure, double enthalpy) const = 0;
-
-            /**
-             * @brief
-             * @param pressure
-             * @param entropy
-             * @return
-             */
-            inline virtual JSONString flashPS(double pressure, double entropy) const = 0;
-
-            /**
-             * @brief
-             * @param temperature
-             * @param volume
-             * @return
-             */
-            inline virtual JSONString flashTV(double temperature, double volume) const = 0;
+            inline virtual JSONString flash(const std::string& specification, double var1, double var2) const = 0;
 
             /**
              * @brief
@@ -309,6 +230,17 @@ namespace PCProps
              */
             inline virtual double saturationPressure(double temperature) const = 0;
 
+            /**
+             * @brief
+             * @param pressure
+             * @return
+             */
+            inline virtual double saturationTemperature(double pressure) const = 0;
+
+            /**
+             * @brief
+             * @param pureComponent
+             */
             inline virtual void init(const IPureComponent& pureComponent) = 0;
 
         };
@@ -369,68 +301,14 @@ namespace PCProps
 
             /**
              * @brief
-             * @param pressure
-             * @param temperature
+             * @param specification
+             * @param var1
+             * @param var2
              * @return
              */
-            inline JSONString flashPT(double pressure, double temperature) const override
+            inline JSONString flash(const std::string& specification, double var1, double var2) const override
             {
-                return EOSType.flashPT(pressure, temperature);
-            }
-
-            /**
-             * @brief
-             * @param pressure
-             * @param vaporFraction
-             * @return
-             */
-            inline JSONString flashPx(double pressure, double vaporFraction) const override
-            {
-                return EOSType.flashPx(pressure, vaporFraction);
-            }
-
-            /**
-             * @brief
-             * @param temperature
-             * @param vaporFraction
-             * @return
-             */
-            inline JSONString flashTx(double temperature, double vaporFraction) const override
-            {
-                return EOSType.flashTx(temperature, vaporFraction);
-            }
-
-            /**
-             * @brief
-             * @param pressure
-             * @param enthalpy
-             * @return
-             */
-            inline JSONString flashPH(double pressure, double enthalpy) const override
-            {
-                return EOSType.flashPH(pressure, enthalpy);
-            }
-
-            /**
-             * @brief
-             * @param pressure
-             * @param entropy
-             * @return
-             */
-            inline JSONString flashPS(double pressure, double entropy) const override
-            {
-                return EOSType.flashPS(pressure, entropy);
-            }
-
-            /**
-             * @brief
-             * @param temperature
-             * @param volume
-             * @return
-             */
-            inline JSONString flashTV(double temperature, double volume) const override
-            {
-                return EOSType.flashTV(temperature, volume);
+                return EOSType.flash(specification, var1, var2);
             }
 
             /**
@@ -441,6 +319,16 @@ namespace PCProps
             inline double saturationPressure(double temperature) const override
             {
                 return EOSType.saturationPressure(temperature);
+            }
+
+            /**
+             * @brief
+             * @param pressure
+             * @return
+             */
+            inline double saturationTemperature(double pressure) const override
+            {
+                return EOSType.saturationTemperature(pressure);
             }
 
             /**
