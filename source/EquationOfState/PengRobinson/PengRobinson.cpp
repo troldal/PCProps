@@ -39,6 +39,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <limits>
 #include <tuple>
 #include <vector>
+#include <algorithm>
 
 #include "PengRobinson.hpp"
 #include <VaporPressure/AmbroseWalton.hpp>
@@ -86,7 +87,7 @@ namespace PCProps::EquationOfState
          */
         inline double a(double temperature) const
         {
-            return m_ac * pow(1 + m_kappa * (1 - sqrt(temperature / criticalTemperature())), 2);
+            return m_ac * pow(1 + m_kappa * (1 - std::sqrt(temperature / criticalTemperature())), 2);
         }
 
         /**
@@ -261,8 +262,8 @@ namespace PCProps::EquationOfState
               m_criticalPressure(constants("CriticalPressure")),
               m_acentricFactor(constants("AcentricFactor")),
               m_idealGasCp([=](double t)->double {return correlations("IdealGasCp", t);}),
-              m_vaporPressure(VaporPressure::AmbroseWalton(m_criticalTemperature, m_criticalPressure, m_acentricFactor)),
-              //m_vaporPressure([=](double t)->double {return correlations("VaporPressure", t);}),
+//              m_vaporPressure(VaporPressure::AmbroseWalton(m_criticalTemperature, m_criticalPressure, m_acentricFactor)),
+              m_vaporPressure([=](double t)->double {return correlations("VaporPressure", t);}),
               m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(m_criticalTemperature, 2) / m_criticalPressure),
               m_b(0.07779607 * PCProps::Globals::R_CONST * m_criticalTemperature / m_criticalPressure),
               m_kappa(
@@ -343,39 +344,62 @@ namespace PCProps::EquationOfState
                 if (computeCompressibilityFactors(temperature, guess).size() == 2)
                     return guess;
 
-                // ===== Slice the range until the two-phase region is found.
-                // TODO: Can this be done without raw loops?
-                std::vector<double> guesses { guess * 0.99, guess, guess * 1.01 };
-                while (true) {
-                    guesses.reserve(guesses.size() * 2 - 1);
-                    auto begin = std::next(guesses.begin());
-                    auto end = guesses.end();
+                auto findRange = [&](double lower, double upper) {
+
+                    auto dist = (upper - lower) / 19.0;
+                    std::vector<double> slices;
+                    for (int i = 0; i < 20; ++i)
+                        slices.emplace_back(lower + i * dist);
+
+                    std::vector<std::pair<double, double>> slopes;
+                    auto begin = std::next(slices.begin());
+                    auto end = slices.end();
                     for (auto iter = begin; iter != end; ++iter) {
-                        auto val = (*std::prev(iter) + *iter) / 2.0;
-                        if (computeCompressibilityFactors(temperature, val).size() == 2)
-                            return val;
-                        guesses.emplace_back(val);
+                        auto z1 = computeCompressibilityFactors(temperature, *std::prev(iter)).front();
+                        auto z2 = computeCompressibilityFactors(temperature, *iter).front();
+                        auto dz = z1 - z2;
+                        auto dp = *std::prev(iter) - *iter;
+                        auto dzdp = dz/dp;
+                        slopes.emplace_back(std::make_pair((*std::prev(iter) + *iter) / 2, dzdp));
                     }
-                    std::sort(guesses.begin(), guesses.end());
+
+                    std::sort(slopes.begin(), slopes.end(), [&](const auto& a, const auto& b){return a.second < b.second;});
+                    std::vector<double> result {slopes[0].first, slopes[1].first, slopes[2].first, slopes[3].first, slopes[4].first};
+                    std::sort(result.begin(), result.end());
+                    return std::vector<double> {result.front(), result.back()};
+                };
+
+                std::vector<double> guesses { guess * 0.95, guess * 1.05 };
+                int counter {0};
+                while (true) {
+                    using Globals::MAX_ITER;
+                    if (counter >= MAX_ITER || computeCompressibilityFactors(temperature, (guesses.front() + guesses.back()) / 2.0).size() == 2)
+                        return (guesses.front() + guesses.back()) / 2.0;
+
+                    ++counter;
+                    guesses = findRange(guesses.front(), guesses.back());
                 }
             };
 
             // ===== If the temperature is less than the critical temperature, compute using the PR-EOS.
             if (temperature < criticalTemperature()) {
                 using Globals::TOLERANCE;
+                using Globals::MAX_ITER;
                 auto guess = guessSaturationPressure();
+                int counter {0};
                 while (true) {
                     auto phi = computeCompressibilityAndFugacity(temperature, guess);
                     auto phi_l = get<1>(phi.front());
                     auto phi_v = get<1>(phi.back());
 
-                    if (abs(phi_l/phi_v - 1) < TOLERANCE) return guess;
+                    if (abs(phi_l/phi_v - 1) < TOLERANCE || counter >= MAX_ITER || guess < 1.0) return guess;
+                    ++counter;
                     guess = guess * (phi_l/phi_v);
                 }
             }
 
             // ===== Otherwise, compute the slope at the critical point, and extrapolate.
-            auto slope = numeric::diff_backward([&](double t){return m_vaporPressure(t);}, criticalTemperature() - 1.0);
+            auto slope = numeric::diff_backward([&](double t){return m_vaporPressure(t);}, criticalTemperature());
             return criticalPressure() + (temperature - criticalTemperature()) * slope;
         }
 
@@ -388,24 +412,15 @@ namespace PCProps::EquationOfState
         {
             if (pressure == criticalPressure()) return criticalTemperature();
 
-            double guess;
-
-            // ===== If supercritical, guess by extrapolate linearly (as not all correlations work beyond the critical point)
-            if (pressure > criticalPressure()) {
-                auto slope = numeric::diff_backward([&](double t){return m_vaporPressure(t);}, criticalTemperature());
-                guess = (pressure - criticalPressure()) / slope + criticalTemperature();
-            }
-            else {
-                // ===== Otherwise, find using the vapor pressure correlation
-                guess = numeric::newton(
-                    [&](double t) { return abs(m_vaporPressure(t) - pressure); },(criticalTemperature() * 0.5));
+            // ===== If the pressure is less than the critical pressure, compute using the PR-EOS.
+            if (pressure < criticalPressure()) {
+                return numeric::newton([&](double t) {
+                    return computeSaturationPressure(t) - pressure; }, criticalTemperature() * 0.5);
             }
 
-            // ===== Then, use the guess as a starting point for calculating the actual saturation temperature.
-            auto result  = numeric::ridders([&](double t) {
-                return computeSaturationPressure(t) - pressure; }, guess * 0.8, guess * 1.2);
-
-            return result;
+            // ===== Otherwise, compute the slope at the critical point, and extrapolate.
+            auto slope = numeric::diff_backward([&](double t){return m_vaporPressure(t);}, criticalTemperature());
+            return (pressure - criticalPressure()) / slope + criticalTemperature();
         }
 
         /**
@@ -555,33 +570,8 @@ namespace PCProps::EquationOfState
          * @return
          */
         inline std::vector<PhaseProperties> flashPx(double pressure, double vaporFraction) const {
-            // ===== If the pressure <= Pc
-            if (pressure < criticalPressure()) {
-                // ===== First, calculate the saturation temperature at the specified pressure.
-                auto temperature = computeSaturationTemperature(pressure);
-                computeThermodynamicProperties(temperature, pressure);
-
-                // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
-                if (vaporFraction >= 1.0) {
-                    m_phaseProps.back().MolarFlow = 1.0;
-                    return {m_phaseProps.back()};
-                }
-
-                // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
-                if (vaporFraction <= 0.0) {
-                    m_phaseProps.front().MolarFlow = 1.0;
-                    return {m_phaseProps.front()};
-                }
-
-                // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
-                m_phaseProps[0].MolarFlow = 1 - vaporFraction;
-                m_phaseProps[1].MolarFlow = vaporFraction;
-                return {m_phaseProps[0], m_phaseProps[1]};
-            }
-
-            // ===== If the pressure > Pc, extrapolate to the hypothetical saturation conditions in the supercritical region.
             auto temperature = computeSaturationTemperature(pressure);
-            return flashPT(pressure, temperature);
+            return flashTx(temperature, vaporFraction);
         }
 
         /**

@@ -31,12 +31,12 @@ namespace PCProps
 //            liquid.MolarVolume = m_pureComponent.correlation(
 //                "CompressedLiquidVolume",
 //                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.correlation("SaturatedLiquidVolume", liquid.Temperature) });
-            liquid.SurfaceTension      = 0.0;
-            liquid.ThermalConductivity = 0.0;
-            liquid.Viscosity           = m_pureComponent.correlation(
-                "CompressedLiquidViscosity",
-                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.correlation("SaturatedLiquidViscosity", liquid.Temperature) });
-            //liquid.Cp = m_pureComponent.correlation("LiquidCp", liquid.Temperature);
+//            liquid.SurfaceTension      = 0.0;
+//            liquid.ThermalConductivity = 0.0;
+//            liquid.Viscosity           = m_pureComponent.correlation(
+//                "CompressedLiquidViscosity",
+//                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.correlation("SaturatedLiquidViscosity", liquid.Temperature) });
+//            //liquid.Cp = m_pureComponent.correlation("LiquidCp", liquid.Temperature);
 
             return liquid;
         }
@@ -48,11 +48,11 @@ namespace PCProps
          */
         PhaseProperties computeVaporProperties(PhaseProperties vapor) const
         {
-            vapor.SurfaceTension      = 0.0;
-            vapor.ThermalConductivity = 0.0;
-            vapor.Viscosity           = m_pureComponent.correlation(
-                "CompressedVaporViscosity",
-                { vapor.Temperature, vapor.Pressure, vapor.VaporPressure, m_pureComponent.correlation("SaturatedVaporViscosity", vapor.Temperature) });
+//            vapor.SurfaceTension      = 0.0;
+//            vapor.ThermalConductivity = 0.0;
+//            vapor.Viscosity           = m_pureComponent.correlation(
+//                "CompressedVaporViscosity",
+//                { vapor.Temperature, vapor.Pressure, vapor.VaporPressure, m_pureComponent.correlation("SaturatedVaporViscosity", vapor.Temperature) });
 
             return vapor;
         }

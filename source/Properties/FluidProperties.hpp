@@ -87,7 +87,7 @@ namespace PCProps
         JSONString asJSON() const;
 
         inline void print(std::ostream& stream) {
-            stream << std::setprecision(8) << std::fixed;
+            stream << std::setprecision(5) << std::fixed;
 
             auto TypeAsString = [&](const PhaseType type) {
                 if (type == PhaseType::Vapor) return "VAPOR";
