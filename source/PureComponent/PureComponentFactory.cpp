@@ -198,8 +198,8 @@ namespace PCProps
             result.addDataItem("Name", component["Name"].get<std::string>());
             result.addDataItem("CAS", component["CAS"].get<std::string>());
             result.addDataItem("MolarWeight", component["MolarWeight"].get<double>());
-            result.addDataItem("MeltingTemperature", component["MeltingTemperature"].get<double>());
-            result.addDataItem("BoilingTemperature", component["BoilingTemperature"].get<double>());
+            result.addDataItem("NormalFreezingPoint", component["NormalFreezingPoint"].get<double>());
+            result.addDataItem("NormalBoilingPoint", component["NormalBoilingPoint"].get<double>());
             result.addDataItem("CriticalTemperature", component["CriticalTemperature"].get<double>());
             result.addDataItem("CriticalPressure", component["CriticalPressure"].get<double>());
             result.addDataItem("CriticalVolume", component["CriticalVolume"].get<double>());

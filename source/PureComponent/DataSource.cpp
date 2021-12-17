@@ -24,8 +24,8 @@ namespace {
         result["Name"]                    = record[1].type() == XLValueType::Empty ? "" : record[1];
         result["CAS"]                     = record[2].type() == XLValueType::Empty ? "" : record[2];
         result["MolarWeight"]             = record[3].type() == XLValueType::Empty ? 0.0 : record[3].get<double>();
-        result["MeltingTemperature"]      = record[4].type() == XLValueType::Empty ? 0.0 : record[4].get<double>();
-        result["BoilingTemperature"]      = record[5].type() == XLValueType::Empty ? 0.0 : record[5].get<double>();
+        result["NormalFreezingPoint"]      = record[4].type() == XLValueType::Empty ? 0.0 : record[4].get<double>();
+        result["NormalBoilingPoint"]      = record[5].type() == XLValueType::Empty ? 0.0 : record[5].get<double>();
         result["CriticalTemperature"]     = record[6].type() == XLValueType::Empty ? 0.0 : record[6].get<double>();
         result["CriticalPressure"]        = record[7].type() == XLValueType::Empty ? 0.0 : record[7].get<double>();
         result["CriticalVolume"]          = record[8].type() == XLValueType::Empty ? 0.0 : record[8].get<double>();

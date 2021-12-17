@@ -20,6 +20,15 @@ namespace PCProps
 
     public:
         PhaseType Type { PhaseType::Undefined };
+
+        std::string Name {};
+        std::string CAS {};
+
+        double NormalFreezingPoint {};
+        double NormalBoilingPoint {};
+        double CriticalTemperature {};
+        double CriticalPressure {};
+
         double Pressure { 0.0 };
         double Temperature { 0.0 };
         double MolarVolume { 0.0 };

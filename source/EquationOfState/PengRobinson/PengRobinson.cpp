@@ -70,6 +70,12 @@ namespace PCProps::EquationOfState
         double m_criticalPressure {};
         double m_acentricFactor {};
 
+        double m_normalFreezingPoint {};
+        double m_normalBoilingPoint {};
+
+        std::string m_name {};
+        std::string m_CAS {};
+
         std::function<double(double)> m_idealGasCp {};
         std::function<double(double)> m_vaporPressure {};
 
@@ -261,6 +267,8 @@ namespace PCProps::EquationOfState
             : m_criticalTemperature(constants("CriticalTemperature")),
               m_criticalPressure(constants("CriticalPressure")),
               m_acentricFactor(constants("AcentricFactor")),
+              m_normalFreezingPoint(constants("NormalFreezingPoint")),
+              m_normalBoilingPoint(constants("NormalBoilingPoint")),
               m_idealGasCp([=](double t)->double {return correlations("IdealGasCp", t);}),
 //              m_vaporPressure(VaporPressure::AmbroseWalton(m_criticalTemperature, m_criticalPressure, m_acentricFactor)),
               m_vaporPressure([=](double t)->double {return correlations("VaporPressure", t);}),
@@ -488,6 +496,10 @@ namespace PCProps::EquationOfState
                 data.InternalEnergy      = data.Enthalpy - pressure * data.MolarVolume;
                 data.HelmholzEnergy      = data.InternalEnergy - temperature * data.Entropy;
                 data.VaporPressure       = computeSaturationPressure(temperature);
+                data.CriticalPressure = criticalPressure();
+                data.CriticalTemperature = criticalTemperature();
+                data.NormalFreezingPoint = m_normalFreezingPoint;
+                data.NormalBoilingPoint = m_normalBoilingPoint;
 
                 auto pr = [&](double t, double v) {return R_CONST*t/(v-m_b) - (m_ac* alpha(t))/(pow(v,2)+2*m_b*v-pow(m_b,2));};
                 auto dvdt = numeric::diff_central([&](double t){return computeCompressibilityFactors(t, pressure)[index] * R_CONST * t / pressure;}, temperature);
@@ -672,20 +684,13 @@ namespace PCProps::EquationOfState
         inline std::vector<PhaseProperties> flashTV(double temperature, double volume) const {
 
             using std::pow;
-
             auto pr = [&](double t, double v){
                 return R_CONST*t/(v-m_b) - (m_ac* alpha(t))/(pow(v,2)+2*m_b*v-pow(m_b,2));
             };
 
-            auto volumeObjFunction = [&](double p) {
-                flashPT(p, temperature);
-                return pow((m_phaseProps.front().MolarVolume * m_phaseProps.front().MolarFlow + m_phaseProps.back().MolarVolume * m_phaseProps.back().MolarFlow) /
-                           (m_phaseProps.front().MolarFlow + m_phaseProps.back().MolarFlow) - volume, 2);
-            };
-
             // ===== Fluid is supercritical
             if (temperature >= criticalTemperature()) {
-                return flashPT(numeric::newton(volumeObjFunction, computeSaturationPressure(temperature)), temperature);
+                return flashPT(pr(temperature,volume), temperature);
             }
 
             flashTx(temperature, 0.5);
@@ -757,6 +762,10 @@ namespace PCProps::EquationOfState
 
         if (specification == "TV")
             for (const auto& phase : m_impl->flashTV(var1, var2)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
+
+        for (auto& phase : result) {
+
+        }
 
         return nlohmann::json(result).dump();
     }

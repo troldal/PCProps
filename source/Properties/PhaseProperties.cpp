@@ -6,7 +6,8 @@
 
 #include <json/json.hpp>
 
-namespace PCProps {
+namespace PCProps
+{
 
     /**
      * @brief Default constructor.
@@ -16,8 +17,8 @@ namespace PCProps {
     /**
      * @brief Constructor.
      */
-    PhaseProperties::PhaseProperties(const std::string& JSONData) {
-
+    PhaseProperties::PhaseProperties(const std::string& JSONData)
+    {
         auto data = nlohmann::json::parse(JSONData);
 
         auto AsType = [&](const std::string& type) {
@@ -26,7 +27,15 @@ namespace PCProps {
             return PhaseType::Undefined;
         };
 
-        Type                        = data["Type"].is_null() ? PhaseType::Undefined : AsType(data["Type"].get<std::string>());
+        Type = data["Type"].is_null() ? PhaseType::Undefined : AsType(data["Type"].get<std::string>());
+        Name = data["Name"].is_null() ? "" : data["Name"].get<std::string>();
+        CAS  = data["CAS"].is_null() ? "" : data["CAS"].get<std::string>();
+
+        NormalFreezingPoint = data["NormalFreezingPoint"].is_null() ? std::nan("") : data["NormalFreezingPoint"].get<double>();
+        NormalBoilingPoint  = data["NormalBoilingPoint"].is_null() ? std::nan("") : data["NormalBoilingPoint"].get<double>();
+        CriticalTemperature = data["CriticalTemperature"].is_null() ? std::nan("") : data["CriticalTemperature"].get<double>();
+        CriticalPressure    = data["CriticalPressure"].is_null() ? std::nan("") : data["CriticalPressure"].get<double>();
+
         Pressure                    = data["Pressure"].is_null() ? std::nan("") : data["Pressure"].get<double>();
         Temperature                 = data["Temperature"].is_null() ? std::nan("") : data["Temperature"].get<double>();
         MolarVolume                 = data["MolarVolume"].is_null() ? std::nan("") : data["MolarVolume"].get<double>();
@@ -81,41 +90,46 @@ namespace PCProps {
      */
     PhaseProperties::JSONString PhaseProperties::asJSON() const
 
-        {
-            nlohmann::json data;
+    {
+        nlohmann::json data;
 
-            auto TypeAsString = [&](const PhaseType type) {
-                if (type == PhaseType::Vapor) return "VAPOR";
-                if (type == PhaseType::Liquid) return "LIQUID";
-                return "UNDEFINED";
-            };
+        auto TypeAsString = [&](const PhaseType type) {
+            if (type == PhaseType::Vapor) return "VAPOR";
+            if (type == PhaseType::Liquid) return "LIQUID";
+            return "UNDEFINED";
+        };
 
-            data["Type"]                        = TypeAsString(Type);
-            data["Pressure"]                    = Pressure;
-            data["Temperature"]                 = Temperature;
-            data["MolarVolume"]                 = MolarVolume;
-            data["MolarWeight"]                 = MolarWeight;
-            data["MolarFlow"]                   = MolarFlow;
-            data["Compressibility"]             = Compressibility;
-            data["FugacityCoefficient"]         = FugacityCoefficient;
-            data["Viscosity"]                   = Viscosity;
-            data["SurfaceTension"]              = SurfaceTension;
-            data["ThermalConductivity"]         = ThermalConductivity;
-            data["Cp"]                          = Cp;
-            data["Cv"]                          = Cv;
-            data["IsothermalCompressibility"]   = IsothermalCompressibility;
-            data["ThermalExpansionCoefficient"] = ThermalExpansionCoefficient;
-            data["JouleThomsonCoefficient"]     = JouleThomsonCoefficient;
-            data["SpeedOfSound"]                = SpeedOfSound;
-            data["VaporPressure"]               = VaporPressure;
-            data["Enthalpy"]                    = Enthalpy;
-            data["Entropy"]                     = Entropy;
-            data["InternalEnergy"]              = InternalEnergy;
-            data["GibbsEnergy"]                 = GibbsEnergy;
-            data["HelmholzEnergy"]              = HelmholzEnergy;
+        data["Type"]                        = TypeAsString(Type);
+        data["Name"]                        = Name;
+        data["CAS"]                         = CAS;
+        data["NormalFreezingPoint"]         = NormalFreezingPoint;
+        data["NormalBoilingPoint"]          = NormalBoilingPoint;
+        data["CriticalTemperature"]         = CriticalTemperature;
+        data["CriticalPressure"]            = CriticalPressure;
+        data["Pressure"]                    = Pressure;
+        data["Temperature"]                 = Temperature;
+        data["MolarVolume"]                 = MolarVolume;
+        data["MolarWeight"]                 = MolarWeight;
+        data["MolarFlow"]                   = MolarFlow;
+        data["Compressibility"]             = Compressibility;
+        data["FugacityCoefficient"]         = FugacityCoefficient;
+        data["Viscosity"]                   = Viscosity;
+        data["SurfaceTension"]              = SurfaceTension;
+        data["ThermalConductivity"]         = ThermalConductivity;
+        data["Cp"]                          = Cp;
+        data["Cv"]                          = Cv;
+        data["IsothermalCompressibility"]   = IsothermalCompressibility;
+        data["ThermalExpansionCoefficient"] = ThermalExpansionCoefficient;
+        data["JouleThomsonCoefficient"]     = JouleThomsonCoefficient;
+        data["SpeedOfSound"]                = SpeedOfSound;
+        data["VaporPressure"]               = VaporPressure;
+        data["Enthalpy"]                    = Enthalpy;
+        data["Entropy"]                     = Entropy;
+        data["InternalEnergy"]              = InternalEnergy;
+        data["GibbsEnergy"]                 = GibbsEnergy;
+        data["HelmholzEnergy"]              = HelmholzEnergy;
 
-            return data.dump();
-        }
+        return data.dump();
+    }
 
-}
-
+}    // namespace PCProps
