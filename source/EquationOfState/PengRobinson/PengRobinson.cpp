@@ -55,6 +55,8 @@ namespace PCProps::EquationOfState
     using PCProps::Globals::R_CONST;
     using PCProps::Globals::STANDARD_P;
     using PCProps::Globals::STANDARD_T;
+    using PCProps::Globals::MAX_ITER;
+    using PCProps::Globals::TOLERANCE;
 
     class PengRobinson::impl
     {
@@ -115,7 +117,6 @@ namespace PCProps::EquationOfState
          */
         inline double B(double temperature, double pressure) const
         {
-            using PCProps::Globals::R_CONST;
             auto result = m_b * pressure / (R_CONST * temperature);
             if (std::isnan(result))
                 throw std::runtime_error("Numeric error: Coefficient 'B' could not be computed with T = " + std::to_string(temperature) + " and P = " + std::to_string(pressure));
@@ -245,9 +246,6 @@ namespace PCProps::EquationOfState
         inline double idealGasEntropy(double temperature, double pressure) const
         {
             using numeric::integrate;
-            using PCProps::Globals::R_CONST;
-            using PCProps::Globals::STANDARD_P;
-            using PCProps::Globals::STANDARD_T;
             auto result = integrate([&](double temp) { return m_idealGasCp(temp) / temp; }, PCProps::Globals::STANDARD_T, temperature) - R_CONST * log(pressure / STANDARD_P);
 
             if (std::isnan(result))
@@ -264,7 +262,6 @@ namespace PCProps::EquationOfState
          */
         inline double entropyDeparture(double temperature, double pressure, double compressibility) const
         {
-            using PCProps::Globals::R_CONST;
             using std::log;
             using std::sqrt;
 
@@ -272,13 +269,28 @@ namespace PCProps::EquationOfState
             auto coeffB = B(temperature, pressure);
 
             auto result = (log(compressibility - coeffB) - coeffA / (coeffB * sqrt(8)) * m_kappa * sqrt(temperature / m_criticalTemperature) / sqrt(alpha(temperature)) *
-                                                               log((compressibility + (1 + sqrt(2)) * coeffB) / (compressibility + (1 - sqrt(2)) * coeffB))) *
-                          R_CONST;
+                                                               log((compressibility + (1 + sqrt(2)) * coeffB) / (compressibility + (1 - sqrt(2)) * coeffB))) * R_CONST;
 
             if (std::isnan(result))
                 throw std::runtime_error(
                     "Numeric error: Enthalpy departure could not be computed with T = " + std::to_string(temperature) + ", P = " + std::to_string(pressure) +
                     " and Z = " + std::to_string(compressibility));
+
+            return result;
+        }
+
+        /**
+         * @brief
+         * @param temperature
+         * @param molarVolume
+         * @return
+         */
+        inline double calcPressure(double temperature, double molarVolume) const {
+            auto result = R_CONST * temperature / (molarVolume - m_b) - (m_ac * alpha(temperature)) / (pow(molarVolume, 2) + 2 * m_b * molarVolume - pow(m_b, 2));
+
+            if (std::isnan(result))
+                throw std::runtime_error(
+                    "Numeric error: Pressure could not be computed with T = " + std::to_string(temperature) + " and V = " + std::to_string(molarVolume));
 
             return result;
         }
@@ -386,7 +398,6 @@ namespace PCProps::EquationOfState
                 // ===== or the maximum number of iterations has been exceeded.
                 int counter { 0 };
                 while (true) {
-                    using Globals::MAX_ITER;
                     if (counter >= MAX_ITER || computeCompressibilityFactors(temperature, (guesses.front() + guesses.back()) / 2.0).size() == 2)
                         return (guesses.front() + guesses.back()) / 2.0;
 
@@ -397,8 +408,6 @@ namespace PCProps::EquationOfState
 
             // ===== If the temperature is less than the critical temperature, compute using the PR-EOS.
             if (temperature < m_criticalTemperature) {
-                using Globals::MAX_ITER;
-                using Globals::TOLERANCE;
                 auto guess = guessSaturationPressure();
                 int  counter { 0 };
                 while (true) {
@@ -510,12 +519,10 @@ namespace PCProps::EquationOfState
                 data.NormalFreezingPoint = m_normalFreezingPoint;
                 data.NormalBoilingPoint  = m_normalBoilingPoint;
 
-                // TODO: Consider a separate function with the PR pressure calculation.
-                auto pr   = [&](double t, double v) { return R_CONST * t / (v - m_b) - (m_ac * alpha(t)) / (pow(v, 2) + 2 * m_b * v - pow(m_b, 2)); };
                 auto dvdt = numeric::diff_central([&](double t) { return computeCompressibilityFactors(t, pressure)[index] * R_CONST * t / pressure; }, temperature);
                 auto dvdp = numeric::diff_central([&](double p) { return computeCompressibilityFactors(temperature, p)[index] * R_CONST * temperature / p; }, pressure);
-                auto dpdt = numeric::diff_central([&](double t) { return pr(t, data.MolarVolume); }, temperature);
-                auto dpdv = numeric::diff_central([&](double v) { return pr(temperature, v); }, data.MolarVolume);
+                auto dpdt = numeric::diff_central([&](double t) { return calcPressure(t, data.MolarVolume); }, temperature);
+                auto dpdv = numeric::diff_central([&](double v) { return calcPressure(temperature, v); }, data.MolarVolume);
 
                 data.Cp = numeric::diff_central([&](double t) { return computeEnthalpy(t, pressure, computeCompressibilityFactors(t, pressure)[index]); }, temperature);
                 data.Cv = data.Cp + temperature * pow(dpdt, 2) / dpdv;
@@ -699,19 +706,16 @@ namespace PCProps::EquationOfState
         {
             using std::pow;
 
-            // TODO: Consider the PR pressure calculation in a separate function.
-            auto pr = [&](double t, double v) { return R_CONST * t / (v - m_b) - (m_ac * alpha(t)) / (pow(v, 2) + 2 * m_b * v - pow(m_b, 2)); };
-
             // ===== Fluid is supercritical
             if (temperature >= m_criticalTemperature) {
-                return flashPT(pr(temperature, volume), temperature);
+                return flashPT(calcPressure(temperature, volume), temperature);
             }
 
             flashTx(temperature, 0.5);
 
             // ===== Fluid is a compressed liquid or super-heated vapor
             if (volume < m_phaseProps.front().MolarVolume || volume > m_phaseProps.back().MolarVolume) {
-                return flashPT(pr(temperature, volume), temperature);
+                return flashPT(calcPressure(temperature, volume), temperature);
             }
 
             // ===== Fluid is multiphase
