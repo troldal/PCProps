@@ -27,14 +27,16 @@ namespace numeric::impl
      * @param maxiter
      * @return
      */
-    inline double newton(const std::function<double(double)>& func, double x, double eps = 1E-6, int maxiter = 20)
+    inline double newton(const std::function<double(double)>& func, double x, double eps = 1E-6, int maxiter = 100)
     {
         using std::abs;
         int counter = 0;
         while (true) {
-            double x1 = x - (func(x) / numeric::diff_central(func, x));
+            double diff = numeric::diff_central(func, x);
+            if (diff == 0.0) throw std::runtime_error("Derivative is zero.");
+            double x1 = x - (func(x) / diff);
             if (abs(x - x1) < eps) return x1;
-            if (counter > maxiter) return static_cast<double>(NAN);
+            if (counter > maxiter) return x1; //throw std::runtime_error("Root could not be computed.");
             x = x1;
             ++counter;
         }

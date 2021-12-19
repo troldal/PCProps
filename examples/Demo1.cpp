@@ -45,7 +45,7 @@ int main()
         plot.ylabel("Pressure (Pa)");
         plot.xlabel("Temperature (K)");
 
-        plot.save("./" + Name + ".pdf");
+        plot.save("./Psat (T) - " + Name + ".pdf");
 
     };
 
@@ -74,7 +74,7 @@ int main()
         plot.ylabel("Pressure (Pa)");
         plot.xlabel("Temperature (K)");
 
-        plot.save("./" + Name + ".pdf");
+        plot.save("./Psat (P) - " + Name + ".pdf");
 
     };
 
@@ -88,8 +88,8 @@ int main()
         auto b = (0.07779607 * 8.31446261815324 * tc / pc);
 
         double temp = tc;
-        auto f = 1.01;
-        auto diff = (b * 100 - b*f) / 99.0;
+        auto f = 1.2;
+        auto diff = (b * 50 - b*f) / 299.0;
         auto psat = FluidProperties(fluid.flash("Tx", temp, 0.5))[0].Pressure/100000;
 
         Plot plot;
@@ -97,9 +97,9 @@ int main()
         plot.autoclean(true);
         plot.gnuplot("set title \"" +Name + " PV Isotherm\" font \"Avenir\"");
 
-        for (int j = 0; j < 5; ++j) {
+        for (int j = 0; j < 2; ++j) {
             std::vector<double> x, y;
-            for (int i = 0; i < 100; ++i) {
+            for (int i = 0; i < 300; ++i) {
                 temp = tc - j * 20.0;
                 auto p = FluidProperties(fluid.flash("TV", temp, b * f + i * diff))[0].Pressure / 100000;
                 if (p > psat * 3) continue;
@@ -115,60 +115,80 @@ int main()
         plot.ylabel("Pressure (bar)");
         plot.xlabel("Volume (m3/mol)");
 
-        plot.save("./" + Name + ".pdf");
+        plot.save("./PV Isotherm - " + Name + ".pdf");
 
     };
 
-        plot_pv("132259-10-0", "AIR");
-        plot_pv("7664-41-7", "AMMONIA");
-        plot_pv("7440-37-1", "ARGON");
-        plot_pv("106-97-8", "BUTANE");
-        plot_pv("124-38-9", "CARBON DIOXIDE");
-        plot_pv("630-08-0", "CARBON MONOXIDE");
-        plot_pv("124-18-5", "DECANE");
-        plot_pv("74-84-0", "ETHANE");
-        plot_pv("50-00-0", "FORMALDEHYDE");
-        plot_pv("142-82-5", "HEPTANE");
-        plot_pv("110-54-3", "HEXANE");
-        plot_pv("7783-06-4", "HYDROGEN SULFIDE");
-        plot_pv("74-82-8", "METHANE");
-        plot_pv("7727-37-9", "NITROGEN");
-        plot_pv("10102-43-9", "NITRIC OXIDE");
-        plot_pv("111-84-2", "NONANE");
-        plot_pv("111-65-9", "OCTANE");
-        plot_pv("7782-44-7", "OXYGEN");
-        plot_pv("109-66-0", "PENTANE");
-        plot_pv("74-98-6", "PROPANE");
-        plot_pv("7446-09-5", "SULFUR DIOXIDE");
-        plot_pv("7732-18-5", "WATER");
+    plot_pv("132259-10-0", "AIR");
+    plot_pv("7664-41-7", "AMMONIA");
+    plot_pv("7440-37-1", "ARGON");
+    plot_pv("106-97-8", "BUTANE");
+    plot_pv("124-38-9", "CARBON DIOXIDE");
+    plot_pv("630-08-0", "CARBON MONOXIDE");
+    plot_pv("124-18-5", "DECANE");
+    plot_pv("74-84-0", "ETHANE");
+    plot_pv("50-00-0", "FORMALDEHYDE");
+    plot_pv("142-82-5", "HEPTANE");
+    plot_pv("110-54-3", "HEXANE");
+    plot_pv("7783-06-4", "HYDROGEN SULFIDE");
+    plot_pv("74-82-8", "METHANE");
+    plot_pv("7727-37-9", "NITROGEN");
+    plot_pv("10102-43-9", "NITRIC OXIDE");
+    plot_pv("111-84-2", "NONANE");
+    plot_pv("111-65-9", "OCTANE");
+    plot_pv("7782-44-7", "OXYGEN");
+    plot_pv("109-66-0", "PENTANE");
+    plot_pv("74-98-6", "PROPANE");
+    plot_pv("7446-09-5", "SULFUR DIOXIDE");
+    plot_pv("7732-18-5", "WATER");
 
-//    plot_psat2("132259-10-0", "AIR");
-//    plot_psat2("7664-41-7", "AMMONIA");
-//    plot_psat2("7440-37-1", "ARGON");
-//    plot_psat2("106-97-8", "BUTANE");
-//    plot_psat2("124-38-9", "CARBON DIOXIDE");
-//    plot_psat2("630-08-0", "CARBON MONOXIDE");
-//    plot_psat2("124-18-5", "DECANE");
-//    plot_psat2("74-84-0", "ETHANE");
-//    plot_psat2("50-00-0", "FORMALDEHYDE");
-//    plot_psat2("142-82-5", "HEPTANE");
-//    plot_psat2("110-54-3", "HEXANE");
-//    plot_psat2("7783-06-4", "HYDROGEN SULFIDE");
-//    plot_psat2("74-82-8", "METHANE");
-//    plot_psat2("7727-37-9", "NITROGEN");
-//    plot_psat2("10102-43-9", "NITRIC OXIDE");
-//    plot_psat2("111-84-2", "NONANE");
-//    plot_psat2("111-65-9", "OCTANE");
-//    plot_psat2("7782-44-7", "OXYGEN");
-//    plot_psat2("109-66-0", "PENTANE");
-//    plot_psat2("74-98-6", "PROPANE");
-//    plot_psat2("7446-09-5", "SULFUR DIOXIDE");
-//    plot_psat2("7732-18-5", "WATER");
+    plot_psat("132259-10-0", "AIR");
+    plot_psat("7664-41-7", "AMMONIA");
+    plot_psat("7440-37-1", "ARGON");
+    plot_psat("106-97-8", "BUTANE");
+    plot_psat("124-38-9", "CARBON DIOXIDE");
+    plot_psat("630-08-0", "CARBON MONOXIDE");
+    plot_psat("124-18-5", "DECANE");
+    plot_psat("74-84-0", "ETHANE");
+    plot_psat("50-00-0", "FORMALDEHYDE");
+    plot_psat("142-82-5", "HEPTANE");
+    plot_psat("110-54-3", "HEXANE");
+    plot_psat("7783-06-4", "HYDROGEN SULFIDE");
+    plot_psat("74-82-8", "METHANE");
+    plot_psat("7727-37-9", "NITROGEN");
+    plot_psat("10102-43-9", "NITRIC OXIDE");
+    plot_psat("111-84-2", "NONANE");
+    plot_psat("111-65-9", "OCTANE");
+    plot_psat("7782-44-7", "OXYGEN");
+    plot_psat("109-66-0", "PENTANE");
+    plot_psat("74-98-6", "PROPANE");
+    plot_psat("7446-09-5", "SULFUR DIOXIDE");
+    plot_psat("7732-18-5", "WATER");
 
+    plot_psat2("132259-10-0", "AIR");
+    plot_psat2("7664-41-7", "AMMONIA");
+    plot_psat2("7440-37-1", "ARGON");
+    plot_psat2("106-97-8", "BUTANE");
+    plot_psat2("124-38-9", "CARBON DIOXIDE");
+    plot_psat2("630-08-0", "CARBON MONOXIDE");
+    plot_psat2("124-18-5", "DECANE");
+    plot_psat2("74-84-0", "ETHANE");
+    plot_psat2("50-00-0", "FORMALDEHYDE");
+    plot_psat2("142-82-5", "HEPTANE");
+    plot_psat2("110-54-3", "HEXANE");
+    plot_psat2("7783-06-4", "HYDROGEN SULFIDE");
+    plot_psat2("74-82-8", "METHANE");
+    plot_psat2("7727-37-9", "NITROGEN");
+    plot_psat2("10102-43-9", "NITRIC OXIDE");
+    plot_psat2("111-84-2", "NONANE");
+    plot_psat2("111-65-9", "OCTANE");
+    plot_psat2("7782-44-7", "OXYGEN");
+    plot_psat2("109-66-0", "PENTANE");
+    plot_psat2("74-98-6", "PROPANE");
+    plot_psat2("7446-09-5", "SULFUR DIOXIDE");
+    plot_psat2("7732-18-5", "WATER");
 
-
-
-//    FluidProperties(fluid.flash("Tx", 447.3, 0.5)).print(std::cout);
+    //    FluidProperties(fluid.flash("Tx", 447.3, 0.5)).print(std::cout);
 //    FluidProperties(fluid.flash("Px", 4247999.0, 0.5)).print(std::cout);
 
 

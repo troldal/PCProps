@@ -9,7 +9,7 @@
 
 namespace numeric {
 
-    double newton(const std::function<double(double)>& func, double x, double eps = 1E-6, int maxiter = 20);
+    double newton(const std::function<double(double)>& func, double x, double eps = 1E-6, int maxiter = 100);
 
     double ridders(const std::function<double(double)>& objective, double x1, double x2, double eps = 1.0E-6, int max_iter = 100);
 
