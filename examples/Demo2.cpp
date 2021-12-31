@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include <EOSLib.hpp>
+#include <PropertyPackage.hpp>
 #include <Fluid.hpp>
 #include <PropertyLib.hpp>
 #include <json/json.hpp>

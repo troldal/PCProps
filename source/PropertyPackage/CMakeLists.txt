@@ -2,31 +2,30 @@
 # PROJECT FILES
 #   List of project source files
 #=======================================================================================================================
-set(PURECOMPONENTLIB_SOURCES
-        PureComponentFactory.cpp
-        DataSource.cpp
+set(PROPERTYPACKAGE_SOURCES
+        PengRobinson/PengRobinson.cpp
         )
 
 #=======================================================================================================================
 # SHARED LIBRARY
 #   Define the shared library
 #=======================================================================================================================
-add_subdirectory(OpenXLSX)
-add_library(PureComponentLib STATIC "")
-target_sources(PureComponentLib PRIVATE ${PURECOMPONENTLIB_SOURCES})
-target_include_directories(PureComponentLib
+add_library(PropertyPackage STATIC "")
+target_sources(PropertyPackage PRIVATE ${PROPERTYPACKAGE_SOURCES})
+target_include_directories(PropertyPackage
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(PureComponentLib PUBLIC dependencies OpenXLSX::OpenXLSX PropertyLib)
+target_link_libraries(PropertyPackage PUBLIC numerics dependencies common interfaces PropertyLib PropertiesLib)
 
 #include(GenerateExportHeader)
-#generate_export_header(FluidLib)
-#BASE_NAME openxlsx
-#EXPORT_FILE_NAME OpenXLSX-Exports.hpp
-#EXPORT_MACRO_NAME OPENXLSX_EXPORT
-#NO_EXPORT_MACRO_NAME OPENXLSX_HIDDEN)
+#generate_export_header(
+#        PropertyPackage
+#        BASE_NAME PropertyPackage
+#        EXPORT_FILE_NAME PropertyPackage-Exports.hpp
+#        EXPORT_MACRO_NAME PROPERTYPACKAGE_EXPORT
+#        NO_EXPORT_MACRO_NAME OPENXLSX_HIDDEN)
 
 #=======================================================================================================================
 # COMPILER FLAGS
@@ -86,20 +85,18 @@ list(APPEND RELEASE_FLAGS_MSVC
 #   ---
 #=======================================================================================================================
 
-
-
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    target_compile_options(PureComponentLib PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_GNU}>)
+    target_compile_options(PropertyPackage PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_GNU}>)
 
 elseif (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR
-("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang") OR
-("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-    target_compile_options(PureComponentLib PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_GNUCLANG}>)
+        ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang") OR
+        ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+    target_compile_options(PropertyPackage PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_GNUCLANG}>)
 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     string(REGEX REPLACE "/W[3|4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    target_compile_options(PureComponentLib PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_MSVC}>)
-    target_compile_options(PureComponentLib PRIVATE $<$<CONFIG:Release>:${RELEASE_FLAGS_MSVC}>)
+    target_compile_options(PropertyPackage PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS_MSVC}>)
+    target_compile_options(PropertyPackage PRIVATE $<$<CONFIG:Release>:${RELEASE_FLAGS_MSVC}>)
 endif ()
 
 #=======================================================================================================================
@@ -109,6 +106,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     include(CheckIPOSupported)
     check_ipo_supported(RESULT result OUTPUT output)
     if (result)
-        set_property(TARGET PureComponentLib PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+        set_property(TARGET PropertyPackage PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif ()
 endif ()

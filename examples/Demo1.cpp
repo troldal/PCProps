@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include <EOSLib.hpp>
+#include <PropertyPackage.hpp>
 #include <Fluid.hpp>
 #include <PureComponentFactory.hpp>
 #include <DataSource.hpp>
@@ -25,7 +25,7 @@ int main()
         auto fluid = Fluid(pc, PengRobinson{});
 
         auto nbp = pc.property("NormalFreezingPoint");
-        auto tc = pc.property("CriticalTemperature");
+        auto tc = pc.property("CriticalTemperature") ;
         auto diff = (tc - nbp) / 99.0;
         std::vector<double> x, y;
         for (int i = 0; i < 100; ++i) {
@@ -54,12 +54,12 @@ int main()
         auto pc = pcf.makeComponent(CAS);
         auto fluid = Fluid(pc, PengRobinson{});
 
-        auto cp = pc.property("CriticalPressure");
+        auto cp = pc.property("CriticalPressure") ;
         auto diff = (cp - 100.0) / 99.0;
         std::vector<double> x, y;
         for (int i = 0; i < 100; ++i) {
             x.emplace_back(FluidProperties(fluid.flash("Px", 100.0 + i * diff, 0.5))[0].Temperature);
-            y.emplace_back((100.0 + i * diff)/100000);
+            y.emplace_back((100.0 + i * diff)/1000);
         }
 
         Plot plot;
@@ -118,6 +118,74 @@ int main()
         plot.save("./PV Isotherm - " + Name + ".pdf");
 
     };
+
+    auto check_critpoint = [&](const std::string& CAS, const std::string& Name) {
+        std::cout << "Calculating Tx Flash: " << Name << std::endl;
+        auto pcomp = pcf.makeComponent(CAS);
+        auto fluid = Fluid(pcomp, PengRobinson{});
+        auto tc = pcomp.property("CriticalTemperature");
+
+        FluidProperties(fluid.flash("Tx", tc - 0.01, 0.5)).print(std::cout);
+        std::cout << "==============================================================================" << std::endl << std::endl;
+
+    };
+
+    auto check_critpoint2 = [&](const std::string& CAS, const std::string& Name) {
+        std::cout << "Calculating Px Flash: " << Name << std::endl;
+        auto pcomp = pcf.makeComponent(CAS);
+        auto fluid = Fluid(pcomp, PengRobinson{});
+        auto pc = pcomp.property("CriticalPressure");
+
+        FluidProperties(fluid.flash("Px", pc - 1.0, 0.5)).print(std::cout);
+        std::cout << "==============================================================================" << std::endl << std::endl;
+
+    };
+
+    check_critpoint("132259-10-0", "AIR");
+    check_critpoint("7664-41-7", "AMMONIA");
+    check_critpoint("7440-37-1", "ARGON");
+    check_critpoint("106-97-8", "BUTANE");
+    check_critpoint("124-38-9", "CARBON DIOXIDE");
+    check_critpoint("630-08-0", "CARBON MONOXIDE");
+    check_critpoint("124-18-5", "DECANE");
+    check_critpoint("74-84-0", "ETHANE");
+    check_critpoint("50-00-0", "FORMALDEHYDE");
+    check_critpoint("142-82-5", "HEPTANE");
+    check_critpoint("110-54-3", "HEXANE");
+    check_critpoint("7783-06-4", "HYDROGEN SULFIDE");
+    check_critpoint("74-82-8", "METHANE");
+    check_critpoint("7727-37-9", "NITROGEN");
+    check_critpoint("10102-43-9", "NITRIC OXIDE");
+    check_critpoint("111-84-2", "NONANE");
+    check_critpoint("111-65-9", "OCTANE");
+    check_critpoint("7782-44-7", "OXYGEN");
+    check_critpoint("109-66-0", "PENTANE");
+    check_critpoint("74-98-6", "PROPANE");
+    check_critpoint("7446-09-5", "SULFUR DIOXIDE");
+    check_critpoint("7732-18-5", "WATER");
+
+    check_critpoint2("132259-10-0", "AIR");
+    check_critpoint2("7664-41-7", "AMMONIA");
+    check_critpoint2("7440-37-1", "ARGON");
+    check_critpoint2("106-97-8", "BUTANE");
+    check_critpoint2("124-38-9", "CARBON DIOXIDE");
+    check_critpoint2("630-08-0", "CARBON MONOXIDE");
+    check_critpoint2("124-18-5", "DECANE");
+    check_critpoint2("74-84-0", "ETHANE");
+    check_critpoint2("50-00-0", "FORMALDEHYDE");
+    check_critpoint2("142-82-5", "HEPTANE");
+    check_critpoint2("110-54-3", "HEXANE");
+    check_critpoint2("7783-06-4", "HYDROGEN SULFIDE");
+    check_critpoint2("74-82-8", "METHANE");
+    check_critpoint2("7727-37-9", "NITROGEN");
+    check_critpoint2("10102-43-9", "NITRIC OXIDE");
+    check_critpoint2("111-84-2", "NONANE");
+    check_critpoint2("111-65-9", "OCTANE");
+    check_critpoint2("7782-44-7", "OXYGEN");
+    check_critpoint2("109-66-0", "PENTANE");
+    check_critpoint2("74-98-6", "PROPANE");
+    check_critpoint2("7446-09-5", "SULFUR DIOXIDE");
+    check_critpoint2("7732-18-5", "WATER");
 
     plot_pv("132259-10-0", "AIR");
     plot_pv("7664-41-7", "AMMONIA");
@@ -188,9 +256,23 @@ int main()
     plot_psat2("7446-09-5", "SULFUR DIOXIDE");
     plot_psat2("7732-18-5", "WATER");
 
+
+
     //    FluidProperties(fluid.flash("Tx", 447.3, 0.5)).print(std::cout);
 //    FluidProperties(fluid.flash("Px", 4247999.0, 0.5)).print(std::cout);
 
+//    auto pc = pcf.makeComponent("74-82-8");
+//    auto fluid = Fluid(pc, PengRobinson{});
+
+//        auto a = FluidProperties(fluid.flash("Tx", 293.15, 0.5));
+////        std::cout << a << std::endl;
+//        a.print(std::cout);
+//        std::cout << "==============================================================================" << std::endl;
+
+//        auto a = FluidProperties(fluid.flash("PT", 10000, 293.15));
+//        //        std::cout << a << std::endl;
+//        a.print(std::cout);
+//        std::cout << "==============================================================================" << std::endl;
 
 //    std::cout << "Propane at 25 C and 2 bar: " << std::endl;
 //    auto a = FluidProperties(fluid.flash("PT", 2e5, 298.15));
@@ -215,6 +297,15 @@ int main()
 ////    std::cout << d << std::endl;
 //    d.print(std::cout);
 //    std::cout << "==============================================================================" << std::endl;
+
+//    auto a = FluidProperties(fluid.flash("Tx", 248.0, 0.5));
+//    auto p = a.phases().front().Pressure;
+//    auto b = FluidProperties(fluid.flash("PT", p-1, 248.0));
+//    auto c = FluidProperties(fluid.flash("PT", p+1, 248.0));
+//
+//    b.print(std::cout);
+//    a.print(std::cout);
+//    c.print(std::cout);
 
     return 0;
 }

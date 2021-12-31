@@ -147,5 +147,5 @@ namespace PCProps::EquationOfState
         std::unique_ptr<impl> m_impl;
     };
 
-}    // namespace PCProps::EquationOfState
+}    // namespace PCProps::PropertyPackage
 #endif    // PCPROPS_PENGROBINSON_HPP
