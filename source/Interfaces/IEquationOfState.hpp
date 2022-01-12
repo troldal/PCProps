@@ -149,6 +149,11 @@ namespace PCProps
             return m_equationOfState->flash(specification, var1, var2);
         }
 
+        inline JSONString computeProperties(double pressure, double temperature) const
+        {
+            return m_equationOfState->computeProperties(pressure, temperature);
+        }
+
         /**
          * @brief
          * @param temperature
@@ -222,6 +227,8 @@ namespace PCProps
              * @return
              */
             inline virtual JSONString flash(const std::string& specification, double var1, double var2) const = 0;
+
+            inline virtual JSONString computeProperties(double pressure, double temperature) const = 0;
 
             /**
              * @brief
@@ -311,6 +318,11 @@ namespace PCProps
                 return EOSType.flash(specification, var1, var2);
             }
 
+            inline JSONString computeProperties(double pressure, double temperature) const override
+            {
+                return EOSType.computeProperties(pressure, temperature);
+            }
+
             /**
              * @brief
              * @param temperature
@@ -318,7 +330,7 @@ namespace PCProps
              */
             inline double saturationPressure(double temperature) const override
             {
-                return EOSType.saturationPressure(temperature);
+                return EOSType.computePSat(temperature);
             }
 
             /**
@@ -328,7 +340,7 @@ namespace PCProps
              */
             inline double saturationTemperature(double pressure) const override
             {
-                return EOSType.saturationTemperature(pressure);
+                return EOSType.computeTSat(pressure);
             }
 
             /**

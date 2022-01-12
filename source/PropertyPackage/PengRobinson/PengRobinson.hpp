@@ -125,7 +125,7 @@ namespace PCProps::EquationOfState
          * @return The saturation pressure [Pa]
          * @warning Returns NaN if the temperature is higher than the critical temperature.
          */
-        double saturationPressure(double temperature) const;
+        double computePSat(double temperature) const;
 
         /**
          * @brief Calculate the saturation temperature at the given pressure.
@@ -133,7 +133,10 @@ namespace PCProps::EquationOfState
          * @return The saturation temperature [K]
          * @warning Returns NaN if pressure is higher than the critical pressure.
          */
-        double saturationTemperature(double pressure) const;
+        double computeTSat(double pressure) const;
+
+        JSONString computeProperties(double pressure, double temperature) const;
+
 
     private:
 

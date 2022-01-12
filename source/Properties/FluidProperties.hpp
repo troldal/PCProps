@@ -11,27 +11,31 @@
 
 namespace PCProps
 {
+    /**
+     * @brief
+     */
     class FluidProperties
     {
+    private:
         using JSONString = std::string;
         std::vector<PhaseProperties> m_phases;
 
     public:
 
         /**
-         *
+         * @brief Default constructor.
          */
         FluidProperties();
 
         /**
-         *
-         * @param JSONData
+         * @brief Constructor taking a JSON string as an argument.
+         * @param JSONData Fluid property data, encoded as a JSON string.
          */
-        explicit FluidProperties(const std::string& JSONData);
+        explicit FluidProperties(const JSONString& JSONData);
 
         /**
-         *
-         * @param fluidProps
+         * @brief Constructor taking a std::vector of PhaseProperties objects as an argument.
+         * @param fluidProps a std::vector of PhaseProperties.
          */
         explicit FluidProperties(const std::vector<PhaseProperties>& fluidProps);
 
@@ -61,33 +65,54 @@ namespace PCProps
         FluidProperties& operator=(FluidProperties&& other) noexcept;
 
         /**
-         *
-         * @param fluidProps
-         * @return
+         * @brief Assignment operator, taking a std::vector of PhaseProperties objects as an argument.
+         * @param fluidProps a std::vector of PhaseProperties.
          */
         FluidProperties& operator=(const std::vector<PhaseProperties>& fluidProps);
 
         /**
-         *
-         * @param index
-         * @return
+         * @brief Array index operator.
+         * @param index Index of PhaseProperties object to retrieve.
+         * @return The PhaseProperties at the given index.
          */
         const PhaseProperties& operator[](int index) const;
 
         /**
-         *
-         * @return
+         * @brief Get a std::vector with the PhaseProperties objects.
+         * @return A reference to the std::vector of PhaseProperties objects.
          */
         const std::vector<PhaseProperties>& phases() const;
 
         /**
-         *
-         * @return
+         * @brief Get the size/count of fluid phases.
+         * @return The size/count of flud phases.
+         */
+        size_t size() const;
+
+        /**
+         * @brief
+         * @param index
+         */
+        void erase(int index);
+
+        FluidProperties stablePhase() const;
+
+        FluidProperties heavyPhase() const;
+
+        FluidProperties lightPhase() const;
+
+        /**
+         * @brief Get the fluid data as a JSON array.
+         * @return A JSONString (std::string) with the fluid data.
          */
         JSONString asJSON() const;
 
+        /**
+         * @brief Prints the fluid data to an ostream object.
+         * @param stream An std::ostream object, e.g. std::cout.
+         */
         inline void print(std::ostream& stream) {
-            stream << std::setprecision(5) << std::fixed;
+            stream << std::setprecision(8) << std::fixed;
 
             auto TypeAsString = [&](const PhaseType type) {
                 if (type == PhaseType::Vapor) return "VAPOR";
@@ -117,6 +142,58 @@ namespace PCProps
 
             stream << "Viscosity                    [Pa-s] : ";
             for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.Viscosity;
+            stream << std::endl;
+
+            stream << "CpDeparture                [J/kg-K] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.CpDeparture/phase.MolarWeight*1000;
+            stream << std::endl;
+
+            stream << "CvDeparture                [J/kg-K] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.CvDeparture/phase.MolarWeight*1000;
+            stream << std::endl;
+
+            stream << "EnthalpyDeparture            [J/kg] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.EnthalpyDeparture/phase.MolarWeight*1000;
+            stream << std::endl;
+
+            stream << "EntropyDeparture           [J/kg-K] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.EntropyDeparture/phase.MolarWeight*1000;
+            stream << std::endl;
+
+            stream << "InternalEnergyDeparture      [J/kg] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.InternalEnergyDeparture/phase.MolarWeight*1000;
+            stream << std::endl;
+
+            stream << "GibbsEnergyDeparture         [J/kg] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.GibbsEnergyDeparture/phase.MolarWeight*1000;
+            stream << std::endl;
+
+            stream << "HelmholzEnergyDeparture      [J/kg] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.HelmholzEnergyDeparture/phase.MolarWeight*1000;
+            stream << std::endl;
+
+            stream << "DPDV                        [Pa/m3] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.DPDV;
+            stream << std::endl;
+
+            stream << "DPDT                         [Pa/K] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.DPDT;
+            stream << std::endl;
+
+            stream << "DVDP                        [m3/Pa] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.DVDP;
+            stream << std::endl;
+
+            stream << "DVDT                         [m3/K] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.DVDT;
+            stream << std::endl;
+
+            stream << "DTDV                         [K/m3] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.DTDV;
+            stream << std::endl;
+
+            stream << "DTDP                         [K/Pa] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(20) << phase.DTDP;
             stream << std::endl;
 
             stream << "Cp                         [J/kg-K] : ";
@@ -189,6 +266,12 @@ namespace PCProps
         }
     };
 
+    /**
+     * @brief
+     * @param stream
+     * @param properties
+     * @return
+     */
     inline std::ostream& operator<<(std::ostream& stream, const FluidProperties& properties) {
         stream << std::setprecision(8) << std::fixed;
 

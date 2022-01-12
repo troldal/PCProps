@@ -82,6 +82,8 @@ namespace PCProps::EquationOfState
 
         mutable std::vector<PhaseProperties> m_phaseProps;
 
+    public:
+
         /**
          * @brief Compute the 'a' coefficient for the Peng-robinson EOS.
          * @param temperature The temperature [K].
@@ -306,7 +308,7 @@ namespace PCProps::EquationOfState
          * @return
          */
         inline double calcDPDV(double temperature, double molarVolume) const {
-            return (-R_CONST * temperature) / pow(molarVolume - m_b, 2) + 2 * a(temperature) * (molarVolume + m_b) / pow((pow(molarVolume, 2) + 2 * m_b * molarVolume - pow(m_b, 2)),2);
+            return (-R_CONST * temperature) / pow(molarVolume - m_b, 2) + 2 * a(temperature) * (molarVolume + m_b) / pow(molarVolume*(molarVolume+m_b)+m_b*(molarVolume-m_b),2);
         }
 
         /**
@@ -316,7 +318,8 @@ namespace PCProps::EquationOfState
          * @return
          */
         inline double calcDPDT(double temperature, double molarVolume) const {
-            return R_CONST / (molarVolume - m_b) - 1.0 / (pow(molarVolume,2) + 2*m_b*molarVolume - pow(m_b,2)) * (-m_ac*m_kappa*sqrt(alpha(temperature)*temperature/m_criticalTemperature)/temperature);
+            return R_CONST / (molarVolume - m_b) - 1.0 / (molarVolume*(molarVolume+m_b)+m_b*(molarVolume-m_b)) * (-m_ac*m_kappa*sqrt(alpha(temperature)*temperature/m_criticalTemperature)/temperature);
+
         }
 
         /**
@@ -339,7 +342,7 @@ namespace PCProps::EquationOfState
             return -calcDVDT(temperature, molarVolume) / calcDPDT(temperature, molarVolume);
         }
 
-    public:
+//    public:
         /**
          * @brief Constructor.
          * @param criticalTemperature The critical temperature [K].
@@ -566,6 +569,32 @@ namespace PCProps::EquationOfState
             return idealGasEntropy(temperature, pressure) + entropyDeparture(temperature, pressure, compressibility);
         }
 
+        inline double computeCpDeparture(double temperature, double pressure, double compressibility) const {
+
+            auto _B = B(temperature, pressure);
+            auto _A = A(temperature, pressure);
+            auto dadt = -m_ac*m_kappa*sqrt(alpha(temperature)*temperature/m_criticalTemperature)/temperature;
+            auto d2adt2 = (m_ac * m_kappa) / (2*temperature * sqrt(m_criticalTemperature)) * (sqrt(alpha(temperature)/temperature) + m_kappa/ sqrt(m_criticalTemperature));
+            auto M = (pow(compressibility, 2) + 2 * _B * compressibility - pow(_B, 2))/(compressibility - _B);
+            auto N = _B/(R_CONST * m_b) * dadt;
+            auto Cp_departure = temperature / (2*sqrt(2)*m_b) * d2adt2 * log((compressibility + 2.414*_B) / (compressibility - 0.414*_B)) + (R_CONST * pow(M-N, 2))/(pow(M, 2)-2*_A*(compressibility + _B)) - R_CONST;
+
+            return Cp_departure;
+        }
+
+        inline double computeCvDeparture(double temperature, double pressure, double compressibility) const {
+
+            auto _B = B(temperature, pressure);
+            auto d2adt2 = (m_ac * m_kappa) / (2*temperature * sqrt(m_criticalTemperature)) * (sqrt(alpha(temperature)/temperature) + m_kappa/ sqrt(m_criticalTemperature));
+            auto theta1 = sqrt(2);
+            auto theta2 = 1 - theta1;
+            auto theta3 = 1 + theta1;
+
+            auto Cv_departure = -temperature/(2*theta1*R_CONST*m_b)*d2adt2*log((compressibility+theta2*_B)/(compressibility+theta3*_B))*R_CONST;
+
+            return Cv_departure;
+        }
+
         /**
          * @brief Compute the Cp of the fluid.
          * @details The Cp is calculated by computing the Cp departure, and adding it to the ideal gas Cp.
@@ -576,18 +605,13 @@ namespace PCProps::EquationOfState
          */
         inline double computeCp(double temperature, double pressure, double compressibility) const  {
 
-            auto _B = B(temperature, pressure);
-            auto _A = A(temperature, pressure);
-            auto dadt = -m_ac*m_kappa*sqrt(alpha(temperature)*temperature/m_criticalTemperature)/temperature;
-            auto d2adt2 = (m_ac * m_kappa) / (2*temperature * sqrt(m_criticalTemperature)) * (sqrt(alpha(temperature)/temperature) + m_kappa/ sqrt(m_criticalTemperature));
-            auto M = (pow(compressibility, 2) + 2 * _B * compressibility - pow(_B, 2))/(compressibility - _B);
-            auto N = _B/(R_CONST * m_b) * dadt;
-            auto Cp_departure = temperature / (2*sqrt(2)*m_b) * d2adt2 * log((compressibility + 2.414*_B) / (compressibility - 0.414*_B)) + (R_CONST * pow(M-N, 2))/(pow(M, 2)-2*_A*(compressibility + _B)) - R_CONST;
             auto igcp = m_idealGasCp(temperature);
 
-            return igcp + Cp_departure;
+            return igcp + computeCvDeparture(temperature, pressure, compressibility);
 
         }
+
+
 
         /**
          * @brief Compute all thermodynamic properties for all phases.
@@ -617,11 +641,6 @@ namespace PCProps::EquationOfState
                     return PhaseType::Undefined;
                 };
 
-                auto dpdv = calcDPDV(temperature, data.MolarVolume);
-                auto dpdt = calcDPDT(temperature, data.MolarVolume);
-                auto dvdt = calcDVDT(temperature, data.MolarVolume);
-                auto dvdp = calcDVDP(temperature, data.MolarVolume);
-
                 data.Type                        = determinePhaseType();
                 data.Pressure                    = pressure;
                 data.Temperature                 = temperature;
@@ -638,12 +657,18 @@ namespace PCProps::EquationOfState
                 data.CriticalTemperature         = m_criticalTemperature;
                 data.NormalFreezingPoint         = m_normalFreezingPoint;
                 data.NormalBoilingPoint          = m_normalBoilingPoint;
+
+                auto dpdv = calcDPDV(temperature, data.MolarVolume);
+                auto dpdt = calcDPDT(temperature, data.MolarVolume);
+                auto dvdt = calcDVDT(temperature, data.MolarVolume);
+                auto dvdp = calcDVDP(temperature, data.MolarVolume);
+
                 data.Cp                          = computeCp(temperature, pressure, data.Compressibility);
-                data.Cv                          = data.Cp + temperature * pow(dpdt, 2) / dpdv;
+                data.Cv                          = computeCvDeparture(temperature, pressure, data.Compressibility) + data.Cp - R_CONST;
                 data.ThermalExpansionCoefficient = (1.0 / data.MolarVolume) * dvdt;
                 data.JouleThomsonCoefficient     = -1.0 / (data.Cp) * (temperature * dpdt / dpdv + data.MolarVolume);
                 data.IsothermalCompressibility   = (-1.0 / data.MolarVolume) * dvdp;
-                data.SpeedOfSound                = sqrt(-pow(data.MolarVolume, 2) * dpdv * (data.Cp / data.Cv) * 16.042);    // TODO: This calculation does not seem to yield correct results!
+//                data.SpeedOfSound                = (data.MolarVolume / (16*(-1.0 / data.MolarVolume) * (data.Cv / data.Cp) / dpdv));    // TODO: This calculation does not seem to yield correct results!
 
                 m_phaseProps.emplace_back(data);
             }
@@ -844,6 +869,49 @@ namespace PCProps::EquationOfState
             return flashTx(temperature, vaporFraction);
         }
 
+
+        inline std::vector<PhaseProperties> computeProperties(double pressure, double temperature) const {
+
+            std::vector<PhaseProperties> results;
+            auto compressibilities = computeCompressibilityFactors(temperature, pressure);
+            for (decltype(compressibilities.size()) index = 0; index < compressibilities.size(); ++index) {
+                PhaseProperties data;
+
+                auto determinePhaseType = [&]() {
+                    if (compressibilities.size() == 2 && index == 0) return PhaseType::Liquid;
+                    if (compressibilities.size() == 2 && index == 1) return PhaseType::Vapor;
+                    if (compressibilities.size() == 1 && pressure >= computeSaturationPressure(temperature)) return PhaseType::Liquid;
+                    if (compressibilities.size() == 1 && pressure < computeSaturationPressure(temperature)) return PhaseType::Vapor;
+                    return PhaseType::Undefined;
+                };
+
+                data.Type                    = determinePhaseType();
+                data.Pressure                = pressure;
+                data.Temperature             = temperature;
+                data.Compressibility         = compressibilities[index];
+                data.MolarVolume             = data.Compressibility * R_CONST * temperature / pressure;
+                data.VaporPressure           = computeSaturationPressure(temperature);
+                data.FugacityCoefficient     = computeFugacityCoefficient(temperature, pressure, data.Compressibility);
+                data.CpDeparture             = computeCpDeparture(temperature, pressure, data.Compressibility);
+                data.CvDeparture             = computeCvDeparture(temperature, pressure, data.Compressibility);
+                data.EnthalpyDeparture       = enthalpyDeparture(temperature, pressure, data.Compressibility);
+                data.EntropyDeparture        = entropyDeparture(temperature, pressure, data.Compressibility);
+                data.InternalEnergyDeparture = data.EnthalpyDeparture - (data.Compressibility - 1) * R_CONST * temperature;
+                data.GibbsEnergyDeparture    = data.EnthalpyDeparture - data.EntropyDeparture * temperature;
+                data.HelmholzEnergyDeparture = data.InternalEnergyDeparture - data.EntropyDeparture * temperature;
+                data.DPDV                    = calcDPDV(temperature, data.MolarVolume);
+                data.DPDT                    = calcDPDT(temperature, data.MolarVolume);
+                data.DVDP                    = calcDVDP(temperature, data.MolarVolume);
+                data.DVDT                    = calcDVDT(temperature, data.MolarVolume);
+                data.DTDV                    = 1.0 / data.DVDT;
+                data.DTDP                    = 1.0 / data.DPDT;
+
+                results.emplace_back(data);
+            }
+
+            return results;
+        }
+
     };    // PengRobinson::impl
 
     // ===== Constructor, default
@@ -910,15 +978,22 @@ namespace PCProps::EquationOfState
     }
 
     // ===== Saturation pressure at given temperature
-    double PengRobinson::saturationPressure(double temperature) const
+    double PengRobinson::computePSat(double temperature) const
     {
         return m_impl->computeSaturationPressure(temperature);
     }
 
     // ===== Saturation temperature at given pressure
-    double PengRobinson::saturationTemperature(double pressure) const
+    double PengRobinson::computeTSat(double pressure) const
     {
         return m_impl->computeSaturationTemperature(pressure);
+    }
+
+    JSONString PengRobinson::computeProperties(double pressure, double temperature) const
+    {
+        std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->computeProperties(pressure, temperature)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
+        return nlohmann::json(result).dump();
     }
 
 }    // namespace PCProps::PropertyPackage

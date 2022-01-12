@@ -36,6 +36,19 @@ namespace PCProps
         double MolarFlow { 0.0 };
         double Compressibility { 0.0 };
         double FugacityCoefficient { 0.0 };
+        double CpDeparture { 0.0 };
+        double CvDeparture { 0.0 };
+        double EnthalpyDeparture { 0.0 };
+        double EntropyDeparture { 0.0 };
+        double InternalEnergyDeparture { 0.0 };
+        double GibbsEnergyDeparture { 0.0 };
+        double HelmholzEnergyDeparture { 0.0 };
+        double DPDV { 0.0 };
+        double DPDT { 0.0 };
+        double DVDP { 0.0 };
+        double DVDT { 0.0 };
+        double DTDV { 0.0 };
+        double DTDP { 0.0 };
         double Viscosity { 0.0 };
         double SurfaceTension { 0.0 };
         double ThermalConductivity { 0.0 };
@@ -104,6 +117,19 @@ namespace PCProps
                       << "Surface Tension               : " << std::right << std::setw(20) << properties.SurfaceTension << " N/m" << std::endl
                       << "Thermal Conductivity          : " << std::right << std::setw(20) << properties.ThermalConductivity << " W/m-K" << std::endl
                       << "Viscosity                     : " << std::right << std::setw(20) << properties.Viscosity << " Pa-s" << std::endl
+                      << "CpDeparture                   : " << std::right << std::setw(20) << properties.CpDeparture << " J/mol-K" << std::endl
+                      << "CvDeparture                   : " << std::right << std::setw(20) << properties.CvDeparture << " J/mol-K" << std::endl
+                      << "EnthalpyDeparture             : " << std::right << std::setw(20) << properties.EnthalpyDeparture << " J/mol" << std::endl
+                      << "EntropyDeparture              : " << std::right << std::setw(20) << properties.EntropyDeparture << " J/mol-K" << std::endl
+                      << "InternalEnergyDeparture       : " << std::right << std::setw(20) << properties.InternalEnergyDeparture << " J/mol" << std::endl
+                      << "GibbsEnergyDeparture          : " << std::right << std::setw(20) << properties.GibbsEnergyDeparture << " J/mol" << std::endl
+                      << "HelmholzEnergyDeparture       : " << std::right << std::setw(20) << properties.HelmholzEnergyDeparture << " J/mol" << std::endl
+                      << "DPDV                          : " << std::right << std::setw(20) << properties.DPDV << " Pa/m3" << std::endl
+                      << "DPDT                          : " << std::right << std::setw(20) << properties.DPDT << " Pa/K" << std::endl
+                      << "DVDP                          : " << std::right << std::setw(20) << properties.DVDP << " m3/Pa" << std::endl
+                      << "DVDT                          : " << std::right << std::setw(20) << properties.DVDP << " m3/K" << std::endl
+                      << "DTDV                          : " << std::right << std::setw(20) << properties.DTDV << " K/m3" << std::endl
+                      << "DTDP                          : " << std::right << std::setw(20) << properties.DTDP << " K/Pa" << std::endl
                       << "Cp                            : " << std::right << std::setw(20) << properties.Cp << " J/mol-K" << std::endl
                       << "Cv                            : " << std::right << std::setw(20) << properties.Cv << " J/mol-K" << std::endl
                       << "Isothermal Compressibility    : " << std::right << std::setw(20) << properties.IsothermalCompressibility << " 1/Pa" << std::endl
