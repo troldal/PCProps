@@ -105,11 +105,6 @@ namespace PCProps::EquationOfState
                  [&](const std::string& ID, double t)->double {return pureComponent.correlation(ID, t);});
         }
 
-
-        // =====================================================================
-        // FLASH ALGORITHMS
-        // =====================================================================
-
         /**
          * @brief Calculate the saturation pressure at the given temperature.
          * @param temperature The temperature [K]
@@ -126,8 +121,20 @@ namespace PCProps::EquationOfState
          */
         double computeTSat(double pressure) const;
 
+        /**
+         * @brief
+         * @param pressure
+         * @param temperature
+         * @return
+         */
         JSONString computeProperties(double pressure, double temperature) const;
 
+        /**
+         * @brief
+         * @param temperature
+         * @param molarVolume
+         * @return
+         */
         JSONString computePropertiesTV(double temperature, double molarVolume) const;
 
 

@@ -36,7 +36,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <cmath>
-#include <limits>
 #include <tuple>
 #include <vector>
 
@@ -66,21 +65,15 @@ namespace PCProps::EquationOfState
         double m_criticalPressure {};
         double m_acentricFactor {};
 
-        double m_normalFreezingPoint {};
-        double m_normalBoilingPoint {};
-
         std::string m_name {};
         std::string m_CAS {};
 
-        std::function<double(double)> m_idealGasCp {};
         std::function<double(double)> m_vaporPressure {};
 
         // ===== Calculated constants
         double m_ac {};
         double m_b {};
         double m_kappa {};
-
-        mutable std::vector<PhaseProperties> m_phaseProps;
 
     public:
 
@@ -202,20 +195,6 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief Compute the ideal gas enthalpy at the given T, relative the standard state.
-         * @param temperature The temperature [K].
-         * @return The ideal gas enthalpy [J/mol]
-         */
-        inline double idealGasEnthalpy(double temperature) const
-        {
-            using numeric::integrate;
-            using PCProps::Globals::STANDARD_T;
-            auto result = integrate([&](double t) { return m_idealGasCp(t); }, STANDARD_T, temperature);
-            if (std::isnan(result)) throw std::runtime_error("Numeric error: Ideal gas enthalpy could not be computed with T = " + std::to_string(temperature));
-            return result;
-        }
-
-        /**
          * @brief Compute the enthalpy departure relative to standard (ideal gas) state, at the given T and P.
          * @param temperature The temperature [K].
          * @param pressure The pressure [Pa].
@@ -240,22 +219,6 @@ namespace PCProps::EquationOfState
                     "Numeric error: Enthalpy departure could not be computed with T = " + std::to_string(temperature) + ", P = " + std::to_string(pressure) +
                     " and Z = " + std::to_string(compressibility));
 
-            return result;
-        }
-
-        /**
-         * @brief Compute the ideal gas entropy at the given T and P, relative the standard state.
-         * @param temperature The temperature [K].
-         * @param pressure The pressure [Pa].
-         * @return The ideal gas entropy [J/mol-K]
-         */
-        inline double idealGasEntropy(double temperature, double pressure) const
-        {
-            using numeric::integrate;
-            auto result = integrate([&](double temp) { return m_idealGasCp(temp) / temp; }, PCProps::Globals::STANDARD_T, temperature) - R_CONST * log(pressure / STANDARD_P);
-
-            if (std::isnan(result))
-                throw std::runtime_error("Numeric error: Ideal gas entropy could not be computed with T = " + std::to_string(temperature) + " and P = " + std::to_string(pressure));
             return result;
         }
 
@@ -353,9 +316,8 @@ namespace PCProps::EquationOfState
             : m_criticalTemperature(constants("CriticalTemperature")),
               m_criticalPressure(constants("CriticalPressure")),
               m_acentricFactor(constants("AcentricFactor")),
-              m_normalFreezingPoint(constants("NormalFreezingPoint")),
-              m_normalBoilingPoint(constants("NormalBoilingPoint")),
-              m_idealGasCp([=](double t) -> double { return correlations("IdealGasCp", t); }),
+//              m_normalFreezingPoint(constants("NormalFreezingPoint")),
+//              m_normalBoilingPoint(constants("NormalBoilingPoint")),
               m_vaporPressure([=](double t) -> double { return correlations("VaporPressure", t); }),
               m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(m_criticalTemperature, 2) / m_criticalPressure),
               m_b(0.07779607 * PCProps::Globals::R_CONST * m_criticalTemperature / m_criticalPressure),
