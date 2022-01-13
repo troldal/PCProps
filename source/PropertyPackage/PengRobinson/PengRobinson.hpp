@@ -111,15 +111,6 @@ namespace PCProps::EquationOfState
         // =====================================================================
 
         /**
-         * @brief
-         * @param specification
-         * @param var1
-         * @param var2
-         * @return
-         */
-        JSONString flash(const std::string& specification, double var1, double var2) const;
-
-        /**
          * @brief Calculate the saturation pressure at the given temperature.
          * @param temperature The temperature [K]
          * @return The saturation pressure [Pa]
@@ -136,6 +127,8 @@ namespace PCProps::EquationOfState
         double computeTSat(double pressure) const;
 
         JSONString computeProperties(double pressure, double temperature) const;
+
+        JSONString computePropertiesTV(double temperature, double molarVolume) const;
 
 
     private:

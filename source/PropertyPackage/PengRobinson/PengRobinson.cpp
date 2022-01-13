@@ -546,29 +546,12 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief Compute the enthalpy of the fluid, relative to the standard state.
-         * @param temperature The temperature [K].
-         * @param pressure The pressure [Pa].
-         * @param compressibility The fluid compressibility [-].
-         * @return The fluid enthalpy [J/mol].
+         * @brief
+         * @param temperature
+         * @param pressure
+         * @param compressibility
+         * @return
          */
-        inline double computeEnthalpy(double temperature, double pressure, double compressibility) const
-        {
-            return idealGasEnthalpy(temperature) + enthalpyDeparture(temperature, pressure, compressibility);
-        }
-
-        /**
-         * @brief Compute the entropy of the fluid, relative to the standard state.
-         * @param temperature The temperature [K].
-         * @param pressure The pressure [Pa].
-         * @param compressibility The fluid compressibility [-].
-         * @return The fluid entropy [J/mol-K].
-         */
-        inline double computeEntropy(double temperature, double pressure, double compressibility) const
-        {
-            return idealGasEntropy(temperature, pressure) + entropyDeparture(temperature, pressure, compressibility);
-        }
-
         inline double computeCpDeparture(double temperature, double pressure, double compressibility) const {
 
             auto _B = B(temperature, pressure);
@@ -582,6 +565,13 @@ namespace PCProps::EquationOfState
             return Cp_departure;
         }
 
+        /**
+         * @brief
+         * @param temperature
+         * @param pressure
+         * @param compressibility
+         * @return
+         */
         inline double computeCvDeparture(double temperature, double pressure, double compressibility) const {
 
             auto _B = B(temperature, pressure);
@@ -596,280 +586,11 @@ namespace PCProps::EquationOfState
         }
 
         /**
-         * @brief Compute the Cp of the fluid.
-         * @details The Cp is calculated by computing the Cp departure, and adding it to the ideal gas Cp.
-         * @param temperature The temperature [K].
-         * @param pressure The pressure [Pa].
-         * @param compressibility The fluid compressibility [-].
-         * @return The fluid Cp [J/mol-K]
-         */
-        inline double computeCp(double temperature, double pressure, double compressibility) const  {
-
-            auto igcp = m_idealGasCp(temperature);
-
-            return igcp + computeCvDeparture(temperature, pressure, compressibility);
-
-        }
-
-
-
-        /**
-         * @brief Compute all thermodynamic properties for all phases.
-         * @param temperature The temperature [K].
-         * @param pressure The pressure [Pa].
-         */
-        inline void computeThermodynamicProperties(double temperature, double pressure) const
-        {
-            // First, some housekeeping
-            using PCProps::Globals::R_CONST;
-            using std::get;
-            using std::sqrt;
-            auto eps = sqrt(std::numeric_limits<double>::epsilon());
-            m_phaseProps.clear();
-
-            // Calculate compressibility and fugacity coefficient for all phases at the given T and P.
-            // For all phases, calculate basic thermodynamic properties.
-            auto z_phi = computeCompressibilityAndFugacity(temperature, pressure);
-            for (decltype(z_phi.size()) index = 0; index < z_phi.size(); ++index) {
-                PhaseProperties data;
-
-                auto determinePhaseType = [&]() {
-                    if (z_phi.size() == 2 && index == 0) return PhaseType::Liquid;
-                    if (z_phi.size() == 2 && index == 1) return PhaseType::Vapor;
-                    if (z_phi.size() == 1 && pressure >= computeSaturationPressure(temperature)) return PhaseType::Liquid;
-                    if (z_phi.size() == 1 && pressure < computeSaturationPressure(temperature)) return PhaseType::Vapor;
-                    return PhaseType::Undefined;
-                };
-
-                data.Type                        = determinePhaseType();
-                data.Pressure                    = pressure;
-                data.Temperature                 = temperature;
-                data.Compressibility             = get<0>(z_phi[index]);
-                data.FugacityCoefficient         = get<1>(z_phi[index]);
-                data.Enthalpy                    = computeEnthalpy(temperature, pressure, data.Compressibility);
-                data.Entropy                     = computeEntropy(temperature, pressure, data.Compressibility);
-                data.MolarVolume                 = data.Compressibility * R_CONST * temperature / pressure;
-                data.GibbsEnergy                 = data.Enthalpy - temperature * data.Entropy;
-                data.InternalEnergy              = data.Enthalpy - pressure * data.MolarVolume;
-                data.HelmholzEnergy              = data.InternalEnergy - temperature * data.Entropy;
-                data.VaporPressure               = computeSaturationPressure(temperature);
-                data.CriticalPressure            = m_criticalPressure;
-                data.CriticalTemperature         = m_criticalTemperature;
-                data.NormalFreezingPoint         = m_normalFreezingPoint;
-                data.NormalBoilingPoint          = m_normalBoilingPoint;
-
-                auto dpdv = calcDPDV(temperature, data.MolarVolume);
-                auto dpdt = calcDPDT(temperature, data.MolarVolume);
-                auto dvdt = calcDVDT(temperature, data.MolarVolume);
-                auto dvdp = calcDVDP(temperature, data.MolarVolume);
-
-                data.Cp                          = computeCp(temperature, pressure, data.Compressibility);
-                data.Cv                          = computeCvDeparture(temperature, pressure, data.Compressibility) + data.Cp - R_CONST;
-                data.ThermalExpansionCoefficient = (1.0 / data.MolarVolume) * dvdt;
-                data.JouleThomsonCoefficient     = -1.0 / (data.Cp) * (temperature * dpdt / dpdv + data.MolarVolume);
-                data.IsothermalCompressibility   = (-1.0 / data.MolarVolume) * dvdp;
-//                data.SpeedOfSound                = (data.MolarVolume / (16*(-1.0 / data.MolarVolume) * (data.Cv / data.Cp) / dpdv));    // TODO: This calculation does not seem to yield correct results!
-
-                m_phaseProps.emplace_back(data);
-            }
-        }
-
-        /**
          * @brief
          * @param pressure
          * @param temperature
          * @return
          */
-        inline std::vector<PhaseProperties> flashPT(double pressure, double temperature) const
-        {
-            // ===== Compute compressibility factors and fugacity coefficients at given T and P.
-            computeThermodynamicProperties(temperature, pressure);
-
-            // ===== Set the molar flow to 1.0, as only one phase will result from a PT flash.
-            for (auto& phase : m_phaseProps) phase.MolarFlow = 1.0;
-
-            // ===== Return the phase with the lowest fugacity.
-            return { *std::min_element(m_phaseProps.begin(), m_phaseProps.end(), [](const PhaseProperties& a, const PhaseProperties& b) {
-                return a.FugacityCoefficient < b.FugacityCoefficient;
-            }) };
-        }
-
-        /**
-         * @brief
-         * @param temperature
-         * @param vaporFraction
-         * @return
-         */
-        inline std::vector<PhaseProperties> flashTx(double temperature, double vaporFraction) const
-        {
-            // ===== If the temperature < Tc
-            if (temperature < m_criticalTemperature) {
-                // ===== First, calculate the saturation pressure at the specified pressure.
-                auto pressure = computeSaturationPressure(temperature);
-                computeThermodynamicProperties(temperature, pressure);
-
-                // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
-                if (vaporFraction >= 1.0) {
-                    m_phaseProps.back().MolarFlow = 1.0;
-                    return { m_phaseProps.back() };
-                }
-
-                // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
-                if (vaporFraction <= 0.0) {
-                    m_phaseProps.front().MolarFlow = 1.0;
-                    return { m_phaseProps.front() };
-                }
-
-                // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
-
-                if (m_phaseProps.size() == 1) {
-                    m_phaseProps.front().MolarFlow = 1.0;
-                    return { m_phaseProps.front() };
-                }
-
-                else {
-                    m_phaseProps.front().MolarFlow = 1 - vaporFraction;
-                    m_phaseProps.back().MolarFlow  = vaporFraction;
-                    return { m_phaseProps.front(), m_phaseProps.back() };
-                }
-            }
-
-            // ===== If the temperature >= Tc, calculate the hypothetical saturation conditions in the supercritical region.
-            auto pressure = computeSaturationPressure(temperature);
-            return flashPT(pressure, temperature);
-        }
-
-        /**
-         * @brief
-         * @param pressure
-         * @param vaporFraction
-         * @return
-         */
-        inline std::vector<PhaseProperties> flashPx(double pressure, double vaporFraction) const
-        {
-            auto temperature = computeSaturationTemperature(pressure);
-            return flashTx(temperature, vaporFraction);
-        }
-
-        /**
-         * @brief
-         * @param pressure
-         * @param enthalpy
-         * @return
-         */
-        inline std::vector<PhaseProperties> flashPH(double pressure, double enthalpy) const
-        {
-            using std::get;
-
-            // ===== Define objective function
-            auto enthalpyObjFunction = [&](double t) {
-                auto z_phi = computeCompressibilityAndFugacity(t, pressure);
-                auto z     = get<0>(*std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<1>(a) < get<1>(b); }));
-                return computeEnthalpy(t, pressure, z) - enthalpy;
-            };
-
-            // ===== If the fluid is supercritical, compute like so... (single phase)
-            if (pressure >= m_criticalPressure) {
-                // ===== Use the (hypothetical) saturation temperature as first guess, and compute until the enthalpy is found.
-                return flashPT(pressure, numeric::newton(enthalpyObjFunction, computeSaturationTemperature(pressure)));
-            }
-
-            // ===== Otherwise, the fluid is sub-critical...
-            // ===== First, calculate the saturation properties at the specified pressure.
-            auto temperature  = computeSaturationTemperature(pressure);
-            auto z_phi        = computeCompressibilityAndFugacity(temperature, pressure);
-            auto [z_v, phi_v] = z_phi.back();
-            auto [z_l, phi_l] = z_phi.front();
-            auto h_v          = computeEnthalpy(temperature, pressure, z_v);
-            auto h_l          = computeEnthalpy(temperature, pressure, z_l);
-
-            // ===== If the specified enthalpy is lower than the saturated liquid enthalpy, the fluid is a compressed liquid.
-            if (enthalpy < h_l) {
-                return flashPT(pressure, numeric::newton(enthalpyObjFunction, temperature * 0.8));
-            }
-
-            // ===== If the specified enthalpy is higher than the saturated vapor entropy, the fluid is superheated vapor.
-            if (enthalpy > h_v) {
-                return flashPT(pressure, numeric::newton(enthalpyObjFunction, temperature * 1.2));
-            }
-
-            // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.
-            auto vaporFraction = (h_l - enthalpy) / (h_l - h_v);
-            return flashPx(pressure, vaporFraction);
-        }
-
-        /**
-         * @brief
-         * @param pressure
-         * @param entropy
-         * @return
-         */
-        inline std::vector<PhaseProperties> flashPS(double pressure, double entropy) const
-        {
-            using std::get;
-
-            // ===== Define objective function
-            auto entropyObjFunction = [&](double t) {
-                auto z_phi = computeCompressibilityAndFugacity(t, pressure);
-                auto z     = get<0>(*std::min_element(z_phi.begin(), z_phi.end(), [](const auto& a, const auto& b) { return get<1>(a) < get<1>(b); }));
-                return computeEntropy(t, pressure, z) - entropy;
-            };
-
-            if (pressure >= m_criticalPressure) {
-                return flashPT(pressure, numeric::newton(entropyObjFunction, computeSaturationTemperature(pressure)));
-            }
-
-            // ===== First, calculate the saturation properties at the specified pressure.
-            auto temperature  = computeSaturationTemperature(pressure);
-            auto z_phi        = computeCompressibilityAndFugacity(temperature, pressure);
-            auto [z_v, phi_v] = z_phi.back();
-            auto [z_l, phi_l] = z_phi.front();
-            auto s_v          = computeEntropy(temperature, pressure, z_v);
-            auto s_l          = computeEntropy(temperature, pressure, z_l);
-
-            // ===== If the specified entropy is lower than the saturated liquid entropy, the fluid is a compressed liquid.
-            if (entropy < s_l) {
-                return flashPT(pressure, numeric::newton(entropyObjFunction, temperature * 0.8));
-            }
-
-            // ===== If the specified entropy is higher than the saturated vapor entropy, the fluid is superheated vapor.
-            if (entropy > s_v) {
-                return flashPT(pressure, numeric::newton(entropyObjFunction, temperature * 1.2));
-            }
-
-            // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.
-            auto vaporFraction = (s_l - entropy) / (s_l - s_v);
-            return flashPx(pressure, vaporFraction);
-        }
-
-        /**
-         * @brief
-         * @param temperature
-         * @param volume
-         * @return
-         */
-        inline std::vector<PhaseProperties> flashTV(double temperature, double volume) const
-        {
-            using std::pow;
-
-            // ===== Fluid is supercritical
-            if (temperature >= m_criticalTemperature) {
-                return flashPT(calcPressure(temperature, volume), temperature);
-            }
-
-            flashTx(temperature, 0.5);
-
-            // ===== Fluid is a compressed liquid or super-heated vapor
-            if (volume < m_phaseProps.front().MolarVolume || volume > m_phaseProps.back().MolarVolume) {
-                return flashPT(calcPressure(temperature, volume), temperature);
-            }
-
-            // ===== Fluid is multiphase
-            auto vaporFraction = (volume - m_phaseProps.front().MolarVolume) / (m_phaseProps.back().MolarVolume - m_phaseProps.front().MolarVolume);
-            return flashTx(temperature, vaporFraction);
-        }
-
-
         inline std::vector<PhaseProperties> computeProperties(double pressure, double temperature) const {
 
             std::vector<PhaseProperties> results;
@@ -948,35 +669,6 @@ namespace PCProps::EquationOfState
         m_impl = std::make_unique<impl>(constants, correlations);
     }
 
-    // ===== Flash calculations at different specifications
-    JSONString PengRobinson::flash(const std::string& specification, double var1, double var2) const
-    {
-        std::vector<nlohmann::json> result;
-
-        if (specification == "PT")
-            for (const auto& phase : m_impl->flashPT(var1, var2)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-
-        if (specification == "Tx")
-            for (const auto& phase : m_impl->flashTx(var1, var2)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-
-        if (specification == "Px")
-            for (const auto& phase : m_impl->flashPx(var1, var2)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-
-        if (specification == "PH")
-            for (const auto& phase : m_impl->flashPH(var1, var2)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-
-        if (specification == "PS")
-            for (const auto& phase : m_impl->flashPS(var1, var2)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-
-        if (specification == "TV")
-            for (const auto& phase : m_impl->flashTV(var1, var2)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-
-        for (auto& phase : result) {
-        }
-
-        return nlohmann::json(result).dump();
-    }
-
     // ===== Saturation pressure at given temperature
     double PengRobinson::computePSat(double temperature) const
     {
@@ -989,9 +681,19 @@ namespace PCProps::EquationOfState
         return m_impl->computeSaturationTemperature(pressure);
     }
 
+    // =====
     JSONString PengRobinson::computeProperties(double pressure, double temperature) const
     {
         std::vector<nlohmann::json> result;
+        for (const auto& phase : m_impl->computeProperties(pressure, temperature)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
+        return nlohmann::json(result).dump();
+    }
+
+    // =====
+    JSONString PengRobinson::computePropertiesTV(double temperature, double molarVolume) const
+    {
+        std::vector<nlohmann::json> result;
+        auto pressure = m_impl->calcPressure(temperature, molarVolume);
         for (const auto& phase : m_impl->computeProperties(pressure, temperature)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
         return nlohmann::json(result).dump();
     }

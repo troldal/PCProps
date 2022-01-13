@@ -7,8 +7,8 @@ set(OPENXLSX_MINOR_VERSION 3)
 set(OPENXLSX_MICRO_VERSION 1)
 project(OpenXLSX.Library VERSION 0.3.2 LANGUAGES CXX)
 set(CMAKE_DEBUG_POSTFIX d)
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
+#set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+#set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #=======================================================================================================================

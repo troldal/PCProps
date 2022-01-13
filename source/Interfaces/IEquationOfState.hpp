@@ -137,21 +137,16 @@ namespace PCProps
             m_equationOfState->init(pureComponent);
         }
 
-        /**
-         * @brief
-         * @param specification
-         * @param var1
-         * @param var2
-         * @return
-         */
-        inline JSONString flash(const std::string& specification, double var1, double var2) const
-        {
-            return m_equationOfState->flash(specification, var1, var2);
-        }
+
 
         inline JSONString computeProperties(double pressure, double temperature) const
         {
             return m_equationOfState->computeProperties(pressure, temperature);
+        }
+
+        inline JSONString computePropertiesTV(double temperature, double molarVolume) const
+        {
+            return m_equationOfState->computePropertiesTV(temperature, molarVolume);
         }
 
         /**
@@ -219,16 +214,10 @@ namespace PCProps
              */
             inline virtual std::unique_ptr<EOSConcept> clone() const = 0;
 
-            /**
-             * @brief
-             * @param specification
-             * @param var1
-             * @param var2
-             * @return
-             */
-            inline virtual JSONString flash(const std::string& specification, double var1, double var2) const = 0;
 
             inline virtual JSONString computeProperties(double pressure, double temperature) const = 0;
+
+            inline virtual JSONString computePropertiesTV(double temperature, double molarVolume) const = 0;
 
             /**
              * @brief
@@ -306,21 +295,15 @@ namespace PCProps
                 return std::make_unique<EOSModel<T>>(EOSType);
             }
 
-            /**
-             * @brief
-             * @param specification
-             * @param var1
-             * @param var2
-             * @return
-             */
-            inline JSONString flash(const std::string& specification, double var1, double var2) const override
-            {
-                return EOSType.flash(specification, var1, var2);
-            }
 
             inline JSONString computeProperties(double pressure, double temperature) const override
             {
                 return EOSType.computeProperties(pressure, temperature);
+            }
+
+            inline JSONString computePropertiesTV(double temperature, double molarVolume) const override
+            {
+                return EOSType.computePropertiesTV(temperature, molarVolume);
             }
 
             /**

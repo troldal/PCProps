@@ -128,15 +128,15 @@ namespace PCProps
                 phase.MolarWeight                 = m_pureComponent.property("MolarWeight");
                 phase.Enthalpy                    = idealGasEnthalpy(phase.Temperature) + phase.EnthalpyDeparture;
                 phase.Entropy                     = idealGasEntropy(phase.Temperature, phase.Pressure) + phase.EntropyDeparture;
-                phase.GibbsEnergy                 = idealGasEnthalpy(phase.Temperature) - phase.Temperature * idealGasEntropy(phase.Temperature, phase.Pressure) + phase.GibbsEnergyDeparture; //data.Enthalpy - temperature * data.Entropy;
-                phase.InternalEnergy              = idealGasEnthalpy(phase.Temperature) - phase.Pressure * phase.MolarVolume + phase.InternalEnergyDeparture; //data.Enthalpy - pressure * data.MolarVolume;
-                phase.HelmholzEnergy              = phase.InternalEnergy - phase.Temperature * phase.Entropy;
-                phase.CriticalPressure            = m_pureComponent.property("CriticalPressure"); //m_criticalPressure;
-                phase.CriticalTemperature         = m_pureComponent.property("CriticalTemperature"); //m_criticalTemperature;
-                phase.NormalFreezingPoint         = m_pureComponent.property("NormalFreezingPoint"); //m_normalFreezingPoint;
-                phase.NormalBoilingPoint          = m_pureComponent.property("NormalBoilingPoint"); //m_normalBoilingPoint;
-                phase.Cp                          = m_pureComponent.correlation("IdealGasCp", phase.Temperature) + phase.CpDeparture; //computeCp(temperature, pressure, data.Compressibility);
-                phase.Cv                          = m_pureComponent.correlation("IdealGasCp", phase.Temperature) - R_CONST + phase.CvDeparture; //computeCvDeparture(temperature, pressure, data.Compressibility) + data.Cp - R_CONST;
+                phase.GibbsEnergy                 = idealGasEnthalpy(phase.Temperature) - phase.Temperature * idealGasEntropy(phase.Temperature, phase.Pressure) + phase.GibbsEnergyDeparture;
+                phase.InternalEnergy              = idealGasEnthalpy(phase.Temperature) - phase.Pressure * phase.MolarVolume + phase.InternalEnergyDeparture;
+                phase.HelmholzEnergy              = phase.GibbsEnergy - phase.Pressure * phase.MolarVolume;
+                phase.CriticalPressure            = m_pureComponent.property("CriticalPressure");
+                phase.CriticalTemperature         = m_pureComponent.property("CriticalTemperature");
+                phase.NormalFreezingPoint         = m_pureComponent.property("NormalFreezingPoint");
+                phase.NormalBoilingPoint          = m_pureComponent.property("NormalBoilingPoint");
+                phase.Cp                          = m_pureComponent.correlation("IdealGasCp", phase.Temperature) + phase.CpDeparture;
+                phase.Cv                          = m_pureComponent.correlation("IdealGasCp", phase.Temperature) - R_CONST + phase.CvDeparture;
                 phase.ThermalExpansionCoefficient = (1.0 / phase.MolarVolume) * phase.DVDT;
                 phase.JouleThomsonCoefficient     = -1.0 / (phase.Cp) * (phase.Temperature * phase.DPDT / phase.DPDV + phase.MolarVolume);
                 phase.IsothermalCompressibility   = (-1.0 / phase.MolarVolume) * phase.DVDP;
@@ -146,6 +146,30 @@ namespace PCProps
 
             m_phaseProps = phases;
         }
+
+        FluidProperties& computeProperties2(FluidProperties& phases) const {
+            using Globals::R_CONST;
+            for (auto& phase : phases) {
+                phase.MolarWeight                 = m_pureComponent.property("MolarWeight");
+                phase.Enthalpy                    = idealGasEnthalpy(phase.Temperature) + phase.EnthalpyDeparture;
+                phase.Entropy                     = idealGasEntropy(phase.Temperature, phase.Pressure) + phase.EntropyDeparture;
+                phase.GibbsEnergy                 = idealGasEnthalpy(phase.Temperature) - phase.Temperature * idealGasEntropy(phase.Temperature, phase.Pressure) + phase.GibbsEnergyDeparture;
+                phase.InternalEnergy              = idealGasEnthalpy(phase.Temperature) - phase.Pressure * phase.MolarVolume + phase.InternalEnergyDeparture;
+                phase.HelmholzEnergy              = phase.GibbsEnergy - phase.Pressure * phase.MolarVolume;
+                phase.CriticalPressure            = m_pureComponent.property("CriticalPressure");
+                phase.CriticalTemperature         = m_pureComponent.property("CriticalTemperature");
+                phase.NormalFreezingPoint         = m_pureComponent.property("NormalFreezingPoint");
+                phase.NormalBoilingPoint          = m_pureComponent.property("NormalBoilingPoint");
+                phase.Cp                          = m_pureComponent.correlation("IdealGasCp", phase.Temperature) + phase.CpDeparture;
+                phase.Cv                          = m_pureComponent.correlation("IdealGasCp", phase.Temperature) - R_CONST + phase.CvDeparture;
+                phase.ThermalExpansionCoefficient = (1.0 / phase.MolarVolume) * phase.DVDT;
+                phase.JouleThomsonCoefficient     = -1.0 / (phase.Cp) * (phase.Temperature * phase.DPDT / phase.DPDV + phase.MolarVolume);
+                phase.IsothermalCompressibility   = (-1.0 / phase.MolarVolume) * phase.DVDP;
+                phase.SpeedOfSound                = (phase.MolarVolume / (16*(-1.0 / phase.MolarVolume) * (phase.Cv / phase.Cp) / phase.DPDV));    // TODO: This calculation does not seem to yield correct results!
+            }
+            return phases;
+        }
+
 
 
     public:
@@ -165,12 +189,10 @@ namespace PCProps
          * @param temperature
          * @return
          */
-        const FluidProperties& flashPT(double pressure, double temperature) const
+        const FluidProperties flashPT(double pressure, double temperature) const
         {
-            m_phaseProps = FluidProperties(m_equationOfState.computeProperties(pressure, temperature));
-            computeProperties();
-            m_phaseProps = m_phaseProps.stablePhase();
-            return m_phaseProps;
+            auto phaseProps = FluidProperties(m_equationOfState.computeProperties(pressure, temperature));
+            return computeProperties2(phaseProps).stablePhase();
         }
 
         /**
@@ -179,64 +201,46 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        const FluidProperties& flashTx(double temperature, double vaporFraction) const
+        const FluidProperties flashTx(double temperature, double vaporFraction) const
         {
             // ===== If the temperature < Tc
             if (temperature < m_pureComponent.property("CriticalTemperature")) {
                 // ===== First, calculate the saturation pressure at the specified pressure.
                 auto pressure = m_equationOfState.saturationPressure(temperature);
-                m_phaseProps = FluidProperties(m_equationOfState.computeProperties(pressure, temperature));
-                computeProperties();
+                auto phaseProps = FluidProperties(m_equationOfState.computeProperties(pressure, temperature));
+                computeProperties2(phaseProps);
 
                 // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
                 if (vaporFraction >= 1.0) {
-                    m_phaseProps = m_phaseProps.lightPhase();
-                    auto phase = m_phaseProps.phases().back();
-                    phase.MolarFlow = 1.0;
-                    m_phaseProps = { phase };
-                    return m_phaseProps;
+                    phaseProps = phaseProps.lightPhase();
+                    phaseProps.back().MolarFlow = 1.0;
+                    return phaseProps;
                 }
 
                 // ===== If the specified vapor fraction is 0.0 (or lower), the fluid is a saturated liquid.
                 if (vaporFraction <= 0.0) {
-                    m_phaseProps = m_phaseProps.heavyPhase();
-                    auto phase = m_phaseProps.phases().front();
-                    phase.MolarFlow = 1.0;
-                    m_phaseProps = { phase };
-                    return m_phaseProps;
+                    phaseProps = phaseProps.heavyPhase();
+                    phaseProps.front().MolarFlow = 1.0;
+                    return phaseProps;
                 }
 
                 // ===== If the vapor fraction is between 0.0 and 1.0, the fluid is two-phase.
 
-                if (m_phaseProps.size() == 1) {
-                    auto phase = m_phaseProps.phases().front();
-                    phase.MolarFlow = 1.0;
-                    m_phaseProps = { phase };
-                    return m_phaseProps;
+                if (phaseProps.size() == 1) {
+                    phaseProps.front().MolarFlow = 1.0;
+                    return phaseProps;
                 }
 
                 else {
-                    auto heavy = m_phaseProps.phases().front();
-                    heavy.MolarFlow = 1.0 - vaporFraction;
-
-                    auto light = m_phaseProps.phases().back();
-                    light.MolarFlow = vaporFraction;
-
-                    m_phaseProps = { heavy, light };
-
-                    return m_phaseProps;
+                    phaseProps.front().MolarFlow = 1.0 - vaporFraction;
+                    phaseProps.back().MolarFlow = vaporFraction;
+                    return phaseProps;
                 }
             }
 
             // ===== If the temperature >= Tc, calculate the hypothetical saturation conditions in the supercritical region.
             auto pressure = m_equationOfState.saturationPressure(temperature);
             return flashPT(pressure, temperature);
-
-
-            //////
-//            m_phaseProps = FluidProperties(m_equationOfState.flash("Tx", temperature, vaporFraction));
-//            computePhaseProperties();
-//            return m_phaseProps;
         }
 
         /**
@@ -245,11 +249,10 @@ namespace PCProps
          * @param vaporFraction
          * @return
          */
-        const FluidProperties& flashPx(double pressure, double vaporFraction) const
+        const FluidProperties flashPx(double pressure, double vaporFraction) const
         {
-            m_phaseProps = FluidProperties(m_equationOfState.flash("Px",pressure, vaporFraction));
-            computePhaseProperties();
-            return m_phaseProps;
+            auto temperature = m_equationOfState.saturationTemperature(pressure);
+            return flashTx(temperature, vaporFraction);
         }
 
         /**
@@ -258,11 +261,43 @@ namespace PCProps
          * @param enthalpy
          * @return
          */
-        const FluidProperties& flashPH(double pressure, double enthalpy) const
+        const FluidProperties flashPH(double pressure, double enthalpy) const
         {
-            m_phaseProps = FluidProperties(m_equationOfState.flash("PH", pressure, enthalpy));
-            computePhaseProperties();
-            return m_phaseProps;
+            using std::get;
+
+            // ===== Define objective function
+            auto enthalpyObjFunction = [&](double t) {
+                auto phase = FluidProperties(m_equationOfState.computeProperties(pressure, t)).stablePhase().front();
+                return idealGasEnthalpy(phase.Temperature) + phase.EnthalpyDeparture - enthalpy;
+            };
+
+            // ===== If the fluid is supercritical, compute like so... (single phase)
+            if (pressure >= m_pureComponent.property("CriticalPressure")) {
+                // ===== Use the (hypothetical) saturation temperature as first guess, and compute until the enthalpy is found.
+                return flashPT(pressure, numeric::newton(enthalpyObjFunction, m_equationOfState.saturationTemperature(pressure)));
+            }
+
+            // ===== Otherwise, the fluid is sub-critical...
+            // ===== First, calculate the saturation properties at the specified pressure.
+            auto temperature  = m_equationOfState.saturationTemperature(pressure);
+            auto phaseProps = FluidProperties(m_equationOfState.computeProperties(pressure, temperature));
+
+            auto h_v          = idealGasEnthalpy(phaseProps.back().Temperature) + phaseProps.back().EnthalpyDeparture;
+            auto h_l          = idealGasEnthalpy(phaseProps.front().Temperature) + phaseProps.front().EnthalpyDeparture;
+
+            // ===== If the specified enthalpy is lower than the saturated liquid enthalpy, the fluid is a compressed liquid.
+            if (enthalpy < h_l) {
+                return flashPT(pressure, numeric::newton(enthalpyObjFunction, temperature * 0.8));
+            }
+
+            // ===== If the specified enthalpy is higher than the saturated vapor entropy, the fluid is superheated vapor.
+            if (enthalpy > h_v) {
+                return flashPT(pressure, numeric::newton(enthalpyObjFunction, temperature * 1.2));
+            }
+
+            // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.A
+            auto vaporFraction = (h_l - enthalpy) / (h_l - h_v);
+            return flashPx(pressure, vaporFraction);
         }
 
         /**
@@ -271,11 +306,40 @@ namespace PCProps
          * @param entropy
          * @return
          */
-        const FluidProperties& flashPS(double pressure, double entropy) const
+        const FluidProperties flashPS(double pressure, double entropy) const
         {
-            m_phaseProps = FluidProperties(m_equationOfState.flash("PS", pressure, entropy));
-            computePhaseProperties();
-            return m_phaseProps;
+            using std::get;
+
+            // ===== Define objective function
+            auto entropyObjFunction = [&](double t) {
+                auto phase = FluidProperties(m_equationOfState.computeProperties(pressure, t)).stablePhase().front();
+                return idealGasEntropy(phase.Temperature, phase.Pressure) + phase.EntropyDeparture - entropy;
+            };
+
+            if (pressure >= m_pureComponent.property("CriticalPressure")) {
+                return flashPT(pressure, numeric::newton(entropyObjFunction, m_equationOfState.saturationTemperature(pressure)));
+            }
+
+            // ===== First, calculate the saturation properties at the specified pressure.
+            auto temperature  = m_equationOfState.saturationTemperature(pressure);
+            auto phaseProps = FluidProperties(m_equationOfState.computeProperties(pressure, temperature));
+
+            auto s_v          = idealGasEntropy(phaseProps.back().Temperature, phaseProps.back().Pressure) + phaseProps.back().EntropyDeparture;
+            auto s_l          = idealGasEntropy(phaseProps.front().Temperature, phaseProps.front().Pressure) + phaseProps.front().EntropyDeparture;
+
+            // ===== If the specified entropy is lower than the saturated liquid entropy, the fluid is a compressed liquid.
+            if (entropy < s_l) {
+                return flashPT(pressure, numeric::newton(entropyObjFunction, temperature * 0.8));
+            }
+
+            // ===== If the specified entropy is higher than the saturated vapor entropy, the fluid is superheated vapor.
+            if (entropy > s_v) {
+                return flashPT(pressure, numeric::newton(entropyObjFunction, temperature * 1.2));
+            }
+
+            // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.
+            auto vaporFraction = (s_l - entropy) / (s_l - s_v);
+            return flashPx(pressure, vaporFraction);
         }
 
         /**
@@ -284,11 +348,27 @@ namespace PCProps
          * @param volume
          * @return
          */
-        const FluidProperties& flashTV(double temperature, double volume) const
+        const FluidProperties flashTV(double temperature, double molarVolume) const
         {
-            m_phaseProps = FluidProperties(m_equationOfState.flash("TV", temperature, volume));
-            computePhaseProperties();
-            return m_phaseProps;
+            using std::pow;
+
+            // ===== Fluid is supercritical
+            if (temperature >= m_pureComponent.property("CriticalTemperature")) {
+                auto phase = FluidProperties(m_equationOfState.computePropertiesTV(temperature, molarVolume)).stablePhase().front();
+                return flashPT(phase.Pressure, temperature);
+            }
+
+            auto phaseProps = flashTx(temperature, 0.5);
+
+            // ===== Fluid is a compressed liquid or super-heated vapor
+            if (molarVolume < phaseProps.front().MolarVolume || molarVolume > phaseProps.back().MolarVolume) {
+                auto phase = FluidProperties(m_equationOfState.computePropertiesTV(temperature, molarVolume)).stablePhase().front();
+                return flashPT(phase.Pressure, temperature);
+            }
+
+            // ===== Fluid is multiphase
+            auto vaporFraction = (molarVolume - phaseProps.front().MolarVolume) / (phaseProps.back().MolarVolume - phaseProps.front().MolarVolume);
+            return flashTx(temperature, vaporFraction);
         }
 
         /**

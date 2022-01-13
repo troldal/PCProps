@@ -107,6 +107,30 @@ namespace PCProps
          */
         JSONString asJSON() const;
 
+        std::vector<PhaseProperties>::iterator begin() {
+            return m_phases.begin();
+        }
+
+        std::vector<PhaseProperties>::iterator end() {
+            return m_phases.end();
+        }
+
+        PhaseProperties& back() {
+            return m_phases.back();
+        }
+
+        const PhaseProperties& back() const {
+            return m_phases.back();
+        }
+
+        PhaseProperties& front() {
+            return m_phases.front();
+        }
+
+        const PhaseProperties& front() const {
+            return m_phases.front();
+        }
+
         /**
          * @brief Prints the fluid data to an ostream object.
          * @param stream An std::ostream object, e.g. std::cout.
