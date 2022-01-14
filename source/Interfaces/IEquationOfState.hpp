@@ -137,16 +137,37 @@ namespace PCProps
             m_equationOfState->init(pureComponent);
         }
 
-
-
-        inline JSONString computeProperties(double pressure, double temperature) const
+        /**
+         * @brief
+         * @param pressure
+         * @param temperature
+         * @return
+         */
+        inline JSONString computePropertiesPT(double pressure, double temperature) const
         {
-            return m_equationOfState->computeProperties(pressure, temperature);
+            return m_equationOfState->computePropertiesPT(pressure, temperature);
         }
 
+        /**
+         * @brief
+         * @param temperature
+         * @param molarVolume
+         * @return
+         */
         inline JSONString computePropertiesTV(double temperature, double molarVolume) const
         {
             return m_equationOfState->computePropertiesTV(temperature, molarVolume);
+        }
+
+        /**
+         * @brief
+         * @param temperature
+         * @param molarVolume
+         * @return
+         */
+        inline JSONString computePropertiesPV(double pressure, double molarVolume) const
+        {
+            return m_equationOfState->computePropertiesPV(pressure, molarVolume);
         }
 
         /**
@@ -214,10 +235,29 @@ namespace PCProps
              */
             inline virtual std::unique_ptr<EOSConcept> clone() const = 0;
 
+            /**
+             * @brief
+             * @param pressure
+             * @param temperature
+             * @return
+             */
+            inline virtual JSONString computePropertiesPT(double pressure, double temperature) const = 0;
 
-            inline virtual JSONString computeProperties(double pressure, double temperature) const = 0;
-
+            /**
+             * @brief
+             * @param temperature
+             * @param molarVolume
+             * @return
+             */
             inline virtual JSONString computePropertiesTV(double temperature, double molarVolume) const = 0;
+
+            /**
+             * @brief
+             * @param temperature
+             * @param molarVolume
+             * @return
+             */
+            inline virtual JSONString computePropertiesPV(double pressure, double molarVolume) const = 0;
 
             /**
              * @brief
@@ -295,15 +335,37 @@ namespace PCProps
                 return std::make_unique<EOSModel<T>>(EOSType);
             }
 
-
-            inline JSONString computeProperties(double pressure, double temperature) const override
+            /**
+             * @brief
+             * @param pressure
+             * @param temperature
+             * @return
+             */
+            inline JSONString computePropertiesPT(double pressure, double temperature) const override
             {
-                return EOSType.computeProperties(pressure, temperature);
+                return EOSType.computePropertiesPT(pressure, temperature);
             }
 
+            /**
+             * @brief
+             * @param temperature
+             * @param molarVolume
+             * @return
+             */
             inline JSONString computePropertiesTV(double temperature, double molarVolume) const override
             {
                 return EOSType.computePropertiesTV(temperature, molarVolume);
+            }
+
+            /**
+             * @brief
+             * @param temperature
+             * @param molarVolume
+             * @return
+             */
+            inline JSONString computePropertiesPV(double pressure, double molarVolume) const override
+            {
+                return EOSType.computePropertiesPV(pressure, molarVolume);
             }
 
             /**

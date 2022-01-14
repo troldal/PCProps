@@ -57,6 +57,9 @@ namespace PCProps::EquationOfState
     using PCProps::Globals::MAX_ITER;
     using PCProps::Globals::TOLERANCE;
 
+    /**
+     * @brief
+     */
     class PengRobinson::impl
     {
     private:
@@ -74,8 +77,6 @@ namespace PCProps::EquationOfState
         double m_ac {};
         double m_b {};
         double m_kappa {};
-
-    public:
 
         /**
          * @brief Compute the 'a' coefficient for the Peng-robinson EOS.
@@ -248,20 +249,45 @@ namespace PCProps::EquationOfState
             return result;
         }
 
+
         /**
-         * @brief Compute the pressure using the Peng-Robinson EoS.
-         * @param temperature The temperature [K].
-         * @param molarVolume the molar volume [m3/mol].
-         * @return The pressure [Pa].
+         * @brief
+         * @param temperature
+         * @param pressure
+         * @param compressibility
+         * @return
          */
-        inline double calcPressure(double temperature, double molarVolume) const {
-            auto result = R_CONST * temperature / (molarVolume - m_b) - (m_ac * alpha(temperature)) / (pow(molarVolume, 2) + 2 * m_b * molarVolume - pow(m_b, 2));
+        inline double computeCpDeparture(double temperature, double pressure, double compressibility) const {
 
-            if (std::isnan(result))
-                throw std::runtime_error(
-                    "Numeric error: Pressure could not be computed with T = " + std::to_string(temperature) + " and V = " + std::to_string(molarVolume));
+            auto _B = B(temperature, pressure);
+            auto _A = A(temperature, pressure);
+            auto dadt = -m_ac*m_kappa*sqrt(alpha(temperature)*temperature/m_criticalTemperature)/temperature;
+            auto d2adt2 = (m_ac * m_kappa) / (2*temperature * sqrt(m_criticalTemperature)) * (sqrt(alpha(temperature)/temperature) + m_kappa/ sqrt(m_criticalTemperature));
+            auto M = (pow(compressibility, 2) + 2 * _B * compressibility - pow(_B, 2))/(compressibility - _B);
+            auto N = _B/(R_CONST * m_b) * dadt;
+            auto Cp_departure = temperature / (2*sqrt(2)*m_b) * d2adt2 * log((compressibility + 2.414*_B) / (compressibility - 0.414*_B)) + (R_CONST * pow(M-N, 2))/(pow(M, 2)-2*_A*(compressibility + _B)) - R_CONST;
 
-            return result;
+            return Cp_departure;
+        }
+
+        /**
+         * @brief
+         * @param temperature
+         * @param pressure
+         * @param compressibility
+         * @return
+         */
+        inline double computeCvDeparture(double temperature, double pressure, double compressibility) const {
+
+            auto _B = B(temperature, pressure);
+            auto d2adt2 = (m_ac * m_kappa) / (2*temperature * sqrt(m_criticalTemperature)) * (sqrt(alpha(temperature)/temperature) + m_kappa/ sqrt(m_criticalTemperature));
+            auto theta1 = sqrt(2);
+            auto theta2 = 1 - theta1;
+            auto theta3 = 1 + theta1;
+
+            auto Cv_departure = -temperature/(2*theta1*R_CONST*m_b)*d2adt2*log((compressibility+theta2*_B)/(compressibility+theta3*_B))*R_CONST;
+
+            return Cv_departure;
         }
 
         /**
@@ -305,7 +331,7 @@ namespace PCProps::EquationOfState
             return -calcDVDT(temperature, molarVolume) / calcDPDT(temperature, molarVolume);
         }
 
-//    public:
+    public:
         /**
          * @brief Constructor.
          * @param criticalTemperature The critical temperature [K].
@@ -316,8 +342,6 @@ namespace PCProps::EquationOfState
             : m_criticalTemperature(constants("CriticalTemperature")),
               m_criticalPressure(constants("CriticalPressure")),
               m_acentricFactor(constants("AcentricFactor")),
-//              m_normalFreezingPoint(constants("NormalFreezingPoint")),
-//              m_normalBoilingPoint(constants("NormalBoilingPoint")),
               m_vaporPressure([=](double t) -> double { return correlations("VaporPressure", t); }),
               m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(m_criticalTemperature, 2) / m_criticalPressure),
               m_b(0.07779607 * PCProps::Globals::R_CONST * m_criticalTemperature / m_criticalPressure),
@@ -327,22 +351,33 @@ namespace PCProps::EquationOfState
         {}
 
         /**
-         * @brief Compute the compressibilities and fugacity coefficients for the phases present at the given T and P.
-         * @param temperature The temperature [K]
-         * @param pressure The pressure [Pa].
-         * @return A vector of std::pairs with the compressibility and fugacity coefficient for each phase.
-         * @note A flash may yield Z and phi for two phases, even though only one phase is present. The individual
-         * flash algorithm will discard the Z/Phi pair that is invalid.
+         * @brief
+         * @return
          */
-        inline std::vector<std::pair<double, double>> computeCompressibilityAndFugacity(double temperature, double pressure) const
-        {
-            // ===== Compute the compressibility factor(s)
-            auto zs = computeCompressibilityFactors(temperature, pressure);
+        inline double criticalPressure() const {
+            return m_criticalPressure;
+        }
 
-            // ===== Compute the fugacity coefficient for each Z and add the pair(s) to the results vector.
-            std::vector<std::pair<double, double>> result;
-            result.reserve(zs.size());
-            for (const auto& z : zs) result.emplace_back(std::make_pair(z, computeFugacityCoefficient(temperature, pressure, z)));
+        /**
+         * @brief
+         * @return
+         */
+        inline double criticalTemperature() const {
+            return m_criticalTemperature;
+        }
+
+        /**
+         * @brief Compute the pressure using the Peng-Robinson EoS.
+         * @param temperature The temperature [K].
+         * @param molarVolume the molar volume [m3/mol].
+         * @return The pressure [Pa].
+         */
+        inline double computePressure(double temperature, double molarVolume) const {
+            auto result = R_CONST * temperature / (molarVolume - m_b) - (m_ac * alpha(temperature)) / (pow(molarVolume, 2) + 2 * m_b * molarVolume - pow(m_b, 2));
+
+            if (std::isnan(result))
+                throw std::runtime_error(
+                    "Numeric error: Pressure could not be computed with T = " + std::to_string(temperature) + " and V = " + std::to_string(molarVolume));
 
             return result;
         }
@@ -432,9 +467,9 @@ namespace PCProps::EquationOfState
                 }
 
                 // ===== Compute the guess as the average pressure the lower and upper points of the van der Waals loop.
-                auto p1 = calcPressure(temperature, v1);
-                auto p2 = (calcPressure(temperature, v1) + calcPressure(temperature, v2)) / 2;
-                auto p3 = calcPressure(temperature, v2);
+                auto p1 = computePressure(temperature, v1);
+                auto p2 = (computePressure(temperature, v1) + computePressure(temperature, v2)) / 2;
+                auto p3 = computePressure(temperature, v2);
 
                 // ===== If any of the points  (v1, v2, or guess) are inside the van der Waals loop, return as the result.
                 auto z1 = computeCompressibilityFactors(temperature, std::max(1.0, p1));
@@ -465,9 +500,9 @@ namespace PCProps::EquationOfState
                 auto guess = std::max(1.0, guessSaturationPressure());
                 int  counter { 0 };
                 while (true) {
-                    auto phi   = computeCompressibilityAndFugacity(temperature, std::max(1.0, guess));
-                    auto phi_l = get<1>(phi.front());
-                    auto phi_v = get<1>(phi.back());
+                    auto zs = computeCompressibilityFactors(temperature, std::max(1.0, guess));
+                    auto phi_l = computeFugacityCoefficient(temperature, std::max(1.0, guess), zs.front());
+                    auto phi_v = computeFugacityCoefficient(temperature, std::max(1.0, guess), zs.back());
 
                     // ===== Iterate using successive substitution. The minimum vapor pressure is 1.0 Pa, as lower
                     // ===== values may lead to numerical issues.
@@ -505,46 +540,6 @@ namespace PCProps::EquationOfState
             // ===== Otherwise, compute the slope at the critical point, and extrapolate.
             auto slope = numeric::diff_backward([&](double t) { return m_vaporPressure(t); }, m_criticalTemperature);
             return (pressure - m_criticalPressure) / slope + m_criticalTemperature;
-        }
-
-        /**
-         * @brief
-         * @param temperature
-         * @param pressure
-         * @param compressibility
-         * @return
-         */
-        inline double computeCpDeparture(double temperature, double pressure, double compressibility) const {
-
-            auto _B = B(temperature, pressure);
-            auto _A = A(temperature, pressure);
-            auto dadt = -m_ac*m_kappa*sqrt(alpha(temperature)*temperature/m_criticalTemperature)/temperature;
-            auto d2adt2 = (m_ac * m_kappa) / (2*temperature * sqrt(m_criticalTemperature)) * (sqrt(alpha(temperature)/temperature) + m_kappa/ sqrt(m_criticalTemperature));
-            auto M = (pow(compressibility, 2) + 2 * _B * compressibility - pow(_B, 2))/(compressibility - _B);
-            auto N = _B/(R_CONST * m_b) * dadt;
-            auto Cp_departure = temperature / (2*sqrt(2)*m_b) * d2adt2 * log((compressibility + 2.414*_B) / (compressibility - 0.414*_B)) + (R_CONST * pow(M-N, 2))/(pow(M, 2)-2*_A*(compressibility + _B)) - R_CONST;
-
-            return Cp_departure;
-        }
-
-        /**
-         * @brief
-         * @param temperature
-         * @param pressure
-         * @param compressibility
-         * @return
-         */
-        inline double computeCvDeparture(double temperature, double pressure, double compressibility) const {
-
-            auto _B = B(temperature, pressure);
-            auto d2adt2 = (m_ac * m_kappa) / (2*temperature * sqrt(m_criticalTemperature)) * (sqrt(alpha(temperature)/temperature) + m_kappa/ sqrt(m_criticalTemperature));
-            auto theta1 = sqrt(2);
-            auto theta2 = 1 - theta1;
-            auto theta3 = 1 + theta1;
-
-            auto Cv_departure = -temperature/(2*theta1*R_CONST*m_b)*d2adt2*log((compressibility+theta2*_B)/(compressibility+theta3*_B))*R_CONST;
-
-            return Cv_departure;
         }
 
         /**
@@ -597,24 +592,36 @@ namespace PCProps::EquationOfState
 
     };    // PengRobinson::impl
 
-    // ===== Constructor, default
+    /**
+     * @details
+     */
     PengRobinson::PengRobinson() : m_impl(nullptr) {};
 
-    // ===== Constructor
+    /**
+     * @details
+     */
     PengRobinson::PengRobinson(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations)
         : m_impl(std::make_unique<impl>(constants, correlations))
     {}
 
-    // ===== Copy constructor
+    /**
+     * @details
+     */
     PengRobinson::PengRobinson(const PengRobinson& other) : m_impl(other.m_impl ? std::make_unique<impl>(*other.m_impl) : nullptr) {};
 
-    // ===== Move constructor
+    /**
+     * @details
+     */
     PengRobinson::PengRobinson(PengRobinson&& other) noexcept = default;
 
-    // ===== Destructor
+    /**
+     * @details
+     */
     PengRobinson::~PengRobinson() = default;
 
-    // ===== Copy assignment operator
+    /**
+     * @details
+     */
     PengRobinson& PengRobinson::operator=(const PengRobinson& other)
     {
         PengRobinson copy = other;
@@ -622,40 +629,63 @@ namespace PCProps::EquationOfState
         return *this;
     };
 
-    // ===== Move assignment operator
+    /**
+     * @details
+     */
     PengRobinson& PengRobinson::operator=(PengRobinson&& other) noexcept = default;
 
-    // ===== Initiates object with new pure component data
+    /**
+     * @details
+     */
     void PengRobinson::init(const std::function<double(std::string)>& constants, const std::function<double(std::string, double)>& correlations)
     {
         m_impl = std::make_unique<impl>(constants, correlations);
     }
 
-    // ===== Saturation pressure at given temperature
+    /**
+     * @details
+     */
     double PengRobinson::computePSat(double temperature) const
     {
         return m_impl->computeSaturationPressure(temperature);
     }
 
-    // ===== Saturation temperature at given pressure
+    /**
+     * @details
+     */
     double PengRobinson::computeTSat(double pressure) const
     {
         return m_impl->computeSaturationTemperature(pressure);
     }
 
-    // =====
-    JSONString PengRobinson::computeProperties(double pressure, double temperature) const
+    /**
+     * @details
+     */
+    JSONString PengRobinson::computePropertiesPT(double pressure, double temperature) const
     {
         std::vector<nlohmann::json> result;
         for (const auto& phase : m_impl->computeProperties(pressure, temperature)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
         return nlohmann::json(result).dump();
     }
 
-    // =====
+    /**
+     * @details
+     */
     JSONString PengRobinson::computePropertiesTV(double temperature, double molarVolume) const
     {
         std::vector<nlohmann::json> result;
-        auto pressure = m_impl->calcPressure(temperature, molarVolume);
+        auto pressure = m_impl->computePressure(temperature, molarVolume);
+        for (const auto& phase : m_impl->computeProperties(pressure, temperature)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
+        return nlohmann::json(result).dump();
+    }
+
+    /**
+     * @details
+     */
+    JSONString PengRobinson::computePropertiesPV(double pressure, double molarVolume) const
+    {
+        std::vector<nlohmann::json> result;
+        auto temperature = numeric::newton([&](double t) { return m_impl->computePressure(t, molarVolume) - pressure; }, m_impl->criticalTemperature() - 1.0);
         for (const auto& phase : m_impl->computeProperties(pressure, temperature)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
         return nlohmann::json(result).dump();
     }

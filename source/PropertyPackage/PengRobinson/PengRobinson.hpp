@@ -127,7 +127,7 @@ namespace PCProps::EquationOfState
          * @param temperature
          * @return
          */
-        JSONString computeProperties(double pressure, double temperature) const;
+        JSONString computePropertiesPT(double pressure, double temperature) const;
 
         /**
          * @brief
@@ -137,6 +137,13 @@ namespace PCProps::EquationOfState
          */
         JSONString computePropertiesTV(double temperature, double molarVolume) const;
 
+        /**
+         * @brief
+         * @param temperature
+         * @param molarVolume
+         * @return
+         */
+        JSONString computePropertiesPV(double temperature, double molarVolume) const;
 
     private:
 

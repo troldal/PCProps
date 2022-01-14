@@ -24,69 +24,6 @@ namespace PCProps
         IEquationOfState        m_equationOfState {};
         mutable FluidProperties m_phaseProps {};
 
-
-        /**
-         * @brief Compute the liquid properties for a phase.
-         * @param liquid The (liquid) phase for which to compute properties.
-         * @return The input phase updated with liquid properties.
-         */
-        PhaseProperties computeLiquidProperties(PhaseProperties liquid) const
-        {
-//            liquid.MolarVolume = m_pureComponent.correlation(
-//                "CompressedLiquidVolume",
-//                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.correlation("SaturatedLiquidVolume", liquid.Temperature) });
-//            liquid.SurfaceTension      = 0.0;
-//            liquid.ThermalConductivity = 0.0;
-//            liquid.Viscosity           = m_pureComponent.correlation(
-//                "CompressedLiquidViscosity",
-//                { liquid.Temperature, liquid.Pressure, liquid.VaporPressure, m_pureComponent.correlation("SaturatedLiquidViscosity", liquid.Temperature) });
-//            //liquid.Cp = m_pureComponent.correlation("LiquidCp", liquid.Temperature);
-
-            return liquid;
-        }
-
-        /**
-         * @brief Compute the vapor properties for a phase.
-         * @param vapor The (vapor) phase for which to compute properties.
-         * @return The input phase updated with vapor properties.
-         */
-        PhaseProperties computeVaporProperties(PhaseProperties vapor) const
-        {
-//            vapor.SurfaceTension      = 0.0;
-//            vapor.ThermalConductivity = 0.0;
-//            vapor.Viscosity           = m_pureComponent.correlation(
-//                "CompressedVaporViscosity",
-//                { vapor.Temperature, vapor.Pressure, vapor.VaporPressure, m_pureComponent.correlation("SaturatedVaporViscosity", vapor.Temperature) });
-
-            return vapor;
-        }
-
-        /**
-         * @brief Compute properties for all phases in the fluid.
-         */
-        void computePhaseProperties() const
-        {
-            auto phases = m_phaseProps.phases();
-            for (auto& phase : phases) {
-                phase.MolarWeight = m_pureComponent.property("MolarWeight");
-
-                switch (phase.Type) {
-                    case PhaseType::Liquid:
-                        phase = computeLiquidProperties(phase);
-                        break;
-
-                    case PhaseType::Vapor:
-                        phase = computeVaporProperties(phase);
-                        break;
-
-                    default:
-                        throw std::runtime_error("Something went wrong. Invalid phase properties");
-                }
-            }
-
-            m_phaseProps = phases;
-        }
-
         /**
          * @brief Compute the ideal gas enthalpy at the given T, relative the standard state.
          * @param temperature The temperature [K].
@@ -120,34 +57,12 @@ namespace PCProps
             return result;
         }
 
-
-        void computeProperties() const {
-            using Globals::R_CONST;
-            auto phases = m_phaseProps.phases();
-            for (auto& phase : phases) {
-                phase.MolarWeight                 = m_pureComponent.property("MolarWeight");
-                phase.Enthalpy                    = idealGasEnthalpy(phase.Temperature) + phase.EnthalpyDeparture;
-                phase.Entropy                     = idealGasEntropy(phase.Temperature, phase.Pressure) + phase.EntropyDeparture;
-                phase.GibbsEnergy                 = idealGasEnthalpy(phase.Temperature) - phase.Temperature * idealGasEntropy(phase.Temperature, phase.Pressure) + phase.GibbsEnergyDeparture;
-                phase.InternalEnergy              = idealGasEnthalpy(phase.Temperature) - phase.Pressure * phase.MolarVolume + phase.InternalEnergyDeparture;
-                phase.HelmholzEnergy              = phase.GibbsEnergy - phase.Pressure * phase.MolarVolume;
-                phase.CriticalPressure            = m_pureComponent.property("CriticalPressure");
-                phase.CriticalTemperature         = m_pureComponent.property("CriticalTemperature");
-                phase.NormalFreezingPoint         = m_pureComponent.property("NormalFreezingPoint");
-                phase.NormalBoilingPoint          = m_pureComponent.property("NormalBoilingPoint");
-                phase.Cp                          = m_pureComponent.correlation("IdealGasCp", phase.Temperature) + phase.CpDeparture;
-                phase.Cv                          = m_pureComponent.correlation("IdealGasCp", phase.Temperature) - R_CONST + phase.CvDeparture;
-                phase.ThermalExpansionCoefficient = (1.0 / phase.MolarVolume) * phase.DVDT;
-                phase.JouleThomsonCoefficient     = -1.0 / (phase.Cp) * (phase.Temperature * phase.DPDT / phase.DPDV + phase.MolarVolume);
-                phase.IsothermalCompressibility   = (-1.0 / phase.MolarVolume) * phase.DVDP;
-                phase.SpeedOfSound                = (phase.MolarVolume / (16*(-1.0 / phase.MolarVolume) * (phase.Cv / phase.Cp) / phase.DPDV));    // TODO: This calculation does not seem to yield correct results!
-
-            }
-
-            m_phaseProps = phases;
-        }
-
-        FluidProperties& computeProperties2(FluidProperties& phases) const {
+        /**
+         * @brief
+         * @param phases
+         * @return
+         */
+        FluidProperties& computeProperties(FluidProperties& phases) const {
             using Globals::R_CONST;
             for (auto& phase : phases) {
                 phase.MolarWeight                 = m_pureComponent.property("MolarWeight");
@@ -165,12 +80,10 @@ namespace PCProps
                 phase.ThermalExpansionCoefficient = (1.0 / phase.MolarVolume) * phase.DVDT;
                 phase.JouleThomsonCoefficient     = -1.0 / (phase.Cp) * (phase.Temperature * phase.DPDT / phase.DPDV + phase.MolarVolume);
                 phase.IsothermalCompressibility   = (-1.0 / phase.MolarVolume) * phase.DVDP;
-                phase.SpeedOfSound                = (phase.MolarVolume / (16*(-1.0 / phase.MolarVolume) * (phase.Cv / phase.Cp) / phase.DPDV));    // TODO: This calculation does not seem to yield correct results!
+                phase.SpeedOfSound                = (phase.MolarVolume / (phase.MolarWeight * (-1.0 / phase.MolarVolume) * (phase.Cv / phase.Cp) / phase.DPDV));    // TODO: This calculation does not seem to yield correct results!
             }
             return phases;
         }
-
-
 
     public:
         /**
@@ -191,8 +104,8 @@ namespace PCProps
          */
         const FluidProperties flashPT(double pressure, double temperature) const
         {
-            auto phaseProps = FluidProperties(m_equationOfState.computeProperties(pressure, temperature));
-            return computeProperties2(phaseProps).stablePhase();
+            auto phaseProps = FluidProperties(m_equationOfState.computePropertiesPT(pressure, temperature));
+            return computeProperties(phaseProps).stablePhase();
         }
 
         /**
@@ -207,8 +120,8 @@ namespace PCProps
             if (temperature < m_pureComponent.property("CriticalTemperature")) {
                 // ===== First, calculate the saturation pressure at the specified pressure.
                 auto pressure = m_equationOfState.saturationPressure(temperature);
-                auto phaseProps = FluidProperties(m_equationOfState.computeProperties(pressure, temperature));
-                computeProperties2(phaseProps);
+                auto phaseProps = FluidProperties(m_equationOfState.computePropertiesPT(pressure, temperature));
+                computeProperties(phaseProps);
 
                 // ===== If the specified vapor fraction is 1.0 (or higher), the fluid is a saturated vapor.
                 if (vaporFraction >= 1.0) {
@@ -267,7 +180,7 @@ namespace PCProps
 
             // ===== Define objective function
             auto enthalpyObjFunction = [&](double t) {
-                auto phase = FluidProperties(m_equationOfState.computeProperties(pressure, t)).stablePhase().front();
+                auto phase = FluidProperties(m_equationOfState.computePropertiesPT(pressure, t)).stablePhase().front();
                 return idealGasEnthalpy(phase.Temperature) + phase.EnthalpyDeparture - enthalpy;
             };
 
@@ -280,7 +193,7 @@ namespace PCProps
             // ===== Otherwise, the fluid is sub-critical...
             // ===== First, calculate the saturation properties at the specified pressure.
             auto temperature  = m_equationOfState.saturationTemperature(pressure);
-            auto phaseProps = FluidProperties(m_equationOfState.computeProperties(pressure, temperature));
+            auto phaseProps = FluidProperties(m_equationOfState.computePropertiesPT(pressure, temperature));
 
             auto h_v          = idealGasEnthalpy(phaseProps.back().Temperature) + phaseProps.back().EnthalpyDeparture;
             auto h_l          = idealGasEnthalpy(phaseProps.front().Temperature) + phaseProps.front().EnthalpyDeparture;
@@ -312,7 +225,7 @@ namespace PCProps
 
             // ===== Define objective function
             auto entropyObjFunction = [&](double t) {
-                auto phase = FluidProperties(m_equationOfState.computeProperties(pressure, t)).stablePhase().front();
+                auto phase = FluidProperties(m_equationOfState.computePropertiesPT(pressure, t)).stablePhase().front();
                 return idealGasEntropy(phase.Temperature, phase.Pressure) + phase.EntropyDeparture - entropy;
             };
 
@@ -322,7 +235,7 @@ namespace PCProps
 
             // ===== First, calculate the saturation properties at the specified pressure.
             auto temperature  = m_equationOfState.saturationTemperature(pressure);
-            auto phaseProps = FluidProperties(m_equationOfState.computeProperties(pressure, temperature));
+            auto phaseProps = FluidProperties(m_equationOfState.computePropertiesPT(pressure, temperature));
 
             auto s_v          = idealGasEntropy(phaseProps.back().Temperature, phaseProps.back().Pressure) + phaseProps.back().EntropyDeparture;
             auto s_l          = idealGasEntropy(phaseProps.front().Temperature, phaseProps.front().Pressure) + phaseProps.front().EntropyDeparture;
@@ -425,6 +338,13 @@ namespace PCProps
      */
     Fluid& Fluid::operator=(Fluid&& other) noexcept = default;
 
+    /**
+     * @brief
+     * @param specification
+     * @param var1
+     * @param var2
+     * @return
+     */
     JSONString Fluid::flash(const std::string& specification, double var1, double var2) const
     {
         if (specification == "PT")
