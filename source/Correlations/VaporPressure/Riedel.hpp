@@ -157,6 +157,6 @@ namespace PCProps::VaporPressure
             return exp(m_coefficients[0] + m_coefficients[1] / tr + m_coefficients[2] * log(tr) + m_coefficients[3] * pow(tr, 6)) * m_criticalPressure;
         }
     };
-} // namespace PCProps::VaporPressure
+} // namespace PCProps::SaturationPressure
 
 #endif    // PCPROPS_RIEDEL_HPP

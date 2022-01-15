@@ -149,6 +149,6 @@ namespace PCProps::VaporPressure
         }
     };
 
-}    // namespace PCProps::VaporPressure
+}    // namespace PCProps::SaturationPressure
 
 #endif    // PCPROPS_WAGNER_HPP

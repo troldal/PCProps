@@ -136,7 +136,7 @@ namespace PCProps
          * @param stream An std::ostream object, e.g. std::cout.
          */
         inline void print(std::ostream& stream) {
-            stream << std::setprecision(5) << std::fixed;
+            stream << std::setprecision(6) << std::fixed;
             auto width = 25;
 
             auto TypeAsString = [&](const PhaseType type) {
@@ -265,8 +265,12 @@ namespace PCProps
             for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(width) << phase.FugacityCoefficient;
             stream << std::endl;
 
-            stream << "Vapor Pressure                 [Pa] : ";
-            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(width) << phase.VaporPressure;
+            stream << "Saturation Pressure            [Pa] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(width) << phase.SaturationPressure;
+            stream << std::endl;
+
+            stream << "Saturation Volume           [kg/m3] : ";
+            for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(width) << 1/(phase.SaturationVolume/phase.MolarWeight*1000);
             stream << std::endl;
 
             stream << "Enthalpy                     [J/kg] : ";
@@ -374,8 +378,12 @@ namespace PCProps
         for (const PhaseProperties& phase : properties.phases()) stream << std::right << std::setw(20) << phase.FugacityCoefficient;
         stream << std::endl;
 
-        stream << "Vapor Pressure                 [Pa] : ";
-        for (const PhaseProperties& phase : properties.phases()) stream << std::right << std::setw(20) << phase.VaporPressure;
+        stream << "Saturation Pressure            [Pa] : ";
+        for (const PhaseProperties& phase : properties.phases()) stream << std::right << std::setw(20) << phase.SaturationPressure;
+        stream << std::endl;
+
+        stream << "Saturation Volume          [m3/mol] : ";
+        for (const PhaseProperties& phase : properties.phases()) stream << std::right << std::setw(20) << phase.SaturationVolume;
         stream << std::endl;
 
         stream << "Enthalpy                    [J/mol] : ";

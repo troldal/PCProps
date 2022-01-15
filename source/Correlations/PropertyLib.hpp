@@ -15,6 +15,9 @@
 #include "HeatCapacity/Polynomial.hpp"
 #include "HeatCapacity/PPDSLiquid.hpp"
 
+#include "HeatConductivity/DIPPR102.hpp"
+#include "HeatConductivity/Polynomial.hpp"
+
 #include "SaturatedLiquidVolume/Elbro.hpp"
 #include "SaturatedLiquidVolume/HankinsonThomson.hpp"
 #include "SaturatedLiquidVolume/Rackett.hpp"

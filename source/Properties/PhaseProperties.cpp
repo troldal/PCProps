@@ -65,7 +65,8 @@ namespace PCProps
         ThermalExpansionCoefficient = data["ThermalExpansionCoefficient"].is_null() ? std::nan("") : data["ThermalExpansionCoefficient"].get<double>();
         JouleThomsonCoefficient     = data["JouleThomsonCoefficient"].is_null() ? std::nan("") : data["JouleThomsonCoefficient"].get<double>();
         SpeedOfSound                = data["SpeedOfSound"].is_null() ? std::nan("") : data["SpeedOfSound"].get<double>();
-        VaporPressure               = data["VaporPressure"].is_null() ? std::nan("") : data["VaporPressure"].get<double>();
+        SaturationPressure          = data["SaturationPressure"].is_null() ? std::nan("") : data["SaturationPressure"].get<double>();
+        SaturationVolume            = data["SaturationVolume"].is_null() ? std::nan("") : data["SaturationVolume"].get<double>();
         Enthalpy                    = data["Enthalpy"].is_null() ? std::nan("") : data["Enthalpy"].get<double>();
         Entropy                     = data["Entropy"].is_null() ? std::nan("") : data["Entropy"].get<double>();
         InternalEnergy              = data["InternalEnergy"].is_null() ? std::nan("") : data["InternalEnergy"].get<double>();
@@ -148,7 +149,8 @@ namespace PCProps
         data["ThermalExpansionCoefficient"] = ThermalExpansionCoefficient;
         data["JouleThomsonCoefficient"]     = JouleThomsonCoefficient;
         data["SpeedOfSound"]                = SpeedOfSound;
-        data["VaporPressure"]               = VaporPressure;
+        data["SaturationPressure"]          = SaturationPressure;
+        data["SaturationVolume"]            = SaturationVolume;
         data["Enthalpy"]                    = Enthalpy;
         data["Entropy"]                     = Entropy;
         data["InternalEnergy"]              = InternalEnergy;

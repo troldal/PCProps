@@ -58,7 +58,8 @@ namespace PCProps
         double ThermalExpansionCoefficient { 0.0 };
         double JouleThomsonCoefficient { 0.0 };
         double SpeedOfSound { 0.0 };
-        double VaporPressure { 0.0 };
+        double SaturationPressure { 0.0 };
+        double SaturationVolume { 0.0 };
         double Enthalpy { 0.0 };
         double Entropy { 0.0 };
         double InternalEnergy { 0.0 };
@@ -140,7 +141,8 @@ namespace PCProps
                       << "Pressure                      : " << std::right << std::setw(20) << properties.Pressure << " Pa" << std::endl
                       << "Compressibility               : " << std::right << std::setw(20) << properties.Compressibility << " -" << std::endl
                       << "Fugacity Coefficient          : " << std::right << std::setw(20) << properties.FugacityCoefficient << " -" << std::endl
-                      << "Vapor Pressure                : " << std::right << std::setw(20) << properties.VaporPressure << " Pa" << std::endl
+                      << "Saturation Pressure           : " << std::right << std::setw(20) << properties.SaturationPressure << " Pa" << std::endl
+                      << "Saturation Volume             : " << std::right << std::setw(20) << properties.SaturationVolume << " m3/mol" << std::endl
                       << "Enthalpy                      : " << std::right << std::setw(20) << properties.Enthalpy << " J/mol" << std::endl
                       << "Entropy                       : " << std::right << std::setw(20) << properties.Entropy << " J/mol-K" << std::endl
                       << "Internal Energy               : " << std::right << std::setw(20) << properties.InternalEnergy << " J/mol" << std::endl

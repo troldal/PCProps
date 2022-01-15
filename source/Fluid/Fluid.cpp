@@ -59,6 +59,51 @@ namespace PCProps
 
         /**
          * @brief
+         * @param liquid
+         * @return
+         */
+        PhaseProperties& computeLiquidProperties(PhaseProperties& liquid) const
+        {
+            // ===== Compute the compressed molar volume.
+            liquid.MolarVolume = m_pureComponent.correlation("CompressedLiquidVolume", { liquid.Temperature, liquid.Pressure, liquid.SaturationPressure, liquid.SaturationVolume });
+
+            // ===== Compute the surface tension.
+            liquid.SurfaceTension = 0.0;
+
+            // ===== Compute the thermal conductivity (low pressure)
+            liquid.ThermalConductivity = m_pureComponent.correlation("LiquidThermalConductivity", liquid.Temperature);
+
+            // ===== Compute the compressed liquid viscosity
+            liquid.Viscosity = m_pureComponent.correlation(
+                "CompressedLiquidViscosity",
+                { liquid.Temperature, liquid.Pressure, liquid.SaturationPressure, m_pureComponent.correlation("SaturatedLiquidViscosity", liquid.Temperature) });
+
+            return liquid;
+        }
+
+        /**
+         * @brief Compute the vapor properties for a phase.
+         * @param vapor The (vapor) phase for which to compute properties.
+         * @return The input phase updated with vapor properties.
+         */
+        PhaseProperties& computeVaporProperties(PhaseProperties& vapor) const
+        {
+            // ===== Compute the surface tension (not applicable for vapors; set to zero)
+            vapor.SurfaceTension      = 0.0;
+
+            // ===== Compute the thermal conductivity (low pressure)
+            vapor.ThermalConductivity = m_pureComponent.correlation("VaporThermalConductivity", vapor.Temperature);
+
+            // ===== Compute the compressed liquid viscosity
+            vapor.Viscosity = m_pureComponent.correlation(
+                "CompressedVaporViscosity",
+                { vapor.Temperature, vapor.Pressure, vapor.SaturationPressure, m_pureComponent.correlation("SaturatedVaporViscosity", vapor.Temperature) });
+
+            return vapor;
+        }
+
+        /**
+         * @brief
          * @param phases
          * @return
          */
@@ -81,6 +126,10 @@ namespace PCProps
                 phase.JouleThomsonCoefficient     = -1.0 / (phase.Cp) * (phase.Temperature * phase.DPDT / phase.DPDV + phase.MolarVolume);
                 phase.IsothermalCompressibility   = (-1.0 / phase.MolarVolume) * phase.DVDP;
                 phase.SpeedOfSound                = (phase.MolarVolume / (phase.MolarWeight * (-1.0 / phase.MolarVolume) * (phase.Cv / phase.Cp) / phase.DPDV));    // TODO: This calculation does not seem to yield correct results!
+
+                if (phase.Type == PhaseType::Liquid) computeLiquidProperties(phase);
+                if (phase.Type == PhaseType::Vapor) computeVaporProperties(phase);
+
             }
             return phases;
         }

@@ -342,7 +342,7 @@ namespace PCProps::EquationOfState
             : m_criticalTemperature(constants("CriticalTemperature")),
               m_criticalPressure(constants("CriticalPressure")),
               m_acentricFactor(constants("AcentricFactor")),
-              m_vaporPressure([=](double t) -> double { return correlations("VaporPressure", t); }),
+              m_vaporPressure([=](double t) -> double { return correlations("SaturationPressure", t); }),
               m_ac(0.45723553 * pow(PCProps::Globals::R_CONST, 2) * pow(m_criticalTemperature, 2) / m_criticalPressure),
               m_b(0.07779607 * PCProps::Globals::R_CONST * m_criticalTemperature / m_criticalPressure),
               m_kappa(
@@ -552,6 +552,7 @@ namespace PCProps::EquationOfState
 
             std::vector<PhaseProperties> results;
             auto compressibilities = computeCompressibilityFactors(temperature, pressure);
+            auto satCompressibilities = computeCompressibilityFactors(temperature, computeSaturationPressure(temperature));
             for (decltype(compressibilities.size()) index = 0; index < compressibilities.size(); ++index) {
                 PhaseProperties data;
 
@@ -568,7 +569,8 @@ namespace PCProps::EquationOfState
                 data.Temperature             = temperature;
                 data.Compressibility         = compressibilities[index];
                 data.MolarVolume             = data.Compressibility * R_CONST * temperature / pressure;
-                data.VaporPressure           = computeSaturationPressure(temperature);
+                data.SaturationPressure      = computeSaturationPressure(temperature);
+                data.SaturationVolume        = (data.Type == PhaseType::Liquid ? satCompressibilities.front() : satCompressibilities.back()) * R_CONST * temperature / data.SaturationPressure;
                 data.FugacityCoefficient     = computeFugacityCoefficient(temperature, pressure, data.Compressibility);
                 data.CpDeparture             = computeCpDeparture(temperature, pressure, data.Compressibility);
                 data.CvDeparture             = computeCvDeparture(temperature, pressure, data.Compressibility);
@@ -583,6 +585,8 @@ namespace PCProps::EquationOfState
                 data.DVDT                    = calcDVDT(temperature, data.MolarVolume);
                 data.DTDV                    = 1.0 / data.DVDT;
                 data.DTDP                    = 1.0 / data.DPDT;
+
+
 
                 results.emplace_back(data);
             }

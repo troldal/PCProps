@@ -330,6 +330,13 @@ int main()
     d.print(std::cout);
     std::cout << "========================================================================================" << std::endl;
 
+
+
+//    auto e = FluidProperties(fluid.flash("Px", (3949968.13245), (0.5)));
+//    //    std::cout << c << std::endl;
+//    e.print(std::cout);
+//    std::cout << "========================================================================================" << std::endl;
+
     //    auto a = FluidProperties(fluid.flash("Tx", 248.0, 0.5));
 //    auto p = a.phases().front().Pressure;
 //    auto b = FluidProperties(fluid.flash("PT", p-1, 248.0));
