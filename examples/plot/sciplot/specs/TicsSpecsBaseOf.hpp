@@ -35,7 +35,7 @@
 namespace sciplot
 {
 
-/// The class used to attach common tic options to a type that also specifies tic options.
+/// The class used to attach Common tic options to a type that also specifies tic options.
 template <typename DerivedSpecs>
 class TicsSpecsBaseOf : public TextSpecsOf<DerivedSpecs>, public OffsetSpecsOf<DerivedSpecs>, public ShowSpecsOf<DerivedSpecs>
 {

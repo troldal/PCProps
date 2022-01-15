@@ -76,7 +76,7 @@ namespace OpenXLSX
 
     /**
      * @brief The XLSheetBase class is the base class for the XLWorksheet and XLChartsheet classes. However,
-     * it is not a base class in the traditional sense. Rather, it provides common functionality that is
+     * it is not a base class in the traditional sense. Rather, it provides Common functionality that is
      * inherited via the CRTP (Curiously Recurring Template Pattern) pattern.
      * @tparam T Type that will inherit functionality. Restricted to types XLWorksheet and XLChartsheet.
      */
@@ -569,7 +569,7 @@ namespace OpenXLSX
 
     /**
      * @brief The XLAbstractSheet is a generalized sheet class, which functions as superclass for specialized classes,
-     * such as XLWorksheet. It implements functionality common to all sheet types. This is a pure abstract class,
+     * such as XLWorksheet. It implements functionality Common to all sheet types. This is a pure abstract class,
      * so it cannot be instantiated.
      */
     class OPENXLSX_EXPORT XLSheet final : public XLXmlFile

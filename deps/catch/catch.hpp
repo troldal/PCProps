@@ -5223,7 +5223,7 @@ namespace Catch {
         void addFilter();
         bool separate();
 
-        // Handles common preprocessing of the pattern for name/tag patterns
+        // Handles Common preprocessing of the pattern for name/tag patterns
         std::string preprocessPattern();
         // Adds the current pattern as a test name
         void addNamePattern();

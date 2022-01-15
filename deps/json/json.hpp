@@ -17363,7 +17363,7 @@ class basic_json
     decomposable into bytes.
 
     The default representation of this binary format is a
-    `std::vector<std::uint8_t>`, which is a very common way to represent a byte
+    `std::vector<std::uint8_t>`, which is a very Common way to represent a byte
     array in modern C++.
 
     #### Default type
@@ -24981,7 +24981,7 @@ class basic_json
         {
             case value_t::array:
             {
-                // first pass: traverse common elements
+                // first pass: traverse Common elements
                 std::size_t i = 0;
                 while (i < source.size() && i < target.size())
                 {

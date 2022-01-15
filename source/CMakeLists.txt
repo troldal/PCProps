@@ -59,7 +59,7 @@ list(APPEND RELEASE_FLAGS_MSVC
 #   ---
 #=======================================================================================================================
 
-add_subdirectory(common)
+add_subdirectory(Common)
 add_subdirectory(Interfaces)
 add_subdirectory(Properties)
 add_subdirectory(EquationOfState)

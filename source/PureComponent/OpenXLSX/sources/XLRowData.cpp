@@ -369,7 +369,7 @@ namespace OpenXLSX
     /**
      * @details Assignment operator taking a std::vector of XLCellValue objects as an argument. Other container types
      * and/or value types will be handled by the templated operator=. However, because assigning a std::vector of
-     * XLCellValue object is the most common case, this case is handled separately fo higher performance.
+     * XLCellValue object is the most Common case, this case is handled separately fo higher performance.
      * @pre
      * @post
      */

@@ -8037,7 +8037,7 @@ struct equal_to
 	{
 	    assert(ln->parent == rn->parent);
 
-	    // there is no common ancestor (the shared parent is null), nodes are from different documents
+	    // there is no Common ancestor (the shared parent is null), nodes are from different documents
 	    if (!ln->parent) return ln < rn;
 
 	    // determine sibling order
@@ -8059,7 +8059,7 @@ struct equal_to
 
 	PUGI__FN bool node_is_before(xml_node_struct* ln, xml_node_struct* rn)
 	{
-	    // find common ancestor at the same depth, if any
+	    // find Common ancestor at the same depth, if any
 	    xml_node_struct* lp = ln;
 	    xml_node_struct* rp = rn;
 
@@ -8090,7 +8090,7 @@ struct equal_to
 	    // one node is the ancestor of the other
 	    if (ln == rn) return left_higher;
 
-	    // find common ancestor... again
+	    // find Common ancestor... again
 	    while (ln->parent != rn->parent)
 	    {
 	        ln = ln->parent;

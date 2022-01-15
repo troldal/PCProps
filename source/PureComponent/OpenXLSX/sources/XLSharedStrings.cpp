@@ -54,7 +54,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 using namespace OpenXLSX;
 
 /**
- * @details Constructs a new XLSharedStrings object. Only one (common) object is allowed per XLDocument instance.
+ * @details Constructs a new XLSharedStrings object. Only one (Common) object is allowed per XLDocument instance.
  * A filepath to the underlying XML file must be provided.
  */
 XLSharedStrings::XLSharedStrings(XLXmlData* xmlData, std::deque<std::string> *stringCache) : XLXmlFile(xmlData), m_stringCache(stringCache)
