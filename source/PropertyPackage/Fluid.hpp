@@ -47,7 +47,7 @@ namespace PCProps
 {
 
     /**
-     * @brief The Fluid class encapsulates the concept of a fluid (liquid and/or gas). It consists of a object
+     * @brief The PropertyPackage class encapsulates the concept of a fluid (liquid and/or gas). It consists of a object
      * representing a pure component (Note: in the future it may be multiple components) and optionally an object
      * representing an equation of state. Equation of state can be of any type (cubic, Excess-G, high-procision, custom)
      * as long as it supports the required interface.

@@ -314,7 +314,7 @@ namespace PCProps
         {
             using std::pow;
 
-            // ===== Fluid is supercritical
+            // ===== PropertyPackage is supercritical
             if (temperature >= m_pureComponent.property("CriticalTemperature")) {
                 auto phase = FluidProperties(m_equationOfState.computePropertiesTV(temperature, molarVolume)).stablePhase().front();
                 return flashPT(phase.Pressure, temperature);
@@ -322,13 +322,13 @@ namespace PCProps
 
             auto phaseProps = flashTx(temperature, 0.5);
 
-            // ===== Fluid is a compressed liquid or super-heated vapor
+            // ===== PropertyPackage is a compressed liquid or super-heated vapor
             if (molarVolume < phaseProps.front().MolarVolume || molarVolume > phaseProps.back().MolarVolume) {
                 auto phase = FluidProperties(m_equationOfState.computePropertiesTV(temperature, molarVolume)).stablePhase().front();
                 return flashPT(phase.Pressure, temperature);
             }
 
-            // ===== Fluid is multiphase
+            // ===== PropertyPackage is multiphase
             auto vaporFraction = (molarVolume - phaseProps.front().MolarVolume) / (phaseProps.back().MolarVolume - phaseProps.front().MolarVolume);
             return flashTx(temperature, vaporFraction);
         }

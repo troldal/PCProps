@@ -29,7 +29,7 @@ namespace PCProps
 
         /**
          * @brief Constructor taking a JSON string as an argument.
-         * @param JSONData Fluid property data, encoded as a JSON string.
+         * @param JSONData PropertyPackage property data, encoded as a JSON string.
          */
         explicit FluidProperties(const JSONString& JSONData);
 
