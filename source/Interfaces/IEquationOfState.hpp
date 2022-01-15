@@ -139,14 +139,35 @@ namespace PCProps
 
         /**
          * @brief
-         * @param specification
-         * @param var1
-         * @param var2
+         * @param pressure
+         * @param temperature
          * @return
          */
-        inline JSONString flash(const std::string& specification, double var1, double var2) const
+        inline JSONString computePropertiesPT(double pressure, double temperature) const
         {
-            return m_equationOfState->flash(specification, var1, var2);
+            return m_equationOfState->computePropertiesPT(pressure, temperature);
+        }
+
+        /**
+         * @brief
+         * @param temperature
+         * @param molarVolume
+         * @return
+         */
+        inline JSONString computePropertiesTV(double temperature, double molarVolume) const
+        {
+            return m_equationOfState->computePropertiesTV(temperature, molarVolume);
+        }
+
+        /**
+         * @brief
+         * @param temperature
+         * @param molarVolume
+         * @return
+         */
+        inline JSONString computePropertiesPV(double pressure, double molarVolume) const
+        {
+            return m_equationOfState->computePropertiesPV(pressure, molarVolume);
         }
 
         /**
@@ -216,12 +237,27 @@ namespace PCProps
 
             /**
              * @brief
-             * @param specification
-             * @param var1
-             * @param var2
+             * @param pressure
+             * @param temperature
              * @return
              */
-            inline virtual JSONString flash(const std::string& specification, double var1, double var2) const = 0;
+            inline virtual JSONString computePropertiesPT(double pressure, double temperature) const = 0;
+
+            /**
+             * @brief
+             * @param temperature
+             * @param molarVolume
+             * @return
+             */
+            inline virtual JSONString computePropertiesTV(double temperature, double molarVolume) const = 0;
+
+            /**
+             * @brief
+             * @param temperature
+             * @param molarVolume
+             * @return
+             */
+            inline virtual JSONString computePropertiesPV(double pressure, double molarVolume) const = 0;
 
             /**
              * @brief
@@ -301,14 +337,35 @@ namespace PCProps
 
             /**
              * @brief
-             * @param specification
-             * @param var1
-             * @param var2
+             * @param pressure
+             * @param temperature
              * @return
              */
-            inline JSONString flash(const std::string& specification, double var1, double var2) const override
+            inline JSONString computePropertiesPT(double pressure, double temperature) const override
             {
-                return EOSType.flash(specification, var1, var2);
+                return EOSType.computePropertiesPT(pressure, temperature);
+            }
+
+            /**
+             * @brief
+             * @param temperature
+             * @param molarVolume
+             * @return
+             */
+            inline JSONString computePropertiesTV(double temperature, double molarVolume) const override
+            {
+                return EOSType.computePropertiesTV(temperature, molarVolume);
+            }
+
+            /**
+             * @brief
+             * @param temperature
+             * @param molarVolume
+             * @return
+             */
+            inline JSONString computePropertiesPV(double pressure, double molarVolume) const override
+            {
+                return EOSType.computePropertiesPV(pressure, molarVolume);
             }
 
             /**
@@ -318,7 +375,7 @@ namespace PCProps
              */
             inline double saturationPressure(double temperature) const override
             {
-                return EOSType.saturationPressure(temperature);
+                return EOSType.computePSat(temperature);
             }
 
             /**
@@ -328,7 +385,7 @@ namespace PCProps
              */
             inline double saturationTemperature(double pressure) const override
             {
-                return EOSType.saturationTemperature(pressure);
+                return EOSType.computeTSat(pressure);
             }
 
             /**

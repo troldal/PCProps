@@ -116,6 +116,6 @@ namespace PCProps::VaporPressure
             return exp(f0 + m_acentricFactor * f1 + pow(m_acentricFactor, 2) * f2) * m_criticalPressure;
         }
     };
-} // namespace PCProps::VaporPressure
+} // namespace PCProps::SaturationPressure
 
 #endif    // PCPROPS_AMBROSEWALTON_HPP

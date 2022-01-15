@@ -130,7 +130,7 @@ namespace PCProps::CompressedVaporViscosity
 
             double Fp_ig = [&]() {
                    if (mu_r >= 0.0 && mu_r <= 0.022) return 1.0;
-                   if (mu_r > 0.22 && mu_r <= 0.075) return 1.0 + 30.55 * pow(0.292 - m_criticalCompressibility, 1.72);
+                   if (mu_r > 0.022 && mu_r <= 0.075) return 1.0 + 30.55 * pow(0.292 - m_criticalCompressibility, 1.72);
                    if (mu_r > 0.075) return 1.0 + (30.55 * pow(0.292 - m_criticalCompressibility, 1.72) * abs(0.96 + 0.1 * (tr - 0.7)));
                    throw std::invalid_argument("Invalid dipole moment value.");
             }();

@@ -105,27 +105,13 @@ namespace PCProps::EquationOfState
                  [&](const std::string& ID, double t)->double {return pureComponent.correlation(ID, t);});
         }
 
-
-        // =====================================================================
-        // FLASH ALGORITHMS
-        // =====================================================================
-
-        /**
-         * @brief
-         * @param specification
-         * @param var1
-         * @param var2
-         * @return
-         */
-        JSONString flash(const std::string& specification, double var1, double var2) const;
-
         /**
          * @brief Calculate the saturation pressure at the given temperature.
          * @param temperature The temperature [K]
          * @return The saturation pressure [Pa]
          * @warning Returns NaN if the temperature is higher than the critical temperature.
          */
-        double saturationPressure(double temperature) const;
+        double computePSat(double temperature) const;
 
         /**
          * @brief Calculate the saturation temperature at the given pressure.
@@ -133,7 +119,31 @@ namespace PCProps::EquationOfState
          * @return The saturation temperature [K]
          * @warning Returns NaN if pressure is higher than the critical pressure.
          */
-        double saturationTemperature(double pressure) const;
+        double computeTSat(double pressure) const;
+
+        /**
+         * @brief
+         * @param pressure
+         * @param temperature
+         * @return
+         */
+        JSONString computePropertiesPT(double pressure, double temperature) const;
+
+        /**
+         * @brief
+         * @param temperature
+         * @param molarVolume
+         * @return
+         */
+        JSONString computePropertiesTV(double temperature, double molarVolume) const;
+
+        /**
+         * @brief
+         * @param temperature
+         * @param molarVolume
+         * @return
+         */
+        JSONString computePropertiesPV(double temperature, double molarVolume) const;
 
     private:
 
@@ -147,5 +157,5 @@ namespace PCProps::EquationOfState
         std::unique_ptr<impl> m_impl;
     };
 
-}    // namespace PCProps::PropertyPackage
+}    // namespace PCProps::EquationOfState
 #endif    // PCPROPS_PENGROBINSON_HPP

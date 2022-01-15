@@ -147,7 +147,7 @@ namespace PCProps {
                 std::vector<XLCellValue> values = row.values();
                 auto& object = *std::find_if(objects.begin(), objects.end(), [&](const json& obj){return obj["CAS"].get<std::string>() == values[2].get<std::string>();} );
                 if (object == *objects.end()) continue;
-                object["VaporPressure"] = extractCorrelationData(values);
+                object["SaturationPressure"] = extractCorrelationData(values);
             }
 
             // ===== Load saturated vapor viscosity correlation coefficients

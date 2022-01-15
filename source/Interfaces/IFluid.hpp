@@ -6,6 +6,7 @@
 #define PCPROPS_IFLUID_HPP
 
 #include <iostream>
+#include <memory>
 #include <string>
 
 namespace PCProps::UnitOps

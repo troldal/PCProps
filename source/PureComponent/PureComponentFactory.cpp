@@ -73,12 +73,12 @@ namespace
      */
     std::function<double(double)> createVaporPressureFunction(const json& obj)
     {
-        if (obj["VaporPressure"]["Equation"] == "DIPPR-101")
-            return PCProps::VaporPressure::AntoineExtended(PCProps::VaporPressure::AntoineExtended::CreateFromDIPPR { obj["VaporPressure"]["C1"].get<double>(),
-                                                                                                                      obj["VaporPressure"]["C2"].get<double>(),
-                                                                                                                      obj["VaporPressure"]["C3"].get<double>(),
-                                                                                                                      obj["VaporPressure"]["C4"].get<double>(),
-                                                                                                                      obj["VaporPressure"]["C5"].get<double>() });
+        if (obj["SaturationPressure"]["Equation"] == "DIPPR-101")
+            return PCProps::VaporPressure::AntoineExtended(PCProps::VaporPressure::AntoineExtended::CreateFromDIPPR { obj["SaturationPressure"]["C1"].get<double>(),
+                                                                                                                      obj["SaturationPressure"]["C2"].get<double>(),
+                                                                                                                      obj["SaturationPressure"]["C3"].get<double>(),
+                                                                                                                      obj["SaturationPressure"]["C4"].get<double>(),
+                                                                                                                      obj["SaturationPressure"]["C5"].get<double>() });
     }
 
     /**
@@ -130,6 +130,27 @@ namespace
                                                                                                     obj["SaturatedLiquidVolume"]["C3"].get<double>(),
                                                                                                     obj["SaturatedLiquidVolume"]["C4"].get<double>(), });
     }
+
+    std::function<double(double)> createVaporThermalConductivityFunction(const json& obj)
+    {
+        if (obj["VaporThermalConductivity"]["Equation"] == "DIPPR-102")
+            return PCProps::HeatConductivity::DIPPR102({ obj["VaporThermalConductivity"]["C1"].get<double>(),
+                                                  obj["VaporThermalConductivity"]["C2"].get<double>(),
+                                                  obj["VaporThermalConductivity"]["C3"].get<double>(),
+                                                  obj["VaporThermalConductivity"]["C4"].get<double>() });
+
+    }
+
+    std::function<double(double)> createLiquidThermalConductivityFunction(const json& obj)
+    {
+        if (obj["LiquidThermalConductivity"]["Equation"] == "DIPPR-100")
+            return PCProps::HeatConductivity::Polynomial(PCProps::HeatConductivity::Polynomial::CreateFromDIPPR { obj["LiquidThermalConductivity"]["C1"].get<double>(),
+                                                                                                          obj["LiquidThermalConductivity"]["C2"].get<double>(),
+                                                                                                          obj["LiquidThermalConductivity"]["C3"].get<double>(),
+                                                                                                          obj["LiquidThermalConductivity"]["C4"].get<double>(),
+                                                                                                          obj["LiquidThermalConductivity"]["C5"].get<double>() });
+    }
+
 
 }    // namespace
 
@@ -210,10 +231,13 @@ namespace PCProps
 
             result.addDataItem("IdealGasCp", createIdealGasCpFunction(component));
             result.addDataItem("LiquidCp", createLiquidCpFunction(component));
-            result.addDataItem("VaporPressure", createVaporPressureFunction(component));
+            result.addDataItem("SaturationPressure", createVaporPressureFunction(component));
             result.addDataItem("SaturatedVaporViscosity", createVaporViscosityFunction(component));
             result.addDataItem("SaturatedLiquidViscosity", createLiquidViscosityFunction(component));
             result.addDataItem("SaturatedLiquidVolume", createLiquidVolumeFunction(component));
+            result.addDataItem("VaporThermalConductivity", createVaporThermalConductivityFunction(component));
+            result.addDataItem("LiquidThermalConductivity", createLiquidThermalConductivityFunction(component));
+
 
             result.addDataItem("CompressedLiquidVolume", LiquidVolume::Thomson(result));
             result.addDataItem("CompressedLiquidViscosity", CompressedLiquidViscosity::Lucas(result));

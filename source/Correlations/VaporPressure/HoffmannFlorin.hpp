@@ -48,7 +48,7 @@ namespace PCProps::VaporPressure::detail
         using std::log10;
         return (1.0 / temperature) - 7.9151E-3 + 2.6726E-3 * log10(temperature) - 0.8625E-6 * temperature;
     }
-}    // namespace PCProps::VaporPressure::detail
+}    // namespace PCProps::SaturationPressure::detail
 
 namespace PCProps::VaporPressure
 {
@@ -130,5 +130,5 @@ namespace PCProps::VaporPressure
         }
     };
 
-}    // namespace PCProps::VaporPressure
+}    // namespace PCProps::SaturationPressure
 #endif    // PCPROPS_HOFFMANNFLORIN_HPP

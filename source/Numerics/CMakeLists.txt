@@ -10,7 +10,7 @@ set(EOSLIB_SOURCES
 # SHARED LIBRARY
 #   Define the shared library
 #=======================================================================================================================
-set(PCPROPS_USE_GSL OFF)
+set(PCPROPS_USE_GSL ON)
 
 add_library(numerics STATIC "")
 target_sources(numerics PRIVATE ${EOSLIB_SOURCES})
