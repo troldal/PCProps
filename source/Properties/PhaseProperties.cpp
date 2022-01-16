@@ -10,100 +10,108 @@ namespace PCProps
 {
 
     /**
-     * @brief Default constructor.
+     * @details
      */
     PhaseProperties::PhaseProperties() = default;
 
     /**
-     * @brief Constructor.
+     * @details
      */
     PhaseProperties::PhaseProperties(const std::string& JSONData)
     {
         auto data = nlohmann::json::parse(JSONData);
 
+        // ===== Embedded lambda function for converting phase type string to enum type.
         auto AsType = [&](const std::string& type) {
             if (type == "VAPOR") return PhaseType::Vapor;
             if (type == "LIQUID") return PhaseType::Liquid;
             return PhaseType::Undefined;
         };
 
-        Type = data["Type"].is_null() ? PhaseType::Undefined : AsType(data["Type"].get<std::string>());
-        Name = data["Name"].is_null() ? "" : data["Name"].get<std::string>();
-        CAS  = data["CAS"].is_null() ? "" : data["CAS"].get<std::string>();
+        for (auto item = data.begin(); item != data.end(); ++item) {
 
-        NormalFreezingPoint = data["NormalFreezingPoint"].is_null() ? std::nan("") : data["NormalFreezingPoint"].get<double>();
-        NormalBoilingPoint  = data["NormalBoilingPoint"].is_null() ? std::nan("") : data["NormalBoilingPoint"].get<double>();
-        CriticalTemperature = data["CriticalTemperature"].is_null() ? std::nan("") : data["CriticalTemperature"].get<double>();
-        CriticalPressure    = data["CriticalPressure"].is_null() ? std::nan("") : data["CriticalPressure"].get<double>();
+            auto key = item.key();
 
-        Pressure                    = data["Pressure"].is_null() ? std::nan("") : data["Pressure"].get<double>();
-        Temperature                 = data["Temperature"].is_null() ? std::nan("") : data["Temperature"].get<double>();
-        MolarVolume                 = data["MolarVolume"].is_null() ? std::nan("") : data["MolarVolume"].get<double>();
-        MolarWeight                 = data["MolarWeight"].is_null() ? std::nan("") : data["MolarWeight"].get<double>();
-        MolarFlow                   = data["MolarFlow"].is_null() ? std::nan("") : data["MolarFlow"].get<double>();
-        Compressibility             = data["Compressibility"].is_null() ? std::nan("") : data["Compressibility"].get<double>();
-        FugacityCoefficient         = data["FugacityCoefficient"].is_null() ? std::nan("") : data["FugacityCoefficient"].get<double>();
-        Viscosity                   = data["Viscosity"].is_null() ? std::nan("") : data["Viscosity"].get<double>();
-        SurfaceTension              = data["SurfaceTension"].is_null() ? std::nan("") : data["SurfaceTension"].get<double>();
-        ThermalConductivity         = data["ThermalConductivity"].is_null() ? std::nan("") : data["ThermalConductivity"].get<double>();
-        CpDeparture                 = data["CpDeparture"].is_null() ? std::nan("") : data["CpDeparture"].get<double>();
-        CvDeparture                 = data["CvDeparture"].is_null() ? std::nan("") : data["CvDeparture"].get<double>();
-        EnthalpyDeparture           = data["EnthalpyDeparture"].is_null() ? std::nan("") : data["EnthalpyDeparture"].get<double>();
-        EntropyDeparture            = data["EntropyDeparture"].is_null() ? std::nan("") : data["EntropyDeparture"].get<double>();
-        InternalEnergyDeparture     = data["InternalEnergyDeparture"].is_null() ? std::nan("") : data["InternalEnergyDeparture"].get<double>();
-        GibbsEnergyDeparture        = data["GibbsEnergyDeparture"].is_null() ? std::nan("") : data["GibbsEnergyDeparture"].get<double>();
-        HelmholzEnergyDeparture     = data["HelmholzEnergyDeparture"].is_null() ? std::nan("") : data["HelmholzEnergyDeparture"].get<double>();
-        DPDV                        = data["DPDV"].is_null() ? std::nan("") : data["DPDV"].get<double>();
-        DPDT                        = data["DPDT"].is_null() ? std::nan("") : data["DPDT"].get<double>();
-        DVDP                        = data["DVDP"].is_null() ? std::nan("") : data["DVDP"].get<double>();
-        DVDT                        = data["DVDT"].is_null() ? std::nan("") : data["DVDT"].get<double>();
-        DTDV                        = data["DTDV"].is_null() ? std::nan("") : data["DTDV"].get<double>();
-        DTDP                        = data["DTDP"].is_null() ? std::nan("") : data["DTDP"].get<double>();
-        Cp                          = data["Cp"].is_null() ? std::nan("") : data["Cp"].get<double>();
-        Cv                          = data["Cv"].is_null() ? std::nan("") : data["Cv"].get<double>();
-        IsothermalCompressibility   = data["IsothermalCompressibility"].is_null() ? std::nan("") : data["IsothermalCompressibility"].get<double>();
-        ThermalExpansionCoefficient = data["ThermalExpansionCoefficient"].is_null() ? std::nan("") : data["ThermalExpansionCoefficient"].get<double>();
-        JouleThomsonCoefficient     = data["JouleThomsonCoefficient"].is_null() ? std::nan("") : data["JouleThomsonCoefficient"].get<double>();
-        SpeedOfSound                = data["SpeedOfSound"].is_null() ? std::nan("") : data["SpeedOfSound"].get<double>();
-        SaturationPressure          = data["SaturationPressure"].is_null() ? std::nan("") : data["SaturationPressure"].get<double>();
-        SaturationVolume            = data["SaturationVolume"].is_null() ? std::nan("") : data["SaturationVolume"].get<double>();
-        Enthalpy                    = data["Enthalpy"].is_null() ? std::nan("") : data["Enthalpy"].get<double>();
-        Entropy                     = data["Entropy"].is_null() ? std::nan("") : data["Entropy"].get<double>();
-        InternalEnergy              = data["InternalEnergy"].is_null() ? std::nan("") : data["InternalEnergy"].get<double>();
-        GibbsEnergy                 = data["GibbsEnergy"].is_null() ? std::nan("") : data["GibbsEnergy"].get<double>();
-        HelmholzEnergy              = data["HelmholzEnergy"].is_null() ? std::nan("") : data["HelmholzEnergy"].get<double>();
+            if (key == "Type") Type = AsType(item.value());
+            else if (key == "Name") Name = item.value();
+            else if (key == "CAS") CAS = item.value();
+
+            else if (key == "NormalFreezingPoint") NormalFreezingPoint = item.value();
+            else if (key == "NormalBoilingPoint") NormalBoilingPoint = item.value();
+            else if (key == "CriticalTemperature") CriticalTemperature = item.value();
+            else if (key == "CriticalPressure") CriticalPressure = item.value();
+
+            else if (key == "Pressure") Pressure = item.value();
+            else if (key == "Temperature") Temperature = item.value();
+            else if (key == "MolarVolume") MolarVolume = item.value();
+            else if (key == "MolarWeight") MolarWeight = item.value();
+            else if (key == "MolarFlow") MolarFlow = item.value();
+            else if (key == "Compressibility") Compressibility = item.value();
+            else if (key == "FugacityCoefficient") FugacityCoefficient = item.value();
+            else if (key == "Viscosity") Viscosity = item.value();
+            else if (key == "SurfaceTension") SurfaceTension = item.value();
+            else if (key == "ThermalConductivity") ThermalConductivity = item.value();
+            else if (key == "CpDeparture") CpDeparture = item.value();
+            else if (key == "CvDeparture") CvDeparture = item.value();
+            else if (key == "EnthalpyDeparture") EnthalpyDeparture = item.value();
+            else if (key == "EntropyDeparture") EntropyDeparture = item.value();
+            else if (key == "InternalEnergyDeparture") InternalEnergyDeparture = item.value();
+            else if (key == "GibbsEnergyDeparture") GibbsEnergyDeparture = item.value();
+            else if (key == "HelmholzEnergyDeparture") HelmholzEnergyDeparture = item.value();
+
+            else if (key == "DPDV") DPDV = item.value();
+            else if (key == "DPDT") DPDT = item.value();
+            else if (key == "DVDP") DVDP = item.value();
+            else if (key == "DVDT") DVDT = item.value();
+            else if (key == "DTDV") DTDV = item.value();
+            else if (key == "DTDV") DTDV = item.value();
+            else if (key == "DTDP") DTDP = item.value();
+
+            else if (key == "Cp") Cp = item.value();
+            else if (key == "Cv") Cv = item.value();
+            else if (key == "IsothermalCompressibility") IsothermalCompressibility = item.value();
+            else if (key == "ThermalExpansionCoefficient") ThermalExpansionCoefficient = item.value();
+            else if (key == "JouleThomsonCoefficient") JouleThomsonCoefficient = item.value();
+            else if (key == "SpeedOfSound") SpeedOfSound = item.value();
+            else if (key == "SaturationPressure") SaturationPressure = item.value();
+            else if (key == "SaturationVolume") SaturationVolume = item.value();
+            else if (key == "Enthalpy") Enthalpy = item.value();
+            else if (key == "Entropy") Entropy = item.value();
+            else if (key == "InternalEnergy") InternalEnergy = item.value();
+            else if (key == "GibbsEnergy") GibbsEnergy = item.value();
+            else if (key == "HelmholzEnergy") HelmholzEnergy = item.value();
+        }
     }
 
     /**
-     * @brief Copy constructor.
+     * @details
      */
     PhaseProperties::PhaseProperties(const PhaseProperties& other) = default;
 
     /**
-     * @brief Move constructor.
+     * @details
      */
     PhaseProperties::PhaseProperties(PhaseProperties&& other) noexcept = default;
 
     /**
-     * @brief Destructor.
+     * @details
      */
     PhaseProperties::~PhaseProperties() = default;
 
     /**
-     * @brief Copy assignment operator.
+     * @details
      */
     PhaseProperties& PhaseProperties::operator=(const PhaseProperties& other) = default;
 
     /**
-     * @brief Move assignment operator.
+     * @details
      */
     PhaseProperties& PhaseProperties::operator=(PhaseProperties&& other) noexcept = default;
 
     /**
-     *
+     * @details
      */
     PhaseProperties::JSONString PhaseProperties::asJSON() const
-
     {
         nlohmann::json data;
 
@@ -113,49 +121,49 @@ namespace PCProps
             return "UNDEFINED";
         };
 
-        data["Type"]                        = TypeAsString(Type);
-        data["Name"]                        = Name;
-        data["CAS"]                         = CAS;
-        data["NormalFreezingPoint"]         = NormalFreezingPoint;
-        data["NormalBoilingPoint"]          = NormalBoilingPoint;
-        data["CriticalTemperature"]         = CriticalTemperature;
-        data["CriticalPressure"]            = CriticalPressure;
-        data["Pressure"]                    = Pressure;
-        data["Temperature"]                 = Temperature;
-        data["MolarVolume"]                 = MolarVolume;
-        data["MolarWeight"]                 = MolarWeight;
-        data["MolarFlow"]                   = MolarFlow;
-        data["Compressibility"]             = Compressibility;
-        data["FugacityCoefficient"]         = FugacityCoefficient;
-        data["Viscosity"]                   = Viscosity;
-        data["SurfaceTension"]              = SurfaceTension;
-        data["ThermalConductivity"]         = ThermalConductivity;
-        data["CpDeparture"]                 = CpDeparture;
-        data["CvDeparture"]                 = CvDeparture;
-        data["EnthalpyDeparture"]           = EnthalpyDeparture;
-        data["EntropyDeparture"]            = EntropyDeparture;
-        data["InternalEnergyDeparture"]     = InternalEnergyDeparture;
-        data["GibbsEnergyDeparture"]        = GibbsEnergyDeparture;
-        data["HelmholzEnergyDeparture"]     = HelmholzEnergyDeparture;
-        data["DPDV"]                        = DPDV;
-        data["DPDT"]                        = DPDT;
-        data["DVDP"]                        = DVDP;
-        data["DVDT"]                        = DVDT;
-        data["DTDV"]                        = DTDV;
-        data["DTDP"]                        = DTDP;
-        data["Cp"]                          = Cp;
-        data["Cv"]                          = Cv;
-        data["IsothermalCompressibility"]   = IsothermalCompressibility;
-        data["ThermalExpansionCoefficient"] = ThermalExpansionCoefficient;
-        data["JouleThomsonCoefficient"]     = JouleThomsonCoefficient;
-        data["SpeedOfSound"]                = SpeedOfSound;
-        data["SaturationPressure"]          = SaturationPressure;
-        data["SaturationVolume"]            = SaturationVolume;
-        data["Enthalpy"]                    = Enthalpy;
-        data["Entropy"]                     = Entropy;
-        data["InternalEnergy"]              = InternalEnergy;
-        data["GibbsEnergy"]                 = GibbsEnergy;
-        data["HelmholzEnergy"]              = HelmholzEnergy;
+        data["Type"] = TypeAsString(Type);
+        if (!Name.empty()) data["Name"] = Name;
+        if (!CAS.empty()) data["CAS"] = CAS;
+        if (NormalFreezingPoint != 0.0) data["NormalFreezingPoint"] = NormalFreezingPoint;
+        if (NormalBoilingPoint != 0.0) data["NormalBoilingPoint"] = NormalBoilingPoint;
+        if (CriticalTemperature != 0.0) data["CriticalTemperature"] = CriticalTemperature;
+        if (CriticalPressure != 0.0) data["CriticalPressure"] = CriticalPressure;
+        if (Pressure != 0.0) data["Pressure"] = Pressure;
+        if (Temperature != 0.0) data["Temperature"] = Temperature;
+        if (MolarVolume != 0.0) data["MolarVolume"] = MolarVolume;
+        if (MolarWeight != 0.0) data["MolarWeight"] = MolarWeight;
+        if (MolarFlow != 0.0) data["MolarFlow"] = MolarFlow;
+        if (Compressibility != 0.0) data["Compressibility"] = Compressibility;
+        if (FugacityCoefficient != 0.0) data["FugacityCoefficient"] = FugacityCoefficient;
+        if (Viscosity != 0.0) data["Viscosity"] = Viscosity;
+        if (SurfaceTension != 0.0) data["SurfaceTension"] = SurfaceTension;
+        if (ThermalConductivity != 0.0) data["ThermalConductivity"] = ThermalConductivity;
+        if (CpDeparture != 0.0) data["CpDeparture"] = CpDeparture;
+        if (CvDeparture != 0.0) data["CvDeparture"] = CvDeparture;
+        if (EnthalpyDeparture != 0.0) data["EnthalpyDeparture"] = EnthalpyDeparture;
+        if (EntropyDeparture != 0.0) data["EntropyDeparture"] = EntropyDeparture;
+        if (InternalEnergyDeparture != 0.0) data["InternalEnergyDeparture"] = InternalEnergyDeparture;
+        if (GibbsEnergyDeparture != 0.0) data["GibbsEnergyDeparture"] = GibbsEnergyDeparture;
+        if (HelmholzEnergyDeparture != 0.0) data["HelmholzEnergyDeparture"] = HelmholzEnergyDeparture;
+        if (DPDV != 0.0) data["DPDV"] = DPDV;
+        if (DPDT != 0.0) data["DPDT"] = DPDT;
+        if (DVDP != 0.0) data["DVDP"] = DVDP;
+        if (DVDT != 0.0) data["DVDT"] = DVDT;
+        if (DTDV != 0.0) data["DTDV"] = DTDV;
+        if (DTDP != 0.0) data["DTDP"] = DTDP;
+        if (Cp != 0.0) data["Cp"] = Cp;
+        if (Cv != 0.0) data["Cv"] = Cv;
+        if (IsothermalCompressibility != 0.0) data["IsothermalCompressibility"] = IsothermalCompressibility;
+        if (ThermalExpansionCoefficient != 0.0) data["ThermalExpansionCoefficient"] = ThermalExpansionCoefficient;
+        if (JouleThomsonCoefficient != 0.0) data["JouleThomsonCoefficient"] = JouleThomsonCoefficient;
+        if (SpeedOfSound != 0.0) data["SpeedOfSound"] = SpeedOfSound;
+        if (SaturationPressure != 0.0) data["SaturationPressure"] = SaturationPressure;
+        if (SaturationVolume != 0.0) data["SaturationVolume"] = SaturationVolume;
+        if (Enthalpy != 0.0) data["Enthalpy"] = Enthalpy;
+        if (Entropy != 0.0) data["Entropy"] = Entropy;
+        if (InternalEnergy != 0.0) data["InternalEnergy"] = InternalEnergy;
+        if (GibbsEnergy != 0.0) data["GibbsEnergy"] = GibbsEnergy;
+        if (HelmholzEnergy != 0.0) data["HelmholzEnergy"] = HelmholzEnergy;
 
         return data.dump();
     }

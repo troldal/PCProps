@@ -41,9 +41,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "PengRobinson.hpp"
 #include <PhaseProperties.hpp>
-#include <common/Globals.hpp>
+#include <FluidProperties.hpp>
+#include <Common/Globals.hpp>
 
-#include <json/json.hpp>
 #include <numerics.hpp>
 
 using JSONString = std::string;
@@ -506,7 +506,7 @@ namespace PCProps::EquationOfState
 
                     // ===== Iterate using successive substitution. The minimum vapor pressure is 1.0 Pa, as lower
                     // ===== values may lead to numerical issues.
-                    if (abs(phi_l / phi_v - 1) < TOLERANCE || counter >= MAX_ITER || guess < 1.0) return std::max(1.0, guess);
+                    if (std::abs(phi_l / phi_v - 1) < TOLERANCE || counter >= MAX_ITER || guess < 1.0) return std::max(1.0, guess);
                     guess = std::max(1.0, guess * (phi_l / phi_v));
                     ++counter;
                 }
@@ -531,8 +531,8 @@ namespace PCProps::EquationOfState
 
             // ===== If the pressure is less than the critical pressure, compute using the PR-EOS.
             if (pressure < m_criticalPressure) {
-                auto guess = numeric::newton([&](double t) { return abs(m_vaporPressure(t) - pressure); }, m_criticalTemperature - 1.0);
-                auto result = numeric::newton([&](double t) { return abs(computeSaturationPressure(t) - pressure); }, std::min(guess, m_criticalTemperature - 1.0));
+                auto guess = numeric::newton([&](double t) { return std::abs(m_vaporPressure(t) - pressure); }, m_criticalTemperature - 1.0);
+                auto result = numeric::newton([&](double t) { return std::abs(computeSaturationPressure(t) - pressure); }, std::min(guess, m_criticalTemperature - 1.0));
                 if (std::isnan(result)) throw std::runtime_error("Saturation temperature could not be calculated.");
                 return result;
             }
@@ -667,9 +667,7 @@ namespace PCProps::EquationOfState
      */
     JSONString PengRobinson::computePropertiesPT(double pressure, double temperature) const
     {
-        std::vector<nlohmann::json> result;
-        for (const auto& phase : m_impl->computeProperties(pressure, temperature)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-        return nlohmann::json(result).dump();
+        return FluidProperties(m_impl->computeProperties(pressure, temperature)).asJSON();
     }
 
     /**
@@ -677,10 +675,8 @@ namespace PCProps::EquationOfState
      */
     JSONString PengRobinson::computePropertiesTV(double temperature, double molarVolume) const
     {
-        std::vector<nlohmann::json> result;
         auto pressure = m_impl->computePressure(temperature, molarVolume);
-        for (const auto& phase : m_impl->computeProperties(pressure, temperature)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-        return nlohmann::json(result).dump();
+        return FluidProperties(m_impl->computeProperties(pressure, temperature)).asJSON();
     }
 
     /**
@@ -688,10 +684,8 @@ namespace PCProps::EquationOfState
      */
     JSONString PengRobinson::computePropertiesPV(double pressure, double molarVolume) const
     {
-        std::vector<nlohmann::json> result;
         auto temperature = numeric::newton([&](double t) { return m_impl->computePressure(t, molarVolume) - pressure; }, m_impl->criticalTemperature() - 1.0);
-        for (const auto& phase : m_impl->computeProperties(pressure, temperature)) result.emplace_back(nlohmann::json::parse(phase.asJSON()));
-        return nlohmann::json(result).dump();
+        return FluidProperties(m_impl->computeProperties(pressure, temperature)).asJSON();
     }
 
 }    // namespace PCProps::EquationOfState

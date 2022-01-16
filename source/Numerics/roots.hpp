@@ -32,11 +32,24 @@ namespace numeric::impl
         using std::abs;
         int counter = 0;
         while (true) {
-            double diff = numeric::diff_central(func, x);
-            if (diff == 0.0) throw std::runtime_error("Derivative is zero.");
-            double x1 = x - (func(x) / diff);
+            double diff_central = numeric::diff_central(func, x);
+            double diff_backward = numeric::diff_backward(func, x);
+            double diff {};
+
+            if (diff_central == 0.0) diff_central = diff_backward;
+            if (diff_backward == 0.0) diff_backward = diff_central;
+            if (diff_central == 0.0 && diff_backward == 0.0) throw std::runtime_error("Derivative is zero.");
+
+            auto f = func(x);
+
+            if (std::abs(f / diff_central) < std::abs(f / diff_backward))
+                diff = diff_central;
+            else
+                diff = diff_backward;
+
+            double x1 = x - (f / diff);
             if (abs(x - x1) < eps) return x1;
-            if (counter > maxiter) return x1; //throw std::runtime_error("Root could not be computed.");
+            if (counter > maxiter) return x1;
             x = x1;
             ++counter;
         }

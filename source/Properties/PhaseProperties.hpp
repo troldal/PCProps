@@ -12,8 +12,11 @@
 
 namespace PCProps
 {
-    enum class PhaseType {Vapor, Liquid, Undefined};
+    enum class PhaseType { Vapor, Liquid, Undefined };
 
+    /**
+     * @brief
+     */
     class PhaseProperties
     {
         using JSONString = std::string;
@@ -24,10 +27,10 @@ namespace PCProps
         std::string Name {};
         std::string CAS {};
 
-        double NormalFreezingPoint {};
-        double NormalBoilingPoint {};
-        double CriticalTemperature {};
-        double CriticalPressure {};
+        double NormalFreezingPoint { 0.0 };
+        double NormalBoilingPoint { 0.0 };
+        double CriticalTemperature { 0.0 };
+        double CriticalPressure { 0.0 };
 
         double Pressure { 0.0 };
         double Temperature { 0.0 };
@@ -66,9 +69,15 @@ namespace PCProps
         double GibbsEnergy { 0.0 };
         double HelmholzEnergy { 0.0 };
 
+        /**
+         * @brief
+         */
         PhaseProperties();
 
-
+        /**
+         * @brief
+         * @param JSONData
+         */
         explicit PhaseProperties(const std::string& JSONData);
 
         /**
@@ -103,6 +112,12 @@ namespace PCProps
         JSONString asJSON() const;
     };
 
+    /**
+     * @brief
+     * @param stream
+     * @param properties
+     * @return
+     */
     inline std::ostream& operator<<(std::ostream& stream, const PCProps::PhaseProperties& properties)
     {
         auto TypeAsString = [&](const PhaseType type) {
@@ -111,8 +126,7 @@ namespace PCProps
             return "UNDEFINED";
         };
 
-        return stream << std::setprecision(8) << std::fixed
-                      << "Type                          : " << std::right << std::setw(20) << TypeAsString(properties.Type) << std::endl
+        return stream << std::setprecision(8) << std::fixed << "Type                          : " << std::right << std::setw(20) << TypeAsString(properties.Type) << std::endl
                       << "Molar Flow                    : " << std::right << std::setw(20) << properties.MolarFlow << std::endl
                       << "Molar Volume                  : " << std::right << std::setw(20) << properties.MolarVolume << " m3/mol" << std::endl
                       << "Surface Tension               : " << std::right << std::setw(20) << properties.SurfaceTension << " N/m" << std::endl

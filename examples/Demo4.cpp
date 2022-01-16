@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include <PropertyPackage.hpp>
+#include <EquationOfState.hpp>
 #include <Fluid.hpp>
 #include <PropertyLib.hpp>
 #include <UnitOps.hpp>

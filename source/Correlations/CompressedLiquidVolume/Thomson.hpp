@@ -159,7 +159,8 @@ namespace PCProps::LiquidVolume
             double B  = m_criticalPressure * (-1 - 9.070217 * pow(1 - tr, 1.0 / 3.0) + 62.45326 * pow(1 - tr, 2.0 / 3.0) - 135.1102 * (1 - tr) +
                 exp(4.79594 + 0.250047 * m_acentricFactor + 1.14188 * m_acentricFactor * m_acentricFactor) * pow(1 - tr, 4.0 / 3.0));
 
-            return satVolume * (1 - C * log((B + pressure) / (B + satPressure)));
+            double result = satVolume * (1 - C * log((B + pressure) / (B + satPressure)));
+            return (std::isnan(result) || std::isinf(result)) ? satVolume : result;
         }
     };
 
