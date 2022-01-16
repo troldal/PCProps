@@ -39,6 +39,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef PCPROPS_PHASEPROPERTIES_HPP
 #define PCPROPS_PHASEPROPERTIES_HPP
 
+// ===== External headers ===== //
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -46,10 +47,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace PCProps
 {
-    // ===== Alias declarations
+    // ===== Alias declarations ===== //
     using JSONString = std::string;
 
-    // ===== Enum definitions
+    // ===== Enum definitions ===== //
     enum class PhaseType { Vapor, Liquid, Undefined };
 
     /**
@@ -111,12 +112,6 @@ namespace PCProps
         PhaseProperties();
 
         /**
-         * @brief
-         * @param JSONData
-         */
-        explicit PhaseProperties(const std::string& JSONData);
-
-        /**
          * @brief Copy constructor.
          */
         PhaseProperties(const PhaseProperties& other);
@@ -141,11 +136,6 @@ namespace PCProps
          */
         PhaseProperties& operator=(PhaseProperties&& other) noexcept;
 
-        /**
-         *
-         * @return
-         */
-        JSONString asJSON() const;
     };
 
     /**

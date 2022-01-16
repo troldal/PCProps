@@ -40,6 +40,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <json/json.hpp>
 
+#include <sstream>
+
 namespace PCProps {
 
     /**
@@ -52,8 +54,77 @@ namespace PCProps {
      */
     FluidProperties::FluidProperties(const std::string& JSONData) {
 
+        using nlohmann::json;
+
+        auto parse_json = [&](const json& data) {
+
+            // ===== Embedded lambda function for converting phase type string to enum type.
+            auto AsType = [&](const std::string& type) {
+                if (type == "VAPOR") return PhaseType::Vapor;
+                if (type == "LIQUID") return PhaseType::Liquid;
+                return PhaseType::Undefined;
+            };
+
+            PhaseProperties phase;
+
+            for (auto item = data.begin(); item != data.end(); ++item) {
+
+                auto key = item.key();
+
+                if (key == "Type") phase.Type = AsType(item.value());
+                else if (key == "Name") phase.Name = item.value();
+                else if (key == "CAS") phase.CAS = item.value();
+
+                else if (key == "NormalFreezingPoint") phase.NormalFreezingPoint = item.value();
+                else if (key == "NormalBoilingPoint") phase.NormalBoilingPoint = item.value();
+                else if (key == "CriticalTemperature") phase.CriticalTemperature = item.value();
+                else if (key == "CriticalPressure") phase.CriticalPressure = item.value();
+
+                else if (key == "Pressure") phase.Pressure = item.value();
+                else if (key == "Temperature") phase.Temperature = item.value();
+                else if (key == "MolarVolume") phase.MolarVolume = item.value();
+                else if (key == "MolarWeight") phase.MolarWeight = item.value();
+                else if (key == "MolarFlow") phase.MolarFlow = item.value();
+                else if (key == "Compressibility") phase.Compressibility = item.value();
+                else if (key == "FugacityCoefficient") phase.FugacityCoefficient = item.value();
+                else if (key == "Viscosity") phase.Viscosity = item.value();
+                else if (key == "SurfaceTension") phase.SurfaceTension = item.value();
+                else if (key == "ThermalConductivity") phase.ThermalConductivity = item.value();
+                else if (key == "CpDeparture") phase.CpDeparture = item.value();
+                else if (key == "CvDeparture") phase.CvDeparture = item.value();
+                else if (key == "EnthalpyDeparture") phase.EnthalpyDeparture = item.value();
+                else if (key == "EntropyDeparture") phase.EntropyDeparture = item.value();
+                else if (key == "InternalEnergyDeparture") phase.InternalEnergyDeparture = item.value();
+                else if (key == "GibbsEnergyDeparture") phase.GibbsEnergyDeparture = item.value();
+                else if (key == "HelmholzEnergyDeparture") phase.HelmholzEnergyDeparture = item.value();
+
+                else if (key == "DPDV") phase.DPDV = item.value();
+                else if (key == "DPDT") phase.DPDT = item.value();
+                else if (key == "DVDP") phase.DVDP = item.value();
+                else if (key == "DVDT") phase.DVDT = item.value();
+                else if (key == "DTDV") phase.DTDV = item.value();
+                else if (key == "DTDV") phase.DTDV = item.value();
+                else if (key == "DTDP") phase.DTDP = item.value();
+
+                else if (key == "Cp") phase.Cp = item.value();
+                else if (key == "Cv") phase.Cv = item.value();
+                else if (key == "IsothermalCompressibility") phase.IsothermalCompressibility = item.value();
+                else if (key == "ThermalExpansionCoefficient") phase.ThermalExpansionCoefficient = item.value();
+                else if (key == "JouleThomsonCoefficient") phase.JouleThomsonCoefficient = item.value();
+                else if (key == "SpeedOfSound") phase.SpeedOfSound = item.value();
+                else if (key == "SaturationPressure") phase.SaturationPressure = item.value();
+                else if (key == "SaturationVolume") phase.SaturationVolume = item.value();
+                else if (key == "Enthalpy") phase.Enthalpy = item.value();
+                else if (key == "Entropy") phase.Entropy = item.value();
+                else if (key == "InternalEnergy") phase.InternalEnergy = item.value();
+                else if (key == "GibbsEnergy") phase.GibbsEnergy = item.value();
+                else if (key == "HelmholzEnergy") phase.HelmholzEnergy = item.value();
+            }
+            return phase;
+        };
+
         auto fluid = nlohmann::json::parse(JSONData);
-        for (const auto& phase : fluid) m_phases.emplace_back(phase.dump());
+        for (const auto& phase : fluid) m_phases.emplace_back(parse_json(phase));
     }
 
     /**
@@ -166,8 +237,65 @@ namespace PCProps {
      */
     JSONString FluidProperties::asJSON() const
     {
+
+        auto make_json = [&](const PhaseProperties& props) {
+                    nlohmann::json data;
+
+                    auto TypeAsString = [&](const PhaseType type) {
+                        if (type == PhaseType::Vapor) return "VAPOR";
+                        if (type == PhaseType::Liquid) return "LIQUID";
+                        return "UNDEFINED";
+                    };
+
+                    data["Type"] = TypeAsString(props.Type);
+                    if (!props.Name.empty()) data["Name"] = props.Name;
+                    if (!props.CAS.empty()) data["CAS"] = props.CAS;
+                    if (props.NormalFreezingPoint != 0.0) data["NormalFreezingPoint"] = props.NormalFreezingPoint;
+                    if (props.NormalBoilingPoint != 0.0) data["NormalBoilingPoint"] = props.NormalBoilingPoint;
+                    if (props.CriticalTemperature != 0.0) data["CriticalTemperature"] = props.CriticalTemperature;
+                    if (props.CriticalPressure != 0.0) data["CriticalPressure"] = props.CriticalPressure;
+                    if (props.Pressure != 0.0) data["Pressure"] = props.Pressure;
+                    if (props.Temperature != 0.0) data["Temperature"] = props.Temperature;
+                    if (props.MolarVolume != 0.0) data["MolarVolume"] = props.MolarVolume;
+                    if (props.MolarWeight != 0.0) data["MolarWeight"] = props.MolarWeight;
+                    if (props.MolarFlow != 0.0) data["MolarFlow"] = props.MolarFlow;
+                    if (props.Compressibility != 0.0) data["Compressibility"] = props.Compressibility;
+                    if (props.FugacityCoefficient != 0.0) data["FugacityCoefficient"] = props.FugacityCoefficient;
+                    if (props.Viscosity != 0.0) data["Viscosity"] = props.Viscosity;
+                    if (props.SurfaceTension != 0.0) data["SurfaceTension"] = props.SurfaceTension;
+                    if (props.ThermalConductivity != 0.0) data["ThermalConductivity"] = props.ThermalConductivity;
+                    if (props.CpDeparture != 0.0) data["CpDeparture"] = props.CpDeparture;
+                    if (props.CvDeparture != 0.0) data["CvDeparture"] = props.CvDeparture;
+                    if (props.EnthalpyDeparture != 0.0) data["EnthalpyDeparture"] = props.EnthalpyDeparture;
+                    if (props.EntropyDeparture != 0.0) data["EntropyDeparture"] = props.EntropyDeparture;
+                    if (props.InternalEnergyDeparture != 0.0) data["InternalEnergyDeparture"] = props.InternalEnergyDeparture;
+                    if (props.GibbsEnergyDeparture != 0.0) data["GibbsEnergyDeparture"] = props.GibbsEnergyDeparture;
+                    if (props.HelmholzEnergyDeparture != 0.0) data["HelmholzEnergyDeparture"] = props.HelmholzEnergyDeparture;
+                    if (props.DPDV != 0.0) data["DPDV"] = props.DPDV;
+                    if (props.DPDT != 0.0) data["DPDT"] = props.DPDT;
+                    if (props.DVDP != 0.0) data["DVDP"] = props.DVDP;
+                    if (props.DVDT != 0.0) data["DVDT"] = props.DVDT;
+                    if (props.DTDV != 0.0) data["DTDV"] = props.DTDV;
+                    if (props.DTDP != 0.0) data["DTDP"] = props.DTDP;
+                    if (props.Cp != 0.0) data["Cp"] = props.Cp;
+                    if (props.Cv != 0.0) data["Cv"] = props.Cv;
+                    if (props.IsothermalCompressibility != 0.0) data["IsothermalCompressibility"] = props.IsothermalCompressibility;
+                    if (props.ThermalExpansionCoefficient != 0.0) data["ThermalExpansionCoefficient"] = props.ThermalExpansionCoefficient;
+                    if (props.JouleThomsonCoefficient != 0.0) data["JouleThomsonCoefficient"] = props.JouleThomsonCoefficient;
+                    if (props.SpeedOfSound != 0.0) data["SpeedOfSound"] = props.SpeedOfSound;
+                    if (props.SaturationPressure != 0.0) data["SaturationPressure"] = props.SaturationPressure;
+                    if (props.SaturationVolume != 0.0) data["SaturationVolume"] = props.SaturationVolume;
+                    if (props.Enthalpy != 0.0) data["Enthalpy"] = props.Enthalpy;
+                    if (props.Entropy != 0.0) data["Entropy"] = props.Entropy;
+                    if (props.InternalEnergy != 0.0) data["InternalEnergy"] = props.InternalEnergy;
+                    if (props.GibbsEnergy != 0.0) data["GibbsEnergy"] = props.GibbsEnergy;
+                    if (props.HelmholzEnergy != 0.0) data["HelmholzEnergy"] = props.HelmholzEnergy;
+
+                    return data;
+        };
+
         std::vector<nlohmann::json> data;
-        for (const auto& phase : m_phases) data.emplace_back(nlohmann::json::parse(phase.asJSON()));
+        for (const auto& phase : m_phases) data.emplace_back(make_json(phase));
         return nlohmann::json(data).dump();
     }
 
