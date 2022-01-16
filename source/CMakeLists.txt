@@ -61,7 +61,7 @@ list(APPEND RELEASE_FLAGS_MSVC
 
 add_subdirectory(Common)
 add_subdirectory(Interfaces)
-add_subdirectory(Properties)
+add_subdirectory(FluidProperties)
 add_subdirectory(EquationOfState)
 add_subdirectory(Correlations)
 add_subdirectory(PureComponent)

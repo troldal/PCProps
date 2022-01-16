@@ -35,17 +35,19 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
+// ===== External headers ===== //
 #include <cmath>
 #include <tuple>
 #include <vector>
 
+// ===== PCProps headers ===== //
 #include "PengRobinson.hpp"
 #include <PhaseProperties.hpp>
 #include <FluidProperties.hpp>
+#include <numerics.hpp>
 #include <Common/Globals.hpp>
 
-#include <numerics.hpp>
-
+// ===== Alias declarations ===== //
 using JSONString = std::string;
 
 namespace PCProps::EquationOfState
@@ -68,9 +70,11 @@ namespace PCProps::EquationOfState
         double m_criticalPressure {};
         double m_acentricFactor {};
 
+        // ===== Fluid metadata
         std::string m_name {};
         std::string m_CAS {};
 
+        // ===== Property correlations
         std::function<double(double)> m_vaporPressure {};
 
         // ===== Calculated constants

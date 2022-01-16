@@ -6,7 +6,7 @@ target_include_directories(sciplot SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CU
 # Define Demo1 target
 #=======================================================================================================================
 add_executable(${PROJECT_NAME}-demo1 Demo1.cpp)
-target_link_libraries(${PROJECT_NAME}-demo1 PRIVATE common PureComponentLib PropertyLib PropertyPackage FluidLib PropertiesLib sciplot)
+target_link_libraries(${PROJECT_NAME}-demo1 PRIVATE common PureComponentLib PropertiesLib PropertyLib PropertyPackage FluidLib sciplot)
 
 #=======================================================================================================================
 # Define Demo2 target
