@@ -42,7 +42,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // ===== PCProps headers ===== //
 #include "PengRobinson.hpp"
-#include <PhaseProperties.hpp>
 #include <FluidProperties.hpp>
 #include <numerics.hpp>
 #include <Common/Globals.hpp>

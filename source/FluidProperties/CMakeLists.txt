@@ -3,7 +3,6 @@
 #   List of project source files
 #=======================================================================================================================
 set(PROPERTIESLIB_SOURCES
-        PhaseProperties.cpp
         FluidProperties.cpp
         )
 
