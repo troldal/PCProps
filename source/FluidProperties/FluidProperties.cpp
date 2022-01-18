@@ -35,14 +35,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-
 #include "FluidProperties.hpp"
 
-#include <json/json.hpp>
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 
-#include <sstream>
-
-namespace PCProps {
+namespace PCProps
+{
 
     /**
      * @details
@@ -52,12 +52,11 @@ namespace PCProps {
     /**
      * @details
      */
-    FluidProperties::FluidProperties(const std::string& JSONData) {
+    FluidProperties::FluidProperties(const std::string& JSONData)
+    {
+        using rapidjson::Document;
 
-        using nlohmann::json;
-
-        auto parse_json = [&](const json& data) {
-
+        auto parse_json = [&](const auto& data) {
             // ===== Embedded lambda function for converting phase type string to enum type.
             auto AsType = [&](const std::string& type) {
                 if (type == "VAPOR") return PhaseType::Vapor;
@@ -67,64 +66,108 @@ namespace PCProps {
 
             PhaseProperties phase;
 
-            for (auto item = data.begin(); item != data.end(); ++item) {
+            for (const auto& item : data.GetObject()) {
+                std::string key = item.name.GetString();
 
-                auto key = item.key();
+                if (key == "Type")
+                    phase.Type = AsType(item.value.GetString());
+                else if (key == "Name")
+                    phase.Name = item.value.GetString();
+                else if (key == "CAS")
+                    phase.CAS = item.value.GetString();
 
-                if (key == "Type") phase.Type = AsType(item.value());
-                else if (key == "Name") phase.Name = item.value();
-                else if (key == "CAS") phase.CAS = item.value();
+                else if (key == "NormalFreezingPoint")
+                    phase.NormalFreezingPoint = item.value.GetDouble();
+                else if (key == "NormalBoilingPoint")
+                    phase.NormalBoilingPoint = item.value.GetDouble();
+                else if (key == "CriticalTemperature")
+                    phase.CriticalTemperature = item.value.GetDouble();
+                else if (key == "CriticalPressure")
+                    phase.CriticalPressure = item.value.GetDouble();
 
-                else if (key == "NormalFreezingPoint") phase.NormalFreezingPoint = item.value();
-                else if (key == "NormalBoilingPoint") phase.NormalBoilingPoint = item.value();
-                else if (key == "CriticalTemperature") phase.CriticalTemperature = item.value();
-                else if (key == "CriticalPressure") phase.CriticalPressure = item.value();
+                else if (key == "Pressure")
+                    phase.Pressure = item.value.GetDouble();
+                else if (key == "Temperature")
+                    phase.Temperature = item.value.GetDouble();
+                else if (key == "MolarVolume")
+                    phase.MolarVolume = item.value.GetDouble();
+                else if (key == "MolarWeight")
+                    phase.MolarWeight = item.value.GetDouble();
+                else if (key == "MolarFlow")
+                    phase.MolarFlow = item.value.GetDouble();
+                else if (key == "Compressibility")
+                    phase.Compressibility = item.value.GetDouble();
+                else if (key == "FugacityCoefficient")
+                    phase.FugacityCoefficient = item.value.GetDouble();
+                else if (key == "Viscosity")
+                    phase.Viscosity = item.value.GetDouble();
+                else if (key == "SurfaceTension")
+                    phase.SurfaceTension = item.value.GetDouble();
+                else if (key == "ThermalConductivity")
+                    phase.ThermalConductivity = item.value.GetDouble();
+                else if (key == "CpDeparture")
+                    phase.CpDeparture = item.value.GetDouble();
+                else if (key == "CvDeparture")
+                    phase.CvDeparture = item.value.GetDouble();
+                else if (key == "EnthalpyDeparture")
+                    phase.EnthalpyDeparture = item.value.GetDouble();
+                else if (key == "EntropyDeparture")
+                    phase.EntropyDeparture = item.value.GetDouble();
+                else if (key == "InternalEnergyDeparture")
+                    phase.InternalEnergyDeparture = item.value.GetDouble();
+                else if (key == "GibbsEnergyDeparture")
+                    phase.GibbsEnergyDeparture = item.value.GetDouble();
+                else if (key == "HelmholzEnergyDeparture")
+                    phase.HelmholzEnergyDeparture = item.value.GetDouble();
 
-                else if (key == "Pressure") phase.Pressure = item.value();
-                else if (key == "Temperature") phase.Temperature = item.value();
-                else if (key == "MolarVolume") phase.MolarVolume = item.value();
-                else if (key == "MolarWeight") phase.MolarWeight = item.value();
-                else if (key == "MolarFlow") phase.MolarFlow = item.value();
-                else if (key == "Compressibility") phase.Compressibility = item.value();
-                else if (key == "FugacityCoefficient") phase.FugacityCoefficient = item.value();
-                else if (key == "Viscosity") phase.Viscosity = item.value();
-                else if (key == "SurfaceTension") phase.SurfaceTension = item.value();
-                else if (key == "ThermalConductivity") phase.ThermalConductivity = item.value();
-                else if (key == "CpDeparture") phase.CpDeparture = item.value();
-                else if (key == "CvDeparture") phase.CvDeparture = item.value();
-                else if (key == "EnthalpyDeparture") phase.EnthalpyDeparture = item.value();
-                else if (key == "EntropyDeparture") phase.EntropyDeparture = item.value();
-                else if (key == "InternalEnergyDeparture") phase.InternalEnergyDeparture = item.value();
-                else if (key == "GibbsEnergyDeparture") phase.GibbsEnergyDeparture = item.value();
-                else if (key == "HelmholzEnergyDeparture") phase.HelmholzEnergyDeparture = item.value();
+                else if (key == "DPDV")
+                    phase.DPDV = item.value.GetDouble();
+                else if (key == "DPDT")
+                    phase.DPDT = item.value.GetDouble();
+                else if (key == "DVDP")
+                    phase.DVDP = item.value.GetDouble();
+                else if (key == "DVDT")
+                    phase.DVDT = item.value.GetDouble();
+                else if (key == "DTDV")
+                    phase.DTDV = item.value.GetDouble();
+                else if (key == "DTDV")
+                    phase.DTDV = item.value.GetDouble();
+                else if (key == "DTDP")
+                    phase.DTDP = item.value.GetDouble();
 
-                else if (key == "DPDV") phase.DPDV = item.value();
-                else if (key == "DPDT") phase.DPDT = item.value();
-                else if (key == "DVDP") phase.DVDP = item.value();
-                else if (key == "DVDT") phase.DVDT = item.value();
-                else if (key == "DTDV") phase.DTDV = item.value();
-                else if (key == "DTDV") phase.DTDV = item.value();
-                else if (key == "DTDP") phase.DTDP = item.value();
-
-                else if (key == "Cp") phase.Cp = item.value();
-                else if (key == "Cv") phase.Cv = item.value();
-                else if (key == "IsothermalCompressibility") phase.IsothermalCompressibility = item.value();
-                else if (key == "ThermalExpansionCoefficient") phase.ThermalExpansionCoefficient = item.value();
-                else if (key == "JouleThomsonCoefficient") phase.JouleThomsonCoefficient = item.value();
-                else if (key == "SpeedOfSound") phase.SpeedOfSound = item.value();
-                else if (key == "SaturationPressure") phase.SaturationPressure = item.value();
-                else if (key == "SaturationVolume") phase.SaturationVolume = item.value();
-                else if (key == "Enthalpy") phase.Enthalpy = item.value();
-                else if (key == "Entropy") phase.Entropy = item.value();
-                else if (key == "InternalEnergy") phase.InternalEnergy = item.value();
-                else if (key == "GibbsEnergy") phase.GibbsEnergy = item.value();
-                else if (key == "HelmholzEnergy") phase.HelmholzEnergy = item.value();
+                else if (key == "Cp")
+                    phase.Cp = item.value.GetDouble();
+                else if (key == "Cv")
+                    phase.Cv = item.value.GetDouble();
+                else if (key == "IsothermalCompressibility")
+                    phase.IsothermalCompressibility = item.value.GetDouble();
+                else if (key == "ThermalExpansionCoefficient")
+                    phase.ThermalExpansionCoefficient = item.value.GetDouble();
+                else if (key == "JouleThomsonCoefficient")
+                    phase.JouleThomsonCoefficient = item.value.GetDouble();
+                else if (key == "SpeedOfSound")
+                    phase.SpeedOfSound = item.value.GetDouble();
+                else if (key == "SaturationPressure")
+                    phase.SaturationPressure = item.value.GetDouble();
+                else if (key == "SaturationVolume")
+                    phase.SaturationVolume = item.value.GetDouble();
+                else if (key == "Enthalpy")
+                    phase.Enthalpy = item.value.GetDouble();
+                else if (key == "Entropy")
+                    phase.Entropy = item.value.GetDouble();
+                else if (key == "InternalEnergy")
+                    phase.InternalEnergy = item.value.GetDouble();
+                else if (key == "GibbsEnergy")
+                    phase.GibbsEnergy = item.value.GetDouble();
+                else if (key == "HelmholzEnergy")
+                    phase.HelmholzEnergy = item.value.GetDouble();
             }
             return phase;
         };
 
-        auto fluid = nlohmann::json::parse(JSONData);
-        for (const auto& phase : fluid) m_phases.emplace_back(parse_json(phase));
+        Document phasedata;
+        phasedata.Parse(JSONData.c_str());
+        for (const auto& phase : phasedata.GetArray()) m_phases.emplace_back(parse_json(phase));
     }
 
     /**
@@ -193,7 +236,8 @@ namespace PCProps {
     /**
      * @details
      */
-    void FluidProperties::erase(int index) {
+    void FluidProperties::erase(int index)
+    {
         auto iter = m_phases.begin();
         std::advance(iter, index);
         m_phases.erase(iter);
@@ -204,10 +248,9 @@ namespace PCProps {
      */
     FluidProperties FluidProperties::stablePhase() const
     {
-        return FluidProperties(std::vector {*std::min_element(
-            m_phases.begin(),
-            m_phases.end(),
-            [](const PhaseProperties& a, const PhaseProperties& b){return a.FugacityCoefficient < b.FugacityCoefficient;})});
+        return FluidProperties(std::vector { *std::min_element(m_phases.begin(), m_phases.end(), [](const PhaseProperties& a, const PhaseProperties& b) {
+            return a.FugacityCoefficient < b.FugacityCoefficient;
+        }) });
     }
 
     /**
@@ -215,10 +258,8 @@ namespace PCProps {
      */
     FluidProperties FluidProperties::heavyPhase() const
     {
-        return FluidProperties(std::vector {*std::min_element(
-            m_phases.begin(),
-            m_phases.end(),
-            [](const PhaseProperties& a, const PhaseProperties& b){return a.MolarVolume < b.MolarVolume;})});
+        return FluidProperties(
+            std::vector { *std::min_element(m_phases.begin(), m_phases.end(), [](const PhaseProperties& a, const PhaseProperties& b) { return a.MolarVolume < b.MolarVolume; }) });
     }
 
     /**
@@ -226,10 +267,8 @@ namespace PCProps {
      */
     FluidProperties FluidProperties::lightPhase() const
     {
-        return FluidProperties(std::vector {*std::max_element(
-            m_phases.begin(),
-            m_phases.end(),
-            [](const PhaseProperties& a, const PhaseProperties& b){return a.MolarVolume < b.MolarVolume;})});
+        return FluidProperties(
+            std::vector { *std::max_element(m_phases.begin(), m_phases.end(), [](const PhaseProperties& a, const PhaseProperties& b) { return a.MolarVolume < b.MolarVolume; }) });
     }
 
     /**
@@ -237,66 +276,79 @@ namespace PCProps {
      */
     JSONString FluidProperties::asJSON() const
     {
+        using rapidjson::StringBuffer;
+        using rapidjson::Writer;
+        auto make_json = [&](const PhaseProperties& props, auto& writer) {
+            auto TypeAsString = [&](const PhaseType type) {
+                if (type == PhaseType::Vapor) return "VAPOR";
+                if (type == PhaseType::Liquid) return "LIQUID";
+                return "UNDEFINED";
+            };
 
-        auto make_json = [&](const PhaseProperties& props) {
-                    nlohmann::json data;
+            auto WriteString = [&](const std::string& key, const std::string& value) {
+                writer.Key(key.c_str());
+                writer.String(value.c_str());
+            };
 
-                    auto TypeAsString = [&](const PhaseType type) {
-                        if (type == PhaseType::Vapor) return "VAPOR";
-                        if (type == PhaseType::Liquid) return "LIQUID";
-                        return "UNDEFINED";
-                    };
+            auto WriteDouble = [&](const std::string& key, double value) {
+                writer.Key(key.c_str());
+                writer.Double(value);
+            };
 
-                    data["Type"] = TypeAsString(props.Type);
-                    if (!props.Name.empty()) data["Name"] = props.Name;
-                    if (!props.CAS.empty()) data["CAS"] = props.CAS;
-                    if (props.NormalFreezingPoint != 0.0) data["NormalFreezingPoint"] = props.NormalFreezingPoint;
-                    if (props.NormalBoilingPoint != 0.0) data["NormalBoilingPoint"] = props.NormalBoilingPoint;
-                    if (props.CriticalTemperature != 0.0) data["CriticalTemperature"] = props.CriticalTemperature;
-                    if (props.CriticalPressure != 0.0) data["CriticalPressure"] = props.CriticalPressure;
-                    if (props.Pressure != 0.0) data["Pressure"] = props.Pressure;
-                    if (props.Temperature != 0.0) data["Temperature"] = props.Temperature;
-                    if (props.MolarVolume != 0.0) data["MolarVolume"] = props.MolarVolume;
-                    if (props.MolarWeight != 0.0) data["MolarWeight"] = props.MolarWeight;
-                    if (props.MolarFlow != 0.0) data["MolarFlow"] = props.MolarFlow;
-                    if (props.Compressibility != 0.0) data["Compressibility"] = props.Compressibility;
-                    if (props.FugacityCoefficient != 0.0) data["FugacityCoefficient"] = props.FugacityCoefficient;
-                    if (props.Viscosity != 0.0) data["Viscosity"] = props.Viscosity;
-                    if (props.SurfaceTension != 0.0) data["SurfaceTension"] = props.SurfaceTension;
-                    if (props.ThermalConductivity != 0.0) data["ThermalConductivity"] = props.ThermalConductivity;
-                    if (props.CpDeparture != 0.0) data["CpDeparture"] = props.CpDeparture;
-                    if (props.CvDeparture != 0.0) data["CvDeparture"] = props.CvDeparture;
-                    if (props.EnthalpyDeparture != 0.0) data["EnthalpyDeparture"] = props.EnthalpyDeparture;
-                    if (props.EntropyDeparture != 0.0) data["EntropyDeparture"] = props.EntropyDeparture;
-                    if (props.InternalEnergyDeparture != 0.0) data["InternalEnergyDeparture"] = props.InternalEnergyDeparture;
-                    if (props.GibbsEnergyDeparture != 0.0) data["GibbsEnergyDeparture"] = props.GibbsEnergyDeparture;
-                    if (props.HelmholzEnergyDeparture != 0.0) data["HelmholzEnergyDeparture"] = props.HelmholzEnergyDeparture;
-                    if (props.DPDV != 0.0) data["DPDV"] = props.DPDV;
-                    if (props.DPDT != 0.0) data["DPDT"] = props.DPDT;
-                    if (props.DVDP != 0.0) data["DVDP"] = props.DVDP;
-                    if (props.DVDT != 0.0) data["DVDT"] = props.DVDT;
-                    if (props.DTDV != 0.0) data["DTDV"] = props.DTDV;
-                    if (props.DTDP != 0.0) data["DTDP"] = props.DTDP;
-                    if (props.Cp != 0.0) data["Cp"] = props.Cp;
-                    if (props.Cv != 0.0) data["Cv"] = props.Cv;
-                    if (props.IsothermalCompressibility != 0.0) data["IsothermalCompressibility"] = props.IsothermalCompressibility;
-                    if (props.ThermalExpansionCoefficient != 0.0) data["ThermalExpansionCoefficient"] = props.ThermalExpansionCoefficient;
-                    if (props.JouleThomsonCoefficient != 0.0) data["JouleThomsonCoefficient"] = props.JouleThomsonCoefficient;
-                    if (props.SpeedOfSound != 0.0) data["SpeedOfSound"] = props.SpeedOfSound;
-                    if (props.SaturationPressure != 0.0) data["SaturationPressure"] = props.SaturationPressure;
-                    if (props.SaturationVolume != 0.0) data["SaturationVolume"] = props.SaturationVolume;
-                    if (props.Enthalpy != 0.0) data["Enthalpy"] = props.Enthalpy;
-                    if (props.Entropy != 0.0) data["Entropy"] = props.Entropy;
-                    if (props.InternalEnergy != 0.0) data["InternalEnergy"] = props.InternalEnergy;
-                    if (props.GibbsEnergy != 0.0) data["GibbsEnergy"] = props.GibbsEnergy;
-                    if (props.HelmholzEnergy != 0.0) data["HelmholzEnergy"] = props.HelmholzEnergy;
-
-                    return data;
+            writer.StartObject();
+            WriteString("Type", TypeAsString(props.Type));
+            if (!props.Name.empty()) WriteString("Name", props.Name);
+            if (!props.CAS.empty()) WriteString("CAS", props.CAS);
+            if (props.NormalFreezingPoint != 0.0) WriteDouble("NormalFreezingPoint", props.NormalFreezingPoint);
+            if (props.NormalBoilingPoint != 0.0) WriteDouble("NormalBoilingPoint", props.NormalBoilingPoint);
+            if (props.CriticalTemperature != 0.0) WriteDouble("CriticalTemperature", props.CriticalTemperature);
+            if (props.CriticalPressure != 0.0) WriteDouble("CriticalPressure", props.CriticalPressure);
+            if (props.Pressure != 0.0) WriteDouble("Pressure", props.Pressure);
+            if (props.Temperature != 0.0) WriteDouble("Temperature", props.Temperature);
+            if (props.MolarVolume != 0.0) WriteDouble("MolarVolume", props.MolarVolume);
+            if (props.MolarWeight != 0.0) WriteDouble("MolarWeight", props.MolarWeight);
+            if (props.MolarFlow != 0.0) WriteDouble("MolarFlow", props.MolarFlow);
+            if (props.Compressibility != 0.0) WriteDouble("Compressibility", props.Compressibility);
+            if (props.FugacityCoefficient != 0.0) WriteDouble("FugacityCoefficient", props.FugacityCoefficient);
+            if (props.Viscosity != 0.0) WriteDouble("Viscosity", props.Viscosity);
+            if (props.SurfaceTension != 0.0) WriteDouble("SurfaceTension", props.SurfaceTension);
+            if (props.ThermalConductivity != 0.0) WriteDouble("ThermalConductivity", props.ThermalConductivity);
+            if (props.CpDeparture != 0.0) WriteDouble("CpDeparture", props.CpDeparture);
+            if (props.CvDeparture != 0.0) WriteDouble("CvDeparture", props.CvDeparture);
+            if (props.EnthalpyDeparture != 0.0) WriteDouble("EnthalpyDeparture", props.EnthalpyDeparture);
+            if (props.EntropyDeparture != 0.0) WriteDouble("EntropyDeparture", props.EntropyDeparture);
+            if (props.InternalEnergyDeparture != 0.0) WriteDouble("InternalEnergyDeparture", props.InternalEnergyDeparture);
+            if (props.GibbsEnergyDeparture != 0.0) WriteDouble("GibbsEnergyDeparture", props.GibbsEnergyDeparture);
+            if (props.HelmholzEnergyDeparture != 0.0) WriteDouble("HelmholzEnergyDeparture", props.HelmholzEnergyDeparture);
+            if (props.DPDV != 0.0) WriteDouble("DPDV", props.DPDV);
+            if (props.DPDT != 0.0) WriteDouble("DPDT", props.DPDT);
+            if (props.DVDP != 0.0) WriteDouble("DVDP", props.DVDP);
+            if (props.DVDT != 0.0) WriteDouble("DVDT", props.DVDT);
+            if (props.DTDV != 0.0) WriteDouble("DTDV", props.DTDV);
+            if (props.DTDP != 0.0) WriteDouble("DTDP", props.DTDP);
+            if (props.Cp != 0.0) WriteDouble("Cp", props.Cp);
+            if (props.Cv != 0.0) WriteDouble("Cv", props.Cv);
+            if (props.IsothermalCompressibility != 0.0) WriteDouble("IsothermalCompressibility", props.IsothermalCompressibility);
+            if (props.ThermalExpansionCoefficient != 0.0) WriteDouble("ThermalExpansionCoefficient", props.ThermalExpansionCoefficient);
+            if (props.JouleThomsonCoefficient != 0.0) WriteDouble("JouleThomsonCoefficient", props.JouleThomsonCoefficient);
+            if (props.SpeedOfSound != 0.0) WriteDouble("SpeedOfSound", props.SpeedOfSound);
+            if (props.SaturationPressure != 0.0) WriteDouble("SaturationPressure", props.SaturationPressure);
+            if (props.SaturationVolume != 0.0) WriteDouble("SaturationVolume", props.SaturationVolume);
+            if (props.Enthalpy != 0.0) WriteDouble("Enthalpy", props.Enthalpy);
+            if (props.Entropy != 0.0) WriteDouble("Entropy", props.Entropy);
+            if (props.InternalEnergy != 0.0) WriteDouble("InternalEnergy", props.InternalEnergy);
+            if (props.GibbsEnergy != 0.0) WriteDouble("GibbsEnergy", props.GibbsEnergy);
+            if (props.HelmholzEnergy != 0.0) WriteDouble("HelmholzEnergy", props.HelmholzEnergy);
+            writer.EndObject();
         };
 
-        std::vector<nlohmann::json> data;
-        for (const auto& phase : m_phases) data.emplace_back(make_json(phase));
-        return nlohmann::json(data).dump();
+        StringBuffer         s;
+        Writer<StringBuffer> writer(s);
+        writer.StartArray();
+        for (const auto& phase : m_phases) make_json(phase, writer);
+        writer.EndArray();
+
+        return s.GetString();
     }
 
     /**
@@ -350,7 +402,8 @@ namespace PCProps {
     /**
      * @details
      */
-    void FluidProperties::print(std::ostream& stream) {
+    void FluidProperties::print(std::ostream& stream)
+    {
         stream << std::setprecision(6) << std::fixed;
         auto width = 25;
 
@@ -508,4 +561,4 @@ namespace PCProps {
         for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(width) << phase.HelmholzEnergy / phase.MolarWeight * 1000;
         stream << std::endl;
     }
-}
+}    // namespace PCProps
