@@ -7,6 +7,7 @@
 #include <common/Globals.hpp>
 
 #include <cmath>
+#include <string>
 #include <stdexcept>
 
 namespace PCProps::UnitOps
@@ -14,21 +15,23 @@ namespace PCProps::UnitOps
 
     class PipeSegmentLiquid::impl {
 
+        using JSONString = std::string;
+
         double m_length {};
         double m_diameter {};
         double m_inclination {};
         double m_roughness {};
         double m_flowArea {};
 
-        double computeElevationGradient(const PCPhases& fluid) const {
+        double computeElevationGradient(const JSONString& fluid) const {
             return -(1.0 / fluid[0][PCMolarVolume]) * (fluid[0][PCMolarWeight] / 1000.0) * Globals::G_ACCL * sin(m_inclination * 0.01745329252);
         }
 
-        double computeVolumeFlow(const PCPhases& fluid, double molarFlow) const {
+        double computeVolumeFlow(const JSONString& fluid, double molarFlow) const {
             return molarFlow * fluid[0][PCMolarVolume];
         }
 
-        double computeReynoldsNumber(const PCPhases& fluid, double velocity) const {
+        double computeReynoldsNumber(const JSONString& fluid, double velocity) const {
            return (1.0 / fluid[0][PCMolarVolume]) * (fluid[0][PCMolarWeight] / 1000.0) * velocity * m_diameter / fluid[0][PCViscosity];
         }
 
@@ -57,7 +60,7 @@ namespace PCProps::UnitOps
               m_flowArea{Globals::PI * pow(m_diameter, 2) / 4.0}
         {}
 
-        double computeOutletPressure(const IFluid& fluid, double molarFlow) const {
+        double computeOutletPressure(const IPropertyPackage& fluid, double molarFlow) const {
             using std::sin;
             using std::pow;
             if (fluid.properties().size() > 1) throw std::invalid_argument("Invalid fluid");
@@ -72,7 +75,7 @@ namespace PCProps::UnitOps
             return fluid.properties()[0][PCPressure] + (dpdl + elevationGradient) * m_length;
         }
 
-        double computeInletPressure(const IFluid& fluid, double molarFlow) {
+        double computeInletPressure(const IPropertyPackage& fluid, double molarFlow) {
             using std::sin;
             using std::pow;
             if (fluid.properties().size() > 1) throw std::invalid_argument("Invalid fluid");
@@ -110,17 +113,17 @@ namespace PCProps::UnitOps
 
     PipeSegmentLiquid& PipeSegmentLiquid::operator=(PipeSegmentLiquid&& other) noexcept = default;
 
-    double PipeSegmentLiquid::computeOutletPressure(const IFluid& inletFluid, double molarFlow) const
+    double PipeSegmentLiquid::computeOutletPressure(const IPropertyPackage& inletFluid, double molarFlow) const
     {
         return m_impl->computeOutletPressure(inletFluid, molarFlow);
     }
 
-    double PipeSegmentLiquid::computeInletPressure(const IFluid& outletFluid, double molarFlow) const
+    double PipeSegmentLiquid::computeInletPressure(const IPropertyPackage& outletFluid, double molarFlow) const
     {
         return m_impl->computeInletPressure(outletFluid, molarFlow);
     }
 
-    double PipeSegmentLiquid::computeMolarFlow(const IFluid& inletFluid, const IFluid& outletFluid) const
+    double PipeSegmentLiquid::computeMolarFlow(const IPropertyPackage& inletFluid, const IPropertyPackage& outletFluid) const
     {
         return 0;
     }

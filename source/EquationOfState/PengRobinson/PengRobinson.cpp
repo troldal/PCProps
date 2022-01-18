@@ -69,7 +69,7 @@ namespace PCProps::EquationOfState
         double m_criticalPressure {};
         double m_acentricFactor {};
 
-        // ===== Fluid metadata
+        // ===== PropertyPackage metadata
         std::string m_name {};
         std::string m_CAS {};
 

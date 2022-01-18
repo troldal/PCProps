@@ -35,15 +35,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
+// ===== PCProps headers ===== //
 #include "FluidProperties.hpp"
 
+// ===== External headers ===== //
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
 namespace PCProps
 {
-
     /**
      * @details
      */

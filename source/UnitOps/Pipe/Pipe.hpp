@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "PipeSegmentLiquid.hpp"
-#include <IFluid.hpp>
+#include <IPropertyPackage.hpp>
 
 namespace PCProps::UnitOps
 {
@@ -27,11 +27,11 @@ namespace PCProps::UnitOps
 
         Pipe(double length, double diameter, double inclination, double roughness);
 
-        double computeOutletPressure(const IFluid& inletFluid, double molarFlow);
+        double computeOutletPressure(const IPropertyPackage& inletFluid, double molarFlow);
 
-        double computeInletPressure(const IFluid& outletFluid, double molarFlow);
+        double computeInletPressure(const IPropertyPackage& outletFluid, double molarFlow);
 
-        double computeMolarFlow(const IFluid& inletFluid, const IFluid& outletFluid);
+        double computeMolarFlow(const IPropertyPackage& inletFluid, const IPropertyPackage& outletFluid);
 
 
     };

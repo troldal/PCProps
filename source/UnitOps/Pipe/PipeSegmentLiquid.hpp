@@ -5,8 +5,7 @@
 #ifndef PCPROPS_PIPESEGMENTLIQUID_HPP
 #define PCPROPS_PIPESEGMENTLIQUID_HPP
 
-#include <common/PropertyData.hpp>
-#include <IFluid.hpp>
+#include <IPropertyPackage.hpp>
 
 #include <memory>
 
@@ -39,11 +38,11 @@ namespace PCProps::UnitOps
         // FLOW CALCULATIONS
         // =====================================================================
 
-        double computeOutletPressure(const IFluid& inletFluid, double molarFlow) const;
+        double computeOutletPressure(const IPropertyPackage& inletFluid, double molarFlow) const;
 
-        double computeInletPressure(const IFluid& outletFluid, double molarFlow) const;
+        double computeInletPressure(const IPropertyPackage& outletFluid, double molarFlow) const;
 
-        double computeMolarFlow(const IFluid& inletFluid, const IFluid& outletFluid) const;
+        double computeMolarFlow(const IPropertyPackage& inletFluid, const IPropertyPackage& outletFluid) const;
 
     private:
         class impl;

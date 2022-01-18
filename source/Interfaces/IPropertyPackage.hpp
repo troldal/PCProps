@@ -2,8 +2,8 @@
 // Created by Kenneth Balslev on 20/01/2021.
 //
 
-#ifndef PCPROPS_IFLUID_HPP
-#define PCPROPS_IFLUID_HPP
+#ifndef PCPROPS_IPROPERTYPACKAGE_HPP
+#define PCPROPS_IPROPERTYPACKAGE_HPP
 
 #include <iostream>
 #include <memory>
@@ -11,14 +11,14 @@
 
 namespace PCProps::UnitOps
 {
-    class IFluid
+    class IPropertyPackage
     {
         using JSONString = std::string;
     public:
         /**
          * @brief Default constructor
          */
-        IFluid() : m_fluid() {}
+        IPropertyPackage() : m_fluid() {}
 
         /**
          * @brief Constructor, taking the target object as an argument.
@@ -26,25 +26,25 @@ namespace PCProps::UnitOps
          * @param x The target object
          */
         template<typename T>
-        IFluid(const T& x) : m_fluid { std::make_unique<FluidModel<T>>(x) }
+        IPropertyPackage(const T& x) : m_fluid { std::make_unique<Model<T>>(x) }
         {}
 
         /**
          * @brief
          * @param other
          */
-        IFluid(const IFluid& other) : m_fluid(other.m_fluid ? other.m_fluid->clone() : nullptr) {}
+        IPropertyPackage(const IPropertyPackage& other) : m_fluid(other.m_fluid ? other.m_fluid->clone() : nullptr) {}
 
         /**
          * @brief
          * @param other
          */
-        IFluid(IFluid&& other) noexcept {}
+        IPropertyPackage(IPropertyPackage&& other) noexcept {}
 
         /**
          * @brief
          */
-        ~IFluid() {}
+        ~IPropertyPackage() {}
 
         /**
          * @brief
@@ -53,10 +53,10 @@ namespace PCProps::UnitOps
          * @return
          */
         template<typename T>
-        inline IFluid& operator=(const T& x)
+        inline IPropertyPackage& operator=(const T& x)
         {
-            std::cout << "IFluid (template) copy assignment operator called" << std::endl;
-            m_fluid = std::make_unique<FluidModel<T>>(x);
+            std::cout << "IPropertyPackage (template) copy assignment operator called" << std::endl;
+            m_fluid = std::make_unique<Model<T>>(x);
             return *this;
         }
 
@@ -65,10 +65,10 @@ namespace PCProps::UnitOps
          * @param other
          * @return
          */
-        inline IFluid& operator=(const IFluid& other)
+        inline IPropertyPackage& operator=(const IPropertyPackage& other)
         {
-            std::cout << "IFluid copy assignment operator called" << std::endl;
-            IFluid copy(other);
+            std::cout << "IPropertyPackage copy assignment operator called" << std::endl;
+            IPropertyPackage copy(other);
             *this = std::move(copy);
             return *this;
         }
@@ -78,8 +78,8 @@ namespace PCProps::UnitOps
          * @param other
          * @return
          */
-        inline IFluid& operator=(IFluid&& other) noexcept {
-            std::cout << "IFluid move assignment operator called" << std::endl;
+        inline IPropertyPackage& operator=(IPropertyPackage&& other) noexcept {
+            std::cout << "IPropertyPackage move assignment operator called" << std::endl;
             m_fluid = std::move(other.m_fluid);
             return *this;
         }
@@ -125,46 +125,46 @@ namespace PCProps::UnitOps
         /**
          * @brief
          */
-        struct FluidConcept
+        struct Concept
         {
         public:
             /**
              * @brief
              */
-            FluidConcept() = default;
+            Concept() = default;
 
             /**
              * @brief
              */
-            FluidConcept(const FluidConcept&) = default;
+            Concept(const Concept&) = default;
 
             /**
              * @brief
              */
-            FluidConcept(FluidConcept&&) noexcept = default;
+            Concept(Concept&&) noexcept = default;
 
             /**
              * @brief
              */
-            virtual ~FluidConcept() = default;
-
-            /**
-             * @brief
-             * @return
-             */
-            inline FluidConcept& operator=(const FluidConcept&) = default;
+            virtual ~Concept() = default;
 
             /**
              * @brief
              * @return
              */
-            inline FluidConcept& operator=(FluidConcept&&) noexcept = default;
+            inline Concept& operator=(const Concept&) = default;
 
             /**
              * @brief
              * @return
              */
-            inline virtual std::unique_ptr<FluidConcept> clone() const = 0;
+            inline Concept& operator=(Concept&&) noexcept = default;
+
+            /**
+             * @brief
+             * @return
+             */
+            inline virtual std::unique_ptr<Concept> clone() const = 0;
 
             /**
              * @brief
@@ -223,53 +223,53 @@ namespace PCProps::UnitOps
          * @tparam T
          */
         template<typename T>
-        struct FluidModel : FluidConcept
+        struct Model : Concept
         {
         public:
             /**
              * @brief
              * @param x
              */
-            explicit FluidModel(const T& x) : FluidType(x) {}
+            explicit Model(const T& x) : FluidType(x) {}
 
             /**
              * @brief
              * @param other
              */
-            FluidModel(const FluidModel& other) = default;
+            Model(const Model& other) = default;
 
             /**
              * @brief
              * @param other
              */
-            FluidModel(FluidModel&& other) noexcept = default;
+            Model(Model&& other) noexcept = default;
 
             /**
              * @brief
              */
-            ~FluidModel() override = default;
-
-            /**
-             * @brief
-             * @param other
-             * @return
-             */
-            inline FluidModel& operator=(const FluidModel& other) = default;
+            ~Model() override = default;
 
             /**
              * @brief
              * @param other
              * @return
              */
-            inline FluidModel& operator=(FluidModel&& other) noexcept = default;
+            inline Model& operator=(const Model& other) = default;
+
+            /**
+             * @brief
+             * @param other
+             * @return
+             */
+            inline Model& operator=(Model&& other) noexcept = default;
 
             /**
              * @brief
              * @return
              */
-            inline std::unique_ptr<FluidConcept> clone() const override
+            inline std::unique_ptr<Concept> clone() const override
             {
-                return std::make_unique<FluidModel<T>>(FluidType);
+                return std::make_unique<Model<T>>(FluidType);
             }
 
             inline JSONString flashPT(double pressure, double temperature) const override
@@ -311,9 +311,9 @@ namespace PCProps::UnitOps
             T FluidType;
         };
 
-        std::unique_ptr<FluidConcept> m_fluid;
+        std::unique_ptr<Concept> m_fluid;
 
     };
 }    // namespace PCProps::UnitOps
 
-#endif    // PCPROPS_IFLUID_HPP
+#endif    // PCPROPS_IPROPERTYPACKAGE_HPP

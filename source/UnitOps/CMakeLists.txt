@@ -2,7 +2,7 @@
 # PROJECT FILES
 #   List of project source files
 #=======================================================================================================================
-set(EOSLIB_SOURCES
+set(UNITOPS_SOURCES
         Pipe/Pipe.cpp
         Pipe/PipeSegmentLiquid.cpp
 
@@ -15,13 +15,13 @@ set(EOSLIB_SOURCES
 #   Define the shared library
 #=======================================================================================================================
 add_library(UnitOps SHARED "")
-target_sources(UnitOps PRIVATE ${EOSLIB_SOURCES})
+target_sources(UnitOps PRIVATE ${UNITOPS_SOURCES})
 target_include_directories(UnitOps
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(UnitOps PUBLIC dependencies common interfaces)
+target_link_libraries(UnitOps PUBLIC dependencies common interfaces PropertiesLib)
 
 include(GenerateExportHeader)
 generate_export_header(UnitOps)

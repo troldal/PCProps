@@ -12,16 +12,5 @@ target_link_libraries(${PROJECT_NAME}-demo1 PRIVATE common PureComponentLib Prop
 # Define Demo2 target
 #=======================================================================================================================
 add_executable(${PROJECT_NAME}-demo2 Demo2.cpp)
-target_link_libraries(${PROJECT_NAME}-demo2 PRIVATE common PureComponentLib PropertyLib PropertyPackage FluidLib)
+target_link_libraries(${PROJECT_NAME}-demo2 PRIVATE common PureComponentLib PropertiesLib PropertyLib PropertyPackage FluidLib sciplot UnitOps)
 
-#=======================================================================================================================
-# Define Demo3 target
-#=======================================================================================================================
-add_executable(${PROJECT_NAME}-demo3 Demo3.cpp)
-target_link_libraries(${PROJECT_NAME}-demo3 PRIVATE common PureComponentLib PropertyLib PropertyPackage FluidLib)
-
-#=======================================================================================================================
-# Define Demo4 target
-#=======================================================================================================================
-add_executable(${PROJECT_NAME}-demo4 Demo4.cpp)
-target_link_libraries(${PROJECT_NAME}-demo4 PRIVATE common PureComponentLib PropertyLib PropertyPackage FluidLib UnitOps)

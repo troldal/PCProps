@@ -5,8 +5,7 @@
 #ifndef PCPROPS_CENTRIFUGALPUMP_HPP
 #define PCPROPS_CENTRIFUGALPUMP_HPP
 
-#include <IFluid.hpp>
-#include <numeric/interpolation.hpp>
+#include <IPropertyPackage.hpp>
 #include <Stream/Stream.hpp>
 
 #include <array>
@@ -17,7 +16,6 @@
 
 namespace PCProps::UnitOps
 {
-    using PumpCurve = numeric::Interpolator;
 
     class CentrifugalPump
     {
@@ -35,7 +33,7 @@ namespace PCProps::UnitOps
 
         CentrifugalPump& operator=(CentrifugalPump&& other) noexcept;
 
-//        CentrifugalPump(const IFluid& inletFluid);
+//        CentrifugalPump(const IPropertyPackage& inletFluid);
 
         // Inlet + Outlet P
         // Inlet + dP

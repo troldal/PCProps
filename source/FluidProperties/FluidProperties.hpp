@@ -39,7 +39,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef PCPROPS_FLUIDPROPERTIES_HPP
 #define PCPROPS_FLUIDPROPERTIES_HPP
 
-// ===== External headers
+// ===== External headers ===== //
 #include <string>
 #include <iomanip>
 #include <iostream>
@@ -54,7 +54,8 @@ namespace PCProps
     enum class PhaseType { Vapor, Liquid, Undefined };
 
     /**
-     * @brief
+     * @brief The PhaseProperties class encapsulates the properties of a single phase of a fluid (liquid or vapor).
+     * This class is essentially just a struct with fields corresponding to the individual property elements
      */
     class PhaseProperties
     {
@@ -107,7 +108,7 @@ namespace PCProps
         double HelmholzEnergy { 0.0 };
 
         /**
-         * @brief
+         * @brief Default constructor.
          */
         PhaseProperties() = default;
 
@@ -135,7 +136,6 @@ namespace PCProps
          * @brief Move assignment operator.
          */
         PhaseProperties& operator=(PhaseProperties&& other) noexcept = default;
-
     };
 
 
@@ -296,7 +296,7 @@ namespace PCProps
      * @param properties
      * @return
      */
-    inline std::ostream& operator<<(std::ostream& stream, const PCProps::PhaseProperties& properties)
+    inline std::ostream& operator<<(std::ostream& stream, const PhaseProperties& properties)
     {
         auto TypeAsString = [&](const PhaseType type) {
             if (type == PhaseType::Vapor) return "VAPOR";

@@ -5,9 +5,10 @@
 #ifndef PCPROPS_STREAM_HPP
 #define PCPROPS_STREAM_HPP
 
-#include <IFluid.hpp>
+#include <IPropertyPackage.hpp>
 
 #include <memory>
+#include <string>
 
 namespace PCProps::UnitOps
 {
@@ -16,6 +17,8 @@ namespace PCProps::UnitOps
      */
     class Stream
     {
+        using JSONString = std::string;
+
     public:
 
         /**
@@ -28,7 +31,7 @@ namespace PCProps::UnitOps
          * @param fluid
          * @param quantity
          */
-        Stream(const IFluid& fluid, double quantity);
+        Stream(const IPropertyPackage& fluid, double quantity);
 
         /**
          * @brief
@@ -67,7 +70,7 @@ namespace PCProps::UnitOps
          * @param temperature
          * @return
          */
-        PCPhases flashPT(double pressure, double temperature) const;
+        JSONString flashPT(double pressure, double temperature) const;
 
         /**
          * @brief
@@ -75,7 +78,7 @@ namespace PCProps::UnitOps
          * @param vaporFraction
          * @return
          */
-        PCPhases flashPx(double pressure, double vaporFraction) const;
+        JSONString flashPx(double pressure, double vaporFraction) const;
 
         /**
          * @brief
@@ -83,7 +86,7 @@ namespace PCProps::UnitOps
          * @param vaporFraction
          * @return
          */
-        PCPhases flashTx(double temperature, double vaporFraction) const;
+        JSONString flashTx(double temperature, double vaporFraction) const;
 
         /**
          * @brief
@@ -91,7 +94,7 @@ namespace PCProps::UnitOps
          * @param enthalpy
          * @return
          */
-        PCPhases flashPH(double pressure, double enthalpy) const;
+        JSONString flashPH(double pressure, double enthalpy) const;
 
         /**
          * @brief
@@ -99,7 +102,7 @@ namespace PCProps::UnitOps
          * @param entropy
          * @return
          */
-        PCPhases flashPS(double pressure, double entropy) const;
+        JSONString flashPS(double pressure, double entropy) const;
 
         /**
          * @brief
@@ -107,13 +110,13 @@ namespace PCProps::UnitOps
          * @param volume
          * @return
          */
-        PCPhases flashTV(double temperature, double volume) const;
+        JSONString flashTV(double temperature, double volume) const;
 
         /**
          * @brief
          * @return
          */
-        PCPhases properties() const;
+        JSONString properties() const;
 
     private:
         class impl;

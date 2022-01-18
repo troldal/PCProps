@@ -35,8 +35,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef PCPROPS_FLUID_HPP
-#define PCPROPS_FLUID_HPP
+#ifndef PCPROPS_PROPERTYPACKAGE_HPP
+#define PCPROPS_PROPERTYPACKAGE_HPP
 
 #include <IEquationOfState.hpp>
 #include <IPureComponent.hpp>
@@ -52,7 +52,7 @@ namespace PCProps
      * representing an equation of state. Equation of state can be of any type (cubic, Excess-G, high-procision, custom)
      * as long as it supports the required interface.
      */
-    class Fluid
+    class PropertyPackage
     {
         using JSONString = std::string;
     public:
@@ -63,7 +63,7 @@ namespace PCProps
         /**
          * @brief Constructor, default
          */
-        Fluid();
+        PropertyPackage();
 
         /**
          * @brief Constructor, taking a pure component object (any object supporting the IPureComponent interface), and
@@ -71,32 +71,32 @@ namespace PCProps
          * @param pureComponent Object representing a pure component.
          * @param eos Object representing an equation of state.
          */
-        explicit Fluid(const IPureComponent& pureComponent, const IEquationOfState& eos = {});
+        explicit PropertyPackage(const IPureComponent& pureComponent, const IEquationOfState& eos = {});
 
         /**
          * @brief Copy constructor
          */
-        Fluid(const Fluid& other);
+        PropertyPackage(const PropertyPackage& other);
 
         /**
          * @brief Move constructor
          */
-        Fluid(Fluid&& other) noexcept;
+        PropertyPackage(PropertyPackage&& other) noexcept;
 
         /**
          * @brief Destructor
          */
-        ~Fluid();
+        ~PropertyPackage();
 
         /**
          * @brief Copy assignment operator
          */
-        Fluid& operator=(const Fluid& other);
+        PropertyPackage& operator=(const PropertyPackage& other);
 
         /**
          * @brief Move assignment operator
          */
-        Fluid& operator=(Fluid&& other) noexcept;
+        PropertyPackage& operator=(PropertyPackage&& other) noexcept;
 
         // =====================================================================
         // FLASH ALGORITHMS
@@ -123,4 +123,4 @@ namespace PCProps
     };
 }    // namespace PCProps
 
-#endif    // PCPROPS_FLUID_HPP
+#endif    // PCPROPS_PROPERTYPACKAGE_HPP

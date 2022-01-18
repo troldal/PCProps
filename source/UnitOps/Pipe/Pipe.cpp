@@ -11,17 +11,17 @@ namespace PCProps::UnitOps {
         m_pipeSegments.emplace_back(PipeSegmentLiquid(length, diameter, inclination, roughness));
     }
 
-    double Pipe::computeOutletPressure(const IFluid& inletFluid, double molarFlow)
+    double Pipe::computeOutletPressure(const IPropertyPackage& inletFluid, double molarFlow)
     {
         return m_pipeSegments[0].computeOutletPressure(inletFluid, molarFlow);
     }
 
-    double Pipe::computeInletPressure(const IFluid& outletFluid, double molarFlow)
+    double Pipe::computeInletPressure(const IPropertyPackage& outletFluid, double molarFlow)
     {
         return m_pipeSegments[0].computeInletPressure(outletFluid, molarFlow);;
     }
 
-    double Pipe::computeMolarFlow(const IFluid& inletFluid, const IFluid& outletFluid)
+    double Pipe::computeMolarFlow(const IPropertyPackage& inletFluid, const IPropertyPackage& outletFluid)
     {
         return 0;
     }

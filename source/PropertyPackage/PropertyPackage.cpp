@@ -2,7 +2,7 @@
 // Created by Kenneth Balslev on 18/01/2021.
 //
 
-#include "Fluid.hpp"
+#include "PropertyPackage.hpp"
 
 #include <FluidProperties.hpp>
 #include <numerics.hpp>
@@ -16,7 +16,7 @@ using JSONString = std::string;
 
 namespace PCProps
 {
-    class Fluid::impl
+    class PropertyPackage::impl
     {
         // ===== Objects representing the pure component and equation of state.
         IPureComponent          m_pureComponent {};
@@ -349,34 +349,34 @@ namespace PCProps
     /**
      * Default constructor
      */
-    Fluid::Fluid() = default;
+    PropertyPackage::PropertyPackage() = default;
 
     /**
      * Constructor
      */
-    Fluid::Fluid(const IPureComponent& pureComponent, const IEquationOfState& eos) : m_impl(std::make_unique<impl>(pureComponent, eos)) {}
+    PropertyPackage::PropertyPackage(const IPureComponent& pureComponent, const IEquationOfState& eos) : m_impl(std::make_unique<impl>(pureComponent, eos)) {}
 
     /**
      * Copy constructor
      */
-    Fluid::Fluid(const Fluid& other) : m_impl(std::make_unique<impl>(*other.m_impl)) {}
+    PropertyPackage::PropertyPackage(const PropertyPackage& other) : m_impl(std::make_unique<impl>(*other.m_impl)) {}
 
     /**
      * Move constructor
      */
-    Fluid::Fluid(Fluid&& other) noexcept = default;
+    PropertyPackage::PropertyPackage(PropertyPackage&& other) noexcept = default;
 
     /**
      * Destructor
      */
-    Fluid::~Fluid() = default;
+    PropertyPackage::~PropertyPackage() = default;
 
     /**
      * Copy assignment operator
      */
-    Fluid& Fluid::operator=(const Fluid& other)
+    PropertyPackage& PropertyPackage::operator=(const PropertyPackage& other)
     {
-        Fluid copy = other;
+        PropertyPackage copy = other;
         *this      = std::move(copy);
         return *this;
     };
@@ -384,7 +384,7 @@ namespace PCProps
     /**
      * Move assignment operator
      */
-    Fluid& Fluid::operator=(Fluid&& other) noexcept = default;
+    PropertyPackage& PropertyPackage::operator=(PropertyPackage&& other) noexcept = default;
 
     /**
      * @brief
@@ -393,7 +393,7 @@ namespace PCProps
      * @param var2
      * @return
      */
-    JSONString Fluid::flash(const std::string& specification, double var1, double var2) const
+    JSONString PropertyPackage::flash(const std::string& specification, double var1, double var2) const
     {
         if (specification == "PT")
             return m_impl->flashPT(var1, var2).asJSON();
@@ -417,7 +417,7 @@ namespace PCProps
     /**
      *
      */
-    JSONString Fluid::properties() const
+    JSONString PropertyPackage::properties() const
     {
         return m_impl->getProperties().asJSON();
     }
