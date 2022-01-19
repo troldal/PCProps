@@ -19,33 +19,71 @@ namespace PCProps::UnitOps
 
     class CentrifugalPump
     {
+
+        using JSONString = std::string;
+
     public:
 
-        CentrifugalPump(double eff = 1.0);
+        /**
+         * @brief
+         * @param specification
+         */
+        CentrifugalPump(const JSONString& specification);
 
+        /**
+         * @brief
+         * @param other
+         */
         CentrifugalPump(const CentrifugalPump& other);
 
+        /**
+         * @brief
+         * @param other
+         */
         CentrifugalPump(CentrifugalPump&& other) noexcept;
 
+        /**
+         * @brief
+         */
         ~CentrifugalPump();
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         CentrifugalPump& operator=(const CentrifugalPump& other);
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         CentrifugalPump& operator=(CentrifugalPump&& other) noexcept;
 
-//        CentrifugalPump(const IPropertyPackage& inletFluid);
-
-        // Inlet + Outlet P
-        // Inlet + dP
-        // Inlet + Power
-
+        /**
+         * @brief
+         * @return
+         */
         const Stream& operator()() const;
 
+        /**
+         * @brief
+         * @return
+         */
         std::string results() const;
 
-        void setDifferentialPressure(double pressure);
-
+        /**
+         * @brief
+         * @param stream
+         */
         void setInletStream(Stream* stream);
+
+        /**
+         * @brief
+         * @param specification
+         */
+        void setSpecification(const JSONString& specification);
 
 
     private:

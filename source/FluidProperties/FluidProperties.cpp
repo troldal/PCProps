@@ -1,18 +1,18 @@
 /*
 
-8888888b.   .d8888b.  8888888b.
-888   Y88b d88P  Y88b 888   Y88b
-888    888 888    888 888    888
-888   d88P 888        888   d88P 888d888 .d88b.  88888b.  .d8888b
-8888888P"  888        8888888P"  888P"  d88""88b 888 "88b 88K
-888        888    888 888        888    888  888 888  888 "Y8888b.
-888        Y88b  d88P 888        888    Y88..88P 888 d88P      X88
-888         "Y8888P"  888        888     "Y88P"  88888P"   88888P'
-                                                 888
-                                                 888
-                                                 888
+888    d8P  8888888b.
+888   d8P   888   Y88b
+888  d8P    888    888
+888d88K     888   d88P 888d888 .d88b.  88888b.  .d8888b
+8888888b    8888888P"  888P"  d88""88b 888 "88b 88K
+888  Y88b   888        888    888  888 888  888 "Y8888b.
+888   Y88b  888        888    Y88..88P 888 d88P      X88
+888    Y88b 888        888     "Y88P"  88888P"   88888P'
+                                       888
+                                       888
+                                       888
 
-Copyright (c) 2020 Kenneth Troldal Balslev
+Copyright (c) 2022 Kenneth Troldal Balslev
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -43,8 +43,166 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
+// ===== Standard Library headers ===== //
+#include <algorithm>
+
 namespace PCProps
 {
+    using JSONString = std::string;
+
+    /**
+     * @brief
+     */
+    class FluidProperties::impl
+    {
+    private:
+
+        /**
+         * @brief
+         * @param type
+         * @return
+         */
+        PhaseType ConvertToPhaseType(const std::string& type) {
+            if (type == "VAPOR") return PhaseType::Vapor;
+            if (type == "LIQUID") return PhaseType::Liquid;
+            return PhaseType::Undefined;
+        }
+
+        rapidjson::Document m_jsondoc;
+
+    public:
+        std::vector<PhaseProperties> m_phases;
+
+        /**
+         * @brief
+         * @param JSONData
+         */
+        impl(const std::string& JSONData) {
+
+            auto parse_json = [&](const auto& data, PhaseProperties& phase) -> void {
+
+                for (const auto& item : data.GetObject()) {
+                    std::string key = item.name.GetString();
+
+                    if (key == "Type")
+                        phase.Type = ConvertToPhaseType(item.value.GetString());
+                    else if (key == "Name")
+                        phase.Name = item.value.GetString();
+                    else if (key == "CAS")
+                        phase.CAS = item.value.GetString();
+
+                    else if (key == "NormalFreezingPoint")
+                        phase.NormalFreezingPoint = item.value.GetDouble();
+                    else if (key == "NormalBoilingPoint")
+                        phase.NormalBoilingPoint = item.value.GetDouble();
+                    else if (key == "CriticalTemperature")
+                        phase.CriticalTemperature = item.value.GetDouble();
+                    else if (key == "CriticalPressure")
+                        phase.CriticalPressure = item.value.GetDouble();
+
+                    else if (key == "Pressure")
+                        phase.Pressure = item.value.GetDouble();
+                    else if (key == "Temperature")
+                        phase.Temperature = item.value.GetDouble();
+                    else if (key == "MolarVolume")
+                        phase.MolarVolume = item.value.GetDouble();
+                    else if (key == "MolarWeight")
+                        phase.MolarWeight = item.value.GetDouble();
+                    else if (key == "MolarFlow")
+                        phase.MolarFlow = item.value.GetDouble();
+                    else if (key == "Compressibility")
+                        phase.Compressibility = item.value.GetDouble();
+                    else if (key == "FugacityCoefficient")
+                        phase.FugacityCoefficient = item.value.GetDouble();
+                    else if (key == "Viscosity")
+                        phase.Viscosity = item.value.GetDouble();
+                    else if (key == "SurfaceTension")
+                        phase.SurfaceTension = item.value.GetDouble();
+                    else if (key == "ThermalConductivity")
+                        phase.ThermalConductivity = item.value.GetDouble();
+                    else if (key == "CpDeparture")
+                        phase.CpDeparture = item.value.GetDouble();
+                    else if (key == "CvDeparture")
+                        phase.CvDeparture = item.value.GetDouble();
+                    else if (key == "EnthalpyDeparture")
+                        phase.EnthalpyDeparture = item.value.GetDouble();
+                    else if (key == "EntropyDeparture")
+                        phase.EntropyDeparture = item.value.GetDouble();
+                    else if (key == "InternalEnergyDeparture")
+                        phase.InternalEnergyDeparture = item.value.GetDouble();
+                    else if (key == "GibbsEnergyDeparture")
+                        phase.GibbsEnergyDeparture = item.value.GetDouble();
+                    else if (key == "HelmholzEnergyDeparture")
+                        phase.HelmholzEnergyDeparture = item.value.GetDouble();
+
+                    else if (key == "DPDV")
+                        phase.DPDV = item.value.GetDouble();
+                    else if (key == "DPDT")
+                        phase.DPDT = item.value.GetDouble();
+                    else if (key == "DVDP")
+                        phase.DVDP = item.value.GetDouble();
+                    else if (key == "DVDT")
+                        phase.DVDT = item.value.GetDouble();
+                    else if (key == "DTDV")
+                        phase.DTDV = item.value.GetDouble();
+                    else if (key == "DTDV")
+                        phase.DTDV = item.value.GetDouble();
+                    else if (key == "DTDP")
+                        phase.DTDP = item.value.GetDouble();
+
+                    else if (key == "Cp")
+                        phase.Cp = item.value.GetDouble();
+                    else if (key == "Cv")
+                        phase.Cv = item.value.GetDouble();
+                    else if (key == "IsothermalCompressibility")
+                        phase.IsothermalCompressibility = item.value.GetDouble();
+                    else if (key == "ThermalExpansionCoefficient")
+                        phase.ThermalExpansionCoefficient = item.value.GetDouble();
+                    else if (key == "JouleThomsonCoefficient")
+                        phase.JouleThomsonCoefficient = item.value.GetDouble();
+                    else if (key == "SpeedOfSound")
+                        phase.SpeedOfSound = item.value.GetDouble();
+                    else if (key == "SaturationPressure")
+                        phase.SaturationPressure = item.value.GetDouble();
+                    else if (key == "SaturationVolume")
+                        phase.SaturationVolume = item.value.GetDouble();
+                    else if (key == "Enthalpy")
+                        phase.Enthalpy = item.value.GetDouble();
+                    else if (key == "Entropy")
+                        phase.Entropy = item.value.GetDouble();
+                    else if (key == "InternalEnergy")
+                        phase.InternalEnergy = item.value.GetDouble();
+                    else if (key == "GibbsEnergy")
+                        phase.GibbsEnergy = item.value.GetDouble();
+                    else if (key == "HelmholzEnergy")
+                        phase.HelmholzEnergy = item.value.GetDouble();
+                }
+            };
+
+            m_jsondoc.Parse(JSONData.c_str());
+            for (const auto& phase : m_jsondoc.GetArray()) {
+                m_phases.emplace_back();
+                parse_json(phase, m_phases.back());
+            }
+        }
+
+        /**
+         * @brief
+         * @param fluidProps
+         */
+        impl(const std::vector<PhaseProperties>& fluidProps) : m_phases(fluidProps) {}
+
+        /**
+         * @brief
+         * @param other
+         */
+        impl(const impl& other) {
+            m_phases = other.m_phases;
+        }
+
+
+    };
+
     /**
      * @details
      */
@@ -53,133 +211,17 @@ namespace PCProps
     /**
      * @details
      */
-    FluidProperties::FluidProperties(const std::string& JSONData)
-    {
-        using rapidjson::Document;
-
-        auto parse_json = [&](const auto& data) {
-            // ===== Embedded lambda function for converting phase type string to enum type.
-            auto AsType = [&](const std::string& type) {
-                if (type == "VAPOR") return PhaseType::Vapor;
-                if (type == "LIQUID") return PhaseType::Liquid;
-                return PhaseType::Undefined;
-            };
-
-            PhaseProperties phase;
-
-            for (const auto& item : data.GetObject()) {
-                std::string key = item.name.GetString();
-
-                if (key == "Type")
-                    phase.Type = AsType(item.value.GetString());
-                else if (key == "Name")
-                    phase.Name = item.value.GetString();
-                else if (key == "CAS")
-                    phase.CAS = item.value.GetString();
-
-                else if (key == "NormalFreezingPoint")
-                    phase.NormalFreezingPoint = item.value.GetDouble();
-                else if (key == "NormalBoilingPoint")
-                    phase.NormalBoilingPoint = item.value.GetDouble();
-                else if (key == "CriticalTemperature")
-                    phase.CriticalTemperature = item.value.GetDouble();
-                else if (key == "CriticalPressure")
-                    phase.CriticalPressure = item.value.GetDouble();
-
-                else if (key == "Pressure")
-                    phase.Pressure = item.value.GetDouble();
-                else if (key == "Temperature")
-                    phase.Temperature = item.value.GetDouble();
-                else if (key == "MolarVolume")
-                    phase.MolarVolume = item.value.GetDouble();
-                else if (key == "MolarWeight")
-                    phase.MolarWeight = item.value.GetDouble();
-                else if (key == "MolarFlow")
-                    phase.MolarFlow = item.value.GetDouble();
-                else if (key == "Compressibility")
-                    phase.Compressibility = item.value.GetDouble();
-                else if (key == "FugacityCoefficient")
-                    phase.FugacityCoefficient = item.value.GetDouble();
-                else if (key == "Viscosity")
-                    phase.Viscosity = item.value.GetDouble();
-                else if (key == "SurfaceTension")
-                    phase.SurfaceTension = item.value.GetDouble();
-                else if (key == "ThermalConductivity")
-                    phase.ThermalConductivity = item.value.GetDouble();
-                else if (key == "CpDeparture")
-                    phase.CpDeparture = item.value.GetDouble();
-                else if (key == "CvDeparture")
-                    phase.CvDeparture = item.value.GetDouble();
-                else if (key == "EnthalpyDeparture")
-                    phase.EnthalpyDeparture = item.value.GetDouble();
-                else if (key == "EntropyDeparture")
-                    phase.EntropyDeparture = item.value.GetDouble();
-                else if (key == "InternalEnergyDeparture")
-                    phase.InternalEnergyDeparture = item.value.GetDouble();
-                else if (key == "GibbsEnergyDeparture")
-                    phase.GibbsEnergyDeparture = item.value.GetDouble();
-                else if (key == "HelmholzEnergyDeparture")
-                    phase.HelmholzEnergyDeparture = item.value.GetDouble();
-
-                else if (key == "DPDV")
-                    phase.DPDV = item.value.GetDouble();
-                else if (key == "DPDT")
-                    phase.DPDT = item.value.GetDouble();
-                else if (key == "DVDP")
-                    phase.DVDP = item.value.GetDouble();
-                else if (key == "DVDT")
-                    phase.DVDT = item.value.GetDouble();
-                else if (key == "DTDV")
-                    phase.DTDV = item.value.GetDouble();
-                else if (key == "DTDV")
-                    phase.DTDV = item.value.GetDouble();
-                else if (key == "DTDP")
-                    phase.DTDP = item.value.GetDouble();
-
-                else if (key == "Cp")
-                    phase.Cp = item.value.GetDouble();
-                else if (key == "Cv")
-                    phase.Cv = item.value.GetDouble();
-                else if (key == "IsothermalCompressibility")
-                    phase.IsothermalCompressibility = item.value.GetDouble();
-                else if (key == "ThermalExpansionCoefficient")
-                    phase.ThermalExpansionCoefficient = item.value.GetDouble();
-                else if (key == "JouleThomsonCoefficient")
-                    phase.JouleThomsonCoefficient = item.value.GetDouble();
-                else if (key == "SpeedOfSound")
-                    phase.SpeedOfSound = item.value.GetDouble();
-                else if (key == "SaturationPressure")
-                    phase.SaturationPressure = item.value.GetDouble();
-                else if (key == "SaturationVolume")
-                    phase.SaturationVolume = item.value.GetDouble();
-                else if (key == "Enthalpy")
-                    phase.Enthalpy = item.value.GetDouble();
-                else if (key == "Entropy")
-                    phase.Entropy = item.value.GetDouble();
-                else if (key == "InternalEnergy")
-                    phase.InternalEnergy = item.value.GetDouble();
-                else if (key == "GibbsEnergy")
-                    phase.GibbsEnergy = item.value.GetDouble();
-                else if (key == "HelmholzEnergy")
-                    phase.HelmholzEnergy = item.value.GetDouble();
-            }
-            return phase;
-        };
-
-        Document phasedata;
-        phasedata.Parse(JSONData.c_str());
-        for (const auto& phase : phasedata.GetArray()) m_phases.emplace_back(parse_json(phase));
-    }
+    FluidProperties::FluidProperties(const std::string& JSONData) : m_impl(std::make_unique<impl>(JSONData)) {}
 
     /**
      * @details
      */
-    FluidProperties::FluidProperties(const std::vector<PhaseProperties>& fluidProps) : m_phases(fluidProps) {}
+    FluidProperties::FluidProperties(const std::vector<PhaseProperties>& fluidProps) : m_impl(std::make_unique<impl>(fluidProps)) {}
 
     /**
      * @details
      */
-    FluidProperties::FluidProperties(const FluidProperties& other) = default;
+    FluidProperties::FluidProperties(const FluidProperties& other)  : m_impl(other.m_impl ? std::make_unique<impl>(*other.m_impl) : nullptr) {};
 
     /**
      * @details
@@ -194,7 +236,11 @@ namespace PCProps
     /**
      * @details
      */
-    FluidProperties& FluidProperties::operator=(const FluidProperties& other) = default;
+    FluidProperties& FluidProperties::operator=(const FluidProperties& other) {
+        FluidProperties copy = other;
+        *this             = std::move(copy);
+        return *this;
+    };
 
     /**
      * @details
@@ -206,7 +252,8 @@ namespace PCProps
      */
     FluidProperties& FluidProperties::operator=(const std::vector<PhaseProperties>& fluidProps)
     {
-        m_phases = fluidProps;
+        FluidProperties copy = FluidProperties(fluidProps);
+        *this             = std::move(copy);
         return *this;
     }
 
@@ -215,7 +262,7 @@ namespace PCProps
      */
     const PhaseProperties& FluidProperties::operator[](int index) const
     {
-        return m_phases[index];
+        return m_impl->m_phases[index];
     }
 
     /**
@@ -223,7 +270,7 @@ namespace PCProps
      */
     const std::vector<PhaseProperties>& FluidProperties::phases() const
     {
-        return m_phases;
+        return m_impl->m_phases;
     }
 
     /**
@@ -231,7 +278,7 @@ namespace PCProps
      */
     size_t FluidProperties::size() const
     {
-        return m_phases.size();
+        return m_impl->m_phases.size();
     }
 
     /**
@@ -239,9 +286,9 @@ namespace PCProps
      */
     void FluidProperties::erase(int index)
     {
-        auto iter = m_phases.begin();
+        auto iter = m_impl->m_phases.begin();
         std::advance(iter, index);
-        m_phases.erase(iter);
+        m_impl->m_phases.erase(iter);
     }
 
     /**
@@ -249,7 +296,7 @@ namespace PCProps
      */
     FluidProperties FluidProperties::stablePhase() const
     {
-        return FluidProperties(std::vector { *std::min_element(m_phases.begin(), m_phases.end(), [](const PhaseProperties& a, const PhaseProperties& b) {
+        return FluidProperties(std::vector { *std::min_element(m_impl->m_phases.begin(), m_impl->m_phases.end(), [](const PhaseProperties& a, const PhaseProperties& b) {
             return a.FugacityCoefficient < b.FugacityCoefficient;
         }) });
     }
@@ -260,7 +307,7 @@ namespace PCProps
     FluidProperties FluidProperties::heavyPhase() const
     {
         return FluidProperties(
-            std::vector { *std::min_element(m_phases.begin(), m_phases.end(), [](const PhaseProperties& a, const PhaseProperties& b) { return a.MolarVolume < b.MolarVolume; }) });
+            std::vector { *std::min_element(m_impl->m_phases.begin(), m_impl->m_phases.end(), [](const PhaseProperties& a, const PhaseProperties& b) { return a.MolarVolume < b.MolarVolume; }) });
     }
 
     /**
@@ -269,7 +316,7 @@ namespace PCProps
     FluidProperties FluidProperties::lightPhase() const
     {
         return FluidProperties(
-            std::vector { *std::max_element(m_phases.begin(), m_phases.end(), [](const PhaseProperties& a, const PhaseProperties& b) { return a.MolarVolume < b.MolarVolume; }) });
+            std::vector { *std::max_element(m_impl->m_phases.begin(), m_impl->m_phases.end(), [](const PhaseProperties& a, const PhaseProperties& b) { return a.MolarVolume < b.MolarVolume; }) });
     }
 
     /**
@@ -346,7 +393,7 @@ namespace PCProps
         StringBuffer         s;
         Writer<StringBuffer> writer(s);
         writer.StartArray();
-        for (const auto& phase : m_phases) make_json(phase, writer);
+        for (const auto& phase : m_impl->m_phases) make_json(phase, writer);
         writer.EndArray();
 
         return s.GetString();
@@ -357,7 +404,7 @@ namespace PCProps
      */
     std::vector<PhaseProperties>::iterator FluidProperties::begin()
     {
-        return m_phases.begin();
+        return m_impl->m_phases.begin();
     }
 
     /**
@@ -365,7 +412,7 @@ namespace PCProps
      */
     std::vector<PhaseProperties>::iterator FluidProperties::end()
     {
-        return m_phases.end();
+        return m_impl->m_phases.end();
     }
 
     /**
@@ -373,7 +420,7 @@ namespace PCProps
      */
     PhaseProperties& FluidProperties::back()
     {
-        return m_phases.back();
+        return m_impl->m_phases.back();
     }
 
     /**
@@ -381,7 +428,7 @@ namespace PCProps
      */
     const PhaseProperties& FluidProperties::back() const
     {
-        return m_phases.back();
+        return m_impl->m_phases.back();
     }
 
     /**
@@ -389,7 +436,7 @@ namespace PCProps
      */
     PhaseProperties& FluidProperties::front()
     {
-        return m_phases.front();
+        return m_impl->m_phases.front();
     }
 
     /**
@@ -397,7 +444,7 @@ namespace PCProps
      */
     const PhaseProperties& FluidProperties::front() const
     {
-        return m_phases.front();
+        return m_impl->m_phases.front();
     }
 
     /**

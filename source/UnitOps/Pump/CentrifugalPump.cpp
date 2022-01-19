@@ -4,18 +4,22 @@
 
 #include "CentrifugalPump.hpp"
 
-#include <json/json.hpp>
+#include <rapidjson/document.h>
 
 namespace PCProps::UnitOps {
 
+    using JSONString = std::string;
+
     class CentrifugalPump::impl {
 
+        enum class SpecType { OutletPressure, DeltaPressure, HydraulicPower, EffectivePower };
+
+        SpecType m_pumpSpecType;
+        double m_pumpSpecValue;
         const Stream* m_inletStream;
         mutable Stream m_outletStream;
         double m_dp;
-        double m_eff;
-
-
+        double m_pumpEfficiency {};
 
     public:
 
@@ -31,7 +35,24 @@ namespace PCProps::UnitOps {
         // Optional Input:
         // Pump Curves
 
-        impl(double eff) : m_eff(eff) {}
+        impl(const JSONString& specification) {
+
+            using rapidjson::Document;
+            Document pumpspec;
+            pumpspec.Parse(specification.c_str());
+
+            for (const auto& item : pumpspec.GetObject()) {
+                std::string key = item.name.GetString();
+
+                if (key == "OutletPressure") m_pumpSpecType = SpecType::OutletPressure;
+                else if (key == "DeltaPressure") m_pumpSpecType = SpecType::DeltaPressure;
+                else if (key == "HydraulicPower") m_pumpSpecType = SpecType::HydraulicPower;
+                else if (key == "EffectivePower") m_pumpSpecType = SpecType::EffectivePower;
+
+                m_pumpSpecValue = item.value.GetDouble();
+            }
+
+        }
 
         const Stream& operator()() const {
 
@@ -76,14 +97,29 @@ namespace PCProps::UnitOps {
 
     };
 
-    CentrifugalPump::CentrifugalPump(double eff) : m_impl(std::make_unique<impl>(eff)) {}
+    /**
+     * @details
+     */
+    CentrifugalPump::CentrifugalPump(const JSONString& specification) : m_impl(std::make_unique<impl>(specification)) {}
 
+    /**
+     * @details
+     */
     CentrifugalPump::CentrifugalPump(const CentrifugalPump& other) : m_impl(std::make_unique<impl>(*other.m_impl)) {};
 
+    /**
+     * @details
+     */
     CentrifugalPump::CentrifugalPump(CentrifugalPump&& other) noexcept = default;
 
+    /**
+     * @details
+     */
     CentrifugalPump::~CentrifugalPump() = default;
 
+    /**
+     * @details
+     */
     CentrifugalPump& CentrifugalPump::operator=(const CentrifugalPump& other)
     {
         CentrifugalPump copy = other;
@@ -91,24 +127,37 @@ namespace PCProps::UnitOps {
         return *this;
     }
 
+    /**
+     * @details
+     */
     CentrifugalPump& CentrifugalPump::operator=(CentrifugalPump&& other) noexcept = default;
 
+    /**
+     * @details
+     */
     const Stream& CentrifugalPump::operator()() const
     {
         return m_impl->operator()();
     }
 
+    /**
+     * @details
+     */
     std::string CentrifugalPump::results() const
     {
         return m_impl->results();
     }
 
-    void CentrifugalPump::setDifferentialPressure(double pressure) {
-        m_impl->setDifferentialPressure(pressure);
-    }
-
+    /**
+     * @details
+     */
     void CentrifugalPump::setInletStream(Stream* stream) {
         m_impl->setInletStream(stream);
     }
+
+    /**
+     * @details
+     */
+    void CentrifugalPump::setSpecification(const JSONString& specification) {}
 
 } //  namespace PCProps::UnitOps

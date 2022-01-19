@@ -1,18 +1,18 @@
 /*
 
-8888888b.   .d8888b.  8888888b.
-888   Y88b d88P  Y88b 888   Y88b
-888    888 888    888 888    888
-888   d88P 888        888   d88P 888d888 .d88b.  88888b.  .d8888b
-8888888P"  888        8888888P"  888P"  d88""88b 888 "88b 88K
-888        888    888 888        888    888  888 888  888 "Y8888b.
-888        Y88b  d88P 888        888    Y88..88P 888 d88P      X88
-888         "Y8888P"  888        888     "Y88P"  88888P"   88888P'
-                                                 888
-                                                 888
-                                                 888
+888    d8P  8888888b.
+888   d8P   888   Y88b
+888  d8P    888    888
+888d88K     888   d88P 888d888 .d88b.  88888b.  .d8888b
+8888888b    8888888P"  888P"  d88""88b 888 "88b 88K
+888  Y88b   888        888    888  888 888  888 "Y8888b.
+888   Y88b  888        888    Y88..88P 888 d88P      X88
+888    Y88b 888        888     "Y88P"  88888P"   88888P'
+                                       888
+                                       888
+                                       888
 
-Copyright (c) 2020 Kenneth Troldal Balslev
+Copyright (c) 2022 Kenneth Troldal Balslev
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -35,11 +35,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-
 #ifndef PCPROPS_FLUIDPROPERTIES_HPP
 #define PCPROPS_FLUIDPROPERTIES_HPP
 
-// ===== External headers ===== //
+// ===== Standard Library headers ===== //
 #include <string>
 #include <iomanip>
 #include <iostream>
@@ -47,8 +46,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace PCProps
 {
-    // ===== Alias declarations
-    using JSONString = std::string;
 
     // ===== Enum definitions ===== //
     enum class PhaseType { Vapor, Liquid, Undefined };
@@ -144,9 +141,7 @@ namespace PCProps
      */
     class FluidProperties
     {
-    private:
-
-        std::vector<PhaseProperties> m_phases;
+        using JSONString = std::string;
 
     public:
 
@@ -288,6 +283,10 @@ namespace PCProps
          * @param stream An std::ostream object, e.g. std::cout.
          */
         void print(std::ostream& stream);
+
+    private:
+        class impl;
+        std::unique_ptr<impl> m_impl;
     };
 
     /**

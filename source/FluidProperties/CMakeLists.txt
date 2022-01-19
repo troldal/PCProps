@@ -19,13 +19,6 @@ target_include_directories(PropertiesLib
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
 target_link_libraries(PropertiesLib PUBLIC dependencies)
 
-#include(GenerateExportHeader)
-#generate_export_header(FluidLib)
-#BASE_NAME openxlsx
-#EXPORT_FILE_NAME OpenXLSX-Exports.hpp
-#EXPORT_MACRO_NAME OPENXLSX_EXPORT
-#NO_EXPORT_MACRO_NAME OPENXLSX_HIDDEN)
-
 #=======================================================================================================================
 # SET TARGET COMPILE OPTIONS
 #   ---
