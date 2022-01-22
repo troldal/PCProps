@@ -3,8 +3,8 @@
 #   List of project source files
 #=======================================================================================================================
 set(UNITOPS_SOURCES
-        Pipe/Pipe.cpp
-        Pipe/PipeSegmentLiquid.cpp
+#        Pipe/Pipe.cpp
+#        Pipe/PipeSegmentLiquid.cpp
 
         Pump/CentrifugalPump.cpp
         Stream/Stream.cpp

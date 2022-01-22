@@ -421,7 +421,7 @@ namespace PCProps::EquationOfState
                     std::vector<double> slices {};
                     for (int i = 0; i <= sliceCount; ++i) slices.emplace_back(lower + i * ((upper - lower) / sliceCount));
 
-                    // ===== For each interval, compute the slope, dz/dp
+                    // ===== For each interval, calcResults the slope, dz/dp
                     std::vector<std::pair<double, double>> slopes;
                     for (auto iter = std::next(slices.begin()); iter != slices.end(); ++iter) {
                         auto z1 = computeCompressibilityFactors(temperature, *std::prev(iter));
@@ -498,7 +498,7 @@ namespace PCProps::EquationOfState
                 }
             };
 
-            // ===== If the temperature is less than the critical temperature, compute using the PR-EOS.
+            // ===== If the temperature is less than the critical temperature, calcResults using the PR-EOS.
             if (temperature < m_criticalTemperature) {
                 auto guess = std::max(1.0, guessSaturationPressure());
                 int  counter { 0 };
@@ -515,7 +515,7 @@ namespace PCProps::EquationOfState
                 }
             }
 
-            // ===== Otherwise, compute the slope at the critical point, and extrapolate.
+            // ===== Otherwise, calcResults the slope at the critical point, and extrapolate.
             auto slope = numeric::diff_backward([&](double t) { return m_vaporPressure(t); }, m_criticalTemperature);
             return m_criticalPressure + (temperature - m_criticalTemperature) * slope;
         }
@@ -532,7 +532,7 @@ namespace PCProps::EquationOfState
         {
             if (pressure == m_criticalPressure) return m_criticalTemperature;
 
-            // ===== If the pressure is less than the critical pressure, compute using the PR-EOS.
+            // ===== If the pressure is less than the critical pressure, calcResults using the PR-EOS.
             if (pressure < m_criticalPressure) {
                 auto guess = numeric::newton([&](double t) { return std::abs(m_vaporPressure(t) - pressure); }, m_criticalTemperature - 1.0);
                 auto result = numeric::newton([&](double t) { return std::abs(computeSaturationPressure(t) - pressure); }, std::min(guess, m_criticalTemperature - 1.0));
@@ -540,7 +540,7 @@ namespace PCProps::EquationOfState
                 return result;
             }
 
-            // ===== Otherwise, compute the slope at the critical point, and extrapolate.
+            // ===== Otherwise, calcResults the slope at the critical point, and extrapolate.
             auto slope = numeric::diff_backward([&](double t) { return m_vaporPressure(t); }, m_criticalTemperature);
             return (pressure - m_criticalPressure) / slope + m_criticalTemperature;
         }

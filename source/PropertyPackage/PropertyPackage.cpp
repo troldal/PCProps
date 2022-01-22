@@ -21,7 +21,6 @@ namespace PCProps
         // ===== Objects representing the pure component and equation of state.
         IPureComponent          m_pureComponent {};
         IEquationOfState        m_equationOfState {};
-        mutable FluidProperties m_phaseProps {};
 
         /**
          * @brief Compute the ideal gas enthalpy at the given T, relative the standard state.
@@ -82,7 +81,7 @@ namespace PCProps
 
         /**
          * @brief Compute the vapor properties for a phase.
-         * @param vapor The (vapor) phase for which to compute properties.
+         * @param vapor The (vapor) phase for which to calcResults properties.
          * @return The input phase updated with vapor properties.
          */
         PhaseProperties& computeVaporProperties(PhaseProperties& vapor) const
@@ -153,7 +152,10 @@ namespace PCProps
         const FluidProperties flashPT(double pressure, double temperature) const
         {
             auto phaseProps = FluidProperties(m_equationOfState.computePropertiesPT(pressure, temperature));
-            return computeProperties(phaseProps).stablePhase();
+            auto result =  computeProperties(phaseProps).stablePhase();
+            result.front().MolarFlow = 1.0;
+            result.front().MolarFraction = 1.0;
+            return result;
         }
 
         /**
@@ -175,6 +177,7 @@ namespace PCProps
                 if (vaporFraction >= 1.0) {
                     phaseProps = phaseProps.lightPhase();
                     phaseProps.back().MolarFlow = 1.0;
+                    phaseProps.back().MolarFraction = 1.0;
                     return phaseProps;
                 }
 
@@ -182,6 +185,7 @@ namespace PCProps
                 if (vaporFraction <= 0.0) {
                     phaseProps = phaseProps.heavyPhase();
                     phaseProps.front().MolarFlow = 1.0;
+                    phaseProps.front().MolarFraction = 1.0;
                     return phaseProps;
                 }
 
@@ -189,12 +193,15 @@ namespace PCProps
 
                 if (phaseProps.size() == 1) {
                     phaseProps.front().MolarFlow = 1.0;
+                    phaseProps.front().MolarFraction = 1.0;
                     return phaseProps;
                 }
 
                 else {
                     phaseProps.front().MolarFlow = 1.0 - vaporFraction;
+                    phaseProps.front().MolarFraction = 1.0 - vaporFraction;
                     phaseProps.back().MolarFlow = vaporFraction;
+                    phaseProps.back().MolarFraction = vaporFraction;
                     return phaseProps;
                 }
             }
@@ -232,9 +239,9 @@ namespace PCProps
                 return idealGasEnthalpy(phase.Temperature) + phase.EnthalpyDeparture - enthalpy;
             };
 
-            // ===== If the fluid is supercritical, compute like so... (single phase)
+            // ===== If the fluid is supercritical, calcResults like so... (single phase)
             if (pressure >= m_pureComponent.property("CriticalPressure")) {
-                // ===== Use the (hypothetical) saturation temperature as first guess, and compute until the enthalpy is found.
+                // ===== Use the (hypothetical) saturation temperature as first guess, and calcResults until the enthalpy is found.
                 return flashPT(pressure, numeric::newton(enthalpyObjFunction, m_equationOfState.saturationTemperature(pressure)));
             }
 
@@ -331,15 +338,6 @@ namespace PCProps
             auto vaporFraction = (molarVolume - phaseProps.front().MolarVolume) / (phaseProps.back().MolarVolume - phaseProps.front().MolarVolume);
             return flashTx(temperature, vaporFraction);
         }
-
-        /**
-         *
-         * @return
-         */
-        const FluidProperties& getProperties() const
-        {
-            return m_phaseProps;
-        }
     };
 
     // =====================================================================
@@ -412,14 +410,6 @@ namespace PCProps
 
         if (specification == "TV")
             return m_impl->flashTV(var1, var2).asJSON();
-    }
-
-    /**
-     *
-     */
-    JSONString PropertyPackage::properties() const
-    {
-        return m_impl->getProperties().asJSON();
     }
 
 }    // namespace PCProps

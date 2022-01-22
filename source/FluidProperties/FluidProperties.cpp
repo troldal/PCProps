@@ -108,6 +108,8 @@ namespace PCProps
                         phase.MolarVolume = item.value.GetDouble();
                     else if (key == "MolarWeight")
                         phase.MolarWeight = item.value.GetDouble();
+                    else if (key == "MolarFraction")
+                        phase.MolarFraction = item.value.GetDouble();
                     else if (key == "MolarFlow")
                         phase.MolarFlow = item.value.GetDouble();
                     else if (key == "Compressibility")
@@ -355,6 +357,7 @@ namespace PCProps
             if (props.Temperature != 0.0) WriteDouble("Temperature", props.Temperature);
             if (props.MolarVolume != 0.0) WriteDouble("MolarVolume", props.MolarVolume);
             if (props.MolarWeight != 0.0) WriteDouble("MolarWeight", props.MolarWeight);
+            if (props.MolarFraction != 0.0) WriteDouble("MolarFraction", props.MolarFraction);
             if (props.MolarFlow != 0.0) WriteDouble("MolarFlow", props.MolarFlow);
             if (props.Compressibility != 0.0) WriteDouble("Compressibility", props.Compressibility);
             if (props.FugacityCoefficient != 0.0) WriteDouble("FugacityCoefficient", props.FugacityCoefficient);
@@ -465,7 +468,11 @@ namespace PCProps
         for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(width) << TypeAsString(phase.Type);
         stream << std::endl;
 
-        stream << "Molar Flow                      [-] : ";
+        stream << "Molar Fraction                  [-] : ";
+        for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(width) << phase.MolarFraction;
+        stream << std::endl;
+
+        stream << "Molar Flow                  [mol/s] : ";
         for (const PhaseProperties& phase : this->phases()) stream << std::right << std::setw(width) << phase.MolarFlow;
         stream << std::endl;
 

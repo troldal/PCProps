@@ -111,12 +111,6 @@ namespace PCProps
          */
         JSONString flash(const std::string& specification, double var1, double var2) const;
 
-        /**
-         * @brief Get the fluid properties in its current state.
-         * @return A JSONString object with the phase properties.
-         */
-        JSONString properties() const;
-
     private:
         class impl;
         std::unique_ptr<impl> m_impl;

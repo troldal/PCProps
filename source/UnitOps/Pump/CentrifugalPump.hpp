@@ -63,21 +63,9 @@ namespace PCProps::UnitOps
 
         /**
          * @brief
-         * @return
-         */
-        const Stream& operator()() const;
-
-        /**
-         * @brief
-         * @return
-         */
-        std::string results() const;
-
-        /**
-         * @brief
          * @param stream
          */
-        void setInletStream(Stream* stream);
+        void setInletStream(const Stream* stream);
 
         /**
          * @brief
@@ -85,6 +73,31 @@ namespace PCProps::UnitOps
          */
         void setSpecification(const JSONString& specification);
 
+        /**
+         * @brief
+         * @param streamName
+         * @return
+         */
+        const Stream& outputStream(const std::string& streamName = "");
+
+        /**
+         * @brief
+         */
+        void compute();
+
+        /**
+         * @brief
+         * @return
+         */
+        JSONString results() const;
+
+
+
+        /**
+         * @brief
+         * @return
+         */
+        //        const Stream& operator()() const;
 
     private:
 

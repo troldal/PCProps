@@ -1,11 +1,11 @@
 #include <iomanip>
 #include <iostream>
 
+#include <DataSource.hpp>
 #include <EquationOfState.hpp>
+#include <FluidProperties.hpp>
 #include <PropertyPackage.hpp>
 #include <PureComponentFactory.hpp>
-#include <DataSource.hpp>
-#include <FluidProperties.hpp>
 #include <UnitOps.hpp>
 
 #include <sciplot/sciplot.hpp>
@@ -16,33 +16,30 @@ using namespace sciplot;
 
 int main()
 {
-
-    auto ds = DataSource("Mini PCD.xlsx");
+    auto ds  = DataSource("Mini PCD.xlsx");
     auto pcf = PureComponentFactory(ds.load());
 
-    auto propane    = pcf.makeComponent("74-98-6");
-    auto propertypackage = PropertyPackage(propane, PengRobinson {});
+    auto water           = pcf.makeComponent("7732-18-5");
+    auto propertypackage = PropertyPackage(water, PengRobinson {});
 
-    auto fluid   = UnitOps::Stream(propertypackage, 10.0);
-
+    auto inletStream = UnitOps::Stream(propertypackage, 5.0);
 
     std::cout << "Water at 25 C and 5 bar: " << std::endl;
-    auto a = fluid.flashPT(5E5, 298.15);
-    for (const auto& phase : a) std::cout << phase << std::endl;
-    std::cout << "==================================================" << std::endl;
+    inletStream.flash("PT", 5E5, 298.15);
+    FluidProperties(inletStream.properties()).print(std::cout);
+    std::cout << "===============================================================" << std::endl;
 
-    auto cp = UnitOps::CentrifugalPump();
-    cp.setDifferentialPressure(20E5);
-    cp.setInletStream(&fluid);
-    auto b = cp().properties();
+    auto pump = UnitOps::CentrifugalPump("{\"OutletPressure\": 10E5, \"PumpEfficiency\": 0.75}");
+    pump.setInletStream(&inletStream);
 
-    //    std::cout << "Water at 25 C and 25 bar: " << std::endl;
-    //    auto b = fluid.flashPT(25E6, 298.15);
-    for (const auto& phase : b) std::cout << phase << std::endl;
-    std::cout << "==================================================" << std::endl;
+    auto& outletStream = pump.outputStream();
+    pump.compute();
 
-    //    auto pipe = Pipe(9000, 152.0 / 1000, 7, 0.0);
-    //    std::cout << pipe.computeInletPressure(fluid, 2600) << std::endl;
+    std::cout << "Water at 25 C and 10 bar: " << std::endl;
+    FluidProperties(outletStream.properties()).print(std::cout);
+    std::cout << "===============================================================" << std::endl;
+
+    std::cout << pump.results() << std::endl;
 
     return 0;
 }

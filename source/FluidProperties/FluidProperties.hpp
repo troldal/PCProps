@@ -71,6 +71,7 @@ namespace PCProps
         double Temperature { 0.0 };
         double MolarVolume { 0.0 };
         double MolarWeight { 0.0 };
+        double MolarFraction { 0.0 };
         double MolarFlow { 0.0 };
         double Compressibility { 0.0 };
         double FugacityCoefficient { 0.0 };
@@ -304,7 +305,8 @@ namespace PCProps
         };
 
         return stream << std::setprecision(8) << std::fixed << "Type                          : " << std::right << std::setw(20) << TypeAsString(properties.Type) << std::endl
-                      << "Molar Flow                    : " << std::right << std::setw(20) << properties.MolarFlow << std::endl
+                      << "Molar Fraction                : " << std::right << std::setw(20) << properties.MolarFraction << std::endl
+                      << "Molar Flow                    : " << std::right << std::setw(20) << properties.MolarFlow << " mol/s" <<std::endl
                       << "Molar Volume                  : " << std::right << std::setw(20) << properties.MolarVolume << " m3/mol" << std::endl
                       << "Surface Tension               : " << std::right << std::setw(20) << properties.SurfaceTension << " N/m" << std::endl
                       << "Thermal Conductivity          : " << std::right << std::setw(20) << properties.ThermalConductivity << " W/m-K" << std::endl
@@ -360,7 +362,11 @@ namespace PCProps
         for (const PhaseProperties& phase : properties.phases()) stream << std::right << std::setw(20) << TypeAsString(phase.Type);
         stream << std::endl;
 
-        stream << "Molar Flow                      [-] : ";
+        stream << "Molar Fraction                  [-] : ";
+        for (const PhaseProperties& phase : properties.phases()) stream << std::right << std::setw(20) << phase.MolarFraction;
+        stream << std::endl;
+
+        stream << "Molar Flow                  [mol/s] : ";
         for (const PhaseProperties& phase : properties.phases()) stream << std::right << std::setw(20) << phase.MolarFlow;
         stream << std::endl;
 

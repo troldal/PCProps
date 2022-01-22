@@ -7883,7 +7883,7 @@ namespace Detail {
     }
 
     bool Approx::equalityComparisonImpl(const double other) const {
-        // First try with fixed margin, then compute margin based on epsilon, scale and Approx's value
+        // First try with fixed margin, then calcResults margin based on epsilon, scale and Approx's value
         // Thanks to Richard Harris for his help refining the scaled margin value
         return marginComparison(m_value, other, m_margin)
             || marginComparison(m_value, other, m_epsilon * (m_scale + std::fabs(std::isinf(m_value)? 0 : m_value)));

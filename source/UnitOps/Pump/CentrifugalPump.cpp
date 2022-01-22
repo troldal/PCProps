@@ -5,6 +5,11 @@
 #include "CentrifugalPump.hpp"
 
 #include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+
+#include <FluidProperties.hpp>
+#include <Common/Globals.hpp>
 
 namespace PCProps::UnitOps {
 
@@ -15,11 +20,16 @@ namespace PCProps::UnitOps {
         enum class SpecType { OutletPressure, DeltaPressure, HydraulicPower, EffectivePower };
 
         SpecType m_pumpSpecType;
-        double m_pumpSpecValue;
         const Stream* m_inletStream;
         mutable Stream m_outletStream;
-        double m_dp;
         double m_pumpEfficiency {};
+
+        mutable FluidProperties m_fluidProps;
+        mutable double m_outletPressure;
+        mutable double m_deltaPressure;
+        mutable double m_pumpHead;
+        mutable double m_hydraulicPower;
+        mutable double m_effectivePower;
 
     public:
 
@@ -44,56 +54,208 @@ namespace PCProps::UnitOps {
             for (const auto& item : pumpspec.GetObject()) {
                 std::string key = item.name.GetString();
 
-                if (key == "OutletPressure") m_pumpSpecType = SpecType::OutletPressure;
-                else if (key == "DeltaPressure") m_pumpSpecType = SpecType::DeltaPressure;
-                else if (key == "HydraulicPower") m_pumpSpecType = SpecType::HydraulicPower;
-                else if (key == "EffectivePower") m_pumpSpecType = SpecType::EffectivePower;
+                if (key == "PumpEfficiency") {
+                    m_pumpEfficiency = item.value.GetDouble();
+                }
+                if (key == "OutletPressure") {
+                    m_pumpSpecType = SpecType::OutletPressure;
+                    m_outletPressure = item.value.GetDouble();
+                }
+                else if (key == "DeltaPressure") {
+                    m_pumpSpecType = SpecType::DeltaPressure;
+                    m_deltaPressure = item.value.GetDouble();
+                }
+                else if (key == "HydraulicPower") {
+                    m_pumpSpecType = SpecType::HydraulicPower;
+                    m_hydraulicPower = item.value.GetDouble();
+                }
+                else if (key == "EffectivePower") {
+                    m_pumpSpecType = SpecType::EffectivePower;
+                    m_effectivePower = item.value.GetDouble();
+                }
+            }
+        }
 
-                m_pumpSpecValue = item.value.GetDouble();
+        double computeDensity() const {
+
+            double result {};
+            for (auto iter = m_fluidProps.begin(); iter != m_fluidProps.end(); ++iter) {
+                result += 1.0 / (iter->MolarVolume / iter->MolarWeight * 1000) * iter->MolarFraction;
+            }
+
+            return result;
+        }
+
+        double computeMassFlow() const {
+
+            double result {};
+            for (auto iter = m_fluidProps.begin(); iter != m_fluidProps.end(); ++iter) {
+                result += iter->MolarFlow * iter->MolarWeight;
+            }
+
+            return result / 1000.0;
+        }
+
+        double computeCp() const {
+
+            double result {};
+            for (auto iter = m_fluidProps.begin(); iter != m_fluidProps.end(); ++iter) {
+                result += (iter->Cp / iter->MolarWeight) * 1000 * iter->MolarFraction;
+            }
+
+            return result;
+        }
+
+        void calcResults() const {
+            using namespace PCProps::Globals;
+
+            switch (m_pumpSpecType) {
+                case SpecType::OutletPressure:
+                {
+                    m_deltaPressure = m_outletPressure - m_fluidProps.front().Pressure;
+                    m_pumpHead = m_deltaPressure / (computeDensity() * G_ACCL);
+                    m_hydraulicPower = computeMassFlow() * m_pumpHead * G_ACCL;
+                    m_effectivePower = m_hydraulicPower / m_pumpEfficiency;
+                }
+                    break;
+                case SpecType::DeltaPressure:
+                {
+                    m_outletPressure = m_fluidProps.front().Pressure + m_deltaPressure;
+                    m_pumpHead = m_deltaPressure / (computeDensity() * G_ACCL);
+                    m_hydraulicPower = computeMassFlow() * m_pumpHead * G_ACCL;
+                    m_effectivePower = m_hydraulicPower / m_pumpEfficiency;
+                }
+                    break;
+                case SpecType::HydraulicPower:
+                {
+                    m_effectivePower = m_hydraulicPower / m_pumpEfficiency;
+                    m_pumpHead = m_hydraulicPower / (computeMassFlow() * G_ACCL);
+                    m_deltaPressure = m_pumpHead * computeDensity() * G_ACCL;
+                    m_outletPressure = m_fluidProps.front().Pressure + m_deltaPressure;
+                }
+                    break;
+                case SpecType::EffectivePower:
+                {
+                    m_hydraulicPower = m_effectivePower * m_pumpEfficiency;
+                    m_pumpHead = m_hydraulicPower / (computeMassFlow() * G_ACCL);
+                    m_deltaPressure = m_pumpHead * computeDensity() * G_ACCL;
+                    m_outletPressure = m_fluidProps.front().Pressure + m_deltaPressure;
+                }
+                    break;
+            }
+        }
+
+//        const Stream& operator()() const {
+//
+//            using namespace PCProps::Globals;
+//
+//            m_fluidProps = FluidProperties(m_inletStream->properties());
+//            calcResults();
+//
+//            auto temperatureRise = G_ACCL * m_pumpHead * (1.0 / m_pumpEfficiency - 1.0) / computeCp();
+//
+//            m_outletStream = *m_inletStream;
+//            m_outletStream.flash("PT", m_outletPressure, m_fluidProps.front().Temperature + temperatureRise);
+//            return m_outletStream;
+//        }
+
+
+        void setInletStream(const Stream* stream) {
+            m_inletStream = stream;
+        }
+
+
+        void setSpecification(const JSONString& specification) {
+
+            m_outletPressure = 0.0;
+            m_deltaPressure = 0.0;
+            m_pumpHead = 0.0;
+            m_hydraulicPower = 0.0;
+            m_effectivePower =0.0;
+
+            using rapidjson::Document;
+            Document pumpspec;
+            pumpspec.Parse(specification.c_str());
+
+            for (const auto& item : pumpspec.GetObject()) {
+                std::string key = item.name.GetString();
+
+                if (key == "PumpEfficiency") {
+                    m_pumpEfficiency = item.value.GetDouble();
+                }
+                if (key == "OutletPressure") {
+                    m_pumpSpecType = SpecType::OutletPressure;
+                    m_outletPressure = item.value.GetDouble();
+                }
+                else if (key == "DeltaPressure") {
+                    m_pumpSpecType = SpecType::DeltaPressure;
+                    m_deltaPressure = item.value.GetDouble();
+                }
+                else if (key == "HydraulicPower") {
+                    m_pumpSpecType = SpecType::HydraulicPower;
+                    m_hydraulicPower = item.value.GetDouble();
+                }
+                else if (key == "EffectivePower") {
+                    m_pumpSpecType = SpecType::EffectivePower;
+                    m_effectivePower = item.value.GetDouble();
+                }
             }
 
         }
 
-        const Stream& operator()() const {
-
-            auto molarFlow = m_inletStream->properties()[0][PCMolarFlow];
-            auto molarVol  = m_inletStream->properties()[0][PCMolarVolume];
-            auto volFlow = molarFlow * molarVol;
-
-            auto p = m_inletStream->properties()[0][PCPressure] + m_dp;
-            auto t = m_inletStream->properties()[0][PCTemperature];
-            m_outletStream = *m_inletStream;
-            m_outletStream.flashPT(p, t);
+        /**
+         * @brief
+         * @param streamName
+         * @return
+         */
+        const Stream& outputStream(const std::string& streamName = "")
+        {
             return m_outletStream;
         }
 
+        /**
+         * @brief
+         */
+        void compute() {
+            using namespace PCProps::Globals;
+
+            m_fluidProps = FluidProperties(m_inletStream->properties());
+            calcResults();
+
+            auto temperatureRise = G_ACCL * m_pumpHead * (1.0 / m_pumpEfficiency - 1.0) / computeCp();
+
+            m_outletStream = *m_inletStream;
+            m_outletStream.flash("PT", m_outletPressure, m_fluidProps.front().Temperature + temperatureRise);
+        }
+
+        /**
+         * @brief
+         * @return
+         */
         std::string results() const {
-            return std::string{};
+
+            using rapidjson::StringBuffer;
+            using rapidjson::Writer;
+
+            StringBuffer         s;
+            Writer<StringBuffer> writer(s);
+            writer.StartObject();
+            writer.Key("InletPressure");
+            writer.Double(m_fluidProps.front().Pressure);
+            writer.Key("OutletPressure");
+            writer.Double(m_outletPressure);
+            writer.Key("DeltaPressure");
+            writer.Double(m_deltaPressure);
+            writer.Key("PumpHead");
+            writer.Double(m_pumpHead);
+            writer.Key("HydraulicPower");
+            writer.Double(m_hydraulicPower);
+            writer.Key("EffectivePower");
+            writer.Double(m_effectivePower);
+            writer.EndObject();
+
+            return s.GetString();
         }
-
-        void setInletStream(Stream* stream) {
-            m_inletStream = stream;
-        }
-
-        void setDifferentialPressure(double dp) {
-            m_dp = dp;
-        }
-
-        double computeDensity() const {
-            auto density = 0.0;
-
-
-        }
-
-        double computeLiquidHead(double pressure) const {
-//            auto density = 0.0;
-//            auto phases = m_inletStream->properties();
-//            for (auto& phase : phases) {
-//                volFlow +=
-//            }
-        }
-
-
 
     };
 
@@ -135,9 +297,36 @@ namespace PCProps::UnitOps {
     /**
      * @details
      */
-    const Stream& CentrifugalPump::operator()() const
+//    const Stream& CentrifugalPump::operator()() const
+//    {
+//        return m_impl->operator()();
+//    }
+
+    /**
+     * @details
+     */
+    void CentrifugalPump::setInletStream(const Stream* stream) {
+        m_impl->setInletStream(stream);
+    }
+
+    /**
+     * @details
+     */
+    void CentrifugalPump::setSpecification(const JSONString& specification) {}
+
+    /**
+     * @details
+     */
+    const Stream& CentrifugalPump::outputStream(const std::string& streamName)
     {
-        return m_impl->operator()();
+        return m_impl->outputStream();
+    }
+
+    /**
+     * @details
+     */
+    void CentrifugalPump::compute() {
+        m_impl->compute();
     }
 
     /**
@@ -148,16 +337,5 @@ namespace PCProps::UnitOps {
         return m_impl->results();
     }
 
-    /**
-     * @details
-     */
-    void CentrifugalPump::setInletStream(Stream* stream) {
-        m_impl->setInletStream(stream);
-    }
-
-    /**
-     * @details
-     */
-    void CentrifugalPump::setSpecification(const JSONString& specification) {}
 
 } //  namespace PCProps::UnitOps

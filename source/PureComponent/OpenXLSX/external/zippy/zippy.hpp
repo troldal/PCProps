@@ -646,7 +646,7 @@ namespace
 
         /* TDEFL_WRITE_ZLIB_HEADER: If set, the compressor outputs a zlib header before the deflate data, and the Adler-32 of the @library
          * data at the end. Otherwise, you'll get raw deflate data. */
-        /* TDEFL_COMPUTE_ADLER32: Always compute the adler-32 of the input data (even when not writing zlib headers). */
+        /* TDEFL_COMPUTE_ADLER32: Always calcResults the adler-32 of the input data (even when not writing zlib headers). */
         /* TDEFL_GREEDY_PARSING_FLAG: Set to use faster greedy parsing, instead of more efficient lazy parsing. */
         /* TDEFL_NONDETERMINISTIC_PARSING_FLAG: Enable to decrease the compressor's initialization time to the minimum, but the output may
          * vary from run to run given the same input (depending on the contents of memory). */
@@ -1862,7 +1862,7 @@ namespace
         inline mz_ulong mz_deflateBound(mz_streamp pStream, mz_ulong source_len)
         {
             (void)pStream;
-            /* This is really over conservative. (And lame, but it's actually pretty tricky to compute a true upper bound given the way
+            /* This is really over conservative. (And lame, but it's actually pretty tricky to calcResults a true upper bound given the way
              * tdefl's blocking works.) */
             return MZ_MAX(128 + (source_len * 110) / 100, 128 + source_len + ((source_len / (31 * 1024)) + 1) * 5);
         }
@@ -3746,7 +3746,7 @@ namespace
             for (i = 0; i < 4; ++i, c <<= 8) {
                 (out_buf.m_pBuf + out_buf.m_size - 16)[i] = (mz_uint8)(c >> 24);
             }
-            /* compute final size of file, grab compressed data buffer and return */
+            /* calcResults final size of file, grab compressed data buffer and return */
             *pLen_out += 57;
             MZ_FREE(pComp);
             return out_buf.m_pBuf;

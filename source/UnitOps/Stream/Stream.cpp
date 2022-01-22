@@ -16,6 +16,7 @@ namespace PCProps::UnitOps {
     class Stream::impl {
         IPropertyPackage m_fluid;
         double m_quantity;
+        FluidProperties m_fluidProps;
 
     public:
 
@@ -26,14 +27,20 @@ namespace PCProps::UnitOps {
          */
         impl(const IPropertyPackage& fluid, double quantity) : m_fluid{fluid}, m_quantity{quantity} {}
 
+        void setQuantity() {
+            for (auto& phase : m_fluidProps)
+                phase.MolarFlow = phase.MolarFraction * m_quantity;
+        }
+
         /**
          * @brief
          * @param pressure
          * @param temperature
          * @return
          */
-        JSONString flashPT(double pressure, double temperature) const {
-            m_fluid.flashPT(pressure, temperature), m_quantity;
+        JSONString flashPT(double pressure, double temperature) {
+            m_fluidProps = FluidProperties(m_fluid.flash("PT", pressure, temperature));
+            setQuantity();
             return properties();
         }
 
@@ -43,8 +50,9 @@ namespace PCProps::UnitOps {
          * @param vaporFraction
          * @return
          */
-        JSONString flashPx(double pressure, double vaporFraction) const {
-            m_fluid.flashPx(pressure, vaporFraction), m_quantity;
+        JSONString flashPx(double pressure, double vaporFraction) {
+            m_fluidProps = FluidProperties(m_fluid.flash("Px", pressure, vaporFraction));
+            setQuantity();
             return properties();
         }
 
@@ -54,8 +62,9 @@ namespace PCProps::UnitOps {
          * @param vaporFraction
          * @return
          */
-        JSONString flashTx(double temperature, double vaporFraction) const {
-            m_fluid.flashTx(temperature, vaporFraction), m_quantity;
+        JSONString flashTx(double temperature, double vaporFraction) {
+            m_fluidProps = FluidProperties(m_fluid.flash("Tx", temperature, vaporFraction));
+            setQuantity();
             return properties();
         }
 
@@ -65,8 +74,9 @@ namespace PCProps::UnitOps {
          * @param enthalpy
          * @return
          */
-        JSONString flashPH(double pressure, double enthalpy) const {
-            m_fluid.flashPH(pressure, enthalpy), m_quantity;
+        JSONString flashPH(double pressure, double enthalpy) {
+            m_fluidProps = FluidProperties(m_fluid.flash("PH", pressure, enthalpy));
+            setQuantity();
             return properties();
         }
 
@@ -76,8 +86,9 @@ namespace PCProps::UnitOps {
          * @param entropy
          * @return
          */
-        JSONString flashPS(double pressure, double entropy) const {
-            m_fluid.flashPS(pressure, entropy), m_quantity;
+        JSONString flashPS(double pressure, double entropy) {
+            m_fluidProps = FluidProperties(m_fluid.flash("PS", pressure, entropy));
+            setQuantity();
             return properties();
         }
 
@@ -87,8 +98,9 @@ namespace PCProps::UnitOps {
          * @param volume
          * @return
          */
-        JSONString flashTV(double temperature, double volume) const {
-            m_fluid.flashPS(temperature, volume), m_quantity;
+        JSONString flashTV(double temperature, double volume) {
+            m_fluidProps = FluidProperties(m_fluid.flash("TV", temperature, volume));
+            setQuantity();
             return properties();
         }
 
@@ -97,14 +109,7 @@ namespace PCProps::UnitOps {
          * @return
          */
         JSONString properties() const {
-            auto fluid = FluidProperties(m_fluid.properties());
-            for (auto& phase : fluid)
-                phase.MolarFlow *= m_quantity;
-
-            return fluid.asJSON();
-//            auto phases = m_fluid.properties();
-//            for(auto& item : phases) item[PCMolarFlow] *= m_quantity;
-//            return phases;
+            return m_fluidProps.asJSON();
         }
     };
 
@@ -151,49 +156,20 @@ namespace PCProps::UnitOps {
     /**
      * @details
      */
-    JSONString Stream::flashPT(double pressure, double temperature) const
+    JSONString Stream::flash(const std::string& spec, double s1, double s2)
     {
-        return m_impl->flashPT(pressure, temperature);
-    }
-
-    /**
-     * @details
-     */
-    JSONString Stream::flashPx(double pressure, double vaporFraction) const
-    {
-        return m_impl->flashPx(pressure, vaporFraction);
-    }
-
-    /**
-     * @details
-     */
-    JSONString Stream::flashTx(double temperature, double vaporFraction) const
-    {
-        return m_impl->flashTx(temperature, vaporFraction);
-    }
-
-    /**
-     * @details
-     */
-    JSONString Stream::flashPH(double pressure, double enthalpy) const
-    {
-        return m_impl->flashPH(pressure, enthalpy);
-    }
-
-    /**
-     * @details
-     */
-    JSONString Stream::flashPS(double pressure, double entropy) const
-    {
-        return m_impl->flashPS(pressure, entropy);
-    }
-
-    /**
-     * @details
-     */
-    JSONString Stream::flashTV(double temperature, double volume) const
-    {
-        return m_impl->flashTV(temperature, volume);
+        if (spec == "PT")
+            return m_impl->flashPT(s1, s2);
+        else if (spec == "Px")
+            return m_impl->flashPx(s1, s2);
+        else if (spec == "Tx")
+            return m_impl->flashTx(s1, s2);
+        else if (spec == "PH")
+            return m_impl->flashPH(s1, s2);
+        else if (spec == "PS")
+            return m_impl->flashPS(s1, s2);
+        else if (spec == "TV")
+            return m_impl->flashTV(s1, s2);
     }
 
     /**
@@ -203,7 +179,5 @@ namespace PCProps::UnitOps {
     {
         return m_impl->properties();
     }
-
-
 
 } // namespace PCProps::UnitOps
