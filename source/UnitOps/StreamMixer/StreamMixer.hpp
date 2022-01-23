@@ -1,23 +1,18 @@
 //
-// Created by Kenneth Balslev on 22/01/2021.
+// Created by Kenneth Balslev on 22/01/2022.
 //
 
-#ifndef PCPROPS_CENTRIFUGALPUMP_HPP
-#define PCPROPS_CENTRIFUGALPUMP_HPP
+#ifndef PCPROPS_STREAMMIXER_HPP
+#define PCPROPS_STREAMMIXER_HPP
 
-#include <IPropertyPackage.hpp>
 #include <Stream/Stream.hpp>
 
-#include <array>
-#include <functional>
-#include <memory>
 #include <string>
-#include <vector>
 
 namespace PCProps::UnitOps
 {
 
-    class CentrifugalPump
+    class StreamMixer
     {
 
         using JSONString = std::string;
@@ -28,38 +23,38 @@ namespace PCProps::UnitOps
          * @brief
          * @param specification
          */
-        CentrifugalPump(const JSONString& specification);
+        StreamMixer(const JSONString& specification);
 
         /**
          * @brief
          * @param other
          */
-        CentrifugalPump(const CentrifugalPump& other);
+        StreamMixer(const StreamMixer& other);
 
         /**
          * @brief
          * @param other
          */
-        CentrifugalPump(CentrifugalPump&& other) noexcept;
+        StreamMixer(StreamMixer&& other) noexcept;
 
         /**
          * @brief
          */
-        ~CentrifugalPump();
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        CentrifugalPump& operator=(const CentrifugalPump& other);
+        ~StreamMixer();
 
         /**
          * @brief
          * @param other
          * @return
          */
-        CentrifugalPump& operator=(CentrifugalPump&& other) noexcept;
+        StreamMixer& operator=(const StreamMixer& other);
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        StreamMixer& operator=(StreamMixer&& other) noexcept;
 
         /**
          * @brief
@@ -99,4 +94,4 @@ namespace PCProps::UnitOps
     };
 }    // namespace PCProps::UnitOps
 
-#endif    // PCPROPS_CENTRIFUGALPUMP_HPP
+#endif    // PCPROPS_STREAMMIXER_HPP

@@ -8,5 +8,6 @@
 #include "Stream/Stream.hpp"
 //#include "Pipe/Pipe.hpp"
 #include "Pump/CentrifugalPump.hpp"
+#include "Valve/Valve.hpp"
 
 #endif    // PCPROPS_UNITOPS_HPP

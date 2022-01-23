@@ -45,6 +45,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // ===== Standard Library headers ===== //
 #include <algorithm>
+#include <numeric>
 
 namespace PCProps
 {
@@ -202,6 +203,9 @@ namespace PCProps
             m_phases = other.m_phases;
         }
 
+        const std::vector<PhaseProperties>& phases() {
+            return m_phases;
+        };
 
     };
 
@@ -448,6 +452,102 @@ namespace PCProps
     const PhaseProperties& FluidProperties::front() const
     {
         return m_impl->m_phases.front();
+    }
+
+    /**
+     * @details
+     */
+    double FluidProperties::mixtureMolarFlow() const
+    {
+        return std::accumulate(phases().begin(), phases().end(), 0.0, [](double value, const PhaseProperties& props) { return value + props.MolarFlow; });
+    }
+
+    /**
+     * @details
+     */
+    double FluidProperties::mixtureMolarVolume() const
+    {
+        return std::accumulate(phases().begin(), phases().end(), 0.0, [](double value, const PhaseProperties& props) { return value + props.MolarVolume * props.MolarFraction; });
+    }
+
+    /**
+     * @details
+     */
+    double FluidProperties::mixtureCp() const
+    {
+        return std::accumulate(phases().begin(), phases().end(), 0.0, [](double value, const PhaseProperties& props) { return value + props.Cp * props.MolarFraction; });
+    }
+
+    /**
+     * @details
+     */
+    double FluidProperties::mixtureCv() const
+    {
+        return std::accumulate(phases().begin(), phases().end(), 0.0, [](double value, const PhaseProperties& props) { return value + props.Cv * props.MolarFraction; });
+    }
+
+    /**
+     * @details
+     */
+    double FluidProperties::mixtureMolarWeight() const
+    {
+        return std::accumulate(phases().begin(), phases().end(), 0.0, [](double value, const PhaseProperties& props) { return value + props.MolarWeight * props.MolarFraction; });
+    }
+
+    /**
+     * @details
+     */
+    double FluidProperties::mixtureTemperature() const
+    {
+        return std::accumulate(phases().begin(), phases().end(), 0.0, [](double value, const PhaseProperties& props) { return value + props.Temperature * props.MolarFraction; });
+    }
+
+    /**
+     * @details
+     */
+    double FluidProperties::mixturePressure() const
+    {
+        return std::accumulate(phases().begin(), phases().end(), 0.0, [](double value, const PhaseProperties& props) { return value + props.Pressure * props.MolarFraction; });
+    }
+
+    /**
+     * @details
+     */
+    double FluidProperties::mixtureEnthalpy() const
+    {
+        return std::accumulate(phases().begin(), phases().end(), 0.0, [](double value, const PhaseProperties& props) { return value + props.Enthalpy * props.MolarFraction; });
+    }
+
+    /**
+     * @details
+     */
+    double FluidProperties::mixtureEntropy() const
+    {
+        return std::accumulate(phases().begin(), phases().end(), 0.0, [](double value, const PhaseProperties& props) { return value + props.Entropy * props.MolarFraction; });
+    }
+
+    /**
+     * @details
+     */
+    double FluidProperties::mixtureInternalEnergy() const
+    {
+        return std::accumulate(phases().begin(), phases().end(), 0.0, [](double value, const PhaseProperties& props) { return value + props.InternalEnergy * props.MolarFraction; });
+    }
+
+    /**
+     * @details
+     */
+    double FluidProperties::mixtureGibbsEnergy() const
+    {
+        return std::accumulate(phases().begin(), phases().end(), 0.0, [](double value, const PhaseProperties& props) { return value + props.GibbsEnergy * props.MolarFraction; });
+    }
+
+    /**
+     * @details
+     */
+    double FluidProperties::mixtureHelmholtzEnergy() const
+    {
+        return std::accumulate(phases().begin(), phases().end(), 0.0, [](double value, const PhaseProperties& props) { return value + props.HelmholzEnergy * props.MolarFraction; });
     }
 
     /**

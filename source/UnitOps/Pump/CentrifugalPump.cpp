@@ -10,18 +10,25 @@
 
 #include <FluidProperties.hpp>
 #include <Common/Globals.hpp>
+#include <numeric>
 
 namespace PCProps::UnitOps {
 
     using JSONString = std::string;
 
+    /**
+     * @brief
+     * @todo: Implement viscosity correction
+     * @todo: Implement pump curves
+     */
     class CentrifugalPump::impl {
 
         enum class SpecType { OutletPressure, DeltaPressure, HydraulicPower, EffectivePower };
 
         SpecType m_pumpSpecType;
-        const Stream* m_inletStream;
-        mutable Stream m_outletStream;
+        std::vector<const Stream*> m_inletStreams;
+
+        mutable std::vector<Stream> m_outletStreams {};
         double m_pumpEfficiency {};
 
         mutable FluidProperties m_fluidProps;
@@ -33,19 +40,13 @@ namespace PCProps::UnitOps {
 
     public:
 
-        // Head
-        // Hydraulic Power
-        // Actual Power
-        // Viscosity Correction
-        // Temperature Rise
-
-        // Required Input:
-        // Pump Efficiency
-
-        // Optional Input:
-        // Pump Curves
-
+        /**
+         * @brief
+         * @param specification
+         */
         impl(const JSONString& specification) {
+
+            m_outletStreams.reserve(1);
 
             using rapidjson::Document;
             Document pumpspec;
@@ -76,36 +77,25 @@ namespace PCProps::UnitOps {
             }
         }
 
+        /**
+         * @brief
+         * @return
+         */
         double computeDensity() const {
-
-            double result {};
-            for (auto iter = m_fluidProps.begin(); iter != m_fluidProps.end(); ++iter) {
-                result += 1.0 / (iter->MolarVolume / iter->MolarWeight * 1000) * iter->MolarFraction;
-            }
-
-            return result;
+            return 1.0 / (m_fluidProps.mixtureMolarVolume() / m_fluidProps.mixtureMolarWeight() * 1000);
         }
 
+        /**
+         * @brief
+         * @return
+         */
         double computeMassFlow() const {
-
-            double result {};
-            for (auto iter = m_fluidProps.begin(); iter != m_fluidProps.end(); ++iter) {
-                result += iter->MolarFlow * iter->MolarWeight;
-            }
-
-            return result / 1000.0;
+            return m_fluidProps.mixtureMolarFlow() * m_fluidProps.mixtureMolarWeight() / 1000.0;
         }
 
-        double computeCp() const {
-
-            double result {};
-            for (auto iter = m_fluidProps.begin(); iter != m_fluidProps.end(); ++iter) {
-                result += (iter->Cp / iter->MolarWeight) * 1000 * iter->MolarFraction;
-            }
-
-            return result;
-        }
-
+        /**
+         * @brief
+         */
         void calcResults() const {
             using namespace PCProps::Globals;
 
@@ -145,26 +135,26 @@ namespace PCProps::UnitOps {
             }
         }
 
-//        const Stream& operator()() const {
-//
-//            using namespace PCProps::Globals;
-//
-//            m_fluidProps = FluidProperties(m_inletStream->properties());
-//            calcResults();
-//
-//            auto temperatureRise = G_ACCL * m_pumpHead * (1.0 / m_pumpEfficiency - 1.0) / computeCp();
-//
-//            m_outletStream = *m_inletStream;
-//            m_outletStream.flash("PT", m_outletPressure, m_fluidProps.front().Temperature + temperatureRise);
-//            return m_outletStream;
-//        }
-
-
-        void setInletStream(const Stream* stream) {
-            m_inletStream = stream;
+        /**
+         * @brief
+         * @param stream
+         */
+        void setInletStreams(const Stream* stream) {
+            m_inletStreams = {stream};
         }
 
+        /**
+         * @brief
+         * @param stream
+         */
+        void setInletStreams(const std::vector<const Stream*> streams) {
+            m_inletStreams = streams;
+        }
 
+        /**
+         * @brief
+         * @param specification
+         */
         void setSpecification(const JSONString& specification) {
 
             m_outletPressure = 0.0;
@@ -208,9 +198,9 @@ namespace PCProps::UnitOps {
          * @param streamName
          * @return
          */
-        const Stream& outputStream(const std::string& streamName = "")
+        const std::vector<Stream>& outletStreams()
         {
-            return m_outletStream;
+            return m_outletStreams;
         }
 
         /**
@@ -219,13 +209,11 @@ namespace PCProps::UnitOps {
         void compute() {
             using namespace PCProps::Globals;
 
-            m_fluidProps = FluidProperties(m_inletStream->properties());
+            m_fluidProps = FluidProperties(m_inletStreams.front()->properties());
             calcResults();
 
-            auto temperatureRise = G_ACCL * m_pumpHead * (1.0 / m_pumpEfficiency - 1.0) / computeCp();
-
-            m_outletStream = *m_inletStream;
-            m_outletStream.flash("PT", m_outletPressure, m_fluidProps.front().Temperature + temperatureRise);
+            m_outletStreams = { *m_inletStreams.front() };
+            m_outletStreams.front().flash("PH", m_outletPressure, m_fluidProps.mixtureEnthalpy() + m_effectivePower / m_fluidProps.mixtureMolarFlow());
         }
 
         /**
@@ -295,31 +283,27 @@ namespace PCProps::UnitOps {
     CentrifugalPump& CentrifugalPump::operator=(CentrifugalPump&& other) noexcept = default;
 
     /**
-     * @details
+     * @brief
+     * @param streams
      */
-//    const Stream& CentrifugalPump::operator()() const
-//    {
-//        return m_impl->operator()();
-//    }
-
-    /**
-     * @details
-     */
-    void CentrifugalPump::setInletStream(const Stream* stream) {
-        m_impl->setInletStream(stream);
+    void CentrifugalPump::setInletStreams(const std::vector<const Stream*> streams) {
+        m_impl->setInletStreams(streams);
     }
 
     /**
      * @details
      */
-    void CentrifugalPump::setSpecification(const JSONString& specification) {}
+    void CentrifugalPump::setSpecification(const JSONString& specification)
+    {
+        m_impl->setSpecification(specification);
+    }
 
     /**
      * @details
      */
-    const Stream& CentrifugalPump::outputStream(const std::string& streamName)
+    const std::vector<Stream>& CentrifugalPump::outletStreams()
     {
-        return m_impl->outputStream();
+        return m_impl->outletStreams();
     }
 
     /**

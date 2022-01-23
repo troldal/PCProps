@@ -279,6 +279,30 @@ namespace PCProps
          */
         const PhaseProperties& front() const;
 
+        double mixtureMolarFlow() const;
+
+        double mixtureMolarVolume() const;
+
+        double mixtureCp() const;
+
+        double mixtureCv() const;
+
+        double mixtureMolarWeight() const;
+
+        double mixtureTemperature() const;
+
+        double mixturePressure() const;
+
+        double mixtureEnthalpy() const;
+
+        double mixtureEntropy() const;
+
+        double mixtureInternalEnergy() const;
+
+        double mixtureGibbsEnergy() const;
+
+        double mixtureHelmholtzEnergy() const;
+
         /**
          * @brief Prints the fluid data to an ostream object.
          * @param stream An std::ostream object, e.g. std::cout.

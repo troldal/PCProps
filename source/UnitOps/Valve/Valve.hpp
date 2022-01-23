@@ -1,23 +1,18 @@
 //
-// Created by Kenneth Balslev on 22/01/2021.
+// Created by Kenneth Balslev on 23/01/2022.
 //
 
-#ifndef PCPROPS_CENTRIFUGALPUMP_HPP
-#define PCPROPS_CENTRIFUGALPUMP_HPP
+#ifndef PCPROPS_VALVE_HPP
+#define PCPROPS_VALVE_HPP
 
-#include <IPropertyPackage.hpp>
 #include <Stream/Stream.hpp>
 
-#include <array>
-#include <functional>
-#include <memory>
 #include <string>
-#include <vector>
 
 namespace PCProps::UnitOps
 {
 
-    class CentrifugalPump
+    class Valve
     {
 
         using JSONString = std::string;
@@ -28,38 +23,38 @@ namespace PCProps::UnitOps
          * @brief
          * @param specification
          */
-        CentrifugalPump(const JSONString& specification);
+        Valve(const JSONString& specification);
 
         /**
          * @brief
          * @param other
          */
-        CentrifugalPump(const CentrifugalPump& other);
+        Valve(const Valve& other);
 
         /**
          * @brief
          * @param other
          */
-        CentrifugalPump(CentrifugalPump&& other) noexcept;
+        Valve(Valve&& other) noexcept;
 
         /**
          * @brief
          */
-        ~CentrifugalPump();
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        CentrifugalPump& operator=(const CentrifugalPump& other);
+        ~Valve();
 
         /**
          * @brief
          * @param other
          * @return
          */
-        CentrifugalPump& operator=(CentrifugalPump&& other) noexcept;
+        Valve& operator=(const Valve& other);
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        Valve& operator=(Valve&& other) noexcept;
 
         /**
          * @brief
@@ -99,4 +94,4 @@ namespace PCProps::UnitOps
     };
 }    // namespace PCProps::UnitOps
 
-#endif    // PCPROPS_CENTRIFUGALPUMP_HPP
+#endif    // PCPROPS_VALVE_HPP

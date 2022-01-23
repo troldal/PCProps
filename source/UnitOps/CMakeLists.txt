@@ -6,8 +6,10 @@ set(UNITOPS_SOURCES
 #        Pipe/Pipe.cpp
 #        Pipe/PipeSegmentLiquid.cpp
 
-        Pump/CentrifugalPump.cpp
         Stream/Stream.cpp
+        Pump/CentrifugalPump.cpp
+        StreamMixer/StreamMixer.cpp
+        Valve/Valve.cpp
         )
 
 #=======================================================================================================================
