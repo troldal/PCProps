@@ -69,7 +69,7 @@ namespace PCProps
          * to take any type as an argument. However, only objects that satisfy the required interface can be used.
          */
         template<typename T>
-        IEquationOfState(const T& x) : m_equationOfState { std::make_unique<EOSModel<T>>(x) } {} // NOLINT
+        IEquationOfState(const T& eos) : m_equationOfState { std::make_unique<Model<T>>(eos) } {} // NOLINT
 
         /**
          * @brief Copy constructor
@@ -95,9 +95,9 @@ namespace PCProps
          * @return
          */
         template<typename T>
-        inline IEquationOfState& operator=(const T& x)
+        inline IEquationOfState& operator=(const T& eos)
         {
-            m_equationOfState = std::make_unique<EOSModel<T>>(x);
+            m_equationOfState = std::make_unique<Model<T>>(eos);
             return *this;
         }
 
@@ -133,7 +133,7 @@ namespace PCProps
          * @brief
          * @param pureComponent
          */
-        inline void init(const IPureComponent& pureComponent) {
+        inline void init(const IPureComponent& pureComponent)   {
             m_equationOfState->init(pureComponent);
         }
 
@@ -194,46 +194,46 @@ namespace PCProps
         /**
          * @brief
          */
-        struct EOSConcept
+        struct Concept
         {
         public:
             /**
              * @brief
              */
-            EOSConcept() = default;
+            Concept() = default;
 
             /**
              * @brief
              */
-            EOSConcept(const EOSConcept&) = default;
+            Concept(const Concept&) = default;
 
             /**
              * @brief
              */
-            EOSConcept(EOSConcept&&) noexcept = default;
+            Concept(Concept&&) noexcept = default;
 
             /**
              * @brief
              */
-            virtual ~EOSConcept() = default;
-
-            /**
-             * @brief
-             * @return
-             */
-            inline EOSConcept& operator=(const EOSConcept&) = default;
+            virtual ~Concept() = default;
 
             /**
              * @brief
              * @return
              */
-            inline EOSConcept& operator=(EOSConcept&&) noexcept = default;
+            inline Concept& operator=(const Concept&) = default;
 
             /**
              * @brief
              * @return
              */
-            inline virtual std::unique_ptr<EOSConcept> clone() const = 0;
+            inline Concept& operator=(Concept&&) noexcept = default;
+
+            /**
+             * @brief
+             * @return
+             */
+            inline virtual std::unique_ptr<Concept> clone() const = 0;
 
             /**
              * @brief
@@ -286,53 +286,53 @@ namespace PCProps
          * @tparam T
          */
         template<typename T>
-        struct EOSModel : EOSConcept
+        struct Model : Concept
         {
         public:
             /**
              * @brief
              * @param x
              */
-            explicit EOSModel(const T& x) : EOSType(x) {}
+            explicit Model(const T& x) : EOSType(x) {}
 
             /**
              * @brief
              * @param other
              */
-            EOSModel(const EOSModel& other) = default;
+            Model(const Model& other) = default;
 
             /**
              * @brief
              * @param other
              */
-            EOSModel(EOSModel&& other) noexcept = default;
+            Model(Model&& other) noexcept = default;
 
             /**
              * @brief
              */
-            ~EOSModel() override = default;
-
-            /**
-             * @brief
-             * @param other
-             * @return
-             */
-            inline EOSModel& operator=(const EOSModel& other) = default;
+            ~Model() override = default;
 
             /**
              * @brief
              * @param other
              * @return
              */
-            inline EOSModel& operator=(EOSModel&& other) noexcept = default;
+            inline Model& operator=(const Model& other) = default;
+
+            /**
+             * @brief
+             * @param other
+             * @return
+             */
+            inline Model& operator=(Model&& other) noexcept = default;
 
             /**
              * @brief
              * @return
              */
-            inline std::unique_ptr<EOSConcept> clone() const override
+            inline std::unique_ptr<Concept> clone() const override
             {
-                return std::make_unique<EOSModel<T>>(EOSType);
+                return std::make_unique<Model<T>>(EOSType);
             }
 
             /**
@@ -401,7 +401,7 @@ namespace PCProps
             T EOSType;
         };
 
-        std::unique_ptr<EOSConcept> m_equationOfState;
+        std::unique_ptr<Concept> m_equationOfState;
     };
 
 }    // namespace PCProps

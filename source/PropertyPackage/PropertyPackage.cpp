@@ -255,12 +255,12 @@ namespace PCProps
 
             // ===== If the specified enthalpy is lower than the saturated liquid enthalpy, the fluid is a compressed liquid.
             if (enthalpy < h_l) {
-                return flashPT(pressure, numeric::newton(enthalpyObjFunction, temperature * 0.8));
+                return flashPT(pressure, numeric::newton(enthalpyObjFunction, temperature * (1.0 - 1E-6)));
             }
 
             // ===== If the specified enthalpy is higher than the saturated vapor entropy, the fluid is superheated vapor.
             if (enthalpy > h_v) {
-                return flashPT(pressure, numeric::newton(enthalpyObjFunction, temperature * 1.2));
+                return flashPT(pressure, numeric::newton(enthalpyObjFunction, temperature * (1.0 + 1E-6)));
             }
 
             // ===== If the fluid is not a compressed liquid nor a superheated vapor, the fluid is two-phase.A
