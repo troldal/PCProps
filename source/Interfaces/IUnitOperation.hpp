@@ -243,14 +243,25 @@ namespace PCProps
              */
             inline std::unique_ptr<Concept> clone() const override { return std::make_unique<Model<T>>(ConcreteType); }
 
+            /**
+             * @brief
+             * @param specification
+             */
             inline void setSpecification(const JSONString& specification) override {
                 ConcreteType.setSpecification(specification);
             }
 
+            /**
+             * @brief
+             */
             inline void compute() override {
                 ConcreteType.compute();
             }
 
+            /**
+             * @brief
+             * @return
+             */
             inline JSONString results() const override {
                 return ConcreteType.results();
             }
